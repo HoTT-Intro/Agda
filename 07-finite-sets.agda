@@ -409,24 +409,24 @@ contradiction-leq-ℕ :
 contradiction-leq-ℕ (succ-ℕ x) (succ-ℕ y) H K = contradiction-leq-ℕ x y H K
 
 eq-zero-div-ℕ :
-  (d x : ℕ) → leq-ℕ x d → div-ℕ (succ-ℕ d) x → Id x zero-ℕ
+  (d x : ℕ) → le-ℕ x d → div-ℕ d x → Id x zero-ℕ
 eq-zero-div-ℕ d zero-ℕ H D = refl
 eq-zero-div-ℕ d (succ-ℕ x) H (pair (succ-ℕ k) p) =
   ex-falso
-    ( contradiction-leq-ℕ d x
-      ( concatenate-eq-leq-eq-ℕ
-        { x1 = succ-ℕ d}
-        { x2 = succ-ℕ d}
-        { x3 = succ-ℕ (add-ℕ (mul-ℕ k (succ-ℕ d)) d)}
-        { x4 = succ-ℕ x}
-        ( refl)
-        ( leq-add-ℕ' d (mul-ℕ k (succ-ℕ d)))
-        ( p)) H)
+    ( contradiction-le-ℕ
+      ( succ-ℕ x) d H
+      ( concatenate-leq-eq-ℕ d
+        ( leq-add-ℕ' d (mul-ℕ k d)) p))
 
 eq-cong-le-dist-ℕ :
   (k x y : ℕ) → le-ℕ (dist-ℕ x y) k → cong-ℕ k x y → Id x y
 eq-cong-le-dist-ℕ k x y H K =
-  eq-dist-ℕ x y (inv (eq-zero-div-ℕ k (dist-ℕ x y) {!!} {!!}))
+  eq-dist-ℕ x y (inv (eq-zero-div-ℕ k (dist-ℕ x y) H K))
+
+eq-cong-le-ℕ :
+  (k x y : ℕ) → le-ℕ x k → le-ℕ y k → cong-ℕ k x y → Id x y
+eq-cong-le-ℕ k x y H K =
+  eq-cong-le-dist-ℕ k x y (strict-upper-bound-dist-ℕ k x y H K)
 
 {- Theorem 7.3.5 -}
 
@@ -446,18 +446,10 @@ eq-cong-nat-Fin :
   (k : ℕ) (x y : Fin k) → cong-ℕ k (nat-Fin x) (nat-Fin y) → Id x y
 eq-cong-nat-Fin (succ-ℕ k) x y H =
   is-injective-nat-Fin
-    ( eq-dist-ℕ
-      ( nat-Fin x)
-      ( nat-Fin y)
-      ( inv
-        ( eq-zero-div-ℕ k
-          ( dist-ℕ (nat-Fin x) (nat-Fin y))
-          ( upper-bound-dist-ℕ k
-            ( nat-Fin x)
-            ( nat-Fin y)
-            ( upper-bound-nat-Fin x)
-            ( upper-bound-nat-Fin y))
-          ( H))))
+    ( eq-cong-le-ℕ (succ-ℕ k) (nat-Fin x) (nat-Fin y)
+      ( strict-upper-bound-nat-Fin x)
+      ( strict-upper-bound-nat-Fin y)
+      ( H))
 
 eq-cong-ℕ :
   (k x y : ℕ) → cong-ℕ (succ-ℕ k) x y → Id (mod-succ-ℕ k x) (mod-succ-ℕ k y)
@@ -476,51 +468,19 @@ eq-cong-ℕ k x y H =
         ( symmetric-cong-ℕ (succ-ℕ k) (nat-Fin (mod-succ-ℕ k y)) y
           ( cong-nat-mod-succ-ℕ k y))))
 
-issec-nat-Fin' :
+{- Theorem 7.3.7 -}
+
+issec-nat-Fin :
   {k : ℕ} (x : Fin (succ-ℕ k)) → Id (mod-succ-ℕ k (nat-Fin x)) x
-issec-nat-Fin' {k} x = is-injective-nat-Fin {!eq-cong!}
-
---------------------------------------------------------------------------------
-
-{- Lemma 7.2.10 -}
-
-successor-law-mod-succ-ℕ :
-  (k x : ℕ) → leq-ℕ x k →
-  Id (mod-succ-ℕ (succ-ℕ k) x) (inl (mod-succ-ℕ k x))
-successor-law-mod-succ-ℕ k zero-ℕ star = refl
-successor-law-mod-succ-ℕ (succ-ℕ k) (succ-ℕ x) p =
-  ( ( ap succ-Fin
-      ( successor-law-mod-succ-ℕ (succ-ℕ k) x
-        ( preserves-leq-succ-ℕ x k p))) ∙
-    ( ap succ-Fin (ap inl (successor-law-mod-succ-ℕ k x p)))) ∙
-  ( ap inl (ap succ-Fin (inv (successor-law-mod-succ-ℕ k x p))))
-
-{- Corollary 7.2.11 -}
-
-neg-one-law-mod-succ-ℕ :
-  (k : ℕ) → Id (mod-succ-ℕ k k) neg-one-Fin
-neg-one-law-mod-succ-ℕ zero-ℕ = refl
-neg-one-law-mod-succ-ℕ (succ-ℕ k) =
-  ap succ-Fin
-    ( ( successor-law-mod-succ-ℕ k k (reflexive-leq-ℕ k)) ∙
-      ( ap inl (neg-one-law-mod-succ-ℕ k)))
-
-base-case-is-periodic-mod-succ-ℕ :
-  (k : ℕ) → Id (mod-succ-ℕ k (succ-ℕ k)) zero-Fin
-base-case-is-periodic-mod-succ-ℕ zero-ℕ = refl
-base-case-is-periodic-mod-succ-ℕ (succ-ℕ k) =
-  ap succ-Fin (neg-one-law-mod-succ-ℕ (succ-ℕ k))
-
-{- Theorem 7.2.12 -}
-
--- Now we show that Fin (succ-ℕ k) is a retract of ℕ
-
-issec-nat-Fin : (k : ℕ) (x : Fin (succ-ℕ k)) → Id (mod-succ-ℕ k (nat-Fin x)) x
-issec-nat-Fin zero-ℕ (inr star) = refl
-issec-nat-Fin (succ-ℕ k) (inl x) =
-  ( successor-law-mod-succ-ℕ k (nat-Fin x) (upper-bound-nat-Fin x)) ∙
-  ( ap inl (issec-nat-Fin k x))
-issec-nat-Fin (succ-ℕ k) (inr star) = neg-one-law-mod-succ-ℕ (succ-ℕ k)
+issec-nat-Fin {k} x =
+  is-injective-nat-Fin
+    ( eq-cong-le-ℕ
+      ( succ-ℕ k)
+      ( nat-Fin (mod-succ-ℕ k (nat-Fin x)))
+      ( nat-Fin x)
+      ( strict-upper-bound-nat-Fin (mod-succ-ℕ k (nat-Fin x)))
+      ( strict-upper-bound-nat-Fin x)
+      ( cong-nat-mod-succ-ℕ k (nat-Fin x)))
 
 --------------------------------------------------------------------------------
 
@@ -659,7 +619,7 @@ right-unit-law-add-Fin {k} x =
       { y' = zero-ℕ}
       ( reflexive-cong-ℕ (succ-ℕ k) (nat-Fin {succ-ℕ k} x))
       ( cong-nat-zero-Fin {k}))) ∙
-  ( issec-nat-Fin k x)
+  ( issec-nat-Fin x)
 
 left-unit-law-add-Fin :
   {k : ℕ} (x : Fin (succ-ℕ k)) → Id (add-Fin zero-Fin x) x
@@ -910,7 +870,7 @@ left-unit-law-mul-Fin {succ-ℕ k} x =
       ( ( ap ( mul-ℕ' (nat-Fin x))
              ( nat-one-Fin {k})) ∙
         ( left-unit-law-mul-ℕ (nat-Fin x))))) ∙
-  ( issec-nat-Fin (succ-ℕ k) x)
+  ( issec-nat-Fin x)
 
 right-unit-law-mul-Fin :
   {k : ℕ} (x : Fin (succ-ℕ k)) → Id (mul-Fin x one-Fin) x

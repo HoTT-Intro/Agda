@@ -297,7 +297,44 @@ leq-right-leq-max-ℕ (succ-ℕ k) (succ-ℕ m) (succ-ℕ n) H =
 
 -- Exercise 6.4
 
--- Exercise 6.4 (a)
+-- The definition of <
+
+le-ℕ : ℕ → ℕ → UU lzero
+le-ℕ m zero-ℕ = empty
+le-ℕ zero-ℕ (succ-ℕ m) = unit
+le-ℕ (succ-ℕ n) (succ-ℕ m) = le-ℕ n m
+
+_<_ = le-ℕ
+
+anti-reflexive-le-ℕ : (n : ℕ) → ¬ (n < n)
+anti-reflexive-le-ℕ zero-ℕ = ind-empty
+anti-reflexive-le-ℕ (succ-ℕ n) = anti-reflexive-le-ℕ n
+
+transitive-le-ℕ : (n m l : ℕ) → (le-ℕ n m) → (le-ℕ m l) → (le-ℕ n l)
+transitive-le-ℕ zero-ℕ (succ-ℕ m) (succ-ℕ l) p q = star
+transitive-le-ℕ (succ-ℕ n) (succ-ℕ m) (succ-ℕ l) p q =
+  transitive-le-ℕ n m l p q
+
+succ-le-ℕ : (n : ℕ) → le-ℕ n (succ-ℕ n)
+succ-le-ℕ zero-ℕ = star
+succ-le-ℕ (succ-ℕ n) = succ-le-ℕ n
+
+preserves-le-succ-ℕ :
+  (m n : ℕ) → le-ℕ m n → le-ℕ m (succ-ℕ n)
+preserves-le-succ-ℕ m n H =
+  transitive-le-ℕ m n (succ-ℕ n) H (succ-le-ℕ n)
+
+anti-symmetric-le-ℕ : (m n : ℕ) → le-ℕ m n → le-ℕ n m → Id m n
+anti-symmetric-le-ℕ (succ-ℕ m) (succ-ℕ n) p q =
+  ap succ-ℕ (anti-symmetric-le-ℕ m n p q)
+
+contradiction-le-ℕ : (m n : ℕ) → le-ℕ m n → ¬ (leq-ℕ n m)
+contradiction-le-ℕ zero-ℕ (succ-ℕ n) H K = K
+contradiction-le-ℕ (succ-ℕ m) (succ-ℕ n) H = contradiction-le-ℕ m n H
+
+-- Exercise 6.5
+
+-- Exercise 6.5 (a)
 
 -- We define a distance function on ℕ --
 
@@ -397,7 +434,7 @@ triangle-inequality-dist-ℕ (succ-ℕ m) (succ-ℕ n) zero-ℕ =
 triangle-inequality-dist-ℕ (succ-ℕ m) (succ-ℕ n) (succ-ℕ k) =
   triangle-inequality-dist-ℕ m n k
 
--- Exercise 6.5 (c)
+-- Exercise 6.5 (b)
 
 -- We show that dist-ℕ x y is a solution to a simple equation.
 
@@ -493,7 +530,19 @@ upper-bound-dist-ℕ (succ-ℕ b) zero-ℕ (succ-ℕ y) H K = K
 upper-bound-dist-ℕ (succ-ℕ b) (succ-ℕ x) zero-ℕ H K = H
 upper-bound-dist-ℕ (succ-ℕ b) (succ-ℕ x) (succ-ℕ y) H K =
   preserves-leq-succ-ℕ (dist-ℕ x y) b (upper-bound-dist-ℕ b x y H K)
-  
+
+strict-upper-bound-dist-ℕ :
+  (b x y : ℕ) → le-ℕ x b → le-ℕ y b → le-ℕ (dist-ℕ x y) b
+strict-upper-bound-dist-ℕ (succ-ℕ b) zero-ℕ y H K = K
+strict-upper-bound-dist-ℕ (succ-ℕ b) (succ-ℕ x) zero-ℕ H K = H
+strict-upper-bound-dist-ℕ (succ-ℕ b) (succ-ℕ x) (succ-ℕ y) H K =
+  preserves-le-succ-ℕ (dist-ℕ x y) b (strict-upper-bound-dist-ℕ b x y H K)
+
+leq-le-ℕ :
+  {x y : ℕ} → le-ℕ x y → leq-ℕ x y
+leq-le-ℕ {zero-ℕ} {succ-ℕ y} H = star
+leq-le-ℕ {succ-ℕ x} {succ-ℕ y} H = leq-le-ℕ {x} {y} H
+
 --------------------------------------------------------------------------------
 
 -- Exercise 6.5
@@ -865,32 +914,6 @@ least-reflexive-Eq-ℕ R ρ (succ-ℕ m) zero-ℕ ()
 least-reflexive-Eq-ℕ R ρ (succ-ℕ m) (succ-ℕ n) e =
   least-reflexive-Eq-ℕ (succ-relation-ℕ R) (succ-reflexivity-ℕ R ρ) m n e
 -}
-
--- The definition of <
-
-le-ℕ : ℕ → ℕ → UU lzero
-le-ℕ m zero-ℕ = empty
-le-ℕ zero-ℕ (succ-ℕ m) = unit
-le-ℕ (succ-ℕ n) (succ-ℕ m) = le-ℕ n m
-
-_<_ = le-ℕ
-
-anti-reflexive-le-ℕ : (n : ℕ) → ¬ (n < n)
-anti-reflexive-le-ℕ zero-ℕ = ind-empty
-anti-reflexive-le-ℕ (succ-ℕ n) = anti-reflexive-le-ℕ n
-
-transitive-le-ℕ : (n m l : ℕ) → (le-ℕ n m) → (le-ℕ m l) → (le-ℕ n l)
-transitive-le-ℕ zero-ℕ (succ-ℕ m) (succ-ℕ l) p q = star
-transitive-le-ℕ (succ-ℕ n) (succ-ℕ m) (succ-ℕ l) p q =
-  transitive-le-ℕ n m l p q
-
-succ-le-ℕ : (n : ℕ) → le-ℕ n (succ-ℕ n)
-succ-le-ℕ zero-ℕ = star
-succ-le-ℕ (succ-ℕ n) = succ-le-ℕ n
-
-anti-symmetric-le-ℕ : (m n : ℕ) → le-ℕ m n → le-ℕ n m → Id m n
-anti-symmetric-le-ℕ (succ-ℕ m) (succ-ℕ n) p q =
-  ap succ-ℕ (anti-symmetric-le-ℕ m n p q)
 
 {-
 --------------------------------------------------------------------------------
