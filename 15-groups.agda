@@ -343,13 +343,13 @@ abstract
 
 {- The group of integers. -}
 
-semi-group-ℤ : Semi-Group lzero
-semi-group-ℤ = pair set-ℤ (pair add-ℤ associative-add-ℤ)
+ℤ-Semi-Group : Semi-Group lzero
+ℤ-Semi-Group = pair set-ℤ (pair add-ℤ associative-add-ℤ)
 
-group-ℤ : Group lzero
-group-ℤ =
+ℤ-Group : Group lzero
+ℤ-Group =
   pair
-    ( semi-group-ℤ)
+    ( ℤ-Semi-Group)
     ( pair
       ( pair zero-ℤ (pair left-unit-law-add-ℤ right-unit-law-add-ℤ))
       ( pair neg-ℤ (pair left-inverse-law-add-ℤ right-inverse-law-add-ℤ)))
@@ -362,40 +362,40 @@ loop-space :
   {l : Level} {A : UU l} → A → UU l
 loop-space a = Id a a
 
-set-loop-space :
+loop-space-Set :
   {l : Level} (A : UU l) (a : A) (is-set-Ω : is-set (Id a a)) → UU-Set l
-set-loop-space A a is-set-Ω = pair (Id a a) is-set-Ω
+loop-space-Set A a is-set-Ω = pair (Id a a) is-set-Ω
 
-semi-group-loop-space :
+loop-space-Semi-Group :
   {l : Level} (A : UU l) (a : A) (is-set-Ω : is-set (Id a a)) → Semi-Group l
-semi-group-loop-space A a is-set-Ω =
+loop-space-Semi-Group A a is-set-Ω =
   pair
-    ( set-loop-space A a is-set-Ω)
+    ( loop-space-Set A a is-set-Ω)
     ( pair (λ p q → p ∙ q) assoc)
 
-group-loop-space :
+loop-space-Group :
   {l : Level} (A : UU l) (a : A) (is-set-Ω : is-set (Id a a)) → Group l
-group-loop-space A a is-set-Ω =
+loop-space-Group A a is-set-Ω =
   pair
-    ( semi-group-loop-space A a is-set-Ω)
+    ( loop-space-Semi-Group A a is-set-Ω)
     ( pair
       ( pair refl (pair (λ q → left-unit) (λ p → right-unit)))
       ( pair inv (pair left-inv right-inv)))
 
-set-loop-space-1-type :
+loop-space-1-type-Set :
   {l : Level} (A : UU-1-Type l) (a : type-1-Type A) → UU-Set l
-set-loop-space-1-type A a =
-  set-loop-space (type-1-Type A) a (is-1-type-type-1-Type A a a)
+loop-space-1-type-Set A a =
+  loop-space-Set (type-1-Type A) a (is-1-type-type-1-Type A a a)
 
-semi-group-loop-space-1-type :
+loop-space-1-type-Semi-Group :
   {l : Level} (A : UU-1-Type l) (a : type-1-Type A) → Semi-Group l
-semi-group-loop-space-1-type A a =
-  semi-group-loop-space (type-1-Type A) a (is-1-type-type-1-Type A a a)
+loop-space-1-type-Semi-Group A a =
+  loop-space-Semi-Group (type-1-Type A) a (is-1-type-type-1-Type A a a)
 
-group-loop-space-1-type :
+loop-space-1-type-Group :
   {l : Level} (A : UU-1-Type l) (a : type-1-Type A) → Group l
-group-loop-space-1-type A a =
-  group-loop-space (type-1-Type A) a (is-1-type-type-1-Type A a a)
+loop-space-1-type-Group A a =
+  loop-space-Group (type-1-Type A) a (is-1-type-type-1-Type A a a)
 
 --------------------------------------------------------------------------------
 
