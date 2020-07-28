@@ -423,6 +423,13 @@ eq-cong-le-dist-ℕ :
 eq-cong-le-dist-ℕ k x y H K =
   eq-dist-ℕ x y (inv (eq-zero-div-ℕ k (dist-ℕ x y) H K))
 
+strict-upper-bound-dist-ℕ :
+  (b x y : ℕ) → le-ℕ x b → le-ℕ y b → le-ℕ (dist-ℕ x y) b
+strict-upper-bound-dist-ℕ (succ-ℕ b) zero-ℕ y H K = K
+strict-upper-bound-dist-ℕ (succ-ℕ b) (succ-ℕ x) zero-ℕ H K = H
+strict-upper-bound-dist-ℕ (succ-ℕ b) (succ-ℕ x) (succ-ℕ y) H K =
+  preserves-le-succ-ℕ (dist-ℕ x y) b (strict-upper-bound-dist-ℕ b x y H K)
+
 eq-cong-le-ℕ :
   (k x y : ℕ) → le-ℕ x k → le-ℕ y k → cong-ℕ k x y → Id x y
 eq-cong-le-ℕ k x y H K =
@@ -632,31 +639,23 @@ left-unit-law-add-Fin {k} x =
 left-inverse-law-add-Fin :
   {k : ℕ} (x : Fin (succ-ℕ k)) → Id (add-Fin (neg-Fin x) x) zero-Fin
 left-inverse-law-add-Fin {k} x =
-  eq-cong-ℕ k (add-ℕ (nat-Fin (neg-Fin x)) (nat-Fin x)) zero-ℕ
+  eq-cong-ℕ k
+    ( add-ℕ (nat-Fin (neg-Fin x)) (nat-Fin x))
+    ( zero-ℕ)
     ( concatenate-cong-eq-cong-ℕ
       { succ-ℕ k}
       { x1 = add-ℕ (nat-Fin (neg-Fin x)) (nat-Fin x)}
       { x2 = add-ℕ (dist-ℕ (nat-Fin x) (succ-ℕ k)) (nat-Fin x)}
       { x3 = succ-ℕ k}
       { x4 = zero-ℕ}
-      ( congruence-add-ℕ
-        ( succ-ℕ k)
-        { x = nat-Fin (neg-Fin x)}
-        { y = nat-Fin x}
-        ( cong-neg-Fin x)
-        ( reflexive-cong-ℕ (succ-ℕ k) (nat-Fin x)))
-      ( ( ap ( add-ℕ (dist-ℕ (nat-Fin x) (succ-ℕ k)))
-             ( inv (left-zero-law-dist-ℕ (nat-Fin x)))) ∙
-        ( ( commutative-add-ℕ
-            ( dist-ℕ (nat-Fin x) (succ-ℕ k))
-            ( dist-ℕ zero-ℕ (nat-Fin x))) ∙
-          ( triangle-equality-dist-ℕ zero-ℕ (nat-Fin x) (succ-ℕ k) star
-            ( preserves-leq-succ-ℕ (nat-Fin x) k (upper-bound-nat-Fin x)))))
-      ( symmetric-cong-ℕ
-          ( succ-ℕ k)
-          ( zero-ℕ)
-          ( succ-ℕ k)
-          ( cong-zero-ℕ (succ-ℕ k))))
+      ( translation-invariant-cong-ℕ' (succ-ℕ k)
+        ( nat-Fin (neg-Fin x))
+        ( dist-ℕ (nat-Fin x) (succ-ℕ k))
+        ( nat-Fin x)
+        ( cong-neg-Fin x))
+      ( is-difference-dist-ℕ' (nat-Fin x) (succ-ℕ k)
+        ( upper-bound-nat-Fin (inl x)))
+      ( cong-zero-ℕ' (succ-ℕ k)))
 
 right-inverse-law-add-Fin :
   {k : ℕ} (x : Fin (succ-ℕ k)) → Id (add-Fin x (neg-Fin x)) zero-Fin

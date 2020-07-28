@@ -332,6 +332,11 @@ contradiction-le-ℕ : (m n : ℕ) → le-ℕ m n → ¬ (leq-ℕ n m)
 contradiction-le-ℕ zero-ℕ (succ-ℕ n) H K = K
 contradiction-le-ℕ (succ-ℕ m) (succ-ℕ n) H = contradiction-le-ℕ m n H
 
+leq-le-ℕ :
+  {x y : ℕ} → le-ℕ x y → leq-ℕ x y
+leq-le-ℕ {zero-ℕ} {succ-ℕ y} H = star
+leq-le-ℕ {succ-ℕ x} {succ-ℕ y} H = leq-le-ℕ {x} {y} H
+
 -- Exercise 6.5
 
 -- Exercise 6.5 (a)
@@ -520,28 +525,21 @@ linear-dist-ℕ (succ-ℕ m) (succ-ℕ n) (succ-ℕ k) =
       ( mul-ℕ (succ-ℕ k) n)) ∙
     ( linear-dist-ℕ m n (succ-ℕ k)))
 
--- We give an upper bound for the distantce between two numbers.
+-- Exercise 6.5 (d)
 
-upper-bound-dist-ℕ :
-  (b x y : ℕ) → leq-ℕ x b → leq-ℕ y b → leq-ℕ (dist-ℕ x y) b
-upper-bound-dist-ℕ zero-ℕ zero-ℕ zero-ℕ H K = star
-upper-bound-dist-ℕ (succ-ℕ b) zero-ℕ zero-ℕ H K = star
-upper-bound-dist-ℕ (succ-ℕ b) zero-ℕ (succ-ℕ y) H K = K
-upper-bound-dist-ℕ (succ-ℕ b) (succ-ℕ x) zero-ℕ H K = H
-upper-bound-dist-ℕ (succ-ℕ b) (succ-ℕ x) (succ-ℕ y) H K =
-  preserves-leq-succ-ℕ (dist-ℕ x y) b (upper-bound-dist-ℕ b x y H K)
+is-difference-dist-ℕ :
+  (x y : ℕ) → leq-ℕ x y → Id (add-ℕ x (dist-ℕ x y)) y
+is-difference-dist-ℕ zero-ℕ zero-ℕ H = refl
+is-difference-dist-ℕ zero-ℕ (succ-ℕ y) H = left-unit-law-add-ℕ (succ-ℕ y)
+is-difference-dist-ℕ (succ-ℕ x) (succ-ℕ y) H =
+  ( left-successor-law-add-ℕ x (dist-ℕ x y)) ∙
+  ( ap succ-ℕ (is-difference-dist-ℕ x y H))
 
-strict-upper-bound-dist-ℕ :
-  (b x y : ℕ) → le-ℕ x b → le-ℕ y b → le-ℕ (dist-ℕ x y) b
-strict-upper-bound-dist-ℕ (succ-ℕ b) zero-ℕ y H K = K
-strict-upper-bound-dist-ℕ (succ-ℕ b) (succ-ℕ x) zero-ℕ H K = H
-strict-upper-bound-dist-ℕ (succ-ℕ b) (succ-ℕ x) (succ-ℕ y) H K =
-  preserves-le-succ-ℕ (dist-ℕ x y) b (strict-upper-bound-dist-ℕ b x y H K)
-
-leq-le-ℕ :
-  {x y : ℕ} → le-ℕ x y → leq-ℕ x y
-leq-le-ℕ {zero-ℕ} {succ-ℕ y} H = star
-leq-le-ℕ {succ-ℕ x} {succ-ℕ y} H = leq-le-ℕ {x} {y} H
+is-difference-dist-ℕ' :
+  (x y : ℕ) → leq-ℕ x y → Id (add-ℕ (dist-ℕ x y) x) y
+is-difference-dist-ℕ' x y H =
+  ( commutative-add-ℕ (dist-ℕ x y) x) ∙
+  ( is-difference-dist-ℕ x y H)
 
 --------------------------------------------------------------------------------
 
