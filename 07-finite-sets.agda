@@ -16,7 +16,17 @@ open 06-universes public
 div-ℕ : ℕ → ℕ → UU lzero
 div-ℕ m n = Σ ℕ (λ k → Id (mul-ℕ k m) n)
 
-{- Proposition 7.1.2 -}
+{- Remark 7.1.2 -}
+
+div-one-ℕ :
+  (x : ℕ) → div-ℕ one-ℕ x
+div-one-ℕ x = pair x (right-unit-law-mul-ℕ x)
+
+div-zero-ℕ :
+  (k : ℕ) → div-ℕ k zero-ℕ
+div-zero-ℕ k = pair zero-ℕ (left-zero-law-mul-ℕ k)
+
+{- Proposition 7.1.3 -}
 
 {- In the following three constructions we show that if any two of the three
    numbers x, y, and x + y, is divisible by d, then so is the third. -}
@@ -58,7 +68,7 @@ div-right-summand-ℕ :
 div-right-summand-ℕ d x y H1 H2 =
   div-left-summand-ℕ d y x H1 (tr (div-ℕ d) (commutative-add-ℕ x y) H2)
 
-{- Definition 7.1.3 -}
+{- Definition 7.1.4 -}
 
 {- We define the congruence relation on ℕ and we do some bureaucracy that will
    help us in calculations involving the congruence relations. -}
@@ -85,7 +95,27 @@ concatenate-cong-eq-ℕ :
   cong-ℕ k x1 x2 → Id x2 x3 → cong-ℕ k x1 x3
 concatenate-cong-eq-ℕ k H refl = H
 
-{- Proposition 7.1.4 -}
+-- We show that cong-ℕ one-ℕ is the indiscrete equivalence relation --
+
+is-indiscrete-cong-one-ℕ :
+  (x y : ℕ) → cong-ℕ one-ℕ x y
+is-indiscrete-cong-one-ℕ x y = div-one-ℕ (dist-ℕ x y)
+
+-- We show that the congruence relation modulo 0 is discrete
+
+is-discrete-cong-zero-ℕ :
+  (x y : ℕ) → cong-ℕ zero-ℕ x y → Id x y
+is-discrete-cong-zero-ℕ x y (pair k p) =
+  eq-dist-ℕ x y ((inv (right-zero-law-mul-ℕ k)) ∙ p)
+
+{- Example 7.1.5 -}
+
+cong-zero-ℕ :
+  (k : ℕ) → cong-ℕ k k zero-ℕ
+cong-zero-ℕ k =
+  pair one-ℕ ((left-unit-law-mul-ℕ k) ∙ (inv (right-zero-law-dist-ℕ k)))
+
+{- Proposition 7.1.6 -}
 
 -- We show that cong-ℕ is an equivalence relation.
 
@@ -102,6 +132,11 @@ symmetric-cong-ℕ :
   (k x y : ℕ) → cong-ℕ k x y → cong-ℕ k y x
 symmetric-cong-ℕ k x y (pair d p) =
   pair d (p ∙ (symmetric-dist-ℕ x y))
+
+cong-zero-ℕ' :
+  (k : ℕ) → cong-ℕ k zero-ℕ k
+cong-zero-ℕ' k =
+  symmetric-cong-ℕ k k zero-ℕ (cong-zero-ℕ k)
 
 {- Before we show that cong-ℕ is transitive, we give some lemmas that will help 
    us showing that cong is an equivalence relation. They are basically 
@@ -208,45 +243,6 @@ concatenate-eq-cong-eq-cong-eq-ℕ :
 concatenate-eq-cong-eq-cong-eq-ℕ k {x} {.x} {y} {.y} {z} {.z} refl H refl K refl =
   transitive-cong-ℕ k x y z H K
 
-{- Remark 7.1.6 (this is also Exercise 7.2) -}
-
--- We show that cong-ℕ one-ℕ is the indiscrete equivalence relation --
-
-div-one-ℕ :
-  (x : ℕ) → div-ℕ one-ℕ x
-div-one-ℕ x = pair x (right-unit-law-mul-ℕ x)
-
-is-indiscrete-cong-one-ℕ :
-  (x y : ℕ) → cong-ℕ one-ℕ x y
-is-indiscrete-cong-one-ℕ x y = div-one-ℕ (dist-ℕ x y)
-
--- We show that the congruence relation modulo 0 is discrete
-
-div-zero-ℕ :
-  (k : ℕ) → div-ℕ k zero-ℕ
-div-zero-ℕ k = pair zero-ℕ (left-zero-law-mul-ℕ k)
-
-is-discrete-cong-zero-ℕ :
-  (x y : ℕ) → cong-ℕ zero-ℕ x y → Id x y
-is-discrete-cong-zero-ℕ x y (pair k p) =
-  eq-dist-ℕ x y ((inv (right-zero-law-mul-ℕ k)) ∙ p)
-
--- We show that d | 1 if and only if d = 1.
-
--- We show that 0 | x if and only if x = 0.
-
--- We show that zero-ℕ is congruent to n modulo n.
-
-cong-zero-ℕ :
-  (k : ℕ) → cong-ℕ k k zero-ℕ
-cong-zero-ℕ k =
-  pair one-ℕ ((left-unit-law-mul-ℕ k) ∙ (inv (right-zero-law-dist-ℕ k)))
-
-cong-zero-ℕ' :
-  (k : ℕ) → cong-ℕ k zero-ℕ k
-cong-zero-ℕ' k =
-  symmetric-cong-ℕ k k zero-ℕ (cong-zero-ℕ k)
-
 --------------------------------------------------------------------------------
 
 {- Section 7.2 The finite types -}
@@ -318,7 +314,7 @@ is-injective-nat-Fin {succ-ℕ k} {inr star} {inr star} p =
 
 --------------------------------------------------------------------------------
 
-{- Definition 7.2.7 -}
+{- Definition 7.3.1 -}
 
 -- We define the zero element of Fin k.
 
@@ -338,7 +334,7 @@ succ-Fin : {k : ℕ} → Fin k → Fin k
 succ-Fin {succ-ℕ k} (inl x) = skip-zero-Fin x
 succ-Fin {succ-ℕ k} (inr star) = zero-Fin
 
-{- Definition 7.2.9 -}
+{- Definition 7.3.2 -}
 
 -- We define the modulo function
 
@@ -352,9 +348,7 @@ mod-two-ℕ = mod-succ-ℕ one-ℕ
 mod-three-ℕ : ℕ → Fin three-ℕ
 mod-three-ℕ = mod-succ-ℕ two-ℕ
 
-{- Section 7.3 The effectiveness theorem of modular arithmetic -}
-
-{- Lemma 7.3.1 -}
+{- Lemma 7.3.3 -}
 
 -- We prove three things to help calculating with nat-Fin.
 
@@ -385,7 +379,7 @@ cong-nat-succ-Fin (succ-ℕ k) (inr star) =
     ( nat-zero-Fin {k})
     ( cong-zero-ℕ' (succ-ℕ k))
 
-{- Corollary 7.3.2 -}
+{- Proposition 7.3.4 -}
 
 -- We show that (nat-Fin (mod-succ-ℕ n x)) is congruent to x modulo n+1. --
 
@@ -402,7 +396,7 @@ cong-nat-mod-succ-ℕ k (succ-ℕ x) =
     ( cong-nat-succ-Fin (succ-ℕ k) (mod-succ-ℕ k x) )
     ( cong-nat-mod-succ-ℕ k x)
 
-{- Proposition 7.3.4 -}
+{- Proposition 7.3.5 -}
 
 contradiction-leq-ℕ :
   (x y : ℕ) → leq-ℕ x y → leq-ℕ (succ-ℕ y) x → empty
@@ -435,7 +429,7 @@ eq-cong-le-ℕ :
 eq-cong-le-ℕ k x y H K =
   eq-cong-le-dist-ℕ k x y (strict-upper-bound-dist-ℕ k x y H K)
 
-{- Theorem 7.3.5 -}
+{- Theorem 7.3.6 -}
 
 {- We show that if mod-succ-ℕ k x = mod-succ-ℕ k y, then x and y must be
    congruent modulo succ-ℕ n. This is the forward direction of the theorm. -}
@@ -672,15 +666,70 @@ right-inverse-law-add-Fin x =
 
 {- Exercise 7.2 -}
 
+-- We show that the divisibility relation is a poset
+
 {- Exercise 7.3 -}
 
+-- We introduce the observational equality on finite sets.
+
+Eq-Fin : (k : ℕ) → Fin k → Fin k → UU lzero
+Eq-Fin (succ-ℕ k) (inl x) (inl y) = Eq-Fin k x y
+Eq-Fin (succ-ℕ k) (inl x) (inr y) = empty
+Eq-Fin (succ-ℕ k) (inr x) (inl y) = empty
+Eq-Fin (succ-ℕ k) (inr x) (inr y) = unit
+
+-- Exercise 7.12 (a)
+
+refl-Eq-Fin : {k : ℕ} (x : Fin k) → Eq-Fin k x x
+refl-Eq-Fin {succ-ℕ k} (inl x) = refl-Eq-Fin x
+refl-Eq-Fin {succ-ℕ k} (inr x) = star
+
+Eq-Fin-eq : {k : ℕ} {x y : Fin k} → Id x y → Eq-Fin k x y
+Eq-Fin-eq {k} refl = refl-Eq-Fin {k} _
+
+eq-Eq-Fin :
+  {k : ℕ} {x y : Fin k} → Eq-Fin k x y → Id x y
+eq-Eq-Fin {succ-ℕ k} {inl x} {inl y} e = ap inl (eq-Eq-Fin e)
+eq-Eq-Fin {succ-ℕ k} {inr star} {inr star} star = refl
+
+-- Exercise 7.12 (b)
+
+is-injective-inl-Fin :
+  {k : ℕ} {x y : Fin k} → Id (inl-Fin k x) (inl-Fin k y) → Id x y
+is-injective-inl-Fin p = eq-Eq-Fin (Eq-Fin-eq p)
+
+-- Exercise 7.12 (c)
+
+neq-zero-succ-Fin :
+  {k : ℕ} {x : Fin k} → ¬ (Id (succ-Fin (inl-Fin k x)) zero-Fin)
+neq-zero-succ-Fin {succ-ℕ k} {inl x} p =
+  neq-zero-succ-Fin (is-injective-inl-Fin p)
+neq-zero-succ-Fin {succ-ℕ k} {inr star} p =
+  Eq-Fin-eq {succ-ℕ (succ-ℕ k)} {inr star} {zero-Fin} p
+
+-- Exercise 7.12 (d)
+
+is-injective-skip-zero-Fin :
+  {k : ℕ} {x y : Fin k} → Id (skip-zero-Fin x) (skip-zero-Fin y) → Id x y
+is-injective-skip-zero-Fin {succ-ℕ k} {inl x} {inl y} p =
+  ap inl (is-injective-skip-zero-Fin (is-injective-inl-Fin p))
+is-injective-skip-zero-Fin {succ-ℕ k} {inl x} {inr star} p =
+  ex-falso (Eq-Fin-eq p)
+is-injective-skip-zero-Fin {succ-ℕ k} {inr star} {inl y} p =
+  ex-falso (Eq-Fin-eq p)
+is-injective-skip-zero-Fin {succ-ℕ k} {inr star} {inr star} p = refl
+
+is-injective-succ-Fin :
+  {k : ℕ} {x y : Fin k} → Id (succ-Fin x) (succ-Fin y) → Id x y
+is-injective-succ-Fin {succ-ℕ k} {inl x} {inl y} p =
+  ap inl (is-injective-skip-zero-Fin {k} {x} {y} p)
+is-injective-succ-Fin {succ-ℕ k} {inl x} {inr star} p =
+  ex-falso (neq-zero-succ-Fin {succ-ℕ k} {inl x} (ap inl p))
+is-injective-succ-Fin {succ-ℕ k} {inr star} {inl y} p =
+  ex-falso (neq-zero-succ-Fin {succ-ℕ k} {inl y} (ap inl (inv p)))
+is-injective-succ-Fin {succ-ℕ k} {inr star} {inr star} p = refl
+
 {- Exercise 7.4 -}
-
-{- Exercise 7.5 -}
-
-{- Exercise 7.6 -}
-
-{- Exercise 7.7 -}
 
 -- We define the negative two element of Fin k.
 
@@ -731,38 +780,40 @@ pred-succ-Fin {succ-ℕ (succ-ℕ k)} (inl (inl x)) =
 pred-succ-Fin {succ-ℕ (succ-ℕ k)} (inl (inr star)) = refl
 pred-succ-Fin {succ-ℕ (succ-ℕ k)} (inr star) = pred-zero-Fin
 
-{- Exercise 7.8 -}
+{- Exercise 7.5 -}
 
-{- Exercise 7.9 -}
+fin-bounded-nat :
+  {k : ℕ} → Σ ℕ (λ x → le-ℕ x k) → Fin k
+fin-bounded-nat {succ-ℕ k} (pair x H) = mod-succ-ℕ k x
 
-reverse-Fin : {k : ℕ} → Fin k → Fin k
-reverse-Fin {succ-ℕ k} (inl x) = skip-zero-Fin (reverse-Fin x)
-reverse-Fin {succ-ℕ k} (inr x) = zero-Fin
+bounded-nat-Fin :
+  {k : ℕ} → Fin k → Σ ℕ (λ x → le-ℕ x k)
+bounded-nat-Fin {k} x = pair (nat-Fin x) (strict-upper-bound-nat-Fin x)
 
-reverse-skip-zero-Fin :
-  {k : ℕ} (x : Fin k) →
-  Id (reverse-Fin (skip-zero-Fin x)) (inl-Fin k (reverse-Fin x))
-reverse-skip-zero-Fin {succ-ℕ k} (inl x) =
-  ap skip-zero-Fin (reverse-skip-zero-Fin x)
-reverse-skip-zero-Fin {succ-ℕ k} (inr star) = refl
+-- We still need to construct the identifications stated in the exercise
 
-reverse-neg-one-Fin :
-  {k : ℕ} → Id (reverse-Fin (neg-one-Fin {k})) (zero-Fin {k})
-reverse-neg-one-Fin {k} = refl
+{- Exercise 7.6 -}
 
-reverse-zero-Fin :
-  {k : ℕ} → Id (reverse-Fin (zero-Fin {k})) (neg-one-Fin {k})
-reverse-zero-Fin {zero-ℕ} = refl
-reverse-zero-Fin {succ-ℕ k} = ap skip-zero-Fin (reverse-zero-Fin {k})
+{- We define the multiplication on the types Fin k. -}
 
-reverse-reverse-Fin :
-  {k : ℕ} (x : Fin k) → Id (reverse-Fin (reverse-Fin x)) x
-reverse-reverse-Fin {succ-ℕ k} (inl x) =
-  ( reverse-skip-zero-Fin (reverse-Fin x)) ∙
-  ( ap inl (reverse-reverse-Fin x))
-reverse-reverse-Fin {succ-ℕ k} (inr star) = reverse-zero-Fin
+mul-Fin :
+  {k : ℕ} → Fin k → Fin k → Fin k
+mul-Fin {succ-ℕ k} x y = mod-succ-ℕ k (mul-ℕ (nat-Fin x) (nat-Fin y))
 
-{- Exercise 7.10 -}
+ap-mul-Fin :
+  {k : ℕ} {x y x' y' : Fin k} →
+  Id x x' → Id y y' → Id (mul-Fin x y) (mul-Fin x' y')
+ap-mul-Fin refl refl = refl
+
+-- Exercise 7.6 (a)
+
+cong-mul-Fin :
+  {k : ℕ} (x y : Fin k) →
+  cong-ℕ k (nat-Fin (mul-Fin x y)) (mul-ℕ (nat-Fin x) (nat-Fin y))
+cong-mul-Fin {succ-ℕ k} x y =
+  cong-nat-mod-succ-ℕ k (mul-ℕ (nat-Fin x) (nat-Fin y))
+
+-- Exercise 7.6 (b)
 
 -- We show that congruence is invariant under scalar multiplication --
 
@@ -793,22 +844,7 @@ congruence-mul-ℕ k {x} {y} {x'} {y'} H K =
     ( scalar-invariant-cong-ℕ k y y' x K)
     ( scalar-invariant-cong-ℕ' k x x' y' H)
 
-{- We define the multiplication on the types Fin k. -}
-
-mul-Fin :
-  {k : ℕ} → Fin k → Fin k → Fin k
-mul-Fin {succ-ℕ k} x y = mod-succ-ℕ k (mul-ℕ (nat-Fin x) (nat-Fin y))
-
-ap-mul-Fin :
-  {k : ℕ} {x y x' y' : Fin k} →
-  Id x x' → Id y y' → Id (mul-Fin x y) (mul-Fin x' y')
-ap-mul-Fin refl refl = refl
-
-cong-mul-Fin :
-  {k : ℕ} (x y : Fin k) →
-  cong-ℕ k (nat-Fin (mul-Fin x y)) (mul-ℕ (nat-Fin x) (nat-Fin y))
-cong-mul-Fin {succ-ℕ k} x y =
-  cong-nat-mod-succ-ℕ k (mul-ℕ (nat-Fin x) (nat-Fin y))
+-- Exercise 7.6 (c)
 
 associative-mul-Fin :
   {k : ℕ} (x y z : Fin k) →
@@ -925,65 +961,6 @@ right-distributive-mul-add-Fin {k} x y z =
 {- Exercise 7.11 -}
 
 {- Exercise 7.12 -}
-
--- We introduce the observational equality on finite sets.
-
-Eq-Fin : (k : ℕ) → Fin k → Fin k → UU lzero
-Eq-Fin (succ-ℕ k) (inl x) (inl y) = Eq-Fin k x y
-Eq-Fin (succ-ℕ k) (inl x) (inr y) = empty
-Eq-Fin (succ-ℕ k) (inr x) (inl y) = empty
-Eq-Fin (succ-ℕ k) (inr x) (inr y) = unit
-
--- Exercise 7.12 (a)
-
-refl-Eq-Fin : {k : ℕ} (x : Fin k) → Eq-Fin k x x
-refl-Eq-Fin {succ-ℕ k} (inl x) = refl-Eq-Fin x
-refl-Eq-Fin {succ-ℕ k} (inr x) = star
-
-Eq-Fin-eq : {k : ℕ} {x y : Fin k} → Id x y → Eq-Fin k x y
-Eq-Fin-eq {k} refl = refl-Eq-Fin {k} _
-
-eq-Eq-Fin :
-  {k : ℕ} {x y : Fin k} → Eq-Fin k x y → Id x y
-eq-Eq-Fin {succ-ℕ k} {inl x} {inl y} e = ap inl (eq-Eq-Fin e)
-eq-Eq-Fin {succ-ℕ k} {inr star} {inr star} star = refl
-
--- Exercise 7.12 (b)
-
-is-injective-inl-Fin :
-  {k : ℕ} {x y : Fin k} → Id (inl-Fin k x) (inl-Fin k y) → Id x y
-is-injective-inl-Fin p = eq-Eq-Fin (Eq-Fin-eq p)
-
--- Exercise 7.12 (c)
-
-neq-zero-succ-Fin :
-  {k : ℕ} {x : Fin k} → ¬ (Id (succ-Fin (inl-Fin k x)) zero-Fin)
-neq-zero-succ-Fin {succ-ℕ k} {inl x} p =
-  neq-zero-succ-Fin (is-injective-inl-Fin p)
-neq-zero-succ-Fin {succ-ℕ k} {inr star} p =
-  Eq-Fin-eq {succ-ℕ (succ-ℕ k)} {inr star} {zero-Fin} p
-
--- Exercise 7.12 (d)
-
-is-injective-skip-zero-Fin :
-  {k : ℕ} {x y : Fin k} → Id (skip-zero-Fin x) (skip-zero-Fin y) → Id x y
-is-injective-skip-zero-Fin {succ-ℕ k} {inl x} {inl y} p =
-  ap inl (is-injective-skip-zero-Fin (is-injective-inl-Fin p))
-is-injective-skip-zero-Fin {succ-ℕ k} {inl x} {inr star} p =
-  ex-falso (Eq-Fin-eq p)
-is-injective-skip-zero-Fin {succ-ℕ k} {inr star} {inl y} p =
-  ex-falso (Eq-Fin-eq p)
-is-injective-skip-zero-Fin {succ-ℕ k} {inr star} {inr star} p = refl
-
-is-injective-succ-Fin :
-  {k : ℕ} {x y : Fin k} → Id (succ-Fin x) (succ-Fin y) → Id x y
-is-injective-succ-Fin {succ-ℕ k} {inl x} {inl y} p =
-  ap inl (is-injective-skip-zero-Fin {k} {x} {y} p)
-is-injective-succ-Fin {succ-ℕ k} {inl x} {inr star} p =
-  ex-falso (neq-zero-succ-Fin {succ-ℕ k} {inl x} (ap inl p))
-is-injective-succ-Fin {succ-ℕ k} {inr star} {inl y} p =
-  ex-falso (neq-zero-succ-Fin {succ-ℕ k} {inl y} (ap inl (inv p)))
-is-injective-succ-Fin {succ-ℕ k} {inr star} {inr star} p = refl
 
 
 
