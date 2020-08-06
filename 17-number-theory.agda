@@ -1307,10 +1307,6 @@ div-ℤ :
   (k l : ℤ) → UU lzero
 div-ℤ k l = Σ ℤ (λ x → Id (mul-ℤ x k) l)
 
-_≡_mod_ :
-  (k l : ℤ) (n : ℕ) → UU lzero
-k ≡ l mod n = div-ℤ (in-nat-ℤ n) (add-ℤ k (neg-ℤ l))
-
 -- From before
 
 

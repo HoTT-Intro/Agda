@@ -662,7 +662,7 @@ right-inverse-law-add-Fin x =
 
 {- Exercise 7.1 -}
 
--- See Proposition 7.1.2
+-- See Proposition 7.1.3
 
 {- Exercise 7.2 -}
 
