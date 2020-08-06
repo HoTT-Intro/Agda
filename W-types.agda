@@ -48,3 +48,22 @@ is-contr-total-Eq-𝕎 w =
   pair
     ( center-total-Eq-𝕎 w)
     ( contraction-total-Eq-𝕎 w)
+
+Eq-𝕎-eq :
+  {i j : Level} {A : UU i} {B : A → UU j} →
+  (v w : 𝕎 A B) → Id v w → Eq-𝕎 v w
+Eq-𝕎-eq v .v refl = refl-Eq-𝕎 v
+
+is-equiv-Eq-𝕎-eq :
+  {i j : Level} {A : UU i} {B : A → UU j} →
+  (v w : 𝕎 A B) → is-equiv (Eq-𝕎-eq v w)
+is-equiv-Eq-𝕎-eq v =
+  fundamental-theorem-id v
+    ( refl-Eq-𝕎 v)
+    ( is-contr-total-Eq-𝕎 v)
+    ( Eq-𝕎-eq v)
+
+--------------------------------------------------------------------------------
+
+data i𝕎 {l1 l2 l3 : Level} (I : UU l1) (A : I → UU l2) (B : (i : I) → A i → UU l3) (f : (i : I) (x : A i) → B i x → I) (i : I) : UU (l1 ⊔ l2 ⊔ l3) where
+  sup-i𝕎 : (x : A i) (α : (y : B i x) → i𝕎 I A B f (f i x y)) → i𝕎 I A B f i
