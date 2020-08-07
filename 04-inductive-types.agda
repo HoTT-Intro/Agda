@@ -317,10 +317,10 @@ dn-dn-elim {P = P} f =
 
 -- Exercise 4.2 (g)
 
-tautology-4-2-f :
+Peirces-law :
   {l1 l2 : Level} {P : UU l1} {Q : UU l2} →
   ¬¬ (((P → Q) → P) → P)
-tautology-4-2-f {P = P} {Q} f =
+Peirces-law {P = P} {Q} f =
   ( λ (np : ¬ P) → f (λ h → h (λ p → ex-falso (np p))))
   ( λ (p : P) → f (λ h → p))
 
