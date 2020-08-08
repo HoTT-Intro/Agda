@@ -1,3 +1,4 @@
+
 {-# OPTIONS --without-K --exact-split #-}
 
 module W-types where
@@ -141,6 +142,29 @@ eq-Eq-type-polynomial-endofunctor :
 eq-Eq-type-polynomial-endofunctor A B X x y =
   inv-is-equiv (is-equiv-Eq-type-polynomial-endofunctor-eq A B X x y)
 
+issec-eq-Eq-type-polynomial-endofunctor :
+  {l l1 l2 : Level} (A : UU l1) (B : A → UU l2) (X : UU l) →
+  (x y : type-polynomial-endofunctor A B X) →
+  ( ( Eq-type-polynomial-endofunctor-eq A B X x y) ∘
+    ( eq-Eq-type-polynomial-endofunctor A B X x y)) ~ id
+issec-eq-Eq-type-polynomial-endofunctor A B X x y =
+  issec-inv-is-equiv (is-equiv-Eq-type-polynomial-endofunctor-eq A B X x y)
+
+isretr-eq-Eq-type-polynomial-endofunctor :
+  {l l1 l2 : Level} (A : UU l1) (B : A → UU l2) (X : UU l) →
+  (x y : type-polynomial-endofunctor A B X) →
+  ( ( eq-Eq-type-polynomial-endofunctor A B X x y) ∘
+    ( Eq-type-polynomial-endofunctor-eq A B X x y)) ~ id
+isretr-eq-Eq-type-polynomial-endofunctor A B X x y =
+  isretr-inv-is-equiv (is-equiv-Eq-type-polynomial-endofunctor-eq A B X x y)
+
+coh-refl-eq-Eq-type-polynomial-endofunctor :
+  {l l1 l2 : Level} (A : UU l1) (B : A → UU l2) (X : UU l) →
+  (x : type-polynomial-endofunctor A B X) →
+  Id (eq-Eq-type-polynomial-endofunctor A B X x x (refl-Eq-type-polynomial-endofunctor A B X x)) refl
+coh-refl-eq-Eq-type-polynomial-endofunctor A B X x =
+  isretr-eq-Eq-type-polynomial-endofunctor A B X x x refl
+
 -- The action on morphisms of the polynomial endofunctor
 
 map-polynomial-endofunctor :
@@ -160,6 +184,14 @@ htpy-polynomial-endofunctor A B {X} {Y} {f} {g} H (pair x α) =
     ( map-polynomial-endofunctor A B f (pair x α))
     ( map-polynomial-endofunctor A B g (pair x α))
     ( pair refl (H ·r α))
+
+coh-refl-htpy-polynomial-endofunctor :
+  {l1 l2 l3 l4 : Level} (A : UU l1) (B : A → UU l2) →
+  {X : UU l3} {Y : UU l4} (f : X → Y) →
+  htpy-polynomial-endofunctor A B (refl-htpy {f = f}) ~ refl-htpy
+coh-refl-htpy-polynomial-endofunctor A B {X} {Y} f (pair x α) =
+  coh-refl-eq-Eq-type-polynomial-endofunctor A B Y
+    ( map-polynomial-endofunctor A B f (pair x α)) 
 
 -- algebras for the polynomial endofunctors
 
@@ -243,8 +275,207 @@ htpy-hom-algebra-polynomial-endofunctor A B X Y f g =
     ( λ H →
       ( ( structure-hom-algebra-polynomial-endofunctor A B X Y f) ∙h
         ( ( structure-algebra-polynomial-endofunctor A B Y) ·l
-          {!!})) ~ {!!})
+          ( htpy-polynomial-endofunctor A B H))) ~
+      ( ( H ·r structure-algebra-polynomial-endofunctor A B X) ∙h
+        ( structure-hom-algebra-polynomial-endofunctor A B X Y g)))
 
+refl-htpy-hom-algebra-polynomial-endofunctor :
+  {l1 l2 l3 l4 : Level} (A : UU l1) (B : A → UU l2) →
+  (X : algebra-polynomial-endofunctor l3 A B) →
+  (Y : algebra-polynomial-endofunctor l4 A B) →
+  (f : hom-algebra-polynomial-endofunctor A B X Y) →
+  htpy-hom-algebra-polynomial-endofunctor A B X Y f f
+refl-htpy-hom-algebra-polynomial-endofunctor A B X Y f =
+  pair refl-htpy
+    ( λ z →
+      ( ap ( λ t →
+             concat
+               ( structure-hom-algebra-polynomial-endofunctor A B X Y f z)
+               ( structure-algebra-polynomial-endofunctor A B Y
+                 ( map-polynomial-endofunctor A B
+                   ( map-hom-algebra-polynomial-endofunctor A B X Y f) z) )
+               ( ap (structure-algebra-polynomial-endofunctor A B Y ) t))
+           ( coh-refl-htpy-polynomial-endofunctor A B
+             ( map-hom-algebra-polynomial-endofunctor A B X Y f) z)) ∙
+      ( right-unit))
+
+htpy-hom-algebra-polynomial-endofunctor-eq :
+  {l1 l2 l3 l4 : Level} (A : UU l1) (B : A → UU l2) →
+  (X : algebra-polynomial-endofunctor l3 A B) →
+  (Y : algebra-polynomial-endofunctor l4 A B) →
+  (f g : hom-algebra-polynomial-endofunctor A B X Y) →
+  Id f g → htpy-hom-algebra-polynomial-endofunctor A B X Y f g
+htpy-hom-algebra-polynomial-endofunctor-eq A B X Y f .f refl =
+  refl-htpy-hom-algebra-polynomial-endofunctor A B X Y f
+
+is-contr-total-htpy-hom-algebra-polynomial-endofunctor :
+  {l1 l2 l3 l4 : Level} (A : UU l1) (B : A → UU l2) →
+  (X : algebra-polynomial-endofunctor l3 A B) →
+  (Y : algebra-polynomial-endofunctor l4 A B) →
+  (f : hom-algebra-polynomial-endofunctor A B X Y) →
+  is-contr
+    ( Σ ( hom-algebra-polynomial-endofunctor A B X Y)
+        ( htpy-hom-algebra-polynomial-endofunctor A B X Y f))
+is-contr-total-htpy-hom-algebra-polynomial-endofunctor A B X Y f =
+  is-contr-total-Eq-structure
+    ( λ ( g : pr1 X → pr1 Y)
+        ( G : (g ∘ pr2 X) ~ ((pr2 Y) ∘ (map-polynomial-endofunctor A B g)))
+        ( H : map-hom-algebra-polynomial-endofunctor A B X Y f ~ g) →
+        ( ( structure-hom-algebra-polynomial-endofunctor A B X Y f) ∙h
+          ( ( structure-algebra-polynomial-endofunctor A B Y) ·l
+            ( htpy-polynomial-endofunctor A B H))) ~
+        ( ( H ·r structure-algebra-polynomial-endofunctor A B X) ∙h G))
+    ( is-contr-total-htpy (map-hom-algebra-polynomial-endofunctor A B X Y f))
+    ( pair (map-hom-algebra-polynomial-endofunctor A B X Y f) refl-htpy)
+    ( is-contr-equiv'
+      ( Σ ( ( (pr1 f) ∘ pr2 X) ~
+            ( pr2 Y ∘ map-polynomial-endofunctor A B (pr1 f)))
+          ( λ H → (pr2 f) ~ H))
+      ( equiv-tot
+        ( λ H →
+          ( equiv-htpy-concat
+            ( λ x →
+              ap ( concat
+                   ( pr2 f x)
+                   ( structure-algebra-polynomial-endofunctor A B Y
+                     ( map-polynomial-endofunctor A B (pr1 f) x)))
+                 ( ap ( ap (pr2 Y))
+                      ( coh-refl-htpy-polynomial-endofunctor A B (pr1 f) x)))
+            ( H)) ∘e
+          ( equiv-htpy-concat htpy-right-unit H)))
+      ( is-contr-total-htpy (pr2 f)))
+
+is-equiv-htpy-hom-algebra-polynomial-endofunctor-eq :
+  {l1 l2 l3 l4 : Level} (A : UU l1) (B : A → UU l2) →
+  (X : algebra-polynomial-endofunctor l3 A B) →
+  (Y : algebra-polynomial-endofunctor l4 A B) →
+  (f g : hom-algebra-polynomial-endofunctor A B X Y) →
+  is-equiv (htpy-hom-algebra-polynomial-endofunctor-eq A B X Y f g)
+is-equiv-htpy-hom-algebra-polynomial-endofunctor-eq A B X Y f =
+  fundamental-theorem-id f
+    ( refl-htpy-hom-algebra-polynomial-endofunctor A B X Y f)
+    ( is-contr-total-htpy-hom-algebra-polynomial-endofunctor A B X Y f)
+    ( htpy-hom-algebra-polynomial-endofunctor-eq A B X Y f)
+
+eq-htpy-hom-algebra-polynomial-endofunctor :
+  {l1 l2 l3 l4 : Level} (A : UU l1) (B : A → UU l2) →
+  (X : algebra-polynomial-endofunctor l3 A B) →
+  (Y : algebra-polynomial-endofunctor l4 A B) →
+  (f g : hom-algebra-polynomial-endofunctor A B X Y) →
+  htpy-hom-algebra-polynomial-endofunctor A B X Y f g → Id f g
+eq-htpy-hom-algebra-polynomial-endofunctor A B X Y f g =
+  inv-is-equiv (is-equiv-htpy-hom-algebra-polynomial-endofunctor-eq A B X Y f g)
+
+-- We show that 𝕎 A B is the initial algebra
+
+map-hom-𝕎-Alg :
+  {l l1 l2 : Level} (A : UU l1) (B : A → UU l2) →
+  (X : algebra-polynomial-endofunctor l A B) →
+  𝕎 A B → type-algebra-polynomial-endofunctor A B X
+map-hom-𝕎-Alg A B X (sup-𝕎 x α) =
+  structure-algebra-polynomial-endofunctor A B X
+    ( pair x (map-hom-𝕎-Alg A B X ∘ α))
+
+structure-hom-𝕎-Alg :
+  {l l1 l2 : Level} (A : UU l1) (B : A → UU l2) →
+  (X : algebra-polynomial-endofunctor l A B) →
+  ( (map-hom-𝕎-Alg A B X) ∘ (structure-𝕎-Alg A B)) ~
+  ( ( structure-algebra-polynomial-endofunctor A B X) ∘
+    ( map-polynomial-endofunctor A B (map-hom-𝕎-Alg A B X)))
+structure-hom-𝕎-Alg A B X (pair x α) = refl
+
+hom-𝕎-Alg :
+  {l l1 l2 : Level} (A : UU l1) (B : A → UU l2) →
+  (X : algebra-polynomial-endofunctor l A B) →
+  hom-algebra-polynomial-endofunctor A B (𝕎-Alg A B) X
+hom-𝕎-Alg A B X =
+  pair (map-hom-𝕎-Alg A B X) (structure-hom-𝕎-Alg A B X)
+
+htpy-htpy-hom-𝕎-Alg :
+  {l l1 l2 : Level} (A : UU l1) (B : A → UU l2) →
+  (X : algebra-polynomial-endofunctor l A B) →
+  (f : hom-algebra-polynomial-endofunctor A B (𝕎-Alg A B) X) →
+  map-hom-𝕎-Alg A B X ~
+  map-hom-algebra-polynomial-endofunctor A B (𝕎-Alg A B) X f
+htpy-htpy-hom-𝕎-Alg A B X f (sup-𝕎 x α) =
+  ( ap ( λ t → structure-algebra-polynomial-endofunctor A B X (pair x t))
+       ( eq-htpy (λ z → htpy-htpy-hom-𝕎-Alg A B X f (α z)))) ∙
+  ( inv
+    ( structure-hom-algebra-polynomial-endofunctor A B (𝕎-Alg A B) X f
+      ( pair x α)))
+
+compute-structure-htpy-hom-𝕎-Alg :
+  {l l1 l2 : Level} (A : UU l1) (B : A → UU l2) →
+  (X : algebra-polynomial-endofunctor l A B) (x : A) (α : B x → 𝕎 A B) →
+  {f : 𝕎 A B → type-algebra-polynomial-endofunctor A B X} →
+  (H : map-hom-𝕎-Alg A B X ~ f) →
+  Id ( ap ( structure-algebra-polynomial-endofunctor A B X)
+          ( htpy-polynomial-endofunctor A B H (pair x α)))
+     ( ap ( λ t → structure-algebra-polynomial-endofunctor A B X (pair x t))
+          ( eq-htpy (H ·r α)))
+compute-structure-htpy-hom-𝕎-Alg A B X x α =
+  ind-htpy
+    ( map-hom-𝕎-Alg A B X)
+    ( λ f H →
+      Id ( ap ( structure-algebra-polynomial-endofunctor A B X)
+              ( htpy-polynomial-endofunctor A B H (pair x α)))
+         ( ap ( λ t → structure-algebra-polynomial-endofunctor A B X (pair x t))
+              ( eq-htpy (H ·r α))))
+    ( ap ( ap (pr2 X))
+         ( coh-refl-htpy-polynomial-endofunctor A B
+           ( map-hom-𝕎-Alg A B X)
+           ( pair x α)) ∙
+    ( inv
+      ( ap ( ap (λ t → pr2 X (pair x t)))
+           ( eq-htpy-refl-htpy (map-hom-𝕎-Alg A B X ∘ α))))) 
+  
+structure-htpy-hom-𝕎-Alg :
+  {l l1 l2 : Level} (A : UU l1) (B : A → UU l2) →
+  (X : algebra-polynomial-endofunctor l A B) →
+  (f : hom-algebra-polynomial-endofunctor A B (𝕎-Alg A B) X) →
+  ( ( structure-hom-𝕎-Alg A B X) ∙h
+    ( ( structure-algebra-polynomial-endofunctor A B X) ·l
+      ( htpy-polynomial-endofunctor A B (htpy-htpy-hom-𝕎-Alg A B X f)))) ~
+  ( ( (htpy-htpy-hom-𝕎-Alg A B X f) ·r (structure-𝕎-Alg A B)) ∙h
+    ( structure-hom-algebra-polynomial-endofunctor A B (𝕎-Alg A B) X f))
+structure-htpy-hom-𝕎-Alg A B (pair X μ) (pair f μ-f) (pair x α) =
+  ( ( ( compute-structure-htpy-hom-𝕎-Alg A B (pair X μ) x α
+        ( htpy-htpy-hom-𝕎-Alg A B (pair X μ) (pair f μ-f)))  ∙
+      ( inv right-unit)) ∙
+    ( ap ( concat
+           ( ap
+             ( λ t → μ (pair x t))
+             ( eq-htpy (htpy-htpy-hom-𝕎-Alg A B (pair X μ) (pair f μ-f) ·r α)))
+           ( μ (map-polynomial-endofunctor A B f (pair x α))))
+         ( inv (left-inv ( μ-f (pair x α)))))) ∙
+  ( inv
+    ( assoc
+      ( ap ( λ t → μ (pair x t))
+           ( eq-htpy (htpy-htpy-hom-𝕎-Alg A B (pair X μ) (pair f μ-f) ·r α)))
+      ( inv (μ-f (pair x α)))
+      ( μ-f (pair x α))))
+
+htpy-hom-𝕎-Alg :
+  {l l1 l2 : Level} (A : UU l1) (B : A → UU l2) →
+  (X : algebra-polynomial-endofunctor l A B) →
+  (f : hom-algebra-polynomial-endofunctor A B (𝕎-Alg A B) X) →
+  htpy-hom-algebra-polynomial-endofunctor A B (𝕎-Alg A B) X
+    ( hom-𝕎-Alg A B X)
+    ( f)
+htpy-hom-𝕎-Alg A B X f =
+  pair ( htpy-htpy-hom-𝕎-Alg A B X f)
+       ( structure-htpy-hom-𝕎-Alg A B X f)
+
+is-initial-𝕎-Alg :
+  {l l1 l2 : Level} (A : UU l1) (B : A → UU l2) →
+  (X : algebra-polynomial-endofunctor l A B) →
+  is-contr (hom-algebra-polynomial-endofunctor A B (𝕎-Alg A B) X)
+is-initial-𝕎-Alg A B X =
+  pair
+    ( hom-𝕎-Alg A B X)
+    ( λ f →
+      eq-htpy-hom-algebra-polynomial-endofunctor A B (𝕎-Alg A B) X
+        (hom-𝕎-Alg A B X) f (htpy-hom-𝕎-Alg A B X f))
 
 --------------------------------------------------------------------------------
 
