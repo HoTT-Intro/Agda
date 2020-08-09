@@ -320,11 +320,9 @@ module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
   
     -- We show that 𝕎 A B is the initial algebra
     
-    map-hom-𝕎-Alg :
-      𝕎 → type-algebra-polynomial-endofunctor X
+    map-hom-𝕎-Alg : 𝕎 → type-algebra-polynomial-endofunctor X
     map-hom-𝕎-Alg (sup-𝕎 x α) =
-      structure-algebra-polynomial-endofunctor X
-        ( pair x (map-hom-𝕎-Alg ∘ α))
+      structure-algebra-polynomial-endofunctor X (pair x (map-hom-𝕎-Alg ∘ α))
 
     structure-hom-𝕎-Alg :
       ( map-hom-𝕎-Alg ∘ structure-𝕎-Alg) ~
@@ -332,10 +330,8 @@ module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
         ( map-polynomial-endofunctor map-hom-𝕎-Alg))
     structure-hom-𝕎-Alg (pair x α) = refl
 
-    hom-𝕎-Alg :
-      hom-algebra-polynomial-endofunctor 𝕎-Alg X
-    hom-𝕎-Alg =
-      pair map-hom-𝕎-Alg structure-hom-𝕎-Alg
+    hom-𝕎-Alg : hom-algebra-polynomial-endofunctor 𝕎-Alg X
+    hom-𝕎-Alg = pair map-hom-𝕎-Alg structure-hom-𝕎-Alg
 
     htpy-htpy-hom-𝕎-Alg :
       (f : hom-algebra-polynomial-endofunctor 𝕎-Alg X) →
@@ -400,8 +396,7 @@ module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
     htpy-hom-𝕎-Alg f =
       pair (htpy-htpy-hom-𝕎-Alg f) (structure-htpy-hom-𝕎-Alg f)
 
-    is-initial-𝕎-Alg :
-      is-contr (hom-algebra-polynomial-endofunctor 𝕎-Alg X)
+    is-initial-𝕎-Alg : is-contr (hom-algebra-polynomial-endofunctor 𝕎-Alg X)
     is-initial-𝕎-Alg =
       pair
         ( hom-𝕎-Alg)
