@@ -10,17 +10,14 @@ module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
   data 𝕎 : UU (l1 ⊔ l2) where
     sup-𝕎 : (x : A) (α : B x → 𝕎) → 𝕎
 
-  Eq-𝕎 :
-    𝕎 → 𝕎 → UU (l1 ⊔ l2)
+  Eq-𝕎 : 𝕎 → 𝕎 → UU (l1 ⊔ l2)
   Eq-𝕎 (sup-𝕎 x α) (sup-𝕎 y β) =
     Σ (Id x y) (λ p → (z : B x) → Eq-𝕎 (α z) (β (tr B p z))) 
 
-  refl-Eq-𝕎 :
-    (w : 𝕎) → Eq-𝕎 w w
+  refl-Eq-𝕎 : (w : 𝕎) → Eq-𝕎 w w
   refl-Eq-𝕎 (sup-𝕎 x α) = pair refl (λ z → refl-Eq-𝕎 (α z))
 
-  center-total-Eq-𝕎 :
-    (w : 𝕎) → Σ 𝕎 (Eq-𝕎 w)
+  center-total-Eq-𝕎 : (w : 𝕎) → Σ 𝕎 (Eq-𝕎 w)
   center-total-Eq-𝕎 w = pair w (refl-Eq-𝕎 w)
 
   aux-total-Eq-𝕎 :
@@ -39,27 +36,23 @@ module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
        { y = λ y → pair (β y) (e y)}
        ( eq-htpy (λ y → contraction-total-Eq-𝕎 (α y) (pair (β y) (e y))))
 
-  is-contr-total-Eq-𝕎 :
-    (w : 𝕎) → is-contr (Σ 𝕎 (Eq-𝕎 w))
+  is-contr-total-Eq-𝕎 : (w : 𝕎) → is-contr (Σ 𝕎 (Eq-𝕎 w))
   is-contr-total-Eq-𝕎 w =
     pair
       ( center-total-Eq-𝕎 w)
       ( contraction-total-Eq-𝕎 w)
 
-  Eq-𝕎-eq :
-    (v w : 𝕎) → Id v w → Eq-𝕎 v w
+  Eq-𝕎-eq : (v w : 𝕎) → Id v w → Eq-𝕎 v w
   Eq-𝕎-eq v .v refl = refl-Eq-𝕎 v
 
-  is-equiv-Eq-𝕎-eq :
-    (v w : 𝕎) → is-equiv (Eq-𝕎-eq v w)
+  is-equiv-Eq-𝕎-eq : (v w : 𝕎) → is-equiv (Eq-𝕎-eq v w)
   is-equiv-Eq-𝕎-eq v =
     fundamental-theorem-id v
       ( refl-Eq-𝕎 v)
       ( is-contr-total-Eq-𝕎 v)
       ( Eq-𝕎-eq v)
   
-  is-trunc-𝕎 :
-    (k : 𝕋) → is-trunc (succ-𝕋 k) A → is-trunc (succ-𝕋 k) 𝕎
+  is-trunc-𝕎 : (k : 𝕋) → is-trunc (succ-𝕋 k) A → is-trunc (succ-𝕋 k) 𝕎
   is-trunc-𝕎 k is-trunc-A (sup-𝕎 x α) (sup-𝕎 y β) =
     is-trunc-is-equiv k
       ( Eq-𝕎 (sup-𝕎 x α) (sup-𝕎 y β))
@@ -79,8 +72,7 @@ module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
   
   -- W-types as initial algebras
 
-  type-polynomial-endofunctor :
-    {l : Level} → UU l → UU (l ⊔ l1 ⊔ l2)
+  type-polynomial-endofunctor : {l : Level} → UU l → UU (l ⊔ l1 ⊔ l2)
   type-polynomial-endofunctor X = Σ A (λ x → B x → X)
 
   -- We characterize the identity type of type-polynomial-endofunctor
