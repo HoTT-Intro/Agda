@@ -38,9 +38,7 @@ module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
 
   is-contr-total-Eq-𝕎 : (w : 𝕎) → is-contr (Σ 𝕎 (Eq-𝕎 w))
   is-contr-total-Eq-𝕎 w =
-    pair
-      ( center-total-Eq-𝕎 w)
-      ( contraction-total-Eq-𝕎 w)
+    pair (center-total-Eq-𝕎 w) (contraction-total-Eq-𝕎 w)
 
   Eq-𝕎-eq : (v w : 𝕎) → Id v w → Eq-𝕎 v w
   Eq-𝕎-eq v .v refl = refl-Eq-𝕎 v
