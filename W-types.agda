@@ -70,7 +70,7 @@ module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
 
   module Polynomial-Endofunctor {l3 : Level} (X : UU l3) where
   
-    -- W-types as initial algebras
+    -- The polynomial endofunctor associated to a container
   
     type-polynomial-endofunctor : UU (l1 ⊔ l2 ⊔ l3)
     type-polynomial-endofunctor = Σ A (λ x → B x → X)
@@ -316,7 +316,7 @@ module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
 
   module W-Initial {l : Level} (X : algebra-polynomial-endofunctor l) where
   
-    -- We show that 𝕎 A B is the initial algebra
+    -- We show that 𝕎 is an initial algebra
     
     map-hom-𝕎-Alg : 𝕎 → type-algebra-polynomial-endofunctor X
     map-hom-𝕎-Alg (sup-𝕎 x α) =
