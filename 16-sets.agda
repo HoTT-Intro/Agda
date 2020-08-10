@@ -5,7 +5,11 @@ module 16-sets where
 import 15-groups
 open 15-groups public
 
-{- Equivalence relations -}
+--------------------------------------------------------------------------------
+
+-- Section 16.1 Equivalence relations
+
+-- Definition 16.1.1
 
 Rel-Prop :
   (l : Level) {l1 : Level} (A : UU l1) → UU ((lsuc l) ⊔ l1)
@@ -45,33 +49,97 @@ Eq-Rel :
   (l : Level) {l1 : Level} (A : UU l1) → UU ((lsuc l) ⊔ l1)
 Eq-Rel l A = Σ (Rel-Prop l A) is-equivalence-relation
 
-rel-prop-Eq-Rel :
+prop-Eq-Rel :
   {l1 l2 : Level} {A : UU l1} → Eq-Rel l2 A → Rel-Prop l2 A
-rel-prop-Eq-Rel = pr1
+prop-Eq-Rel = pr1
 
 type-Eq-Rel :
   {l1 l2 : Level} {A : UU l1} → Eq-Rel l2 A → A → A → UU l2
-type-Eq-Rel R = type-Rel-Prop (rel-prop-Eq-Rel R)
+type-Eq-Rel R = type-Rel-Prop (prop-Eq-Rel R)
 
-is-equivalence-relation-rel-prop-Eq-Rel :
+is-equivalence-relation-prop-Eq-Rel :
   {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) →
-  is-equivalence-relation (rel-prop-Eq-Rel R)
-is-equivalence-relation-rel-prop-Eq-Rel R = pr2 R
+  is-equivalence-relation (prop-Eq-Rel R)
+is-equivalence-relation-prop-Eq-Rel R = pr2 R
 
 refl-Eq-Rel :
   {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) →
-  is-reflexive-Rel-Prop (rel-prop-Eq-Rel R)
-refl-Eq-Rel R = pr1 (is-equivalence-relation-rel-prop-Eq-Rel R)
+  is-reflexive-Rel-Prop (prop-Eq-Rel R)
+refl-Eq-Rel R = pr1 (is-equivalence-relation-prop-Eq-Rel R)
 
 symm-Eq-Rel :
   {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) →
-  is-symmetric-Rel-Prop (rel-prop-Eq-Rel R)
-symm-Eq-Rel R = pr1 (pr2 (is-equivalence-relation-rel-prop-Eq-Rel R))
+  is-symmetric-Rel-Prop (prop-Eq-Rel R)
+symm-Eq-Rel R = pr1 (pr2 (is-equivalence-relation-prop-Eq-Rel R))
 
 trans-Eq-Rel :
   {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) →
-  is-transitive-Rel-Prop (rel-prop-Eq-Rel R)
-trans-Eq-Rel R = pr2 (pr2 (is-equivalence-relation-rel-prop-Eq-Rel R))
+  is-transitive-Rel-Prop (prop-Eq-Rel R)
+trans-Eq-Rel R = pr2 (pr2 (is-equivalence-relation-prop-Eq-Rel R))
+
+-- Definition 16.1.2
+
+class-Eq-Rel :
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) (x : A) → A → UU l2
+class-Eq-Rel = type-Eq-Rel
+
+is-equivalence-class-Eq-Rel :
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) →
+  (A → UU-Prop l2) → UU (l1 ⊔ lsuc l2)
+is-equivalence-class-Eq-Rel {A = A} R P = 
+  type-trunc-Prop (Σ A (λ x → Id (type-Prop ∘ P) (class-Eq-Rel R x)))
+
+quotient-Eq-Rel :
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) → UU (l1 ⊔ lsuc l2)
+quotient-Eq-Rel R = im (prop-Eq-Rel R)
+
+map-quotient-Eq-Rel :
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) →
+  A → quotient-Eq-Rel R
+map-quotient-Eq-Rel R = map-im (prop-Eq-Rel R)
+
+class-quotient-Eq-Rel :
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) →
+  quotient-Eq-Rel R → (A → UU-Prop l2)
+class-quotient-Eq-Rel R P = pr1 P
+
+type-class-quotient-Eq-Rel :
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) →
+  quotient-Eq-Rel R → (A → UU l2)
+type-class-quotient-Eq-Rel R P x = type-Prop (class-quotient-Eq-Rel R P x)
+
+-- Proposition 16.1.3
+
+center-total-class-Eq-Rel :
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) (x : A) →
+  Σ (quotient-Eq-Rel R) (λ P → type-class-quotient-Eq-Rel R P x)
+center-total-class-Eq-Rel R x =
+  pair
+    ( map-quotient-Eq-Rel R x)
+    ( refl-Eq-Rel R x)
+
+contraction-total-class-Eq-Rel :
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) (x : A) →
+  ( t : Σ (quotient-Eq-Rel R) (λ P → type-class-quotient-Eq-Rel R P x)) →
+  Id (center-total-class-Eq-Rel R x) t
+contraction-total-class-Eq-Rel R x (pair (pair P p) H) =
+  map-universal-property-trunc-Prop
+    ( pair
+      ( Id (center-total-class-Eq-Rel R x) (pair (pair P p) H))
+      {! is-set-im!})
+    {!!}
+    {!!}
+
+is-contr-total-class-Eq-Rel :
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) (x : A) →
+  is-contr
+    ( Σ (quotient-Eq-Rel R) (λ P → type-class-quotient-Eq-Rel R P x))
+is-contr-total-class-Eq-Rel R x =
+  pair
+    ( center-total-class-Eq-Rel R x)
+    ( contraction-total-class-Eq-Rel R x)
+
+--------------------------------------------------------------------------------
 
 {- Section 15.2 The universal property of set quotients -}
 
