@@ -32,7 +32,7 @@ universal-property-propositional-truncation l {A = A} P f =
   (Q : UU-Prop l) (g : A → type-Prop Q) →
   is-contr (Σ (type-hom-Prop P Q) (λ h → (h ∘ f) ~  g))
 
--- Some unnumbered remarks after Definition 13.1.3
+-- Some unnumbered remarks after Definition 13.1.1
 
 universal-property-is-propositional-truncation :
   (l : Level) {l1 l2 : Level} {A : UU l1}
@@ -632,6 +632,49 @@ universal-property-im l f =
     ( λ B m h →
       pair ( map-universal-property-im f m h)
            ( triangle-universal-property-im f m h))
+
+{- We show some truncatedness results, so that we can use images as sets, and
+   so on. -}
+
+is-trunc-im :
+  {l1 l2 : Level} (k : 𝕋) {X : UU l1} {A : UU l2} (f : A → X) →
+  is-trunc (succ-𝕋 k) X → is-trunc (succ-𝕋 k) (im f)
+is-trunc-im k f = is-trunc-emb k (emb-im f) 
+
+is-prop-im :
+  {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
+  is-prop X → is-prop (im f)
+is-prop-im = is-trunc-im neg-two-𝕋
+
+is-set-im :
+  {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
+  is-set X → is-set (im f)
+is-set-im = is-trunc-im neg-one-𝕋
+
+is-1-type-im :
+  {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
+  is-1-type X → is-1-type (im f)
+is-1-type-im = is-trunc-im zero-𝕋
+
+im-Set' :
+  {l1 l2 : Level} (A : UU l2) (X : UU-Set l1) (f : A → type-Set X) →
+  UU-Set (l1 ⊔ l2)
+im-Set' A X f = pair (im f) (is-set-im f (is-set-type-Set X))
+
+im-Set :
+  {l1 l2 : Level} (A : UU-Set l2) (X : UU-Set l1) (f : type-hom-Set A X) →
+  UU-Set (l1 ⊔ l2)
+im-Set A = im-Set' (type-Set A)
+
+im-1-Type' :
+  {l1 l2 : Level} (A : UU l2) (X : UU-1-Type l1)
+  (f : A → type-1-Type X) → UU-1-Type (l1 ⊔ l2)
+im-1-Type' A X f = pair (im f) (is-1-type-im f (is-1-type-type-1-Type X))
+
+im-1-Type :
+  {l1 l2 : Level} (A : UU-1-Type l2) (X : UU-1-Type l1)
+  (f : type-hom-1-Type A X) → UU-1-Type (l1 ⊔ l2)
+im-1-Type A = im-1-Type' (type-1-Type A)
 
 {- The uniqueness of the image -}
 

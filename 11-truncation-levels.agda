@@ -435,10 +435,17 @@ abstract
 -- We show that if A embeds into a (k+1)-type B, then A is a (k+1)-type. --
 
 abstract
-  is-trunc-succ-is-emb : {i j : Level} (k : 𝕋) {A : UU i} {B : UU j}
+  is-trunc-is-emb : {i j : Level} (k : 𝕋) {A : UU i} {B : UU j}
     (f : A → B) → is-emb f → is-trunc (succ-𝕋 k) B → is-trunc (succ-𝕋 k) A
-  is-trunc-succ-is-emb k f Ef H x y =
+  is-trunc-is-emb k f Ef H x y =
     is-trunc-is-equiv k (Id (f x) (f y)) (ap f {x} {y}) (Ef x y) (H (f x) (f y))
+
+abstract
+  is-trunc-emb : {i j : Level} (k : 𝕋) {A : UU i} {B : UU j} →
+    (f : A ↪ B) → is-trunc (succ-𝕋 k) B → is-trunc (succ-𝕋 k) A
+  is-trunc-emb k f = is-trunc-is-emb k (map-emb f) (is-emb-map-emb f)
+
+-- Truncated maps
 
 is-trunc-map :
   {i j : Level} (k : 𝕋) {A : UU i} {B : UU j} → (A → B) → UU (i ⊔ j)
@@ -446,7 +453,6 @@ is-trunc-map k f = (y : _) → is-trunc k (fib f y)
 
 trunc-map : {i j : Level} (k : 𝕋) (A : UU i) (B : UU j) → UU (i ⊔ j)
 trunc-map k A B = Σ (A → B) (is-trunc-map k)
-
 
 abstract
   is-trunc-pr1-is-trunc-fam :
@@ -554,7 +560,7 @@ abstract
     ((x : A) → is-prop (P x)) →
     is-trunc (succ-𝕋 k) A → is-trunc (succ-𝕋 k) (Σ A P)
   is-trunc-succ-subtype k H is-trunc-A =
-    is-trunc-succ-is-emb k pr1 (is-emb-pr1-is-subtype H) is-trunc-A
+    is-trunc-is-emb k pr1 (is-emb-pr1-is-subtype H) is-trunc-A
 
 is-fiberwise-trunc : {l1 l2 l3 : Level} (k : 𝕋)  {A : UU l1} {B : A → UU l2}
   {C : A → UU l3} (f : (x : A) → B x → C x) → UU (l1 ⊔ (l2 ⊔ l3))
