@@ -1335,6 +1335,8 @@ abstract
     is-equiv-tot-is-fiberwise-equiv
       ( is-fiberwise-equiv-set-isomorphism-equiv-fiberwise A B)
 
+-- Exercise 12.19
+
 --------------------------------------------------------------------------------
 
 {- Some lemmas about equivalences on Π-types -}
