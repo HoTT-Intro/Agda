@@ -2,8 +2,8 @@
 
 module 13-propositional-truncation where
 
-import 12-function-extensionality
-open 12-function-extensionality public
+import 12-function-extensionality-solutions
+open 12-function-extensionality-solutions public
 
 -- Section 13 Propositional truncations, the image of a map, and the replacement axiom
 
