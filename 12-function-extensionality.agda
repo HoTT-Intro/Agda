@@ -191,6 +191,8 @@ abstract
     ((x : A) → is-contr (B x)) → is-contr ((x : A) → B x)
   is-contr-Π {A = A} {B = B} = WEAK-FUNEXT-FUNEXT (λ X Y → funext) A B
 
+-- Theorem 12.1.5
+
 abstract
   is-trunc-Π :
     {l1 l2 : Level} (k : 𝕋) {A : UU l1} {B : A → UU l2} →
@@ -218,6 +220,8 @@ abstract
     {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
     ((x : A) → is-1-type (B x)) → is-1-type ((x : A) → B x)
   is-1-type-Π = is-trunc-Π one-𝕋
+
+-- Corollary 12.1.6
 
 abstract
   is-trunc-function-type :
@@ -501,6 +505,8 @@ hom-Truncated-Type k A B =
 
 --------------------------------------------------------------------------------
 
+-- Section 12.2 The type theoretic principle of choice
+
 {- The type theoretic principle of choice is the assertion that Π distributes
    over Σ. In other words, there is an equivalence
 
@@ -573,10 +579,14 @@ abstract
   eq-Eq-type-choice-∞ C {t} {t'} =
     inv-is-equiv (is-equiv-Eq-type-choice-∞-eq C t t')
 
+-- We define the map choice-∞, which is not given its own definition environment
+
 choice-∞ :
   {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {C : (x : A) → B x → UU l3} →
   Π-total-fam C → type-choice-∞ C
 choice-∞ φ = pair (λ x → pr1 (φ x)) (λ x → pr2 (φ x))
+
+-- Theorem 12.2.1
 
 inv-choice-∞ :
   {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {C : (x : A) → B x → UU l3} →
@@ -626,6 +636,8 @@ equiv-inv-choice-∞ :
   {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} (C : (x : A) → B x → UU l3) →
   (type-choice-∞ C) ≃ (Π-total-fam C)
 equiv-inv-choice-∞ C = pair inv-choice-∞ is-equiv-inv-choice-∞
+
+-- Corollary 12.2.2
 
 mapping-into-Σ :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : B → UU l3} →
@@ -692,13 +704,11 @@ eq-Eq-Π-total-fam :
   (t t' : (a : A) → Σ (B a) (C a)) → Eq-Π-total-fam C t t' → Id t t'
 eq-Eq-Π-total-fam C t t' = inv-is-equiv (is-equiv-Eq-Π-total-fam-eq C t t')
 
--- Section 12.2 Universal properties
+--------------------------------------------------------------------------------
 
-sec-ev-pair :
-  {l1 l2 l3 : Level} (A : UU l1) (B : A → UU l2)
-  (C : Σ A B → UU l3) → sec (ev-pair {A = A} {B = B} {C = C})
-sec-ev-pair A B C =
-  pair (λ f → ind-Σ f) (λ f → refl)
+-- Section 12.3 Universal properties
+
+-- Theorem 12.3.1
 
 abstract
   is-equiv-ev-pair :
@@ -706,12 +716,21 @@ abstract
     is-equiv (ev-pair {C = C})
   is-equiv-ev-pair =
     pair
-      ( sec-ev-pair _ _ _)
+      ( pair ind-Σ refl-htpy)
       ( pair ind-Σ
         ( λ f → eq-htpy
           ( ind-Σ
             {C = (λ t → Id (ind-Σ (ev-pair f) t) (f t))}
             (λ x y → refl))))
+
+equiv-ev-pair :
+  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {C : Σ A B → UU l3} →
+  ((x : Σ A B) → C x) ≃ ((a : A) (b : B a) → C (pair a b))
+equiv-ev-pair = pair ev-pair is-equiv-ev-pair
+
+-- Corollary 12.3.2
+
+-- Theorem 12.3.3
 
 ev-refl :
   {l1 l2 : Level} {A : UU l1} (a : A) {B : (x : A) → Id a x → UU l2} →
@@ -732,12 +751,21 @@ abstract
             ( λ x' p' → Id (ind-Id a _ (f a refl) x' p') (f x' p'))
             ( refl) x)))
 
--- Section 12.3 Composing with equivalences.
+equiv-ev-refl :
+  {l1 l2 : Level} {A : UU l1} (a : A) {B : (x : A) → Id a x → UU l2} →
+  ((x : A) (p : Id a x) → B x p) ≃ (B a refl)
+equiv-ev-refl a = pair (ev-refl a) (is-equiv-ev-refl a)
+
+--------------------------------------------------------------------------------
+
+-- Section 12.4 Composing with equivalences.
 
 precomp-Π :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (f : A → B) (C : B → UU l3) →
   ((b : B) → C b) → ((a : A) → C (f a))
 precomp-Π f C h a = h (f a)
+
+-- Theorem 12.4.1
 
 tr-precompose-fam :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (C : B → UU l3)
@@ -860,6 +888,8 @@ abstract
       ( f)
       ( λ l C → is-equiv-precomp-f l (pr1 C))
 
+--------------------------------------------------------------------------------
+
 -- Exercises
 
 -- Exercise 12.1
@@ -935,6 +965,10 @@ equiv-htpy-concat' f K =
 
 -- Exercise 12.2
 
+-- Exercise 12.3
+
+-- Exercise 12.3 (a)
+
 abstract
   is-subtype-is-contr :
     {l : Level} → is-subtype {lsuc l} {A = UU l} is-contr
@@ -945,6 +979,11 @@ abstract
           ( is-contr-A)
           ( λ x → is-contr-Π (is-prop-is-contr is-contr-A x)))
 
+is-contr-Prop : {l : Level} → UU l → UU-Prop l
+is-contr-Prop A = pair (is-contr A) (is-subtype-is-contr A)
+
+-- Exercise 12.3 (b)
+
 abstract
   is-prop-is-trunc :
     {l : Level} (k : 𝕋) (A : UU l) → is-prop (is-trunc k A)
@@ -952,17 +991,35 @@ abstract
   is-prop-is-trunc (succ-𝕋 k) A =
     is-prop-Π (λ x → is-prop-Π (λ y → is-prop-is-trunc k (Id x y)))
 
+is-trunc-Prop : {l : Level} (k : 𝕋) (A : UU l) → UU-Prop l
+is-trunc-Prop k A = pair (is-trunc k A) (is-prop-is-trunc k A)
+
 abstract
   is-prop-is-prop :
     {l : Level} (A : UU l) → is-prop (is-prop A)
   is-prop-is-prop = is-prop-is-trunc neg-one-𝕋
+
+is-prop-Prop : {l : Level} (A : UU l) → UU-Prop l
+is-prop-Prop A = pair (is-prop A) (is-prop-is-prop A)
 
 abstract
   is-prop-is-set :
     {l : Level} (A : UU l) → is-prop (is-set A)
   is-prop-is-set = is-prop-is-trunc zero-𝕋
 
--- Exercise 12.3
+is-set-Prop : {l : Level} → UU l → UU-Prop l
+is-set-Prop A = pair (is-set A) (is-prop-is-set A)
+
+abstract
+  is-prop-is-1-type :
+    {l : Level} (A : UU l) → is-prop (is-1-type A)
+  is-prop-is-1-type A = is-prop-is-trunc one-𝕋 A
+
+is-1-type-Prop :
+  {l : Level} → UU l → UU-Prop l
+is-1-type-Prop A = pair (is-1-type A) (is-prop-is-1-type A)
+
+-- Exercise 12.4
 
 postcomp :
   {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (A : UU l3) →
@@ -1020,7 +1077,7 @@ equiv-postcomp A e =
     ( postcomp A (map-equiv e))
     ( is-equiv-postcomp-is-equiv (map-equiv e) (is-equiv-map-equiv e) A)
 
--- Exercise 12.4
+-- Exercise 12.5
 
 is-contr-sec-is-equiv :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
@@ -1140,8 +1197,6 @@ abstract
     Id (ind-htpy-equiv e P p e (reflexive-htpy-equiv e)) p
   comp-htpy-equiv e P = pr2 (Ind-htpy-equiv e P)
 
--- Exercise 12.5
-
 {- We use that is-equiv is a proposition to show that the type of equivalences
    between k-types is again a k-type. -}
    
@@ -1199,7 +1254,7 @@ set-equiv A B =
     ( type-Set A ≃ type-Set B)
     ( is-set-equiv-is-set (is-set-type-Set A) (is-set-type-Set B))
 
-{- Now we turn to the exercise. -}
+-- Exercise 12.6
 
 _↔_ :
   {l1 l2 : Level} → UU-Prop l1 → UU-Prop l2 → UU (l1 ⊔ l2)
@@ -1256,7 +1311,7 @@ abstract
   is-contr-endomaps-is-prop P is-prop-P =
     is-contr-is-prop-inh (is-prop-function-type is-prop-P) id
 
--- Exercise 12.6
+-- Exercise 12.7
 
 abstract
   is-prop-is-path-split :
@@ -1321,7 +1376,7 @@ abstract
       ( is-prop-is-half-adjoint-equivalence f)
       ( is-equiv-is-half-adjoint-equivalence f)
 
--- Exercise 12.7
+-- Exercise 12.8
 
 is-invertible-id-htpy-id-id :
   {l : Level} (A : UU l) →
@@ -1355,7 +1410,7 @@ abstract
         ( pair id refl-htpy))
       ( is-equiv-Σ-assoc _ _ _)
 
--- Exercise 12.8
+-- Exercise 12.9
 
 abstract
   dependent-universal-property-empty :
@@ -1391,63 +1446,6 @@ abstract
       ( λ f → f ∘ ind-empty)
       ( is-equiv-precomp-is-equiv ind-empty is-equiv-ind-empty Y)
       ( universal-property-empty Y)
-      
--- Exercise 12.9
-
-ev-inl-inr :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (P : coprod A B → UU l3) →
-  ((t : coprod A B) → P t) → ((x : A) → P (inl x)) × ((y : B) → P (inr y))
-ev-inl-inr P s = pair (λ x → s (inl x)) (λ y → s (inr y))
-
-abstract
-  dependent-universal-property-coprod :
-    {l1 l2 l3 : Level} {A : UU l1} {B : UU l2}
-    (P : coprod A B → UU l3) → is-equiv (ev-inl-inr P)
-  dependent-universal-property-coprod P =
-    is-equiv-has-inverse
-      ( λ p → ind-coprod P (pr1 p) (pr2 p))
-      ( ind-Σ (λ f g → eq-pair-triv (pair refl refl)))
-      ( λ s → eq-htpy (ind-coprod _ (λ x → refl) λ y → refl))
-
-abstract
-  universal-property-coprod :
-    {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (X : UU l3) →
-    is-equiv (ev-inl-inr (λ (t : coprod A B) → X))
-  universal-property-coprod X = dependent-universal-property-coprod (λ t → X)
-
-abstract
-  uniqueness-coprod :
-    { l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {Y : UU l3}
-    ( i : A → Y) (j : B → Y) →
-    ( (l : Level) (X : UU l) →
-      is-equiv (λ (s : Y → X) → pair' (s ∘ i) (s ∘ j))) →
-    is-equiv (ind-coprod (λ t → Y) i j)
-  uniqueness-coprod {Y = Y} i j H =
-    is-equiv-is-equiv-precomp
-      ( ind-coprod _ i j)
-      ( λ l X → is-equiv-right-factor'
-        ( ev-inl-inr (λ t → X))
-        ( precomp (ind-coprod (λ t → Y) i j) X)
-        ( universal-property-coprod X)
-        ( H _ X))
-
-abstract
-  universal-property-coprod-is-equiv-ind-coprod :
-    { l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (X : UU l3)
-    ( i : A → X) (j : B → X) → is-equiv (ind-coprod (λ t → X) i j) →
-    ( (l4 : Level) (Y : UU l4) →
-      is-equiv (λ (s : X → Y) → pair' (s ∘ i) (s ∘ j)))
-  universal-property-coprod-is-equiv-ind-coprod X i j is-equiv-ind-coprod l Y =
-    is-equiv-comp
-      ( λ s → pair (s ∘ i) (s ∘ j))
-      ( ev-inl-inr (λ t → Y))
-      ( precomp (ind-coprod (λ t → X) i j) Y)
-      ( λ s → refl)
-      ( is-equiv-precomp-is-equiv
-        ( ind-coprod (λ t → X) i j)
-        ( is-equiv-ind-coprod)
-        ( Y))
-      ( universal-property-coprod Y)
 
 -- Exercise 12.10
 
@@ -1548,9 +1546,66 @@ abstract
     is-contr X →
     ({l2 : Level} (Y : UU l2) → is-equiv (λ y → const X Y y))
   is-equiv-diagonal-is-contr x is-contr-X =
-    is-equiv-diagonal-is-equiv-pt x (is-equiv-pt-is-contr x is-contr-X) 
+    is-equiv-diagonal-is-equiv-pt x (is-equiv-pt-is-contr x is-contr-X)
     
 -- Exercise 12.11
+
+ev-inl-inr :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (P : coprod A B → UU l3) →
+  ((t : coprod A B) → P t) → ((x : A) → P (inl x)) × ((y : B) → P (inr y))
+ev-inl-inr P s = pair (λ x → s (inl x)) (λ y → s (inr y))
+
+abstract
+  dependent-universal-property-coprod :
+    {l1 l2 l3 : Level} {A : UU l1} {B : UU l2}
+    (P : coprod A B → UU l3) → is-equiv (ev-inl-inr P)
+  dependent-universal-property-coprod P =
+    is-equiv-has-inverse
+      ( λ p → ind-coprod P (pr1 p) (pr2 p))
+      ( ind-Σ (λ f g → eq-pair-triv (pair refl refl)))
+      ( λ s → eq-htpy (ind-coprod _ (λ x → refl) λ y → refl))
+
+abstract
+  universal-property-coprod :
+    {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (X : UU l3) →
+    is-equiv (ev-inl-inr (λ (t : coprod A B) → X))
+  universal-property-coprod X = dependent-universal-property-coprod (λ t → X)
+
+abstract
+  uniqueness-coprod :
+    { l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {Y : UU l3}
+    ( i : A → Y) (j : B → Y) →
+    ( (l : Level) (X : UU l) →
+      is-equiv (λ (s : Y → X) → pair' (s ∘ i) (s ∘ j))) →
+    is-equiv (ind-coprod (λ t → Y) i j)
+  uniqueness-coprod {Y = Y} i j H =
+    is-equiv-is-equiv-precomp
+      ( ind-coprod _ i j)
+      ( λ l X → is-equiv-right-factor'
+        ( ev-inl-inr (λ t → X))
+        ( precomp (ind-coprod (λ t → Y) i j) X)
+        ( universal-property-coprod X)
+        ( H _ X))
+
+abstract
+  universal-property-coprod-is-equiv-ind-coprod :
+    { l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (X : UU l3)
+    ( i : A → X) (j : B → X) → is-equiv (ind-coprod (λ t → X) i j) →
+    ( (l4 : Level) (Y : UU l4) →
+      is-equiv (λ (s : X → Y) → pair' (s ∘ i) (s ∘ j)))
+  universal-property-coprod-is-equiv-ind-coprod X i j is-equiv-ind-coprod l Y =
+    is-equiv-comp
+      ( λ s → pair (s ∘ i) (s ∘ j))
+      ( ev-inl-inr (λ t → Y))
+      ( precomp (ind-coprod (λ t → X) i j) Y)
+      ( λ s → refl)
+      ( is-equiv-precomp-is-equiv
+        ( ind-coprod (λ t → X) i j)
+        ( is-equiv-ind-coprod)
+        ( Y))
+      ( universal-property-coprod Y)
+    
+-- Exercise 12.12
 
 Eq-sec :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
@@ -1700,7 +1755,7 @@ sec-right-factor-retract-of-sec-left-factor f g h H retr-g =
       ( retraction-comp f g h H retr-g)
       ( isretr-retraction-comp f g h H retr-g))
 
--- Exercise 12.12
+-- Exercise 12.13
 
 postcomp-Π :
   {l1 l2 l3 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
@@ -1733,7 +1788,11 @@ equiv-postcomp-Π e =
     ( postcomp-Π (λ i → map-equiv (e i)))
     ( is-equiv-postcomp-Π _ (λ i → is-equiv-map-equiv (e i)))
 
--- Exercise 12.13
+-- Exercise 12.14
+
+-- Exercise 12.15
+
+-- Exercise 12.16
 
 hom-slice :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
@@ -1982,7 +2041,7 @@ abstract
         ( is-equiv-hom-slice-is-fiberwise-equiv-fiberwise-hom-hom-slice
           f g))
 
--- Exercise 12.14
+-- Exercise 12.17
 
 hom-over-morphism :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {X : UU l3} {Y : UU l4}
@@ -2055,7 +2114,7 @@ abstract
       ( isretr-hom-over-morphism-fiberwise-hom i f g)
       ( issec-hom-over-morphism-fiberwise-hom i f g)
 
--- Exercise 12.15
+-- Exercise 12.18
 
 set-isomorphism :
   {l1 l2 : Level} (A : UU-Set l1) (B : UU-Set l2) → UU (l1 ⊔ l2)
@@ -2114,6 +2173,8 @@ abstract
   is-equiv-set-isomorphism-equiv A B =
     is-equiv-tot-is-fiberwise-equiv
       ( is-fiberwise-equiv-set-isomorphism-equiv-fiberwise A B)
+
+--------------------------------------------------------------------------------
 
 {- Some lemmas about equivalences on Π-types -}
 
