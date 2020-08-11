@@ -5,9 +5,13 @@ module 12-function-extensionality where
 import 11-truncation-levels
 open 11-truncation-levels public
 
--- Section 9.1 Equivalent forms of Function Extensionality.
+--------------------------------------------------------------------------------
 
--- We first define the types Funext, Ind-htpy, and Weak-Funext. 
+-- Section 12.1 Equivalent forms of Function Extensionality.
+
+-- Proposition 12.1.1
+
+-- Proposition 12.1.1, condition (i)
 
 htpy-eq :
   {i j : Level} {A : UU i} {B : A → UU j} {f g : (x : A) → B x} →
@@ -18,6 +22,8 @@ FUNEXT :
   {i j : Level} {A : UU i} {B : A → UU j} →
   (f : (x : A) → B x) → UU (i ⊔ j)
 FUNEXT f = is-fiberwise-equiv (λ g → htpy-eq {f = f} {g = g})
+
+-- Proposition 12.1.1, condition (iii)
 
 ev-refl-htpy :
   {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2}
@@ -31,32 +37,16 @@ IND-HTPY :
 IND-HTPY {l1} {l2} {l3} {A} {B} f =
   (C : (g : (x : A) → B x) → (f ~ g) → UU l3) → sec (ev-refl-htpy f C)
 
-WEAK-FUNEXT :
-  {i j : Level} (A : UU i) (B : A → UU j) → UU (i ⊔ j)
-WEAK-FUNEXT A B =
-  ((x : A) → is-contr (B x)) → is-contr ((x : A) → B x)
-
--- Our goal is now to show that function extensionality holds if and only if the homotopy induction principle is valid, if and only if the weak function extensionality principle holds. This is Theorem 9.1.1 in the notes.
+-- Proposition 12.1.1, (i) implies (ii)
 
 abstract
-  is-contr-total-htpy-Funext :
-    {i j : Level} {A : UU i} {B : A → UU j} →
-    (f : (x : A) → B x) → FUNEXT f → is-contr (Σ ((x : A) → B x) (λ g → f ~ g))
-  is-contr-total-htpy-Funext f funext-f =
+  is-contr-total-htpy-FUNEXT :
+    {i j : Level} {A : UU i} {B : A → UU j} (f : (x : A) → B x) →
+    FUNEXT f → is-contr (Σ ((x : A) → B x) (λ g → f ~ g))
+  is-contr-total-htpy-FUNEXT f funext-f =
     fundamental-theorem-id' f refl-htpy (λ g → htpy-eq {g = g}) funext-f
 
-sec-ev-pair :
-  {l1 l2 l3 : Level} (A : UU l1) (B : A → UU l2)
-  (C : Σ A B → UU l3) → sec (ev-pair {A = A} {B = B} {C = C})
-sec-ev-pair A B C =
-  pair (λ f → ind-Σ f) (λ f → refl)
-
-triangle-ev-refl-htpy :
-  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2}
-  (f : (x : A) → B x) (C :  Σ ((x : A) → B x) (λ g → f ~ g) → UU l3) →
-  ev-pt (Σ ((x : A) → B x) (λ g → f ~ g)) (pair f refl-htpy) C ~
-  ((ev-refl-htpy f (λ x y → C (pair x y))) ∘ (ev-pair {C = C}))
-triangle-ev-refl-htpy f C φ = refl
+-- Proposition 12.1.1, (i) implies (iii)
 
 abstract
   IND-HTPY-FUNEXT :
@@ -65,7 +55,9 @@ abstract
   IND-HTPY-FUNEXT {l3 = l3} {A = A} {B = B} f funext-f =
     Ind-identity-system l3 f
       ( refl-htpy)
-      ( is-contr-total-htpy-Funext f funext-f)
+      ( is-contr-total-htpy-FUNEXT f funext-f)
+
+-- Proposition 12.1.1, (iii) implies (i)
 
 abstract
   FUNEXT-IND-HTPY :
@@ -76,6 +68,13 @@ abstract
       ( refl-htpy)
       ( ind-htpy-f)
       ( λ g → htpy-eq)
+
+-- Theorem 12.1.4
+
+WEAK-FUNEXT :
+  {i j : Level} (A : UU i) (B : A → UU j) → UU (i ⊔ j)
+WEAK-FUNEXT A B =
+  ((x : A) → is-contr (B x)) → is-contr ((x : A) → B x)
 
 abstract
   WEAK-FUNEXT-FUNEXT :
@@ -145,7 +144,7 @@ abstract
 {-
 The immediate proof of the following theorem would be
 
-  is-contr-total-htpy-Funext f (funext f)
+  is-contr-total-htpy-FUNEXT f (funext f)
 
 We give a different proof to ensure that the center of contraction is the 
 expected thing: 
@@ -163,9 +162,9 @@ abstract
       ( pair f refl-htpy)
       ( λ t →
         ( inv (contraction
-          ( is-contr-total-htpy-Funext f (funext f))
+          ( is-contr-total-htpy-FUNEXT f (funext f))
           ( pair f refl-htpy))) ∙
-        ( contraction (is-contr-total-htpy-Funext f (funext f)) t))
+        ( contraction (is-contr-total-htpy-FUNEXT f (funext f)) t))
 
 abstract
   Ind-htpy :
@@ -693,7 +692,13 @@ eq-Eq-Π-total-fam :
   (t t' : (a : A) → Σ (B a) (C a)) → Eq-Π-total-fam C t t' → Id t t'
 eq-Eq-Π-total-fam C t t' = inv-is-equiv (is-equiv-Eq-Π-total-fam-eq C t t')
 
--- Section 9.2 Universal properties
+-- Section 12.2 Universal properties
+
+sec-ev-pair :
+  {l1 l2 l3 : Level} (A : UU l1) (B : A → UU l2)
+  (C : Σ A B → UU l3) → sec (ev-pair {A = A} {B = B} {C = C})
+sec-ev-pair A B C =
+  pair (λ f → ind-Σ f) (λ f → refl)
 
 abstract
   is-equiv-ev-pair :
@@ -727,7 +732,7 @@ abstract
             ( λ x' p' → Id (ind-Id a _ (f a refl) x' p') (f x' p'))
             ( refl) x)))
 
--- Section 9.3 Composing with equivalences.
+-- Section 12.3 Composing with equivalences.
 
 precomp-Π :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (f : A → B) (C : B → UU l3) →
@@ -857,7 +862,7 @@ abstract
 
 -- Exercises
 
--- Exercise 9.1
+-- Exercise 12.1
 
 abstract
   is-equiv-htpy-inv :
@@ -928,7 +933,7 @@ equiv-htpy-concat' :
 equiv-htpy-concat' f K =
   pair (htpy-concat' f K) (is-equiv-htpy-concat' f K)
 
--- Exercise 9.2
+-- Exercise 12.2
 
 abstract
   is-subtype-is-contr :
@@ -957,7 +962,7 @@ abstract
     {l : Level} (A : UU l) → is-prop (is-set A)
   is-prop-is-set = is-prop-is-trunc zero-𝕋
 
--- Exercise 9.3
+-- Exercise 12.3
 
 postcomp :
   {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (A : UU l3) →
@@ -1015,7 +1020,7 @@ equiv-postcomp A e =
     ( postcomp A (map-equiv e))
     ( is-equiv-postcomp-is-equiv (map-equiv e) (is-equiv-map-equiv e) A)
 
--- Exercise 9.4
+-- Exercise 12.4
 
 is-contr-sec-is-equiv :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
@@ -1135,7 +1140,7 @@ abstract
     Id (ind-htpy-equiv e P p e (reflexive-htpy-equiv e)) p
   comp-htpy-equiv e P = pr2 (Ind-htpy-equiv e P)
 
--- Exercise 9.5
+-- Exercise 12.5
 
 {- We use that is-equiv is a proposition to show that the type of equivalences
    between k-types is again a k-type. -}
@@ -1251,7 +1256,7 @@ abstract
   is-contr-endomaps-is-prop P is-prop-P =
     is-contr-is-prop-inh (is-prop-function-type is-prop-P) id
 
--- Exercise 9.6
+-- Exercise 12.6
 
 abstract
   is-prop-is-path-split :
@@ -1316,7 +1321,7 @@ abstract
       ( is-prop-is-half-adjoint-equivalence f)
       ( is-equiv-is-half-adjoint-equivalence f)
 
--- Exercise 9.7
+-- Exercise 12.7
 
 is-invertible-id-htpy-id-id :
   {l : Level} (A : UU l) →
@@ -1350,7 +1355,7 @@ abstract
         ( pair id refl-htpy))
       ( is-equiv-Σ-assoc _ _ _)
 
--- Exercise 9.8
+-- Exercise 12.8
 
 abstract
   dependent-universal-property-empty :
@@ -1387,7 +1392,7 @@ abstract
       ( is-equiv-precomp-is-equiv ind-empty is-equiv-ind-empty Y)
       ( universal-property-empty Y)
       
--- Exercise 9.9
+-- Exercise 12.9
 
 ev-inl-inr :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (P : coprod A B → UU l3) →
@@ -1545,7 +1550,7 @@ abstract
   is-equiv-diagonal-is-contr x is-contr-X =
     is-equiv-diagonal-is-equiv-pt x (is-equiv-pt-is-contr x is-contr-X) 
     
--- Exercise 9.11
+-- Exercise 12.11
 
 Eq-sec :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
@@ -1695,7 +1700,7 @@ sec-right-factor-retract-of-sec-left-factor f g h H retr-g =
       ( retraction-comp f g h H retr-g)
       ( isretr-retraction-comp f g h H retr-g))
 
--- Exercise 9.12
+-- Exercise 12.12
 
 postcomp-Π :
   {l1 l2 l3 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
@@ -1728,7 +1733,7 @@ equiv-postcomp-Π e =
     ( postcomp-Π (λ i → map-equiv (e i)))
     ( is-equiv-postcomp-Π _ (λ i → is-equiv-map-equiv (e i)))
 
--- Exercise 9.13
+-- Exercise 12.13
 
 hom-slice :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
@@ -1977,7 +1982,7 @@ abstract
         ( is-equiv-hom-slice-is-fiberwise-equiv-fiberwise-hom-hom-slice
           f g))
 
--- Exercise 9.14
+-- Exercise 12.14
 
 hom-over-morphism :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {X : UU l3} {Y : UU l4}
@@ -2050,7 +2055,7 @@ abstract
       ( isretr-hom-over-morphism-fiberwise-hom i f g)
       ( issec-hom-over-morphism-fiberwise-hom i f g)
 
--- Exercise 9.15
+-- Exercise 12.15
 
 set-isomorphism :
   {l1 l2 : Level} (A : UU-Set l1) (B : UU-Set l2) → UU (l1 ⊔ l2)
