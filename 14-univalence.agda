@@ -2,8 +2,8 @@
 
 module 14-univalence where
 
-import 13-propositional-truncation
-open 13-propositional-truncation public
+import 13-propositional-truncation-solutions
+open 13-propositional-truncation-solutions public
 
 -- Section 10.1 Type extensionality
 
