@@ -668,6 +668,36 @@ right-inverse-law-add-Fin x =
 
 -- We show that the divisibility relation is a poset
 
+refl-div-ℕ : (x : ℕ) → div-ℕ x x
+refl-div-ℕ x = pair one-ℕ (left-unit-law-mul-ℕ x)
+
+eq-zero-div-zero-ℕ :
+  (x : ℕ) → div-ℕ zero-ℕ x → Id x zero-ℕ
+eq-zero-div-zero-ℕ x (pair k p) = inv p ∙ right-zero-law-mul-ℕ k
+
+anti-symmetric-ℕ :
+  (x y : ℕ) → div-ℕ x y → div-ℕ y x → Id x y
+anti-symmetric-ℕ zero-ℕ zero-ℕ H K = refl
+anti-symmetric-ℕ zero-ℕ (succ-ℕ y) H K =
+  ex-falso (Peano-8 y (inv (eq-zero-div-zero-ℕ (succ-ℕ y) H)))
+anti-symmetric-ℕ (succ-ℕ x) zero-ℕ H K =
+  ex-falso (Peano-8 x (inv (eq-zero-div-zero-ℕ (succ-ℕ x) K)))
+anti-symmetric-ℕ (succ-ℕ x) (succ-ℕ y) (pair k p) (pair l q) =
+  ( inv (left-unit-law-mul-ℕ (succ-ℕ x))) ∙
+  ( ( ap ( mul-ℕ' (succ-ℕ x))
+         ( inv
+           ( eq-one-right-mul-ℕ l k
+             ( eq-one-is-left-unit-mul-ℕ (mul-ℕ l k) x
+               ( ( associative-mul-ℕ l k (succ-ℕ x)) ∙
+                 ( ap (mul-ℕ l) p ∙ q)))))) ∙
+    ( p))
+
+transitive-div-ℕ :
+  (x y z : ℕ) → div-ℕ x y → div-ℕ y z → div-ℕ x z
+transitive-div-ℕ x y z (pair k p) (pair l q) =
+  pair ( mul-ℕ l k)
+       ( associative-mul-ℕ l k x ∙ (ap (mul-ℕ l) p ∙ q))
+
 {- Exercise 7.3 -}
 
 -- We introduce the observational equality on finite sets.

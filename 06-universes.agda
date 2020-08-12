@@ -67,14 +67,12 @@ is-injective-add-ℕ zero-ℕ m n = id
 is-injective-add-ℕ (succ-ℕ k) m n p =
   is-injective-add-ℕ k m n (is-injective-succ-ℕ (add-ℕ m k) (add-ℕ n k) p)
 
--- Exercise 6.1 (b)
-
-is-injective-mul-ℕ :
+is-injective-right-mul-ℕ :
   (k m n : ℕ) → Id (mul-ℕ m (succ-ℕ k)) (mul-ℕ n (succ-ℕ k)) → Id m n
-is-injective-mul-ℕ k zero-ℕ zero-ℕ p = refl
-is-injective-mul-ℕ k (succ-ℕ m) (succ-ℕ n) p =
+is-injective-right-mul-ℕ k zero-ℕ zero-ℕ p = refl
+is-injective-right-mul-ℕ k (succ-ℕ m) (succ-ℕ n) p =
   ap succ-ℕ
-    ( is-injective-mul-ℕ k m n
+    ( is-injective-right-mul-ℕ k m n
       ( is-injective-add-ℕ
         ( succ-ℕ k)
         ( mul-ℕ m (succ-ℕ k))
@@ -82,6 +80,58 @@ is-injective-mul-ℕ k (succ-ℕ m) (succ-ℕ n) p =
         ( ( inv (left-successor-law-mul-ℕ m (succ-ℕ k))) ∙
           ( ( p) ∙
             ( left-successor-law-mul-ℕ n (succ-ℕ k))))))
+
+ap-mul-ℕ :
+  {x y x' y' : ℕ} → Id x x' → Id y y' → Id (mul-ℕ x y) (mul-ℕ x' y')
+ap-mul-ℕ refl refl = refl
+
+is-injective-left-mul-ℕ :
+  (k m n : ℕ) → Id (mul-ℕ (succ-ℕ k) m) (mul-ℕ (succ-ℕ k) n) → Id m n
+is-injective-left-mul-ℕ k m n p =
+  is-injective-right-mul-ℕ k m n
+    ( ( commutative-mul-ℕ m (succ-ℕ k)) ∙
+      ( p ∙ commutative-mul-ℕ (succ-ℕ k) n))
+
+-- We conclude that y = 1 if (x+1)y = x+1
+
+eq-one-is-right-unit-mul-ℕ :
+  (x y : ℕ) → Id (mul-ℕ (succ-ℕ x) y) (succ-ℕ x) → Id y one-ℕ
+eq-one-is-right-unit-mul-ℕ x y p =
+  is-injective-left-mul-ℕ x y one-ℕ (p ∙ inv (right-unit-law-mul-ℕ (succ-ℕ x)))
+
+eq-one-is-left-unit-mul-ℕ :
+  (x y : ℕ) → Id (mul-ℕ x (succ-ℕ y)) (succ-ℕ y) → Id x one-ℕ
+eq-one-is-left-unit-mul-ℕ x y p =
+  is-injective-right-mul-ℕ y x one-ℕ (p ∙ inv (left-unit-law-mul-ℕ (succ-ℕ y)))
+
+-- Exercise 6.1 (b)
+
+eq-zero-right-add-ℕ :
+  (x y : ℕ) → Id (add-ℕ x y) zero-ℕ → Id y zero-ℕ
+eq-zero-right-add-ℕ x zero-ℕ p = refl
+eq-zero-right-add-ℕ x (succ-ℕ y) p = ex-falso (Peano-8 (add-ℕ x y) (inv p))
+
+eq-zero-left-add-ℕ :
+  (x y : ℕ) → Id (add-ℕ x y) zero-ℕ → Id x zero-ℕ
+eq-zero-left-add-ℕ x y p =
+  eq-zero-right-add-ℕ y x ((commutative-add-ℕ y x) ∙ p)
+
+eq-one-right-mul-ℕ :
+  (x y : ℕ) → Id (mul-ℕ x y) one-ℕ → Id y one-ℕ
+eq-one-right-mul-ℕ zero-ℕ zero-ℕ p = p
+eq-one-right-mul-ℕ zero-ℕ (succ-ℕ y) p =
+  ex-falso (Peano-8 zero-ℕ p)
+eq-one-right-mul-ℕ (succ-ℕ x) zero-ℕ p =
+  eq-one-right-mul-ℕ x zero-ℕ p
+eq-one-right-mul-ℕ (succ-ℕ x) (succ-ℕ y) p =
+  ap ( succ-ℕ)
+     ( eq-zero-right-add-ℕ (mul-ℕ x (succ-ℕ y)) y
+       ( is-injective-succ-ℕ (add-ℕ (mul-ℕ x (succ-ℕ y)) y) zero-ℕ p))
+
+eq-one-left-mul-ℕ :
+  (x y : ℕ) → Id (mul-ℕ x y) one-ℕ → Id x one-ℕ
+eq-one-left-mul-ℕ x y p =
+  eq-one-right-mul-ℕ y x (commutative-mul-ℕ y x ∙ p)
 
 -- Exercise 6.1 (c)
 
@@ -91,8 +141,6 @@ neq-add-ℕ (succ-ℕ m) n p =
   neq-add-ℕ m n
     ( ( is-injective-succ-ℕ m (add-ℕ (succ-ℕ m) n) p) ∙
       ( left-successor-law-add-ℕ m n))
-
--- Exercise 6.1 (d)
 
 neq-mul-ℕ :
   (m n : ℕ) → ¬ (Id (succ-ℕ m) (mul-ℕ (succ-ℕ m) (succ-ℕ (succ-ℕ n))))
