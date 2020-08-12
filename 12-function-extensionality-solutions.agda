@@ -160,6 +160,14 @@ isretr-inv-ev-zero-successor-preserving-map-ℕ (pair f H) =
   eq-htpy-successor-preserving-map-ℕ
     ( htpy-isretr-inv-ev-zero-successor-preserving-map-ℕ f H)
 
+is-equiv-ev-zero-successor-preserving-map-ℕ :
+  is-equiv ev-zero-successor-preserving-map-ℕ
+is-equiv-ev-zero-successor-preserving-map-ℕ =
+  is-equiv-has-inverse
+    inv-ev-zero-successor-preserving-map-ℕ
+    issec-inv-ev-zero-successor-preserving-map-ℕ
+    isretr-inv-ev-zero-successor-preserving-map-ℕ
+
 -- Exercise 12.3
 
 -- Exercise 12.3 (a)
