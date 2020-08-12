@@ -935,7 +935,7 @@ is-emb-mul-ℕ :
 is-emb-mul-ℕ n =
   is-emb-is-injective is-set-ℕ is-set-ℕ
     ( mul-ℕ' (succ-ℕ n))
-    ( is-injective-mul-ℕ n)
+    ( is-injective-right-mul-ℕ n)
 
 {- FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX FIX
 is-emb-mul-ℕ' :

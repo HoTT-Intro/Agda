@@ -52,7 +52,7 @@ abstract
       ( ev-id (λ X e → P (pair X e)))
       ( ev-pair {A = UU i} {B = λ X → A ≃ X} {C = P})
       ( triangle-ev-id P)
-      ( sec-ev-pair (UU i) (λ X → A ≃ X) P)
+      ( pair ind-Σ refl-htpy)
       ( is-sing-is-contr (Σ (UU i) (λ X → A ≃ X))
         ( pair
           ( pair A (equiv-id A))
@@ -76,7 +76,7 @@ abstract
         ( ev-id (λ X e → P (pair X e)))
         ( ev-pair {A = UU i} {B = λ X → A ≃ X} {C = P})
         ( triangle-ev-id P)
-        ( sec-ev-pair (UU i) (λ X → A ≃ X) P)
+        ( pair ind-Σ refl-htpy)
         ( ind P))
 
 -- The univalence axiom

@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module 19-id-pushout where
+module 23-id-pushout where
 
-import 18-descent
-open 18-descent public
+import 22-descent
+open 22-descent public
 
 -- Section 19.1 Characterizing families of maps over pushouts
 
@@ -51,9 +51,9 @@ module hom-Fam-pushout
     ( h : hom-Fam-pushout) → htpy-hom-Fam-pushout h h
   reflexive-htpy-hom-Fam-pushout h =
     pair
-      ( λ x → htpy-refl)
+      ( λ x → refl-htpy)
       ( pair
-        ( λ y → htpy-refl)
+        ( λ y → refl-htpy)
         ( λ s → htpy-inv htpy-right-unit))
 
   htpy-hom-Fam-pushout-eq :
@@ -75,24 +75,24 @@ module hom-Fam-pushout
         ( λ x τ → (pr1 h x) ~ τ)
         ( λ x → is-contr-total-htpy (pr1 h x))
         ( pr1 h))
-      ( pair (pr1 h) (λ x → htpy-refl))
+      ( pair (pr1 h) (λ x → refl-htpy))
       ( is-contr-total-Eq-structure
         ( λ kB ke (HB : (y : B) → (pr1 (pr2 h) y) ~ kB y) →
           (s : S) →
             ( ((HB (g s)) ·r (map-equiv (PS s))) ∙h (ke s)) ~
-            ( (pr2 (pr2 h) s) ∙h ((map-equiv (QS s)) ·l htpy-refl)))
+            ( (pr2 (pr2 h) s) ∙h ((map-equiv (QS s)) ·l refl-htpy)))
         ( is-contr-total-Eq-Π
           ( λ y τ → (pr1 (pr2 h) y) ~ τ)
           ( λ y → is-contr-total-htpy (pr1 (pr2 h) y))
           ( pr1 (pr2 h)))
-        ( pair (pr1 (pr2 h)) (λ y → htpy-refl))
+        ( pair (pr1 (pr2 h)) (λ y → refl-htpy))
         ( is-contr-total-Eq-Π
           ( λ (s : S) he →
-            (he ~ (pr2 (pr2 h) s ∙h (map-equiv (QS s) ·l htpy-refl))))
+            (he ~ (pr2 (pr2 h) s ∙h (map-equiv (QS s) ·l refl-htpy))))
           ( λ s → is-contr-total-htpy'
-            ((pr2 (pr2 h) s) ∙h ((map-equiv (QS s)) ·l htpy-refl)))
+            ((pr2 (pr2 h) s) ∙h ((map-equiv (QS s)) ·l refl-htpy)))
           ( λ s →
-            ((pr2 (pr2 h) s) ∙h ((map-equiv (QS s)) ·l htpy-refl)))))
+            ((pr2 (pr2 h) s) ∙h ((map-equiv (QS s)) ·l refl-htpy)))))
 
   is-equiv-htpy-hom-Fam-pushout-eq :
     ( h k : hom-Fam-pushout) → is-equiv (htpy-hom-Fam-pushout-eq h k)
@@ -206,9 +206,9 @@ triangle-hom-Fam-pushout-dep-cocone {f = f} {g} c P Q h =
     ( hom-Fam-pushout-dep-cocone c P Q
       ( dep-cocone-map f g c (λ x → P x → Q x) h))
     ( pair
-      ( λ a → htpy-refl)
+      ( λ a → refl-htpy)
       ( pair
-        ( λ b → htpy-refl)
+        ( λ b → refl-htpy)
         ( λ s →
           ( htpy-eq
             ( coherence-naturality-fam-maps P Q (pr2 (pr2 c)) h s)) ∙h
@@ -269,7 +269,7 @@ triangle-is-universal-id-Fam-pushout' :
       ( desc-fam c Q)
       ( refl)) ∘
     ( hom-Fam-pushout-map c (Id (pr1 c a)) Q))
-triangle-is-universal-id-Fam-pushout' c a Q = htpy-refl
+triangle-is-universal-id-Fam-pushout' c a Q = refl-htpy
 
 is-universal-id-Fam-pushout' :
   { l l1 l2 l3 l4 : Level} {S : UU l1} {A : UU l2} {B : UU l3} {X : UU l4}
@@ -321,7 +321,7 @@ id-hom-Fam-pushout P =
     ( λ a → id)
     ( pair
       ( λ b → id)
-      ( λ s → htpy-refl))
+      ( λ s → refl-htpy))
 
 comp-hom-Fam-pushout :
   { l1 l2 l3 l4 l5 l6 : Level} {S : UU l1} {A : UU l2} {B : UU l3}

@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module 20-sequences where
+module 24-sequences where
 
-import 19-id-pushout
-open 19-id-pushout public
+import 23-id-pushout
+open 23-id-pushout public
 
 {- We introduce two types of sequences: one with the arrows going up and one
    with the arrows going down. -}
@@ -54,7 +54,7 @@ reflexive-equiv-Seq :
 reflexive-equiv-Seq A =
   pair
     ( λ n → equiv-id (type-seq A n))
-    ( λ n → htpy-refl)
+    ( λ n → refl-htpy)
 
 equiv-eq-Seq :
   { l1 : Level} (A B : Sequence l1) → Id A B → equiv-Seq A B
@@ -105,7 +105,7 @@ reflexive-equiv-Seq' :
 reflexive-equiv-Seq' A =
   pair
     ( λ n → equiv-id (type-seq' A n))
-    ( λ n → htpy-refl)
+    ( λ n → refl-htpy)
 
 equiv-eq-Seq' :
   { l1 : Level} (A B : Sequence' l1) → Id A B → equiv-Seq' A B
@@ -183,7 +183,7 @@ reflexive-htpy-cone-sequence :
   htpy-cone-sequence A c c
 reflexive-htpy-cone-sequence A c =
   pair
-    ( λ n → htpy-refl)
+    ( λ n → refl-htpy)
     ( λ n → htpy-inv htpy-right-unit)
 
 htpy-cone-sequence-eq :
@@ -201,11 +201,11 @@ is-contr-total-htpy-cone-sequence A c =
       ( λ n pn → (map-cone-sequence A c n) ~ pn)
       ( λ n → is-contr-total-htpy (map-cone-sequence A c n))
       ( map-cone-sequence A c))
-    ( pair (map-cone-sequence A c) (λ n → htpy-refl))
+    ( pair (map-cone-sequence A c) (λ n → refl-htpy))
     ( is-contr-total-Eq-Π
-      ( λ n H → H ~ ((triangle-cone-sequence A c n) ∙h htpy-refl))
+      ( λ n H → H ~ ((triangle-cone-sequence A c n) ∙h refl-htpy))
       ( λ n →
-        is-contr-total-htpy' ((triangle-cone-sequence A c n) ∙h htpy-refl))
+        is-contr-total-htpy' ((triangle-cone-sequence A c n) ∙h refl-htpy))
       ( triangle-cone-sequence A c))
 
 is-equiv-htpy-cone-sequence-eq :
@@ -268,7 +268,7 @@ reflexive-Eq-canonical-sequential-limit :
   { l1 : Level} (A : Sequence' l1) (x : canonical-sequential-limit A) →
   Eq-canonical-sequential-limit A x x
 reflexive-Eq-canonical-sequential-limit A x =
-  pair htpy-refl (htpy-inv htpy-right-unit)
+  pair refl-htpy (htpy-inv htpy-right-unit)
 
 Eq-canonical-sequential-limit-eq :
   { l1 : Level} (A : Sequence' l1) (x y : canonical-sequential-limit A) →
@@ -289,7 +289,7 @@ is-contr-total-Eq-canonical-sequential-limit A x =
       ( λ n yn → Id (pr1 x n) yn)
       ( λ n → is-contr-total-path (pr1 x n))
       ( pr1 x))
-    ( pair (pr1 x) htpy-refl)
+    ( pair (pr1 x) refl-htpy)
     ( is-contr-total-Eq-Π
       ( λ n q → Id q ((pr2 x n) ∙ refl))
       ( λ n → is-contr-total-path' ((pr2 x n) ∙ refl))
@@ -428,7 +428,7 @@ uniqueness-map-sequential-limit' :
 uniqueness-map-sequential-limit' A c up-X c' h H h' H' =
   htpy-eq
     ( ap pr1
-      ( is-prop-is-contr'
+      ( eq-is-contr
         ( unique-mapping-property-sequential-limit' A c up-X c')
           ( pair h H)
           ( pair h' H')))
@@ -443,7 +443,7 @@ uniqueness-map-sequential-limit :
 uniqueness-map-sequential-limit A c up-X c' h H h' H' =
   htpy-eq
     ( ap pr1
-      ( is-prop-is-contr'
+      ( eq-is-contr
         ( unique-mapping-property-sequential-limit A c up-X c')
         ( pair h H)
         ( pair h' H')))
@@ -605,7 +605,7 @@ reflexive-htpy-cocone-sequence :
   ( c : cocone-sequence A X) → htpy-cocone-sequence A c c
 reflexive-htpy-cocone-sequence A c =
   pair
-    ( λ n → htpy-refl)
+    ( λ n → refl-htpy)
     ( λ n → htpy-inv htpy-right-unit)
 
 htpy-cocone-sequence-eq :
@@ -627,11 +627,11 @@ is-contr-total-htpy-cocone-sequence A c =
       ( map-cocone-sequence A c))
     ( pair
       ( map-cocone-sequence A c)
-      ( λ n → htpy-refl))
+      ( λ n → refl-htpy))
     ( is-contr-total-Eq-Π
-      ( λ n H → H ~ ((triangle-cocone-sequence A c n) ∙h htpy-refl))
+      ( λ n H → H ~ ((triangle-cocone-sequence A c n) ∙h refl-htpy))
       ( λ n → is-contr-total-htpy'
-        ( (triangle-cocone-sequence A c n) ∙h htpy-refl))
+        ( (triangle-cocone-sequence A c n) ∙h refl-htpy))
       ( triangle-cocone-sequence A c))
 
 is-equiv-htpy-cocone-sequence-eq :

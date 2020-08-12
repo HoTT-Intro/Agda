@@ -415,6 +415,16 @@ concat-eq-htpy {A = A} {B} {f} H K =
       Id (eq-htpy (H ∙h K)) ((eq-htpy H) ∙ (eq-htpy K)))
     ( λ h K → ap (concat' f (eq-htpy K)) (inv (eq-htpy-refl-htpy _))) H _ K
 
+tr-triv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {x y : A} (p : Id x y) (b : B) →
+  Id (tr (λ a → B) p b) b
+tr-triv refl b = refl
+
+apd-triv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) {x y : A} (p : Id x y) →
+  Id (apd f p) (tr-triv p (f x) ∙ ap f p)
+apd-triv f refl = refl
+
 pullback-property-dependent-pullback-property-pushout :
   {l1 l2 l3 l4 : Level} (l : Level) {S : UU l1} {A : UU l2} {B : UU l3}
   (f : S → A) (g : S → B) {X : UU l4} (c : cocone f g X) →

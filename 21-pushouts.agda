@@ -421,6 +421,42 @@ is-equiv-ev-suspension {X = X} susp-str-Y up-Y Z =
     ( up-Y Z)
     ( is-equiv-map-comparison-suspension-cocone X Z)
 
+--------------------------------------------------------------------------------
+
+-- Section 6.3 Pointed types
+
+-- Definition 6.3.1
+
+UU-pt : (i : Level) → UU (lsuc i)
+UU-pt i = Σ (UU i) (λ X → X)
+
+type-UU-pt : {i : Level} → UU-pt i → UU i
+type-UU-pt = pr1
+
+pt-UU-pt : {i : Level} (A : UU-pt i) → type-UU-pt A
+pt-UU-pt = pr2
+
+-- Definition 6.3.2
+
+_→*_ : {i j : Level} → UU-pt i → UU-pt j → UU-pt (i ⊔ j)
+A →* B =
+  pair
+    ( Σ (type-UU-pt A → type-UU-pt B) (λ f → Id (f (pt-UU-pt A)) (pt-UU-pt B)))
+    ( pair
+      ( const (type-UU-pt A) (type-UU-pt B) (pt-UU-pt B))
+      ( refl))
+
+-- Definition 6.3.3
+
+Ω : {i : Level} → UU-pt i → UU-pt i
+Ω A = pair (Id (pt-UU-pt A) (pt-UU-pt A)) refl
+
+-- Definition 6.3.4
+
+iterated-loop-space : {i : Level} → ℕ → UU-pt i → UU-pt i
+iterated-loop-space zero-ℕ A = A
+iterated-loop-space (succ-ℕ n) A = Ω (iterated-loop-space n A)
+
 {- Pointed maps and pointed homotopies. -}
 
 pointed-fam :
