@@ -82,6 +82,84 @@ equiv-htpy-concat' f K =
 
 -- Exercise 12.2
 
+successor-preserving-map-ℕ : UU lzero
+successor-preserving-map-ℕ = 
+  Σ (ℕ → ℕ) (λ f → (f ∘ succ-ℕ) ~ (succ-ℕ ∘ f))
+
+-- We characterize the identity type of successor-preserving-map-ℕ
+
+htpy-successor-preserving-map-ℕ :
+  (f g : successor-preserving-map-ℕ) → UU lzero
+htpy-successor-preserving-map-ℕ f g = pr1 f ~ pr1 g
+
+refl-htpy-successor-preserving-map-ℕ :
+  (f : successor-preserving-map-ℕ) → htpy-successor-preserving-map-ℕ f f
+refl-htpy-successor-preserving-map-ℕ f = refl-htpy
+
+is-contr-total-htpy-successor-preserving-map-ℕ :
+  (f : successor-preserving-map-ℕ) →
+  is-contr (Σ successor-preserving-map-ℕ (htpy-successor-preserving-map-ℕ f))
+is-contr-total-htpy-successor-preserving-map-ℕ f =
+  is-contr-total-Eq-substructure
+    ( is-contr-total-htpy (pr1 f))
+    ( λ g → is-prop-Π (λ n → is-set-ℕ (g (succ-ℕ n)) (succ-ℕ (g n))))
+    ( pr1 f)
+    ( refl-htpy)
+    ( pr2 f) 
+
+htpy-successor-preserving-map-ℕ-eq :
+  (f g : successor-preserving-map-ℕ) →
+  Id f g → htpy-successor-preserving-map-ℕ f g
+htpy-successor-preserving-map-ℕ-eq f .f refl =
+  refl-htpy-successor-preserving-map-ℕ f
+
+is-equiv-htpy-successor-preserving-map-ℕ-eq :
+  (f g : successor-preserving-map-ℕ) →
+  is-equiv (htpy-successor-preserving-map-ℕ-eq f g)
+is-equiv-htpy-successor-preserving-map-ℕ-eq f =
+  fundamental-theorem-id f
+    ( refl-htpy-successor-preserving-map-ℕ f)
+    ( is-contr-total-htpy-successor-preserving-map-ℕ f)
+    ( htpy-successor-preserving-map-ℕ-eq f)
+
+eq-htpy-successor-preserving-map-ℕ :
+  {f g : successor-preserving-map-ℕ} →
+  htpy-successor-preserving-map-ℕ f g → Id f g
+eq-htpy-successor-preserving-map-ℕ {f} {g} =
+  inv-is-equiv (is-equiv-htpy-successor-preserving-map-ℕ-eq f g)
+
+-- We solve the exercise now
+
+ev-zero-successor-preserving-map-ℕ :
+  successor-preserving-map-ℕ → ℕ
+ev-zero-successor-preserving-map-ℕ (pair f H) = f zero-ℕ
+
+inv-ev-zero-successor-preserving-map-ℕ :
+  ℕ → successor-preserving-map-ℕ
+inv-ev-zero-successor-preserving-map-ℕ n =
+  pair (add-ℕ n) refl-htpy
+
+issec-inv-ev-zero-successor-preserving-map-ℕ :
+  ( ev-zero-successor-preserving-map-ℕ ∘
+    inv-ev-zero-successor-preserving-map-ℕ) ~ id
+issec-inv-ev-zero-successor-preserving-map-ℕ n = refl
+
+htpy-isretr-inv-ev-zero-successor-preserving-map-ℕ :
+  ( f : ℕ → ℕ) (H : (f ∘ succ-ℕ) ~ (succ-ℕ ∘ f)) →
+  ( add-ℕ (f zero-ℕ)) ~ f
+htpy-isretr-inv-ev-zero-successor-preserving-map-ℕ f H zero-ℕ =
+  refl
+htpy-isretr-inv-ev-zero-successor-preserving-map-ℕ f H (succ-ℕ n) =
+  ( ap succ-ℕ (htpy-isretr-inv-ev-zero-successor-preserving-map-ℕ f H n)) ∙
+  ( inv (H n))
+
+isretr-inv-ev-zero-successor-preserving-map-ℕ :
+  ( inv-ev-zero-successor-preserving-map-ℕ ∘
+    ev-zero-successor-preserving-map-ℕ) ~ id
+isretr-inv-ev-zero-successor-preserving-map-ℕ (pair f H) =
+  eq-htpy-successor-preserving-map-ℕ
+    ( htpy-isretr-inv-ev-zero-successor-preserving-map-ℕ f H)
+
 -- Exercise 12.3
 
 -- Exercise 12.3 (a)
