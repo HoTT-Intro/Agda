@@ -2,6 +2,10 @@
 
 This repository contains an Agda formalisation of the Introduction to Homotopy Type Theory book by Egbert Rijke. 
 
+## Discussion
+
+[![HoTT Zulip chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://hott.zulipchat.com/)
+
 ## Organisation
 
 There is one file per section in the book, and the formalization follows the book in a linear fashion. As far as we can, we make sure that numbering in the book of definitions, lemmas, theorems, etc, corresponds to numbering in the formal development.
