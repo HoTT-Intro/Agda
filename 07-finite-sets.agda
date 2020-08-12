@@ -671,18 +671,14 @@ right-inverse-law-add-Fin x =
 refl-div-ℕ : (x : ℕ) → div-ℕ x x
 refl-div-ℕ x = pair one-ℕ (left-unit-law-mul-ℕ x)
 
-eq-zero-div-zero-ℕ :
-  (x : ℕ) → div-ℕ zero-ℕ x → Id x zero-ℕ
-eq-zero-div-zero-ℕ x (pair k p) = inv p ∙ right-zero-law-mul-ℕ k
-
-anti-symmetric-ℕ :
+anti-symmetric-div-ℕ :
   (x y : ℕ) → div-ℕ x y → div-ℕ y x → Id x y
-anti-symmetric-ℕ zero-ℕ zero-ℕ H K = refl
-anti-symmetric-ℕ zero-ℕ (succ-ℕ y) H K =
-  ex-falso (Peano-8 y (inv (eq-zero-div-zero-ℕ (succ-ℕ y) H)))
-anti-symmetric-ℕ (succ-ℕ x) zero-ℕ H K =
-  ex-falso (Peano-8 x (inv (eq-zero-div-zero-ℕ (succ-ℕ x) K)))
-anti-symmetric-ℕ (succ-ℕ x) (succ-ℕ y) (pair k p) (pair l q) =
+anti-symmetric-div-ℕ zero-ℕ zero-ℕ H K = refl
+anti-symmetric-div-ℕ zero-ℕ (succ-ℕ y) (pair k p) K =
+  inv (right-zero-law-mul-ℕ k) ∙ p
+anti-symmetric-div-ℕ (succ-ℕ x) zero-ℕ H (pair l q) =
+  inv q ∙ right-zero-law-mul-ℕ l
+anti-symmetric-div-ℕ (succ-ℕ x) (succ-ℕ y) (pair k p) (pair l q) =
   ( inv (left-unit-law-mul-ℕ (succ-ℕ x))) ∙
   ( ( ap ( mul-ℕ' (succ-ℕ x))
          ( inv
@@ -697,6 +693,18 @@ transitive-div-ℕ :
 transitive-div-ℕ x y z (pair k p) (pair l q) =
   pair ( mul-ℕ l k)
        ( associative-mul-ℕ l k x ∙ (ap (mul-ℕ l) p ∙ q))
+
+-- We conclude that 0 | x implies x = 0 and x | 1 implies x = 1.
+
+eq-zero-div-zero-ℕ :
+  (x : ℕ) → div-ℕ zero-ℕ x → Id x zero-ℕ
+eq-zero-div-zero-ℕ x H =
+  anti-symmetric-div-ℕ x zero-ℕ (div-zero-ℕ x) H
+
+eq-one-div-one-ℕ :
+  (x : ℕ) → div-ℕ x one-ℕ → Id x one-ℕ
+eq-one-div-one-ℕ x H =
+  anti-symmetric-div-ℕ x one-ℕ H (div-one-ℕ x)
 
 {- Exercise 7.3 -}
 
