@@ -907,6 +907,28 @@ equiv-postcomp-Π e =
 
 -- Exercise 12.14
 
+equiv-fiber-postcomp :
+  {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (f : X → Y) (A : UU l3) (g : A → Y) →
+  (fib (_∘_ {A = A} f) g) ≃ ((a : A) → (fib f (g a)))
+equiv-fiber-postcomp f A g =
+  inv-equiv equiv-choice-∞ ∘e equiv-tot (λ h → equiv-funext)
+
+is-trunc-map-postcomp-is-trunc-map :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (f : X → Y) (k : 𝕋)
+  (is-trunc-f : is-trunc-map k f)
+  {l3 : Level} (A : UU l3) → is-trunc-map k (_∘_ {A = A} f)
+is-trunc-map-postcomp-is-trunc-map f k is-trunc-f A y =
+  is-trunc-equiv k _ (equiv-fiber-postcomp f A y) (is-trunc-Π k (λ x → is-trunc-f (y x)))
+
+is-trunc-map-is-trunc-map-postcomp :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (f : X → Y) (k : 𝕋)
+  (is-trunc-post-f : {l3 : Level} (A : UU l3) → is-trunc-map k (_∘_ {A = A} f)) →
+  is-trunc-map k f
+is-trunc-map-is-trunc-map-postcomp {X = X} f k is-trunc-post-f y =
+  is-trunc-equiv k _
+    (inv-equiv (equiv-ev-star (λ x → fib f y) ∘e equiv-fiber-postcomp f unit (λ x → y)))
+    (is-trunc-post-f unit λ x → y)
+
 -- Exercise 12.15
 
 {- Getting rid of fib in a Π-type -}
