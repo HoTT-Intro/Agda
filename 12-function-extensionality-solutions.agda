@@ -908,26 +908,48 @@ equiv-postcomp-Π e =
 -- Exercise 12.14
 
 equiv-fiber-postcomp :
-  {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (f : X → Y) (A : UU l3) (g : A → Y) →
-  (fib (_∘_ {A = A} f) g) ≃ ((a : A) → (fib f (g a)))
+  {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (f : X → Y)
+  (A : UU l3) (g : A → Y) →
+  ( fib (postcomp A f) g) ≃ ((a : A) → (fib f (g a)))
 equiv-fiber-postcomp f A g =
-  inv-equiv equiv-choice-∞ ∘e equiv-tot (λ h → equiv-funext)
+  ( equiv-inv-choice-∞ (λ a x → Id (f x) (g a))) ∘e
+  ( equiv-tot (λ h → equiv-funext))
 
 is-trunc-map-postcomp-is-trunc-map :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (f : X → Y) (k : 𝕋)
-  (is-trunc-f : is-trunc-map k f)
-  {l3 : Level} (A : UU l3) → is-trunc-map k (_∘_ {A = A} f)
-is-trunc-map-postcomp-is-trunc-map f k is-trunc-f A y =
-  is-trunc-equiv k _ (equiv-fiber-postcomp f A y) (is-trunc-Π k (λ x → is-trunc-f (y x)))
+  {l1 l2 l3 : Level} (k : 𝕋) (A : UU l3) {X : UU l1} {Y : UU l2} (f : X → Y) →
+  is-trunc-map k f → is-trunc-map k (postcomp A f)
+is-trunc-map-postcomp-is-trunc-map k A f is-trunc-f y =
+  is-trunc-equiv k _
+    ( equiv-fiber-postcomp f A y)
+    ( is-trunc-Π k (λ x → is-trunc-f (y x)))
 
 is-trunc-map-is-trunc-map-postcomp :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (f : X → Y) (k : 𝕋)
-  (is-trunc-post-f : {l3 : Level} (A : UU l3) → is-trunc-map k (_∘_ {A = A} f)) →
+  {l1 l2 : Level} (k : 𝕋) {X : UU l1} {Y : UU l2} (f : X → Y) →
+  ( {l3 : Level} (A : UU l3) → is-trunc-map k (postcomp A f)) →
   is-trunc-map k f
-is-trunc-map-is-trunc-map-postcomp {X = X} f k is-trunc-post-f y =
+is-trunc-map-is-trunc-map-postcomp k {X} f is-trunc-post-f y =
   is-trunc-equiv k _
-    (inv-equiv (equiv-ev-star (λ x → fib f y) ∘e equiv-fiber-postcomp f unit (λ x → y)))
-    (is-trunc-post-f unit λ x → y)
+    ( inv-equiv
+      ( ( equiv-ev-star (λ x → fib f y)) ∘e
+        ( equiv-fiber-postcomp f unit (λ x → y))))
+    ( is-trunc-post-f unit (λ x → y))
+
+is-emb-postcomp-is-emb :
+  {l1 l2 l3 : Level} (A : UU l3) {X : UU l1} {Y : UU l2} (f : X → Y) →
+  is-emb f → is-emb (postcomp A f)
+is-emb-postcomp-is-emb A f is-emb-f =
+  is-emb-is-prop-map
+    ( postcomp A f)
+    ( is-trunc-map-postcomp-is-trunc-map neg-one-𝕋 A f
+      ( is-prop-map-is-emb f is-emb-f))
+
+is-emb-is-emb-postcomp :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (f : X → Y) →
+  ({l : Level} (A : UU l) → is-emb (postcomp A f)) → is-emb f
+is-emb-is-emb-postcomp f is-emb-post-f =
+  is-emb-is-prop-map f
+    ( is-trunc-map-is-trunc-map-postcomp neg-one-𝕋 f
+      ( λ A → is-prop-map-is-emb (postcomp A f) (is-emb-post-f A)))
 
 -- Exercise 12.15
 
