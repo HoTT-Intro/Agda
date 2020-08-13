@@ -855,6 +855,13 @@ is-propsitional-truncation-is-surjective f is-surj-f =
 
 -- Theorem 13.5.5
 
+is-surjective-universal-property-image :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
+  (f : A → X) (i : B ↪ X) (q : hom-slice f (map-emb i)) →
+  ({l : Level} → universal-property-image l f i q) →
+  is-surjective (map-hom-slice f (map-emb i) q)
+is-surjective-universal-property-image f i q up-i b = {!!}
+
 --------------------------------------------------------------------------------
 
 -- Section 13.6 Cantor's diagonal argument

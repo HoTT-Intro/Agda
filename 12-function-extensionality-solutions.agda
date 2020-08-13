@@ -991,6 +991,54 @@ equiv-postcomp-Π e =
     ( postcomp-Π (λ i → map-equiv (e i)))
     ( is-equiv-postcomp-Π _ (λ i → is-equiv-map-equiv (e i)))
 
+-- We conclude this exercise with some bureaucracy
+
+map-equiv-Π :
+  { l1 l2 l3 l4 : Level}
+  { A' : UU l1} {B' : A' → UU l2} {A : UU l3} (B : A → UU l4)
+  ( e : A' ≃ A) (f : (a' : A') → B' a' ≃ B (map-equiv e a')) →
+  ( (a' : A') → B' a') → ( (a : A) → B a)
+map-equiv-Π {B' = B'} B e f =
+  ( postcomp-Π (λ a →
+    ( tr B (issec-inv-is-equiv (is-equiv-map-equiv e) a)) ∘
+    ( map-equiv (f (inv-is-equiv (is-equiv-map-equiv e) a))))) ∘
+  ( precomp-Π (inv-is-equiv (is-equiv-map-equiv e)) B')
+
+id-map-equiv-Π :
+  { l1 l2 : Level} {A : UU l1} (B : A → UU l2) →
+  ( map-equiv-Π B (equiv-id A) (λ a → equiv-id (B a))) ~ id
+id-map-equiv-Π B = refl-htpy
+
+abstract
+  is-equiv-map-equiv-Π :
+    { l1 l2 l3 l4 : Level}
+    { A' : UU l1} {B' : A' → UU l2} {A : UU l3} (B : A → UU l4)
+    ( e : A' ≃ A) (f : (a' : A') → B' a' ≃ B (map-equiv e a')) →
+    is-equiv (map-equiv-Π B e f)
+  is-equiv-map-equiv-Π {B' = B'} B e f =
+    is-equiv-comp'
+      ( postcomp-Π (λ a →
+        ( tr B (issec-inv-is-equiv (is-equiv-map-equiv e) a)) ∘
+        ( map-equiv (f (inv-is-equiv (is-equiv-map-equiv e) a)))))
+      ( precomp-Π (inv-is-equiv (is-equiv-map-equiv e)) B')
+      ( is-equiv-precomp-Π-is-equiv
+        ( inv-is-equiv (is-equiv-map-equiv e))
+        ( is-equiv-inv-is-equiv (is-equiv-map-equiv e))
+        ( B'))
+      ( is-equiv-postcomp-Π _
+        ( λ a → is-equiv-comp'
+          ( tr B (issec-inv-is-equiv (is-equiv-map-equiv e) a))
+          ( map-equiv (f (inv-is-equiv (is-equiv-map-equiv e) a)))
+          ( is-equiv-map-equiv (f (inv-is-equiv (is-equiv-map-equiv e) a)))
+          ( is-equiv-tr B (issec-inv-is-equiv (is-equiv-map-equiv e) a))))
+
+equiv-Π :
+  { l1 l2 l3 l4 : Level}
+  { A' : UU l1} {B' : A' → UU l2} {A : UU l3} (B : A → UU l4)
+  ( e : A' ≃ A) (f : (a' : A') → B' a' ≃ B (map-equiv e a')) →
+  ( (a' : A') → B' a') ≃ ( (a : A) → B a)
+equiv-Π B e f = pair (map-equiv-Π B e f) (is-equiv-map-equiv-Π B e f)
+
 -- Exercise 12.14
 
 equiv-fiber-postcomp :
@@ -1504,52 +1552,6 @@ equiv-htpy-con-inv H K L =
   pair
     ( htpy-con-inv H K L)
     ( is-equiv-htpy-con-inv H K L)
-
-map-equiv-Π :
-  { l1 l2 l3 l4 : Level}
-  { A' : UU l1} {B' : A' → UU l2} {A : UU l3} (B : A → UU l4)
-  ( e : A' ≃ A) (f : (a' : A') → B' a' ≃ B (map-equiv e a')) →
-  ( (a' : A') → B' a') → ( (a : A) → B a)
-map-equiv-Π {B' = B'} B e f =
-  ( postcomp-Π (λ a →
-    ( tr B (issec-inv-is-equiv (is-equiv-map-equiv e) a)) ∘
-    ( map-equiv (f (inv-is-equiv (is-equiv-map-equiv e) a))))) ∘
-  ( precomp-Π (inv-is-equiv (is-equiv-map-equiv e)) B')
-
-id-map-equiv-Π :
-  { l1 l2 : Level} {A : UU l1} (B : A → UU l2) →
-  ( map-equiv-Π B (equiv-id A) (λ a → equiv-id (B a))) ~ id
-id-map-equiv-Π B = refl-htpy
-
-abstract
-  is-equiv-map-equiv-Π :
-    { l1 l2 l3 l4 : Level}
-    { A' : UU l1} {B' : A' → UU l2} {A : UU l3} (B : A → UU l4)
-    ( e : A' ≃ A) (f : (a' : A') → B' a' ≃ B (map-equiv e a')) →
-    is-equiv (map-equiv-Π B e f)
-  is-equiv-map-equiv-Π {B' = B'} B e f =
-    is-equiv-comp'
-      ( postcomp-Π (λ a →
-        ( tr B (issec-inv-is-equiv (is-equiv-map-equiv e) a)) ∘
-        ( map-equiv (f (inv-is-equiv (is-equiv-map-equiv e) a)))))
-      ( precomp-Π (inv-is-equiv (is-equiv-map-equiv e)) B')
-      ( is-equiv-precomp-Π-is-equiv
-        ( inv-is-equiv (is-equiv-map-equiv e))
-        ( is-equiv-inv-is-equiv (is-equiv-map-equiv e))
-        ( B'))
-      ( is-equiv-postcomp-Π _
-        ( λ a → is-equiv-comp'
-          ( tr B (issec-inv-is-equiv (is-equiv-map-equiv e) a))
-          ( map-equiv (f (inv-is-equiv (is-equiv-map-equiv e) a)))
-          ( is-equiv-map-equiv (f (inv-is-equiv (is-equiv-map-equiv e) a)))
-          ( is-equiv-tr B (issec-inv-is-equiv (is-equiv-map-equiv e) a))))
-
-equiv-Π :
-  { l1 l2 l3 l4 : Level}
-  { A' : UU l1} {B' : A' → UU l2} {A : UU l3} (B : A → UU l4)
-  ( e : A' ≃ A) (f : (a' : A') → B' a' ≃ B (map-equiv e a')) →
-  ( (a' : A') → B' a') ≃ ( (a : A) → B a)
-equiv-Π B e f = pair (map-equiv-Π B e f) (is-equiv-map-equiv-Π B e f)
 
 HTPY-map-equiv-Π :
   { l1 l2 l3 l4 : Level}

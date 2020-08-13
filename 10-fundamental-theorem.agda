@@ -822,6 +822,75 @@ compute-eq-coprod-inr-inr y y' =
 
 --------------------------------------------------------------------------------
 
+-- Section 10.6 A recursive structure identity principle
+
+-- Theorem 10.6.2
+
+swap-total-Eq-structure :
+  {l1 l2 l3 l4 : Level} {A : UU l1} (B : A → UU l2) (C : A → UU l3)
+  (D : (x : A) → B x → C x → UU l4) →
+  Σ (Σ A B) (λ t → Σ (C (pr1 t)) (D (pr1 t) (pr2 t))) →
+  Σ (Σ A C) (λ t → Σ (B (pr1 t)) (λ y → D (pr1 t) y (pr2 t)))
+swap-total-Eq-structure B C D (pair (pair a b) (pair c d)) =
+  pair (pair a c) (pair b d)
+
+htpy-swap-total-Eq-structure :
+  {l1 l2 l3 l4 : Level} {A : UU l1} (B : A → UU l2) (C : A → UU l3)
+  (D : (x : A) → B x → C x → UU l4) →
+  ( ( swap-total-Eq-structure B C D) ∘
+    ( swap-total-Eq-structure C B (λ x z y → D x y z))) ~ id
+htpy-swap-total-Eq-structure B C D (pair (pair a b) (pair c d)) = refl
+
+abstract
+  is-equiv-swap-total-Eq-structure :
+    {l1 l2 l3 l4 : Level} {A : UU l1} (B : A → UU l2) (C : A → UU l3)
+    (D : (x : A) → B x → C x → UU l4) →
+    is-equiv (swap-total-Eq-structure B C D)
+  is-equiv-swap-total-Eq-structure B C D =
+    is-equiv-has-inverse
+      ( swap-total-Eq-structure C B (λ x z y → D x y z))
+      ( htpy-swap-total-Eq-structure B C D)
+      ( htpy-swap-total-Eq-structure C B (λ x z y → D x y z))
+
+abstract
+  is-contr-Σ :
+    {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+    is-contr A → ((x : A) → is-contr (B x)) → is-contr (Σ A B)
+  is-contr-Σ {A = A} {B = B} is-contr-A is-contr-B =
+    is-contr-equiv'
+      ( B (center is-contr-A))
+      ( left-unit-law-Σ B is-contr-A)
+      ( is-contr-B (center is-contr-A))
+
+abstract
+  is-contr-Σ' :
+    {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+    is-contr A → (a : A) → is-contr (B a) → is-contr (Σ A B)
+  is-contr-Σ' {A = A} {B} is-contr-A a is-contr-B =
+    is-contr-is-equiv'
+      ( B a)
+      ( left-unit-law-Σ-map-gen B is-contr-A a)
+      ( is-equiv-left-unit-law-Σ-map-gen B is-contr-A a)
+      ( is-contr-B)
+
+abstract
+  is-contr-total-Eq-structure :
+    { l1 l2 l3 l4 : Level} { A : UU l1} {B : A → UU l2} {C : A → UU l3}
+    ( D : (x : A) → B x → C x → UU l4) →
+    ( is-contr-AC : is-contr (Σ A C)) →
+    ( t : Σ A C) →
+    is-contr (Σ (B (pr1 t)) (λ y → D (pr1 t) y (pr2 t))) →
+    is-contr (Σ (Σ A B) (λ t → Σ (C (pr1 t)) (D (pr1 t) (pr2 t))))
+  is-contr-total-Eq-structure
+    {A = A} {B = B} {C = C} D is-contr-AC t is-contr-BD =
+    is-contr-is-equiv
+      ( Σ (Σ A C) (λ t → Σ (B (pr1 t)) (λ y → D (pr1 t) y (pr2 t))))
+      ( swap-total-Eq-structure B C D)
+      ( is-equiv-swap-total-Eq-structure B C D)
+      ( is-contr-Σ' is-contr-AC t is-contr-BD)
+
+--------------------------------------------------------------------------------
+
 -- Exercises
 
 -- Exercise 7.1
@@ -1248,79 +1317,9 @@ abstract
       ( is-equiv-Σ-fib-to-domain g)
       ( is-equiv-tot-is-fiberwise-equiv E)
 
+--------------------------------------------------------------------------------
+
 -- Extra material
-
-{- In order to show that the total space of htpy-cone is contractible, we give
-   a general construction that helps us characterize the identity type of
-   a structure. This construction is called 
-
-   is-contr-total-Eq-structure.
-
-   We first give some definitions that help us with the construction of
-   is-contr-total-Eq-structure. -}
-
-swap-total-Eq-structure :
-  {l1 l2 l3 l4 : Level} {A : UU l1} (B : A → UU l2) (C : A → UU l3)
-  (D : (x : A) → B x → C x → UU l4) →
-  Σ (Σ A B) (λ t → Σ (C (pr1 t)) (D (pr1 t) (pr2 t))) →
-  Σ (Σ A C) (λ t → Σ (B (pr1 t)) (λ y → D (pr1 t) y (pr2 t)))
-swap-total-Eq-structure B C D (pair (pair a b) (pair c d)) =
-  pair (pair a c) (pair b d)
-
-htpy-swap-total-Eq-structure :
-  {l1 l2 l3 l4 : Level} {A : UU l1} (B : A → UU l2) (C : A → UU l3)
-  (D : (x : A) → B x → C x → UU l4) →
-  ( ( swap-total-Eq-structure B C D) ∘
-    ( swap-total-Eq-structure C B (λ x z y → D x y z))) ~ id
-htpy-swap-total-Eq-structure B C D (pair (pair a b) (pair c d)) = refl
-
-abstract
-  is-equiv-swap-total-Eq-structure :
-    {l1 l2 l3 l4 : Level} {A : UU l1} (B : A → UU l2) (C : A → UU l3)
-    (D : (x : A) → B x → C x → UU l4) →
-    is-equiv (swap-total-Eq-structure B C D)
-  is-equiv-swap-total-Eq-structure B C D =
-    is-equiv-has-inverse
-      ( swap-total-Eq-structure C B (λ x z y → D x y z))
-      ( htpy-swap-total-Eq-structure B C D)
-      ( htpy-swap-total-Eq-structure C B (λ x z y → D x y z))
-
-abstract
-  is-contr-Σ :
-    {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-    is-contr A → ((x : A) → is-contr (B x)) → is-contr (Σ A B)
-  is-contr-Σ {A = A} {B = B} is-contr-A is-contr-B =
-    is-contr-equiv'
-      ( B (center is-contr-A))
-      ( left-unit-law-Σ B is-contr-A)
-      ( is-contr-B (center is-contr-A))
-
-abstract
-  is-contr-Σ' :
-    {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-    is-contr A → (a : A) → is-contr (B a) → is-contr (Σ A B)
-  is-contr-Σ' {A = A} {B} is-contr-A a is-contr-B =
-    is-contr-is-equiv'
-      ( B a)
-      ( left-unit-law-Σ-map-gen B is-contr-A a)
-      ( is-equiv-left-unit-law-Σ-map-gen B is-contr-A a)
-      ( is-contr-B)
-
-abstract
-  is-contr-total-Eq-structure :
-    { l1 l2 l3 l4 : Level} { A : UU l1} {B : A → UU l2} {C : A → UU l3}
-    ( D : (x : A) → B x → C x → UU l4) →
-    ( is-contr-AC : is-contr (Σ A C)) →
-    ( t : Σ A C) →
-    is-contr (Σ (B (pr1 t)) (λ y → D (pr1 t) y (pr2 t))) →
-    is-contr (Σ (Σ A B) (λ t → Σ (C (pr1 t)) (D (pr1 t) (pr2 t))))
-  is-contr-total-Eq-structure
-    {A = A} {B = B} {C = C} D is-contr-AC t is-contr-BD =
-    is-contr-is-equiv
-      ( Σ (Σ A C) (λ t → Σ (B (pr1 t)) (λ y → D (pr1 t) y (pr2 t))))
-      ( swap-total-Eq-structure B C D)
-      ( is-equiv-swap-total-Eq-structure B C D)
-      ( is-contr-Σ' is-contr-AC t is-contr-BD)
 
 -- Characterizing the identity type of a fiber as the fiber of the action on
 -- paths
