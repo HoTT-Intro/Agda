@@ -889,6 +889,92 @@ abstract
       ( is-equiv-swap-total-Eq-structure B C D)
       ( is-contr-Σ' is-contr-AC t is-contr-BD)
 
+-- Example 10.6.3
+
+-- Characterizing the identity type of a fiber as the fiber of the action on
+-- paths
+
+fib-ap-eq-fib-fiberwise :
+  {i j : Level} {A : UU i} {B : UU j}
+  (f : A → B) {b : B} (s t : fib f b) (p : Id (pr1 s) (pr1 t)) →
+  (Id (tr (λ (a : A) → Id (f a) b) p (pr2 s)) (pr2 t)) →
+  (Id (ap f p) ((pr2 s) ∙ (inv (pr2 t))))
+fib-ap-eq-fib-fiberwise f (pair .x' p) (pair x' refl) refl =
+  inv ∘ (concat right-unit refl)
+
+abstract
+  is-fiberwise-equiv-fib-ap-eq-fib-fiberwise :
+    {i j : Level} {A : UU i} {B : UU j} (f : A → B) {b : B} (s t : fib f b) →
+    is-fiberwise-equiv (fib-ap-eq-fib-fiberwise f s t)
+  is-fiberwise-equiv-fib-ap-eq-fib-fiberwise
+    f (pair x y) (pair .x refl) refl =
+    is-equiv-comp
+      ( fib-ap-eq-fib-fiberwise f (pair x y) (pair x refl) refl)
+      ( inv)
+      ( concat right-unit refl)
+      ( refl-htpy)
+      ( is-equiv-concat right-unit refl)
+      ( is-equiv-inv (y ∙ refl) refl)
+
+fib-ap-eq-fib :
+  {i j : Level} {A : UU i} {B : UU j} (f : A → B) {b : B}
+  (s t : fib f b) → Id s t →
+  fib (ap f {x = pr1 s} {y = pr1 t}) ((pr2 s) ∙ (inv (pr2 t)))
+fib-ap-eq-fib f s .s refl = pair refl (inv (right-inv (pr2 s)))
+
+triangle-fib-ap-eq-fib :
+  {i j : Level} {A : UU i} {B : UU j} (f : A → B)
+  {b : B} (s t : fib f b) →
+  (fib-ap-eq-fib f s t) ~ ((tot (fib-ap-eq-fib-fiberwise f s t)) ∘ (pair-eq {s = s} {t}))
+triangle-fib-ap-eq-fib f (pair x refl) .(pair x refl) refl = refl
+
+abstract
+  is-equiv-fib-ap-eq-fib :
+    {i j : Level} {A : UU i} {B : UU j} (f : A → B) {b : B}
+    (s t : fib f b) → is-equiv (fib-ap-eq-fib f s t)
+  is-equiv-fib-ap-eq-fib f s t =
+    is-equiv-comp
+      ( fib-ap-eq-fib f s t)
+      ( tot (fib-ap-eq-fib-fiberwise f s t))
+      ( pair-eq {s = s} {t})
+      ( triangle-fib-ap-eq-fib f s t)
+      ( is-equiv-pair-eq s t)
+      ( is-equiv-tot-is-fiberwise-equiv
+        ( is-fiberwise-equiv-fib-ap-eq-fib-fiberwise f s t))
+
+eq-fib-fib-ap :
+  {i j : Level} {A : UU i} {B : UU j} (f : A → B) (x y : A)
+  (q : Id (f x) (f y)) →
+  Id (pair x q) (pair y (refl {x = f y})) → fib (ap f {x = x} {y = y}) q
+eq-fib-fib-ap f x y q = (tr (fib (ap f)) right-unit) ∘ (fib-ap-eq-fib f (pair x q) (pair y refl))
+
+abstract
+  is-equiv-eq-fib-fib-ap :
+    {i j : Level} {A : UU i} {B : UU j} (f : A → B) (x y : A)
+    (q : Id (f x) (f y)) → is-equiv (eq-fib-fib-ap f x y q)
+  is-equiv-eq-fib-fib-ap f x y q =
+    is-equiv-comp
+      ( eq-fib-fib-ap f x y q)
+      ( tr (fib (ap f)) right-unit)
+      ( fib-ap-eq-fib f (pair x q) (pair y refl))
+      ( refl-htpy)
+      ( is-equiv-fib-ap-eq-fib f (pair x q) (pair y refl))
+      ( is-equiv-tr (fib (ap f)) right-unit)
+
+-- Comparing fib and fib'
+
+fib'-fib :
+  {i j : Level} {A : UU i} {B : UU j} (f : A → B) (y : B) →
+  fib f y → fib' f y
+fib'-fib f y t = tot (λ x → inv) t
+
+abstract
+  is-equiv-fib'-fib :
+    {i j : Level} {A : UU i} {B : UU j}
+    (f : A → B) → is-fiberwise-equiv (fib'-fib f)
+  is-equiv-fib'-fib f y =
+    is-equiv-tot-is-fiberwise-equiv (λ x → is-equiv-inv (f x) y)
+
 --------------------------------------------------------------------------------
 
 -- Exercises
@@ -1320,90 +1406,6 @@ abstract
 --------------------------------------------------------------------------------
 
 -- Extra material
-
--- Characterizing the identity type of a fiber as the fiber of the action on
--- paths
-
-fib-ap-eq-fib-fiberwise :
-  {i j : Level} {A : UU i} {B : UU j}
-  (f : A → B) {b : B} (s t : fib f b) (p : Id (pr1 s) (pr1 t)) →
-  (Id (tr (λ (a : A) → Id (f a) b) p (pr2 s)) (pr2 t)) →
-  (Id (ap f p) ((pr2 s) ∙ (inv (pr2 t))))
-fib-ap-eq-fib-fiberwise f (pair .x' p) (pair x' refl) refl =
-  inv ∘ (concat right-unit refl)
-
-abstract
-  is-fiberwise-equiv-fib-ap-eq-fib-fiberwise :
-    {i j : Level} {A : UU i} {B : UU j} (f : A → B) {b : B} (s t : fib f b) →
-    is-fiberwise-equiv (fib-ap-eq-fib-fiberwise f s t)
-  is-fiberwise-equiv-fib-ap-eq-fib-fiberwise
-    f (pair x y) (pair .x refl) refl =
-    is-equiv-comp
-      ( fib-ap-eq-fib-fiberwise f (pair x y) (pair x refl) refl)
-      ( inv)
-      ( concat right-unit refl)
-      ( refl-htpy)
-      ( is-equiv-concat right-unit refl)
-      ( is-equiv-inv (y ∙ refl) refl)
-
-fib-ap-eq-fib :
-  {i j : Level} {A : UU i} {B : UU j} (f : A → B) {b : B}
-  (s t : fib f b) → Id s t →
-  fib (ap f {x = pr1 s} {y = pr1 t}) ((pr2 s) ∙ (inv (pr2 t)))
-fib-ap-eq-fib f s .s refl = pair refl (inv (right-inv (pr2 s)))
-
-triangle-fib-ap-eq-fib :
-  {i j : Level} {A : UU i} {B : UU j} (f : A → B)
-  {b : B} (s t : fib f b) →
-  (fib-ap-eq-fib f s t) ~ ((tot (fib-ap-eq-fib-fiberwise f s t)) ∘ (pair-eq {s = s} {t}))
-triangle-fib-ap-eq-fib f (pair x refl) .(pair x refl) refl = refl
-
-abstract
-  is-equiv-fib-ap-eq-fib :
-    {i j : Level} {A : UU i} {B : UU j} (f : A → B) {b : B}
-    (s t : fib f b) → is-equiv (fib-ap-eq-fib f s t)
-  is-equiv-fib-ap-eq-fib f s t =
-    is-equiv-comp
-      ( fib-ap-eq-fib f s t)
-      ( tot (fib-ap-eq-fib-fiberwise f s t))
-      ( pair-eq {s = s} {t})
-      ( triangle-fib-ap-eq-fib f s t)
-      ( is-equiv-pair-eq s t)
-      ( is-equiv-tot-is-fiberwise-equiv
-        ( is-fiberwise-equiv-fib-ap-eq-fib-fiberwise f s t))
-
-eq-fib-fib-ap :
-  {i j : Level} {A : UU i} {B : UU j} (f : A → B) (x y : A)
-  (q : Id (f x) (f y)) →
-  Id (pair x q) (pair y (refl {x = f y})) → fib (ap f {x = x} {y = y}) q
-eq-fib-fib-ap f x y q = (tr (fib (ap f)) right-unit) ∘ (fib-ap-eq-fib f (pair x q) (pair y refl))
-
-abstract
-  is-equiv-eq-fib-fib-ap :
-    {i j : Level} {A : UU i} {B : UU j} (f : A → B) (x y : A)
-    (q : Id (f x) (f y)) → is-equiv (eq-fib-fib-ap f x y q)
-  is-equiv-eq-fib-fib-ap f x y q =
-    is-equiv-comp
-      ( eq-fib-fib-ap f x y q)
-      ( tr (fib (ap f)) right-unit)
-      ( fib-ap-eq-fib f (pair x q) (pair y refl))
-      ( refl-htpy)
-      ( is-equiv-fib-ap-eq-fib f (pair x q) (pair y refl))
-      ( is-equiv-tr (fib (ap f)) right-unit)
-
--- Comparing fib and fib'
-
-fib'-fib :
-  {i j : Level} {A : UU i} {B : UU j} (f : A → B) (y : B) →
-  fib f y → fib' f y
-fib'-fib f y t = tot (λ x → inv) t
-
-abstract
-  is-equiv-fib'-fib :
-    {i j : Level} {A : UU i} {B : UU j}
-    (f : A → B) → is-fiberwise-equiv (fib'-fib f)
-  is-equiv-fib'-fib f y =
-    is-equiv-tot-is-fiberwise-equiv (λ x → is-equiv-inv (f x) y)
 
 {-
 -- Equivalent finite sets have the same cardinality

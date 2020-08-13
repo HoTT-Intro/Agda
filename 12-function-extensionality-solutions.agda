@@ -1624,16 +1624,3 @@ automorphism-Π :
   ( (a : A) → B a) ≃ ((a : A) → B a)
 automorphism-Π e f =
   pair (map-automorphism-Π e f) (is-equiv-map-automorphism-Π e f)
-
--- is-contr-total-Eq-Π
-
-is-contr-total-Eq-Π :
-  { l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} (C : (x : A) → B x → UU l3) →
-  ( is-contr-total-C : (x : A) → is-contr (Σ (B x) (C x))) →
-  ( f : (x : A) → B x) →
-  is-contr (Σ ((x : A) → B x) (λ g → (x : A) → C x (g x)))
-is-contr-total-Eq-Π {A = A} {B} C is-contr-total-C f =
-  is-contr-equiv'
-    ( (x : A) → Σ (B x) (C x))
-    ( equiv-choice-∞)
-    ( is-contr-Π is-contr-total-C)
