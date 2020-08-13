@@ -445,9 +445,13 @@ abstract
 
 -- Section 13.4 The image of a map
 
+--------------------------------------------------------------------------------
+
+-- The universal property of the image
+
 -- Definition 13.4.1
 
-{- We introduce the image inclusion of a map. -}
+-- We introduce the image inclusion of a map.
 
 comp-hom-slice :
   {l1 l2 l3 l4 : Level} {X : UU l1} {A : UU l2} {B : UU l3} {C : UU l4}
@@ -468,6 +472,8 @@ is-equiv-hom-slice :
   (f : A → X) (g : B → X) → hom-slice f g → UU (l2 ⊔ l3)
 is-equiv-hom-slice f g h = is-equiv (map-hom-slice f g h)
 
+-- Definition 13.4.2
+
 precomp-emb :
   { l1 l2 l3 l4 : Level} {X : UU l1} {A : UU l2} (f : A → X)
   {B : UU l3} ( i : B ↪ X) (q : hom-slice f (map-emb i)) →
@@ -481,6 +487,15 @@ precomp-emb f i q j r =
       ( ( triangle-hom-slice (map-emb i) (map-emb j) r) ·r
         ( map-hom-slice f (map-emb i) q)))
 
+universal-property-image :
+  ( l : Level) {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
+  { B : UU l3} (i : B ↪ X) (q : hom-slice f (map-emb i)) →
+  UU (lsuc l ⊔ l1 ⊔ l2 ⊔ l3)
+universal-property-image l {X = X} f i q =
+  ( C : UU l) (j : C ↪ X) → is-equiv (precomp-emb f i q j)
+
+-- Lemma 13.4.3
+
 is-prop-hom-slice :
   { l1 l2 l3 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
   { B : UU l3} (i : B ↪ X) → is-prop (hom-slice f (map-emb i))
@@ -493,12 +508,9 @@ is-prop-hom-slice {X = X} f i =
       ( λ x → is-prop-Π
         ( λ p → is-prop-map-is-emb (map-emb i) (is-emb-map-emb i) x)))
 
-universal-property-image :
-  ( l : Level) {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
-  { B : UU l3} (i : B ↪ X) (q : hom-slice f (map-emb i)) →
-  UU (lsuc l ⊔ l1 ⊔ l2 ⊔ l3)
-universal-property-image l {X = X} f i q =
-  ( C : UU l) (j : C ↪ X) → is-equiv (precomp-emb f i q j)
+-- Proposition 13.4.4
+
+-- Proposition 13.4.4 condition (ii)
 
 universal-property-image' :
   ( l : Level) {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
@@ -507,6 +519,10 @@ universal-property-image' :
 universal-property-image' l {X = X} f i q =
   ( C : UU l) (j : C ↪ X) →
     hom-slice f (map-emb j) → hom-slice (map-emb i) (map-emb j)
+
+{- We show that condition (ii) implies the universal property of the image
+   inclusion. The other direction of the equivalence is trivial and never 
+   needed. -}
 
 universal-property-image-universal-property-image' :
   ( l : Level) {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
@@ -518,7 +534,7 @@ universal-property-image-universal-property-image' l f i q up' C j =
     ( is-prop-hom-slice f j)
     ( up' C j)
 
-{- Remark 14.4.4 -}
+-- Example 13.4.5
 
 universal-property-image-has-section :
   (l : Level) {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
@@ -536,7 +552,16 @@ universal-property-image-is-emb l f H =
     l f (pair f H) (pair id refl-htpy)
     ( λ B m h → h)
 
-{- The existence of the image -}
+-- Example 13.4.6
+
+{- We show that a map A → P into a proposition P is a propositional truncation
+   if and only if P is the image of A in 1. -}
+
+--------------------------------------------------------------------------------
+
+-- The existence of the image
+
+-- Definition 13.4.7
 
 im :
   {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) → UU (l1 ⊔ l2)
@@ -545,16 +570,6 @@ im {X = X} {A} f = Σ X (λ x → type-trunc-Prop (fib f x))
 inclusion-im :
   {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) → im f → X
 inclusion-im f = pr1
-
-is-emb-inclusion-im :
-  {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
-  is-emb (inclusion-im f)
-is-emb-inclusion-im f =
-  is-emb-pr1-is-subtype (λ x → is-prop-type-trunc-Prop (fib f x))
-
-emb-im :
-  {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) → im f ↪ X
-emb-im f = pair (inclusion-im f) (is-emb-inclusion-im f)
 
 map-im :
   {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) → A → im f
@@ -569,6 +584,20 @@ hom-slice-im :
   {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
   hom-slice f (inclusion-im f)
 hom-slice-im f = pair (map-im f) (triangle-im f)
+
+-- Proposition 13.4.8
+
+is-emb-inclusion-im :
+  {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
+  is-emb (inclusion-im f)
+is-emb-inclusion-im f =
+  is-emb-pr1-is-subtype (λ x → is-prop-type-trunc-Prop (fib f x))
+
+emb-im :
+  {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) → im f ↪ X
+emb-im f = pair (inclusion-im f) (is-emb-inclusion-im f)
+
+-- Theorem 13.4.9
 
 fiberwise-map-universal-property-im :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3} (f : A → X) →
@@ -649,7 +678,11 @@ im-1-Type :
   (f : type-hom-1-Type A X) → UU-1-Type (l1 ⊔ l2)
 im-1-Type A = im-1-Type' (type-1-Type A)
 
-{- The uniqueness of the image -}
+--------------------------------------------------------------------------------
+
+-- The uniqueness of the image
+
+-- Proposition 13.4.10
 
 is-equiv-hom-slice-emb :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
@@ -743,29 +776,15 @@ up-image-is-equiv-up-image f i q i' q' h p up-i' is-equiv-h {l} =
 
 --------------------------------------------------------------------------------
 
-{- Existential quantification -}
-
-exists-Prop :
-  {l1 l2 : Level} {A : UU l1} (P : A → UU-Prop l2) → UU-Prop (l1 ⊔ l2)
-exists-Prop {l1} {l2} {A} P = trunc-Prop (Σ A (λ x → type-Prop (P x)))
-
-exists :
-  {l1 l2 : Level} {A : UU l1} (P : A → UU-Prop l2) → UU (l1 ⊔ l2)
-exists P = type-Prop (exists-Prop P)
-
-is-prop-exists :
-  {l1 l2 : Level} {A : UU l1} (P : A → UU-Prop l2) → is-prop (exists P)
-is-prop-exists P = is-prop-type-Prop (exists-Prop P)
-
---------------------------------------------------------------------------------
-
-{- Surjective maps -}
+-- Section 13.5 Surjective maps
 
 -- Definition 13.5.1
 
 is-surjective :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} → (A → B) → UU (l1 ⊔ l2)
 is-surjective {B = B} f = (y : B) → type-trunc-Prop (fib f y)
+
+-- Example 13.5.2
 
 -- Proposition 13.5.3
 
@@ -836,15 +855,13 @@ is-propsitional-truncation-is-surjective f is-surj-f =
 
 -- Theorem 13.5.5
 
-{-
-is-surjective-universal-property-image :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
-  (f : A → X)
--}
-
 --------------------------------------------------------------------------------
 
-{- Cantor's diagonal argument -}
+-- Section 13.6 Cantor's diagonal argument
+
+-- Definition 13.6.1
+
+-- Theorem 13.6.2
 
 map-cantor :
   {l1 l2 : Level} (X : UU l1) (f : X → (X → UU-Prop l2)) → (X → UU-Prop l2)
@@ -870,3 +887,104 @@ cantor X f H =
   ( map-universal-property-trunc-Prop empty-Prop
     ( not-in-image-map-cantor X f)
     ( H (map-cantor X f)))
+
+--------------------------------------------------------------------------------
+
+-- Section 13.7 Logic in type theory
+
+-- Definition
+
+conj-Prop = prod-Prop
+
+type-conj-Prop :
+  {l1 l2 : Level} → UU-Prop l1 → UU-Prop l2 → UU (l1 ⊔ l2)
+type-conj-Prop P Q = type-Prop (conj-Prop P Q)
+
+disj-Prop :
+  {l1 l2 : Level} → UU-Prop l1 → UU-Prop l2 → UU-Prop (l1 ⊔ l2)
+disj-Prop P Q = trunc-Prop (coprod (type-Prop P) (type-Prop Q))
+
+type-disj-Prop :
+  {l1 l2 : Level} → UU-Prop l1 → UU-Prop l2 → UU (l1 ⊔ l2)
+type-disj-Prop P Q = type-Prop (disj-Prop P Q)
+
+inl-disj-Prop :
+  {l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) →
+  type-hom-Prop P (disj-Prop P Q)
+inl-disj-Prop P Q =
+  (unit-trunc-Prop (coprod (type-Prop P) (type-Prop Q))) ∘ inl
+
+inr-disj-Prop :
+  {l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) →
+  type-hom-Prop Q (disj-Prop P Q)
+inr-disj-Prop P Q =
+  (unit-trunc-Prop (coprod (type-Prop P) (type-Prop Q))) ∘ inr
+
+-- Proposition
+
+ev-disj-Prop :
+  {l1 l2 l3 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) (R : UU-Prop l3) →
+  type-hom-Prop
+    ( hom-Prop (disj-Prop P Q) R)
+    ( conj-Prop (hom-Prop P R) (hom-Prop Q R))
+ev-disj-Prop P Q R h =
+  pair (h ∘ (inl-disj-Prop P Q)) (h ∘ (inr-disj-Prop P Q))
+
+inv-ev-disj-Prop :
+  {l1 l2 l3 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) (R : UU-Prop l3) →
+  type-hom-Prop
+    ( conj-Prop (hom-Prop P R) (hom-Prop Q R))
+    ( hom-Prop (disj-Prop P Q) R)
+inv-ev-disj-Prop P Q R (pair f g) =
+  map-universal-property-trunc-Prop R (ind-coprod (λ t → type-Prop R) f g)
+
+is-equiv-ev-disj-Prop :
+  {l1 l2 l3 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) (R : UU-Prop l3) →
+  is-equiv (ev-disj-Prop P Q R)
+is-equiv-ev-disj-Prop P Q R =
+  is-equiv-is-prop
+    ( is-prop-type-Prop (hom-Prop (disj-Prop P Q) R))
+    ( is-prop-type-Prop (conj-Prop (hom-Prop P R) (hom-Prop Q R)))
+    ( inv-ev-disj-Prop P Q R)
+
+-- Definition
+
+exists-Prop :
+  {l1 l2 : Level} {A : UU l1} (P : A → UU-Prop l2) → UU-Prop (l1 ⊔ l2)
+exists-Prop {l1} {l2} {A} P = trunc-Prop (Σ A (λ x → type-Prop (P x)))
+
+exists :
+  {l1 l2 : Level} {A : UU l1} (P : A → UU-Prop l2) → UU (l1 ⊔ l2)
+exists P = type-Prop (exists-Prop P)
+
+is-prop-exists :
+  {l1 l2 : Level} {A : UU l1} (P : A → UU-Prop l2) → is-prop (exists P)
+is-prop-exists P = is-prop-type-Prop (exists-Prop P)
+
+intro-exists-Prop :
+  {l1 l2 : Level} {A : UU l1} (P : A → UU-Prop l2) →
+  (x : A) → type-Prop (P x) → exists P
+intro-exists-Prop {A = A} P x p =
+  unit-trunc-Prop (Σ A (λ x → type-Prop (P x))) (pair x p)
+
+-- Proposition
+
+ev-intro-exists-Prop :
+  {l1 l2 l3 : Level} {A : UU l1} (P : A → UU-Prop l2) (Q : UU-Prop l3) →
+  type-hom-Prop (exists-Prop P) Q → (x : A) → type-hom-Prop (P x) Q
+ev-intro-exists-Prop P Q H x p = H (intro-exists-Prop P x p)
+
+elim-exists-Prop :
+  {l1 l2 l3 : Level} {A : UU l1} (P : A → UU-Prop l2) (Q : UU-Prop l3) →
+  ((x : A) → type-hom-Prop (P x) Q) → type-hom-Prop (exists-Prop P) Q
+elim-exists-Prop {A = A} P Q f =
+  map-universal-property-trunc-Prop Q (ind-Σ f)
+
+is-equiv-ev-intro-exists-Prop :
+  {l1 l2 l3 : Level} {A : UU l1} (P : A → UU-Prop l2) (Q : UU-Prop l3) →
+  is-equiv (ev-intro-exists-Prop P Q)
+is-equiv-ev-intro-exists-Prop P Q =
+  is-equiv-is-prop
+    ( is-prop-type-hom-Prop (exists-Prop P) Q)
+    ( is-prop-Π ((λ x → is-prop-type-hom-Prop (P x) Q)))
+    ( elim-exists-Prop P Q)
