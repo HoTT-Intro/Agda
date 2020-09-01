@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --exact-split --safe #-}
 
-module 07-finite-sets where
+module 07-finite-types where
 
 import 06-universes
 open 06-universes public

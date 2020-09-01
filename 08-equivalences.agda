@@ -2,8 +2,8 @@
 
 module 08-equivalences where
 
-import 07-finite-sets
-open 07-finite-sets public
+import 07-finite-types
+open 07-finite-types public
 
 --------------------------------------------------------------------------------
 

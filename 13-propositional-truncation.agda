@@ -5,7 +5,7 @@ module 13-propositional-truncation where
 import 12-function-extensionality-solutions
 open 12-function-extensionality-solutions public
 
--- Section 13 Propositional truncations, the image of a map, and the replacement axiom
+-- Section 13 Propositional truncations and the image of a map
 
 --------------------------------------------------------------------------------
 
@@ -391,7 +391,7 @@ case-paths-induction-principle-propositional-truncation-is-prop :
   case-paths-induction-principle-propositional-truncation P α f B
 case-paths-induction-principle-propositional-truncation-is-prop
   P α f B is-prop-B p q x y =
-  is-prop'-is-prop (is-prop-B q) (tr B (α p q) x) y
+  eq-is-prop (is-prop-B q) (tr B (α p q) x) y
 
 -- Theorem 13.2.3
 
@@ -401,7 +401,7 @@ abstract
     ( {l : Level} →
       dependent-universal-property-propositional-truncation l P f) →
     ( {l : Level} → induction-principle-propositional-truncation l P
-      ( is-prop'-is-prop (is-prop-type-Prop P)) f)
+      ( eq-is-prop (is-prop-type-Prop P)) f)
   induction-principle-dependent-universal-property-propositional-truncation
     P f dup-f B g α =
     tot
@@ -414,7 +414,7 @@ abstract
                 ( B p)
                 ( is-prop-case-paths-induction-principle-propositional-truncation
                   ( P)
-                  ( is-prop'-is-prop (is-prop-type-Prop P))
+                  ( eq-is-prop (is-prop-type-Prop P))
                   f B α p)))
           ( g)))
 
@@ -422,7 +422,7 @@ abstract
   dependent-universal-property-induction-principle-propositional-truncation :
     { l1 l2 : Level} {A : UU l1} (P : UU-Prop l2) (f : A → type-Prop P) →
     ( {l : Level} → induction-principle-propositional-truncation l P
-      ( is-prop'-is-prop (is-prop-type-Prop P)) f) →
+      ( eq-is-prop (is-prop-type-Prop P)) f) →
     ( {l : Level} → dependent-universal-property-propositional-truncation l P f)
   dependent-universal-property-induction-principle-propositional-truncation
     P f ind-f Q =
@@ -436,7 +436,7 @@ abstract
             ( g)
             ( case-paths-induction-principle-propositional-truncation-is-prop
               ( P)
-              ( is-prop'-is-prop (is-prop-type-Prop P))
+              ( eq-is-prop (is-prop-type-Prop P))
               ( f)
               ( λ p → type-Prop (Q p))
               ( λ p → is-prop-type-Prop (Q p)))))
@@ -855,12 +855,14 @@ is-propsitional-truncation-is-surjective f is-surj-f =
 
 -- Theorem 13.5.5
 
+{-
 is-surjective-universal-property-image :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
   (f : A → X) (i : B ↪ X) (q : hom-slice f (map-emb i)) →
   ({l : Level} → universal-property-image l f i q) →
   is-surjective (map-hom-slice f (map-emb i) q)
 is-surjective-universal-property-image f i q up-i b = {!!}
+-}
 
 --------------------------------------------------------------------------------
 

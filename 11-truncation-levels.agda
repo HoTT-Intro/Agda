@@ -55,14 +55,14 @@ abstract
         ( left-inv (H x x)) y)
 
 abstract
-  is-prop'-is-prop :
+  eq-is-prop :
     {i : Level} {A : UU i} → is-prop A → is-prop' A
-  is-prop'-is-prop H x y = pr1 (H x y)
+  eq-is-prop H x y = pr1 (H x y)
 
 abstract
   is-contr-is-prop-inh :
     {i : Level} {A : UU i} → is-prop A → A → is-contr A
-  is-contr-is-prop-inh H a = pair a (is-prop'-is-prop H a)
+  is-contr-is-prop-inh H a = pair a (eq-is-prop H a)
 
 abstract
   is-prop-is-contr-if-inh :
@@ -181,6 +181,10 @@ is-set-type-Set :
   {l : Level} (X : UU-Set l) → is-set (type-Set X)
 is-set-type-Set X = pr2 X
 
+Id-Prop :
+  {l : Level} (X : UU-Set l) (x y : type-Set X) → UU-Prop l
+Id-Prop X x y = pair (Id x y) (is-set-type-Set X x y)
+
 axiom-K :
   {i : Level} → UU i → UU i
 axiom-K A = (x : A) (p : Id x x) → Id refl p
@@ -210,7 +214,7 @@ abstract
     fundamental-theorem-id-retr x (i x)
       (λ y → pair
         (ind-Id x (λ z p → R x z) (ρ x) y)
-        ((λ r → is-prop'-is-prop (p x y) _ r)))
+        ((λ r → eq-is-prop (p x y) _ r)))
 
 abstract
   is-prop-is-equiv :
@@ -266,6 +270,45 @@ abstract
 
 ℕ-Set : UU-Set lzero
 ℕ-Set = pair ℕ is-set-ℕ
+
+{- Next, we show that types with decidable equality are sets. To see this, we 
+   will construct a fiberwise equivalence with the binary relation R that is
+   defined by R x y := unit if (x = y), and empty otherwise. In order to define
+   this relation, we first define a type family over ((x = y) + ¬(x = y)) that 
+   returns unit on the left and empty on the right. -}
+   
+splitting-decidable-equality : {l : Level} (A : UU l) (x y : A) →
+  is-decidable (Id x y) → UU lzero
+splitting-decidable-equality A x y (inl p) = unit
+splitting-decidable-equality A x y (inr f) = empty
+
+is-prop-splitting-decidable-equality : {l : Level} (A : UU l) (x y : A) →
+  (t : is-decidable (Id x y)) →
+  is-prop (splitting-decidable-equality A x y t)
+is-prop-splitting-decidable-equality A x y (inl p) = is-prop-unit
+is-prop-splitting-decidable-equality A x y (inr f) = is-prop-empty
+
+reflexive-splitting-decidable-equality : {l : Level} (A : UU l) (x : A) →
+  (t : is-decidable (Id x x)) → splitting-decidable-equality A x x t
+reflexive-splitting-decidable-equality A x (inl p) = star
+reflexive-splitting-decidable-equality A x (inr f) =
+  ind-empty {P = λ t → splitting-decidable-equality A x x (inr f)} (f refl)
+
+eq-splitting-decidable-equality : {l : Level} (A : UU l) (x y : A) →
+  (t : is-decidable (Id x y)) →
+  splitting-decidable-equality A x y t → Id x y
+eq-splitting-decidable-equality A x y (inl p) t = p
+eq-splitting-decidable-equality A x y (inr f) t =
+  ind-empty {P = λ s → Id x y} t 
+
+is-set-has-decidable-equality : {l : Level} (A : UU l) →
+  has-decidable-equality A → is-set A
+is-set-has-decidable-equality A d =
+  is-set-prop-in-id
+    ( λ x y → splitting-decidable-equality A x y (d x y))
+    ( λ x y → is-prop-splitting-decidable-equality A x y (d x y))
+    ( λ x → reflexive-splitting-decidable-equality A x (d x x))
+    ( λ x y → eq-splitting-decidable-equality A x y (d x y))
 
 -- Section 8.3 General truncation levels
 
@@ -795,8 +838,8 @@ abstract
   is-prop-coprod f is-prop-P is-prop-Q =
     is-prop-is-prop'
       ( is-prop'-coprod f
-        ( is-prop'-is-prop is-prop-P)
-        ( is-prop'-is-prop is-prop-Q))
+        ( eq-is-prop is-prop-P)
+        ( eq-is-prop is-prop-Q))
 
 abstract
   is-trunc-succ-empty : (k : 𝕋) → is-trunc (succ-𝕋 k) empty

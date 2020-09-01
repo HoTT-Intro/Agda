@@ -269,6 +269,146 @@ type-free-symmetric-monoid A = Σ 𝔽 (λ X → type-𝔽 X → A)
 μ-free-symmetric-monoid A x = {!!}
 -}
 
+-- Classical logic in univalent type theory
+
+{- Recall that a proposition P is decidable if P + (¬ P) holds. -}
+
+classical-Prop :
+  (l : Level) → UU (lsuc l)
+classical-Prop l = Σ (UU-Prop l) (λ P → is-decidable (pr1 P))
+
+{- We show that if A is a proposition, then so is is-decidable A. -}
+
+is-prop-is-decidable :
+  {l : Level} {A : UU l} → is-prop A → is-prop (is-decidable A)
+is-prop-is-decidable is-prop-A =
+  is-prop-coprod intro-dn is-prop-A is-prop-neg
+
+{- Not every type is decidable. -}
+
+case-elim :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  ¬ B → coprod A B → A
+case-elim nb (inl a) = a
+case-elim nb (inr b) = ex-falso (nb b)
+
+simplify-not-all-2-element-types-decidable :
+  {l : Level} →
+  ((X : UU l) (p : type-trunc-Prop (bool ≃ X)) → is-decidable X) →
+  ((X : UU l) (p : type-trunc-Prop (bool ≃ X)) → X)
+simplify-not-all-2-element-types-decidable d X p =
+  case-elim
+    ( map-universal-property-trunc-Prop
+      ( dn-Prop' X)
+      ( λ e → intro-dn (map-equiv e true))
+      ( p))
+    ( d X p)
+
+{-
+not-all-2-element-types-decidable :
+  {l : Level} → ¬ ((X : UU l) (p : type-trunc-Prop (bool ≃ X)) → is-decidable X)
+not-all-2-element-types-decidable d = {!simplify-not-all-2-element-types-decidable d (raise _ bool) ?!}
+
+not-all-types-decidable :
+  {l : Level} → ¬ ((X : UU l) → is-decidable X)
+not-all-types-decidable d =
+  not-all-2-element-types-decidable (λ X p → d X)
+-}
+
+{- Types with decidable equality are closed under coproducts. -}
+
+has-decidable-equality-coprod : {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  has-decidable-equality A → has-decidable-equality B →
+  has-decidable-equality (coprod A B)
+has-decidable-equality-coprod dec-A dec-B (inl x) (inl y) =
+  functor-coprod
+    ( ap inl)
+    ( λ f p → f (inv-is-equiv (is-emb-inl _ _ x y) p))
+    ( dec-A x y)
+has-decidable-equality-coprod {A = A} {B = B} dec-A dec-B (inl x) (inr y) =
+  inr
+    ( λ p →
+      inv-is-equiv
+        ( is-equiv-map-raise _ empty)
+        ( Eq-coprod-eq A B (inl x) (inr y) p))
+has-decidable-equality-coprod {A = A} {B = B} dec-A dec-B (inr x) (inl y) =
+  inr
+    ( λ p →
+      inv-is-equiv
+        ( is-equiv-map-raise _ empty)
+        ( Eq-coprod-eq A B (inr x) (inl y) p))
+has-decidable-equality-coprod dec-A dec-B (inr x) (inr y) =
+  functor-coprod
+    ( ap inr)
+    ( λ f p → f (inv-is-equiv (is-emb-inr _ _ x y) p))
+    ( dec-B x y)
+
+{- Decidable equality of Fin n. -}
+
+has-decidable-equality-empty : has-decidable-equality empty
+has-decidable-equality-empty ()
+
+has-decidable-equality-unit :
+  has-decidable-equality unit
+has-decidable-equality-unit star star = inl refl
+
+has-decidable-equality-Fin :
+  (n : ℕ) → has-decidable-equality (Fin n)
+has-decidable-equality-Fin zero-ℕ = has-decidable-equality-empty
+has-decidable-equality-Fin (succ-ℕ n) =
+  has-decidable-equality-coprod
+    ( has-decidable-equality-Fin n)
+    ( has-decidable-equality-unit)
+
+decidable-Eq-Fin :
+  (n : ℕ) (i j : Fin n) → classical-Prop lzero
+decidable-Eq-Fin n i j =
+  pair
+    ( pair (Id i j) (is-set-Fin n i j))
+    ( has-decidable-equality-Fin n i j)
+
+{- Decidable equality of ℤ. -}
+
+has-decidable-equality-ℤ : has-decidable-equality ℤ
+has-decidable-equality-ℤ =
+  has-decidable-equality-coprod
+    has-decidable-equality-ℕ
+    ( has-decidable-equality-coprod
+      has-decidable-equality-unit
+      has-decidable-equality-ℕ)
+
+{- Closure of decidable types under retracts and equivalences. -}
+
+is-decidable-retract-of :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  A retract-of B → is-decidable B → is-decidable A
+is-decidable-retract-of (pair i (pair r H)) (inl b) = inl (r b)
+is-decidable-retract-of (pair i (pair r H)) (inr f) = inr (f ∘ i)
+
+is-decidable-is-equiv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B}
+  (is-equiv-f : is-equiv f) → is-decidable B → is-decidable A
+is-decidable-is-equiv {f = f} (pair (pair g G) (pair h H)) =
+  is-decidable-retract-of (pair f (pair h H))
+
+is-decidable-equiv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
+  is-decidable B → is-decidable A
+is-decidable-equiv e = is-decidable-is-equiv (is-equiv-map-equiv e)
+
+is-decidable-equiv' :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
+  is-decidable A → is-decidable B
+is-decidable-equiv' e = is-decidable-equiv (inv-equiv e)
+
+has-decidable-equality-retract-of :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  A retract-of B → has-decidable-equality B → has-decidable-equality A
+has-decidable-equality-retract-of (pair i (pair r H)) d x y =
+  is-decidable-retract-of
+    ( Id-retract-of-Id (pair i (pair r H)) x y)
+    ( d (i x) (i y))
+
 -- Exercises
 
 -- Exercise 10.1
@@ -436,7 +576,8 @@ is-emb-precomp-is-surjective {f = f} is-surj-f C g h =
     ( square-htpy-eq f g h)
     ( funext g h)
     ( funext (g ∘ f) (h ∘ f))
-    {!!}
+    ( dependent-universal-property-surj-is-surjective f is-surj-f
+      ( λ a → Id-Prop C (g a) (h a)))
 
 {-
 eq-false-equiv :
