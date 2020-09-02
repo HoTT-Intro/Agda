@@ -5,7 +5,10 @@ module flat-modality where
 import 12-function-extensionality-solutions
 open 12-function-extensionality-solutions public
 
-{- Agda has crisp contexts which allow us to seperate crisp variables. This let's us work with the flat modality. -}
+{- Agda has crisp contexts which allow us to seperate crisp variables. This let's us work with (something that is hopefully) the flat modality.
+
+  In later comments [S] denotes: Brouwer's fixed-point theorem in real-cohesive homotopy type theory, Michael Shulman
+ -}
 
 -- We define the flat modality as an inductive type with special care with the crispness of variables
 -- It is unclear what the semantics of such a beast are but we take a leap of faith and say this is the flat modality Mike defined
@@ -51,4 +54,20 @@ isretr-coprod-♭-♭-coprod A B (inr (♭-unit x)) = refl
 is-equiv-♭-coprod-coprod-♭ : {@♭ l1 l2 : Level} (@♭ A : UU l1) (@♭ B : UU l2) → is-equiv (♭-coprod-coprod-♭ A B)
 is-equiv-♭-coprod-coprod-♭ A B = is-equiv-has-inverse (coprod-♭-♭-coprod A B) (issec-coprod-♭-♭-coprod A B) (isretr-coprod-♭-♭-coprod A B)
 
--- and so on
+
+-- -- crisp ♭-induction
+
+-- [S, Lemma 5.1]
+-- "♭-induction C N M" corresponds to "let u^♭ := M in N" from [S]
+
+♭-induction : {@♭ l1 l2 : Level} {@♭ A : UU l1} (@♭ C : (@♭ x : ♭ A) → UU l2) (N : (@♭ u : A) → C (♭-unit u)) (@♭ M : ♭ A) → C M
+♭-induction C N (♭-unit x) = N x
+
+-- [S, Lemma 5.2]
+-- Commuting ♭-induction with ♭-unit
+
+♭-induction-♭-∪nit : {@♭ l1 l2 : Level} {@♭ A : UU l1} (@♭ C : (@♭ x : ♭ A) → UU l2) (@♭ N : (@♭ u : A) → C (♭-unit u)) (@♭ M : ♭ A)
+  → Id (♭-unit (♭-induction C N M)) (♭-induction (λ (@♭ x : ♭ A) → ♭ (C x)) (λ u → ♭-unit (N u)) M)
+♭-induction-♭-∪nit C N (♭-unit x) = refl
+
+
