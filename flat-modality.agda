@@ -66,8 +66,8 @@ is-equiv-♭-coprod-coprod-♭ A B = is-equiv-has-inverse (coprod-♭-♭-coprod
 -- [S, Lemma 5.2]
 -- Commuting ♭-induction with ♭-unit
 
-♭-induction-♭-∪nit : {@♭ l1 l2 : Level} {@♭ A : UU l1} (@♭ C : (@♭ x : ♭ A) → UU l2) (@♭ N : (@♭ u : A) → C (♭-unit u)) (@♭ M : ♭ A)
+♭-induction-♭-unit : {@♭ l1 l2 : Level} {@♭ A : UU l1} (@♭ C : (@♭ x : ♭ A) → UU l2) (@♭ N : (@♭ u : A) → C (♭-unit u)) (@♭ M : ♭ A)
   → Id (♭-unit (♭-induction C N M)) (♭-induction (λ (@♭ x : ♭ A) → ♭ (C x)) (λ u → ♭-unit (N u)) M)
-♭-induction-♭-∪nit C N (♭-unit x) = refl
+♭-induction-♭-unit C N (♭-unit x) = refl
 
 
