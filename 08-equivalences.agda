@@ -2,8 +2,8 @@
 
 module 08-equivalences where
 
-import 07-finite-types
-open 07-finite-types public
+import 08-decidability-in-number-theory
+open 08-decidability-in-number-theory public
 
 --------------------------------------------------------------------------------
 
