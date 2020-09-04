@@ -469,6 +469,19 @@ eq-cong-ℕ k x y H =
         ( symmetric-cong-ℕ (succ-ℕ k) (nat-Fin (mod-succ-ℕ k y)) y
           ( cong-nat-mod-succ-ℕ k y))))
 
+-- We record some immediate corollaries
+
+eq-zero-div-succ-ℕ :
+  (k x : ℕ) → div-ℕ (succ-ℕ k) x → Id (mod-succ-ℕ k x) zero-Fin
+eq-zero-div-succ-ℕ k x d =
+  eq-cong-ℕ k x zero-ℕ
+    ( tr (div-ℕ (succ-ℕ k)) (inv (right-zero-law-dist-ℕ x)) d)
+
+div-succ-eq-zero-ℕ :
+  (k x : ℕ) → Id (mod-succ-ℕ k x) zero-Fin → div-ℕ (succ-ℕ k) x
+div-succ-eq-zero-ℕ k x p =
+  tr (div-ℕ (succ-ℕ k)) (right-zero-law-dist-ℕ x) (cong-eq-ℕ k x zero-ℕ p)
+
 {- Theorem 7.3.7 -}
 
 issec-nat-Fin :
@@ -705,6 +718,10 @@ eq-one-div-one-ℕ :
   (x : ℕ) → div-ℕ x one-ℕ → Id x one-ℕ
 eq-one-div-one-ℕ x H =
   anti-symmetric-div-ℕ x one-ℕ H (div-one-ℕ x)
+
+div-eq-ℕ :
+  (x y : ℕ) → Id x y → div-ℕ x y
+div-eq-ℕ x .x refl = refl-div-ℕ x
 
 {- Exercise 7.3 -}
 
@@ -1036,147 +1053,6 @@ right-distributive-mul-add-Fin {k} x y z =
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
-
-{- Section 7.2 Decidability -}
-
-{- Definition 7.2.1 -}
-
-is-decidable : {l : Level} (A : UU l) → UU l
-is-decidable A = coprod A (¬ A)
-
-{- Example 7.2.2 -}
-
-is-decidable-unit : is-decidable unit
-is-decidable-unit = inl star
-
-is-decidable-empty : is-decidable empty
-is-decidable-empty = inr id
-
-{- Definition 7.2.3 -}
-
-{- We say that a type has decidable equality if we can decide whether 
-   x = y holds for any x, y : A. -}
-   
-has-decidable-equality : {l : Level} (A : UU l) → UU l
-has-decidable-equality A = (x y : A) → is-decidable (Id x y)
-
-{- Lemma 7.2.5 -}
-
-is-decidable-iff :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-  (A → B) → (B → A) → is-decidable A → is-decidable B
-is-decidable-iff f g =
-  functor-coprod f (functor-neg g)
-
-{- Proposition 7.2.6 -}
-
-{- The type ℕ is an example of a type with decidable equality. -}
-
-is-decidable-Eq-ℕ :
-  (m n : ℕ) → is-decidable (Eq-ℕ m n)
-is-decidable-Eq-ℕ zero-ℕ zero-ℕ = inl star
-is-decidable-Eq-ℕ zero-ℕ (succ-ℕ n) = inr id
-is-decidable-Eq-ℕ (succ-ℕ m) zero-ℕ = inr id
-is-decidable-Eq-ℕ (succ-ℕ m) (succ-ℕ n) = is-decidable-Eq-ℕ m n
-
-has-decidable-equality-ℕ : has-decidable-equality ℕ
-has-decidable-equality-ℕ x y =
-  is-decidable-iff (eq-Eq-ℕ x y) Eq-ℕ-eq (is-decidable-Eq-ℕ x y)
-
-{- Proposition 7.2.9 -}
-
-{- We show that Fin k has decidable equality, for each n : ℕ. -}
-
-is-decidable-Eq-Fin :
-  (k : ℕ) (x y : Fin k) → is-decidable (Eq-Fin k x y)
-is-decidable-Eq-Fin (succ-ℕ k) (inl x) (inl y) = is-decidable-Eq-Fin k x y
-is-decidable-Eq-Fin (succ-ℕ k) (inl x) (inr y) = inr id
-is-decidable-Eq-Fin (succ-ℕ k) (inr x) (inl y) = inr id
-is-decidable-Eq-Fin (succ-ℕ k) (inr x) (inr y) = inl star
-
-is-decidable-eq-Fin :
-  (k : ℕ) (x y : Fin k) → is-decidable (Id x y)
-is-decidable-eq-Fin k x y =
-  functor-coprod eq-Eq-Fin (functor-neg Eq-Fin-eq) (is-decidable-Eq-Fin k x y)
-
-{- Section 7.3 Definitions by case analysis -}
-
-{- We define an alternative definition of the predecessor function with manual 
-   with-abstraction. -}
-
-cases-pred-Fin-2 :
-  {k : ℕ} (x : Fin (succ-ℕ k))
-  (d : is-decidable (Eq-Fin (succ-ℕ k) x zero-Fin)) → Fin (succ-ℕ k)
-cases-pred-Fin-2 {zero-ℕ} (inr star) d = zero-Fin
-cases-pred-Fin-2 {succ-ℕ k} (inl x) (inl e) = neg-one-Fin
-cases-pred-Fin-2 {succ-ℕ k} (inl x) (inr f) =
-  inl (cases-pred-Fin-2 {k} x (inr f))
-cases-pred-Fin-2 {succ-ℕ k} (inr star) (inr f) = inl neg-one-Fin
-
-pred-Fin-2 : {k : ℕ} → Fin k → Fin k
-pred-Fin-2 {succ-ℕ k} x =
-  cases-pred-Fin-2 {k} x (is-decidable-Eq-Fin (succ-ℕ k) x zero-Fin)
-
-{- We give a solution to the exercise for the alternative definition of the
-   predecessor function, using with-abstraction. -}
-
-pred-zero-Fin-2 :
-  {k : ℕ} → Id (pred-Fin-2 {succ-ℕ k} zero-Fin) neg-one-Fin
-pred-zero-Fin-2 {k} with is-decidable-Eq-Fin (succ-ℕ k) zero-Fin zero-Fin
-pred-zero-Fin-2 {zero-ℕ} | d = refl
-pred-zero-Fin-2 {succ-ℕ k} | inl e = refl
-pred-zero-Fin-2 {succ-ℕ k} | inr f =
-  ex-falso (f (refl-Eq-Fin {succ-ℕ k} zero-Fin))
-  
-cases-succ-pred-Fin-2 :
-  {k : ℕ} (x : Fin (succ-ℕ k))
-  (d : is-decidable (Eq-Fin (succ-ℕ k) x zero-Fin)) →
-  Id (succ-Fin (cases-pred-Fin-2 x d)) x
-cases-succ-pred-Fin-2 {zero-ℕ} (inr star) d =
-  refl
-cases-succ-pred-Fin-2 {succ-ℕ k} (inl x) (inl e) =
-  inv (eq-Eq-Fin e)
-cases-succ-pred-Fin-2 {succ-ℕ zero-ℕ} (inl (inr x)) (inr f) =
-  ex-falso (f star)
-cases-succ-pred-Fin-2 {succ-ℕ (succ-ℕ k)} (inl (inl x)) (inr f) =
-  ap inl (cases-succ-pred-Fin-2 (inl x) (inr f))
-cases-succ-pred-Fin-2 {succ-ℕ (succ-ℕ k)} (inl (inr star)) (inr f) =
-  refl
-cases-succ-pred-Fin-2 {succ-ℕ k} (inr star) (inr f) =
-  refl
-
-succ-pred-Fin-2 :
-  {k : ℕ} (x : Fin k) → Id (succ-Fin (pred-Fin-2 x)) x
-succ-pred-Fin-2 {succ-ℕ k} x =
-  cases-succ-pred-Fin-2 x (is-decidable-Eq-Fin (succ-ℕ k) x zero-Fin)
-
-pred-inl-Fin-2 :
-  {k : ℕ} (x : Fin (succ-ℕ k)) (f : ¬ (Eq-Fin (succ-ℕ k) x zero-Fin)) →
-  Id (pred-Fin-2 (inl x)) (inl (pred-Fin-2 x))
-pred-inl-Fin-2 {k} x f with is-decidable-Eq-Fin (succ-ℕ k) x zero-Fin
-... | inl e = ex-falso (f e)
-... | inr f' = refl
-
-nEq-zero-succ-Fin :
-  {k : ℕ} (x : Fin (succ-ℕ k)) →
-  ¬ (Eq-Fin (succ-ℕ (succ-ℕ k)) (succ-Fin (inl x)) zero-Fin)
-nEq-zero-succ-Fin {succ-ℕ k} (inl (inl x)) e = nEq-zero-succ-Fin (inl x) e
-nEq-zero-succ-Fin {succ-ℕ k} (inl (inr star)) ()
-nEq-zero-succ-Fin {succ-ℕ k} (inr star) ()
-
-pred-succ-Fin-2 :
-  {k : ℕ} (x : Fin (succ-ℕ k)) → Id (pred-Fin-2 (succ-Fin x)) x
-pred-succ-Fin-2 {zero-ℕ} (inr star) = refl
-pred-succ-Fin-2 {succ-ℕ zero-ℕ} (inl (inr star)) = refl
-pred-succ-Fin-2 {succ-ℕ zero-ℕ} (inr star) = refl
-pred-succ-Fin-2 {succ-ℕ (succ-ℕ k)} (inl (inl (inl x))) =
-  ( pred-inl-Fin-2 (inl (succ-Fin (inl x))) (nEq-zero-succ-Fin (inl x))) ∙
-  ( ( ap inl (pred-inl-Fin-2 (succ-Fin (inl x)) (nEq-zero-succ-Fin (inl x)))) ∙
-    ( ap (inl ∘ inl) (pred-succ-Fin-2 (inl x))))
-pred-succ-Fin-2 {succ-ℕ (succ-ℕ k)} (inl (inl (inr star))) = refl
-pred-succ-Fin-2 {succ-ℕ (succ-ℕ k)} (inl (inr star)) = refl
-pred-succ-Fin-2 {succ-ℕ (succ-ℕ k)} (inr star) = pred-zero-Fin-2
-
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
