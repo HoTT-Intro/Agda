@@ -496,6 +496,54 @@ issec-nat-Fin {k} x =
       ( strict-upper-bound-nat-Fin x)
       ( cong-nat-mod-succ-ℕ k (nat-Fin x)))
 
+{- Corollary 7.3.8 Euclidian division -}
+
+euclidean-division-succ-ℕ :
+  (k x : ℕ) → Σ ℕ (λ r → (cong-ℕ (succ-ℕ k) x r) × (le-ℕ r (succ-ℕ k)))
+euclidean-division-succ-ℕ k x =
+  pair
+    ( nat-Fin (mod-succ-ℕ k x))
+    ( pair
+      ( symmetric-cong-ℕ (succ-ℕ k) (nat-Fin (mod-succ-ℕ k x)) x
+        ( cong-nat-mod-succ-ℕ k x))
+      ( strict-upper-bound-nat-Fin (mod-succ-ℕ k x)))
+
+remainder-euclidean-division-succ-ℕ : (k x : ℕ) → ℕ
+remainder-euclidean-division-succ-ℕ k x =
+  pr1 (euclidean-division-succ-ℕ k x)
+
+strict-upper-bound-remainder-euclidean-division-succ-ℕ :
+  (k x : ℕ) → le-ℕ (remainder-euclidean-division-succ-ℕ k x) (succ-ℕ k)
+strict-upper-bound-remainder-euclidean-division-succ-ℕ k x =
+  pr2 (pr2 (euclidean-division-succ-ℕ k x))
+
+cong-euclidean-division-succ-ℕ :
+  (k x : ℕ) → cong-ℕ (succ-ℕ k) x (remainder-euclidean-division-succ-ℕ k x)
+cong-euclidean-division-succ-ℕ k x =
+  pr1 (pr2 (euclidean-division-succ-ℕ k x))
+
+quotient-euclidean-division-succ-ℕ : (k x : ℕ) → ℕ
+quotient-euclidean-division-succ-ℕ k x =
+  pr1 (cong-euclidean-division-succ-ℕ k x)
+
+leq-nat-mod-succ-ℕ :
+  (k x : ℕ) → leq-ℕ (nat-Fin (mod-succ-ℕ k x)) x
+leq-nat-mod-succ-ℕ k zero-ℕ =
+  concatenate-eq-leq-ℕ zero-ℕ (nat-zero-Fin {k}) (reflexive-leq-ℕ zero-ℕ)
+leq-nat-mod-succ-ℕ k (succ-ℕ x) = {!!}
+
+eq-euclidean-division-succ-ℕ :
+  (k x : ℕ) →
+  Id ( add-ℕ ( mul-ℕ (quotient-euclidean-division-succ-ℕ k x) (succ-ℕ k))
+             ( remainder-euclidean-division-succ-ℕ k x))
+     ( x)
+eq-euclidean-division-succ-ℕ k x =
+  ( ap ( add-ℕ' (remainder-euclidean-division-succ-ℕ k x))
+       ( ( pr2 (cong-euclidean-division-succ-ℕ k x)) ∙
+         ( symmetric-dist-ℕ x (remainder-euclidean-division-succ-ℕ k x)))) ∙
+  ( is-difference-dist-ℕ' (remainder-euclidean-division-succ-ℕ k x) x
+    ( leq-nat-mod-succ-ℕ k x))
+
 --------------------------------------------------------------------------------
 
 {- Section 7.4 The cyclic group structure on the finite types -}
