@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module 13-propositional-truncation-solutions where
+module book.13-propositional-truncation-solutions where
 
-import 13-propositional-truncation
-open 13-propositional-truncation public
+import book.13-propositional-truncation
+open book.13-propositional-truncation public
 
 --------------------------------------------------------------------------------
 

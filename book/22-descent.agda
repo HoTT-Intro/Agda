@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --allow-unsolved-metas --exact-split #-}
 
-module 22-descent where
+module book.22-descent where
 
-import 22-cubical-diagrams
-open 22-cubical-diagrams public
+import book.22-cubical-diagrams
+open book.22-cubical-diagrams public
 
 -- Section 18.1 Five equivalent characterizations of pushouts
 

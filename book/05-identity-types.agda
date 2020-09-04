@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split --safe #-}
 
-module 05-identity-types where
+module book.05-identity-types where
 
-import 04-inductive-types
-open 04-inductive-types public
+import book.04-inductive-types
+open book.04-inductive-types public
 
 --------------------------------------------------------------------------------
 

@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split --safe #-}
 
-module 03-natural-numbers where
+module book.03-natural-numbers where
 
-import 02-pi
-open 02-pi public
+import book.02-pi
+open book.02-pi public
 
 --------------------------------------------------------------------------------
 

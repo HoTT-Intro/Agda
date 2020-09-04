@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split --safe #-}
 
-module 08-decidability-in-number-theory where
+module book.08-decidability-in-number-theory where
 
-import 07-finite-types
-open 07-finite-types public
+import book.07-finite-types
+open book.07-finite-types public
 
 --------------------------------------------------------------------------------
 

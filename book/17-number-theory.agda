@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module 17-number-theory where
+module book.17-number-theory where
 
-import 16-sets
-open 16-sets public
+import book.16-sets
+open book.16-sets public
 
 {- The well-ordering principle. -}
 

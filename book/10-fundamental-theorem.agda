@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split --safe #-}
 
-module 10-fundamental-theorem where
+module book.10-fundamental-theorem where
 
-import 09-contractible-types
-open 09-contractible-types public
+import book.09-contractible-types
+open book.09-contractible-types public
 
 --------------------------------------------------------------------------------
 

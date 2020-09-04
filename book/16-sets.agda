@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module 16-sets where
+module book.16-sets where
 
-import 15-groups
-open 15-groups public
+import book.15-groups
+open book.15-groups public
 
 --------------------------------------------------------------------------------
 

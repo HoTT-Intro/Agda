@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module 12-function-extensionality where
+module book.12-function-extensionality where
 
-import 11-truncation-levels
-open 11-truncation-levels public
+import book.11-truncation-levels
+open book.11-truncation-levels public
 
 --------------------------------------------------------------------------------
 

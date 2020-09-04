@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split --safe #-}
 
-module 02-pi where
+module book.02-pi where
 
-import 00-preamble
-open 00-preamble public
+import book.00-preamble
+open book.00-preamble public
 
 --------------------------------------------------------------------------------
 

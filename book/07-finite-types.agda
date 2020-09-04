@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split --safe #-}
 
-module 07-finite-types where
+module book.07-finite-types where
 
-import 06-universes
-open 06-universes public
+import book.06-universes
+open book.06-universes public
 
 --------------------------------------------------------------------------------
 

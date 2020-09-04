@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module 18-circle where
+module book.18-circle where
 
-import 17-number-theory
-open 17-number-theory public
+import book.17-number-theory
+open book.17-number-theory public
 
 {- Section 11.1 The induction principle of the circle -}
 

@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split --safe #-}
 
-module 04-inductive-types where
+module book.04-inductive-types where
 
-import 03-natural-numbers
-open 03-natural-numbers public
+import book.03-natural-numbers
+open book.03-natural-numbers public
 
 --------------------------------------------------------------------------------
 

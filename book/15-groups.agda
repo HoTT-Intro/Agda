@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module 15-groups where
+module book.15-groups where
 
-import 14-univalence
-open 14-univalence public
+import book.14-univalence
+open book.14-univalence public
 
 --------------------------------------------------------------------------------
 

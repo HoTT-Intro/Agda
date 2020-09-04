@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split --safe #-}
 
-module 06-universes where
+module book.06-universes where
 
-import 05-identity-types
-open 05-identity-types public
+import book.05-identity-types
+open book.05-identity-types public
 
 --------------------------------------------------------------------------------
 

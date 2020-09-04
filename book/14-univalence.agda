@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module 14-univalence where
+module book.14-univalence where
 
-import 13-propositional-truncation-solutions
-open 13-propositional-truncation-solutions public
+import book.13-propositional-truncation-solutions
+open book.13-propositional-truncation-solutions public
 
 -- Section 10.1 Type extensionality
 
@@ -351,14 +351,6 @@ has-decidable-equality-empty ()
 has-decidable-equality-unit :
   has-decidable-equality unit
 has-decidable-equality-unit star star = inl refl
-
-has-decidable-equality-Fin :
-  (n : ℕ) → has-decidable-equality (Fin n)
-has-decidable-equality-Fin zero-ℕ = has-decidable-equality-empty
-has-decidable-equality-Fin (succ-ℕ n) =
-  has-decidable-equality-coprod
-    ( has-decidable-equality-Fin n)
-    ( has-decidable-equality-unit)
 
 decidable-Eq-Fin :
   (n : ℕ) (i j : Fin n) → classical-Prop lzero
