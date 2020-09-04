@@ -1,0 +1,55 @@
+
+# Github actions file for checking the build of HoTT-intro/Agda on Ubuntu and macOS 
+name: Ubuntu / macOS
+
+# We trigger this action on pushes to the repo and on pull_requests
+on:
+  - push
+  - pull_request
+
+jobs:
+  build:
+    strategy:
+      # We don't stop other jobs from finishing if one fails
+      fail-fast: false
+
+      matrix:
+        # We test on ubuntu-latest and macos-latest
+        # this might need to be modified if we also want to test windows also
+        include:
+            # Operating system
+          - os: ubuntu-latest
+            # Package manger
+            pm: "sudo apt-get"
+            # Package manager flags
+            pm-flags: "-y" # We need to tell apt-get "yes" when it prompts
+            
+          - os: macos-latest
+            pm: "brew"
+            
+
+    # Run on an entry in the os coloumn of the matrix
+    runs-on: ${{ matrix.os }}
+
+    # Steps of this action
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v1
+
+      - name: Update package listings
+        run: ${{ matrix.pm }} update
+
+      - name: Install cabal-install
+        run: ${{ matrix.pm }} install ${{ matrix.flags }} cabal-install
+        
+      - name: Update cabal listings
+        run: cabal update
+
+      - name: Install alex and happy with cabal
+        run: cabal install alex happy
+      
+      - name: Install Agda with cabal
+        run: cabal install Agda-2.6.1
+
+      - name: Build book
+        run: agda-2.6.1 book.agda
