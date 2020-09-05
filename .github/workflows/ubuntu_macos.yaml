@@ -50,6 +50,7 @@ jobs:
       
       - name: Install Agda with cabal
         run: cabal install Agda-2.6.1
-
+      
+        # TODO: Add ".cabal/bin" to $PATH so we don't have to explicitly give the path to agda
       - name: Build book
-        run: agda-2.6.1 book.agda
+        run: $HOME/.cabal/bin/agda book.agda
