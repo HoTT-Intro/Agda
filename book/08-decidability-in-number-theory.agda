@@ -101,22 +101,31 @@ is-decidable-div-ℕ (succ-ℕ d) x =
 
 --------------------------------------------------------------------------------
 
-{- Section 8.2 The well-ordering principle of ℕ -}
+{- Section 8.2 Case analysis and definitions by with-abstraction -}
 
-{- Definition 8.2.1 -}
+collatz-function : ℕ → ℕ
+collatz-function n with is-decidable-div-ℕ two-ℕ n
+... | inl (pair y p) = y
+... | inr f = succ-ℕ (mul-ℕ three-ℕ n)
+
+--------------------------------------------------------------------------------
+
+{- Section 8.3 The well-ordering principle of ℕ -}
+
+{- Definition 8.3.1 -}
 
 is-decidable-fam :
   {l1 l2 : Level} {A : UU l1} (P : A → UU l2) → UU (l1 ⊔ l2)
 is-decidable-fam {A = A} P = (x : A) → is-decidable (P x)
 
-{- Definition 8.2.2 -}
+{- Definition 8.3.2 -}
 
 is-lower-bound-ℕ :
   {l : Level} (P : ℕ → UU l) (n : ℕ) → UU l
 is-lower-bound-ℕ P n =
   (m : ℕ) → P m → (leq-ℕ n m)
 
-{- Theorem 8.2.3 (The well-ordering principle of ℕ) -}
+{- Theorem 8.3.3 (The well-ordering principle of ℕ) -}
 
 minimal-element-ℕ :
   {l : Level} (P : ℕ → UU l) → UU l
@@ -192,9 +201,9 @@ is-zero-well-ordering-principle-ℕ P d (pair (succ-ℕ m) p) =
 
 --------------------------------------------------------------------------------
 
-{- Section 8.3 The greatest common divisor -}
+{- Section 8.4 The greatest common divisor -}
 
-{- Definition 8.3.1 -}
+{- Definition 8.4.1 -}
 
 is-common-divisor-ℕ : (a b x : ℕ) → UU lzero
 is-common-divisor-ℕ a b x = (div-ℕ x a) × (div-ℕ x b)
@@ -205,7 +214,7 @@ is-gcd-ℕ a b d =
     ( (is-common-divisor-ℕ a b x) → (div-ℕ x d)) ×
     ( (div-ℕ x d) → (is-common-divisor-ℕ a b x))
 
-{- Proposition 8.3.2 -}
+{- Proposition 8.4.2 -}
 
 is-common-divisor-is-gcd-ℕ :
   (a b d : ℕ) → is-gcd-ℕ a b d → is-common-divisor-ℕ a b d
@@ -218,7 +227,7 @@ uniqueness-is-gcd-ℕ a b d d' H H' =
     ( pr1 (H' d) (is-common-divisor-is-gcd-ℕ a b d H))
     ( pr1 (H d') (is-common-divisor-is-gcd-ℕ a b d' H'))
 
-{- Definition 8.3.3 -}
+{- Definition 8.4.3 -}
 
 is-nonzero-ℕ : ℕ → UU lzero
 is-nonzero-ℕ n = ¬ (Id n zero-ℕ)
@@ -228,7 +237,7 @@ is-multiple-of-gcd-ℕ a b n =
   is-nonzero-ℕ (add-ℕ a b) →
   (is-nonzero-ℕ n) × ((x : ℕ) → is-common-divisor-ℕ a b x → div-ℕ x n)
 
-{- Lemma 8.3.4 -}
+{- Lemma 8.4.4 -}
 
 is-decidable-function-type' :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} →
@@ -267,7 +276,7 @@ is-decidable-neg :
   {l : Level} {A : UU l} → is-decidable A → is-decidable (¬ A)
 is-decidable-neg d = is-decidable-function-type d is-decidable-empty
 
-{- Lemma 8.3.5 -}
+{- Lemma 8.4.5 -}
 
 -- There's a really cool application of with-abstraction here, on the recursive
 -- call of the function itself!
@@ -287,7 +296,7 @@ is-decidable-Π-ℕ P d (succ-ℕ m) H with d zero-ℕ
 ... | inl g = inl (ind-ℕ p (λ x y → g x))
 ... | inr ng = inr (λ f → ng (λ x → f (succ-ℕ x)))
 
-{- Corollary 8.3.6 -}
+{- Corollary 8.4.6 -}
 
 leq-div-ℕ : (d x : ℕ) → div-ℕ d (succ-ℕ x) → leq-ℕ d (succ-ℕ x)
 leq-div-ℕ d x (pair (succ-ℕ k) p) =
@@ -341,13 +350,13 @@ is-decidable-is-multiple-of-gcd-ℕ a b n =
                 ( leq-sum-is-common-divisor-ℕ a b x np H)
                 ( l)))))
 
-{- Lemma 8.3.7 -}
+{- Lemma 8.4.7 -}
 
 sum-is-multiple-of-gcd-ℕ : (a b : ℕ) → is-multiple-of-gcd-ℕ a b (add-ℕ a b)
 sum-is-multiple-of-gcd-ℕ a b np =
   pair np (λ x H → div-add-ℕ x a b (pr1 H) (pr2 H))
 
-{- Definition 8.3.8 The greatest common divisor -}
+{- Definition 8.4.8 The greatest common divisor -}
 
 GCD-ℕ : (a b : ℕ) → minimal-element-ℕ (is-multiple-of-gcd-ℕ a b)
 GCD-ℕ a b =
@@ -366,7 +375,7 @@ is-lower-bound-gcd-ℕ :
   (a b : ℕ) → is-lower-bound-ℕ (is-multiple-of-gcd-ℕ a b) (gcd-ℕ a b)
 is-lower-bound-gcd-ℕ a b = pr2 (pr2 (GCD-ℕ a b))
 
-{- Theorem 8.3.9 -}
+{- Theorem 8.4.9 -}
 
 is-nonzero-gcd-ℕ :
   (a b : ℕ) → is-nonzero-ℕ (add-ℕ a b) → is-nonzero-ℕ (gcd-ℕ a b)
@@ -398,7 +407,7 @@ is-gcd-gcd-ℕ a b x with has-decidable-equality-ℕ (add-ℕ a b) zero-ℕ
 
 --------------------------------------------------------------------------------
 
-{- Section 8.4 The infinitude of primes -}
+{- Section 8.5 The infinitude of primes -}
 
 --------------------------------------------------------------------------------
 
