@@ -5,59 +5,6 @@ module book.17-number-theory where
 import book.16-sets
 open book.16-sets public
 
-{- The well-ordering principle. -}
-
-is-minimal-element-ℕ :
-  {l : Level} (P : ℕ → UU l) (n : ℕ) (p : P n) → UU l
-is-minimal-element-ℕ P n p =
-  (m : ℕ) → P m → (leq-ℕ n m)
-
-minimal-element-ℕ :
-  {l : Level} (P : ℕ → UU l) → UU l
-minimal-element-ℕ P = Σ ℕ (λ n → Σ (P n) (is-minimal-element-ℕ P n))
-
-is-minimal-element-succ-ℕ :
-  {l : Level} (P : ℕ → UU l) (d : (n : ℕ) → is-decidable (P n))
-  (m : ℕ) (pm : P (succ-ℕ m))
-  (is-min-m : is-minimal-element-ℕ (λ x → P (succ-ℕ x)) m pm) →
-  ¬ (P zero-ℕ) → is-minimal-element-ℕ P (succ-ℕ m) pm
-is-minimal-element-succ-ℕ P d m pm is-min-m neg-p0 zero-ℕ p0 =
-  ind-empty (neg-p0 p0)
-is-minimal-element-succ-ℕ P d zero-ℕ pm is-min-m neg-p0 (succ-ℕ n) psuccn =
-  leq-zero-ℕ n
-is-minimal-element-succ-ℕ P d (succ-ℕ m) pm is-min-m neg-p0 (succ-ℕ n) psuccn =
-  is-minimal-element-succ-ℕ (λ x → P (succ-ℕ x)) (λ x → d (succ-ℕ x)) m pm
-    ( λ m → is-min-m (succ-ℕ m))
-    ( is-min-m zero-ℕ)
-    ( n)
-    ( psuccn)
-  
-well-ordering-principle-succ-ℕ :
-  {l : Level} (P : ℕ → UU l) (d : (n : ℕ) → is-decidable (P n))
-  (n : ℕ) (p : P (succ-ℕ n)) →
-  is-decidable (P zero-ℕ) →
-  minimal-element-ℕ (λ m → P (succ-ℕ m)) → minimal-element-ℕ P
-well-ordering-principle-succ-ℕ P d n p (inl p0) _ =
-  pair zero-ℕ (pair p0 (λ m q → leq-zero-ℕ m))
-well-ordering-principle-succ-ℕ P d n p
-  (inr neg-p0) (pair m (pair pm is-min-m)) =
-  pair
-    ( succ-ℕ m)
-    ( pair pm
-      ( is-minimal-element-succ-ℕ P d m pm is-min-m neg-p0))
-
-well-ordering-principle-ℕ :
-  {l : Level} (P : ℕ → UU l) (d : (n : ℕ) → is-decidable (P n)) →
-  Σ ℕ P → minimal-element-ℕ P
-well-ordering-principle-ℕ P d (pair zero-ℕ p) =
-  pair zero-ℕ (pair p (λ m q → leq-zero-ℕ m))
-well-ordering-principle-ℕ P d (pair (succ-ℕ n) p) =
-  well-ordering-principle-succ-ℕ P d n p (d zero-ℕ)
-    ( well-ordering-principle-ℕ
-      ( λ m → P (succ-ℕ m))
-      ( λ m → d (succ-ℕ m))
-      ( pair n p))
-
 -- Exercise 6.7
 
 {- The Pigeon hole principle. -}

@@ -398,10 +398,6 @@ cong-nat-mod-succ-ℕ k (succ-ℕ x) =
 
 {- Proposition 7.3.5 -}
 
-contradiction-leq-ℕ :
-  (x y : ℕ) → leq-ℕ x y → leq-ℕ (succ-ℕ y) x → empty
-contradiction-leq-ℕ (succ-ℕ x) (succ-ℕ y) H K = contradiction-leq-ℕ x y H K
-
 eq-zero-div-ℕ :
   (d x : ℕ) → le-ℕ x d → div-ℕ d x → Id x zero-ℕ
 eq-zero-div-ℕ d zero-ℕ H D = refl

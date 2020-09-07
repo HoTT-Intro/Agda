@@ -116,6 +116,15 @@ eq-zero-left-add-ℕ :
 eq-zero-left-add-ℕ x y p =
   eq-zero-right-add-ℕ y x ((commutative-add-ℕ y x) ∙ p)
 
+is-zero-summand-is-zero-sum-ℕ :
+  (x y : ℕ) → Id (add-ℕ x y) zero-ℕ → (Id x zero-ℕ) × (Id y zero-ℕ)
+is-zero-summand-is-zero-sum-ℕ x y p =
+  pair (eq-zero-left-add-ℕ x y p) (eq-zero-right-add-ℕ x y p)
+
+is-zero-sum-is-zero-summand-ℕ :
+  (x y : ℕ) → (Id x zero-ℕ) × (Id y zero-ℕ) → Id (add-ℕ x y) zero-ℕ
+is-zero-sum-is-zero-summand-ℕ .zero-ℕ .zero-ℕ (pair refl refl) = refl
+
 eq-one-right-mul-ℕ :
   (x y : ℕ) → Id (mul-ℕ x y) one-ℕ → Id y one-ℕ
 eq-one-right-mul-ℕ zero-ℕ zero-ℕ p = p
@@ -189,8 +198,6 @@ neq-false-true-𝟚 = Eq-eq-𝟚
 
 -- Exercise 6.3
 
--- Exercise 6.3 (a)
-
 leq-ℕ : ℕ → ℕ → UU lzero
 leq-ℕ zero-ℕ m = unit
 leq-ℕ (succ-ℕ n) zero-ℕ = empty
@@ -224,7 +231,7 @@ concatenate-eq-leq-ℕ :
   {m m' : ℕ} (n : ℕ) → Id m' m → leq-ℕ m n → leq-ℕ m' n
 concatenate-eq-leq-ℕ n refl H = H
 
--- Exercise 6.3 (b)
+-- Exercise 6.3 (a)
 
 reflexive-leq-ℕ : (n : ℕ) → leq-ℕ n n
 reflexive-leq-ℕ zero-ℕ = star
@@ -248,7 +255,7 @@ anti-symmetric-leq-ℕ zero-ℕ zero-ℕ p q = refl
 anti-symmetric-leq-ℕ (succ-ℕ m) (succ-ℕ n) p q =
   ap succ-ℕ (anti-symmetric-leq-ℕ m n p q)
 
--- Exercise 6.3 (c)
+-- Exercise 6.3 (b)
 
 decide-leq-ℕ :
   (m n : ℕ) → coprod (leq-ℕ m n) (leq-ℕ n m)
@@ -257,7 +264,7 @@ decide-leq-ℕ zero-ℕ (succ-ℕ n) = inl star
 decide-leq-ℕ (succ-ℕ m) zero-ℕ = inr star
 decide-leq-ℕ (succ-ℕ m) (succ-ℕ n) = decide-leq-ℕ m n
 
--- Exercise 6.3 (d)
+-- Exercise 6.3 (c)
 
 preserves-order-add-ℕ :
   (k m n : ℕ) → leq-ℕ m n → leq-ℕ (add-ℕ m k) (add-ℕ n k)
@@ -269,7 +276,7 @@ reflects-order-add-ℕ :
 reflects-order-add-ℕ zero-ℕ m n = id
 reflects-order-add-ℕ (succ-ℕ k) m n = reflects-order-add-ℕ k m n
 
--- Exercise 6.3 (e)
+-- Exercise 6.3 (d)
 
 preserves-order-mul-ℕ :
   (k m n : ℕ) → leq-ℕ m n → leq-ℕ (mul-ℕ m k) (mul-ℕ n k)
@@ -279,6 +286,14 @@ preserves-order-mul-ℕ k (succ-ℕ m) (succ-ℕ n) p =
     ( mul-ℕ m k)
     ( mul-ℕ n k)
     ( preserves-order-mul-ℕ k m n p)
+
+preserves-order-mul-ℕ' :
+  (k m n : ℕ) → leq-ℕ m n → leq-ℕ (mul-ℕ k m) (mul-ℕ k n)
+preserves-order-mul-ℕ' k m n H =
+  concatenate-eq-leq-eq-ℕ
+    ( commutative-mul-ℕ k m)
+    ( preserves-order-mul-ℕ k m n H)
+    ( commutative-mul-ℕ n k)
 
 reflects-order-mul-ℕ :
   (k m n : ℕ) → leq-ℕ (mul-ℕ m (succ-ℕ k)) (mul-ℕ n (succ-ℕ k)) → leq-ℕ m n
@@ -291,7 +306,24 @@ reflects-order-mul-ℕ k (succ-ℕ m) (succ-ℕ n) p =
       ( mul-ℕ n (succ-ℕ k))
       ( p))
 
--- Exercise 6.3 (f)
+-- We also record the fact that x ≤ mul-ℕ x (succ-ℕ k)
+
+leq-mul-ℕ :
+  (k x : ℕ) → leq-ℕ x (mul-ℕ x (succ-ℕ k))
+leq-mul-ℕ k x =
+  concatenate-eq-leq-ℕ
+    ( mul-ℕ x (succ-ℕ k))
+    ( inv (right-unit-law-mul-ℕ x))
+    ( preserves-order-mul-ℕ' x one-ℕ (succ-ℕ k) (leq-zero-ℕ k))
+
+leq-mul-ℕ' :
+  (k x : ℕ) → leq-ℕ x (mul-ℕ (succ-ℕ k) x)
+leq-mul-ℕ' k x =
+  concatenate-leq-eq-ℕ x
+    ( leq-mul-ℕ k x)
+    ( commutative-mul-ℕ x (succ-ℕ k))
+
+-- Exercise 6.3 (e)
 
 leq-min-ℕ :
   (k m n : ℕ) → leq-ℕ k m → leq-ℕ k n → leq-ℕ k (min-ℕ m n)
@@ -379,6 +411,15 @@ anti-symmetric-le-ℕ (succ-ℕ m) (succ-ℕ n) p q =
 contradiction-le-ℕ : (m n : ℕ) → le-ℕ m n → ¬ (leq-ℕ n m)
 contradiction-le-ℕ zero-ℕ (succ-ℕ n) H K = K
 contradiction-le-ℕ (succ-ℕ m) (succ-ℕ n) H = contradiction-le-ℕ m n H
+
+contradiction-le-ℕ' : (m n : ℕ) → leq-ℕ n m → ¬ (le-ℕ m n)
+contradiction-le-ℕ' m n K H = contradiction-le-ℕ m n H K
+
+contradiction-leq-ℕ : (m n : ℕ) → leq-ℕ m n → ¬ (leq-ℕ (succ-ℕ n) m)
+contradiction-leq-ℕ (succ-ℕ m) (succ-ℕ n) H K = contradiction-leq-ℕ m n H K
+
+contradiction-leq-ℕ' : (m n : ℕ) → leq-ℕ (succ-ℕ n) m → ¬ (leq-ℕ m n)
+contradiction-leq-ℕ' m n K H = contradiction-leq-ℕ m n H K
 
 leq-le-ℕ :
   {x y : ℕ} → le-ℕ x y → leq-ℕ x y
