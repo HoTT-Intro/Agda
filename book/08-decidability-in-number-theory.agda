@@ -166,6 +166,30 @@ well-ordering-principle-ℕ P d (pair (succ-ℕ n) p) =
       ( λ m → d (succ-ℕ m))
       ( pair n p))
 
+{- Also show that the well-ordering principle returns 0 if P 0 holds,
+   independently of the input (pair n p) : Σ ℕ P. -}
+
+is-zero-well-ordering-principle-succ-ℕ :
+  {l : Level} (P : ℕ → UU l) (d : is-decidable-fam P)
+  (n : ℕ) (p : P (succ-ℕ n)) (d0 : is-decidable (P zero-ℕ)) →
+  (x : minimal-element-ℕ (λ m → P (succ-ℕ m))) (p0 : P zero-ℕ) →
+  Id (pr1 (well-ordering-principle-succ-ℕ P d n p d0 x)) zero-ℕ
+is-zero-well-ordering-principle-succ-ℕ P d n p (inl p0) x q0 =
+  refl
+is-zero-well-ordering-principle-succ-ℕ P d n p (inr np0) x q0 =
+  ex-falso (np0 q0)
+
+is-zero-well-ordering-principle-ℕ :
+  {l : Level} (P : ℕ → UU l) (d : is-decidable-fam P) →
+  (x : Σ ℕ P) → P zero-ℕ → Id (pr1 (well-ordering-principle-ℕ P d x)) zero-ℕ
+is-zero-well-ordering-principle-ℕ P d (pair zero-ℕ p) p0 = refl
+is-zero-well-ordering-principle-ℕ P d (pair (succ-ℕ m) p) =
+  is-zero-well-ordering-principle-succ-ℕ P d m p (d zero-ℕ)
+    ( well-ordering-principle-ℕ
+      ( λ z → P (succ-ℕ z))
+      ( λ x → d (succ-ℕ x))
+      ( pair m p))
+
 --------------------------------------------------------------------------------
 
 {- Section 8.3 The greatest common divisor -}
@@ -196,19 +220,52 @@ uniqueness-is-gcd-ℕ a b d d' H H' =
 
 {- Definition 8.3.3 -}
 
+is-nonzero-ℕ : ℕ → UU lzero
+is-nonzero-ℕ n = ¬ (Id n zero-ℕ)
+
 is-multiple-of-gcd-ℕ : (a b n : ℕ) → UU lzero
-is-multiple-of-gcd-ℕ a b zero-ℕ = (Id a zero-ℕ) × (Id b zero-ℕ)
-is-multiple-of-gcd-ℕ a b (succ-ℕ n) =
-  (x : ℕ) → is-common-divisor-ℕ a b x → div-ℕ x (succ-ℕ n)
+is-multiple-of-gcd-ℕ a b n =
+  is-nonzero-ℕ (add-ℕ a b) →
+  (is-nonzero-ℕ n) × ((x : ℕ) → is-common-divisor-ℕ a b x → div-ℕ x n)
 
 {- Lemma 8.3.4 -}
+
+is-decidable-function-type' :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  is-decidable A → (A → is-decidable B) → is-decidable (A → B)
+is-decidable-function-type' (inl a) d with d a
+... | inl b = inl (λ x → b)
+... | inr nb = inr (λ f → nb (f a))
+is-decidable-function-type' (inr na) d = inl (ex-falso ∘ na)
 
 is-decidable-function-type :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} →
   is-decidable A → is-decidable B → is-decidable (A → B)
-is-decidable-function-type dec-A (inl b) = inl (λ x → b)
-is-decidable-function-type (inl a) (inr nb) = inr (λ f → nb (f a))
-is-decidable-function-type (inr na) (inr nb) = inl (ex-falso ∘ na)
+is-decidable-function-type d e = is-decidable-function-type' d (λ x → e)
+
+is-decidable-prod' :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  is-decidable A → (A → is-decidable B) → is-decidable (A × B)
+is-decidable-prod' (inl a) d with d a
+... | inl b = inl (pair a b)
+... | inr nb = inr (nb ∘ pr2)
+is-decidable-prod' (inr na) d = inr (na ∘ pr1)
+
+is-decidable-prod :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  is-decidable A → is-decidable B → is-decidable (A × B)
+is-decidable-prod d e = is-decidable-prod' d (λ x → e)
+
+is-decidable-coprod :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  is-decidable A → is-decidable B → is-decidable (coprod A B)
+is-decidable-coprod (inl a) y = inl (inl a)
+is-decidable-coprod (inr na) (inl b) = inl (inr b)
+is-decidable-coprod (inr na) (inr nb) = inr (ind-coprod (λ x → empty) na nb)
+
+is-decidable-neg :
+  {l : Level} {A : UU l} → is-decidable A → is-decidable (¬ A)
+is-decidable-neg d = is-decidable-function-type d is-decidable-empty
 
 {- Lemma 8.3.5 -}
 
@@ -232,73 +289,112 @@ is-decidable-Π-ℕ P d (succ-ℕ m) H with d zero-ℕ
 
 {- Corollary 8.3.6 -}
 
-is-decidable-prod :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-  is-decidable A → is-decidable B → is-decidable (A × B)
-is-decidable-prod (inl a) (inl b) = inl (pair a b)
-is-decidable-prod (inl a) (inr nb) = inr (λ x → nb (pr2 x))
-is-decidable-prod (inr na) (inl b) = inr (λ x → na (pr1 x))
-is-decidable-prod (inr na) (inr nb) = inr (λ x → na (pr1 x))
-
 leq-div-ℕ : (d x : ℕ) → div-ℕ d (succ-ℕ x) → leq-ℕ d (succ-ℕ x)
 leq-div-ℕ d x (pair (succ-ℕ k) p) =
   concatenate-leq-eq-ℕ d (leq-mul-ℕ' k d) p
 
-leq-sum-is-common-divisor-ℕ :
-  (a b d : ℕ) → (Σ ℕ (λ k → Id (add-ℕ a b) (succ-ℕ k))) →
-  is-common-divisor-ℕ a b d → leq-ℕ d (add-ℕ a b)
-leq-sum-is-common-divisor-ℕ a zero-ℕ d (pair k p) H =
+is-successor-ℕ : ℕ → UU lzero
+is-successor-ℕ n = Σ ℕ (λ y → Id n (succ-ℕ y))
+
+leq-sum-is-common-divisor-ℕ' :
+  (a b d : ℕ) →
+  is-successor-ℕ (add-ℕ a b) → is-common-divisor-ℕ a b d → leq-ℕ d (add-ℕ a b)
+leq-sum-is-common-divisor-ℕ' a zero-ℕ d (pair k p) H =
   concatenate-leq-eq-ℕ d
     ( leq-div-ℕ d k (tr (div-ℕ d) p (pr1 H)))
     ( inv p)
-leq-sum-is-common-divisor-ℕ a (succ-ℕ b) d (pair k p) H =
+leq-sum-is-common-divisor-ℕ' a (succ-ℕ b) d (pair k p) H =
   leq-div-ℕ d (add-ℕ a b) (div-add-ℕ d a (succ-ℕ b) (pr1 H) (pr2 H))
 
 is-successor-is-nonzero-ℕ :
-  (x : ℕ) → ¬ (Id x zero-ℕ) → Σ ℕ (λ y → Id x (succ-ℕ y))
+  (x : ℕ) → is-nonzero-ℕ x → is-successor-ℕ x
 is-successor-is-nonzero-ℕ zero-ℕ H = ex-falso (H refl)
 is-successor-is-nonzero-ℕ (succ-ℕ x) H = pair x refl
 
+leq-sum-is-common-divisor-ℕ :
+  (a b d : ℕ) →
+  is-nonzero-ℕ (add-ℕ a b) → is-common-divisor-ℕ a b d → leq-ℕ d (add-ℕ a b)
+leq-sum-is-common-divisor-ℕ a b d H =
+  leq-sum-is-common-divisor-ℕ' a b d (is-successor-is-nonzero-ℕ (add-ℕ a b) H)
+
 is-decidable-is-multiple-of-gcd-ℕ :
   (a b : ℕ) → is-decidable-fam (is-multiple-of-gcd-ℕ a b)
-is-decidable-is-multiple-of-gcd-ℕ a b zero-ℕ =
-  is-decidable-prod
-    ( has-decidable-equality-ℕ a zero-ℕ)
-    ( has-decidable-equality-ℕ b zero-ℕ)
-is-decidable-is-multiple-of-gcd-ℕ a b (succ-ℕ n) with
-  is-decidable-prod
-    ( has-decidable-equality-ℕ a zero-ℕ)
-    ( has-decidable-equality-ℕ b zero-ℕ)
-... | inl e =
-  inr
-    ( λ f →
-      Peano-8 n
-        ( inv
-          ( eq-zero-div-zero-ℕ
-            ( succ-ℕ n)
-            ( f zero-ℕ
-              ( pair
-                ( div-eq-ℕ zero-ℕ a (inv (pr1 e)))
-                ( div-eq-ℕ zero-ℕ b (inv (pr2 e))))))))
-... | inr f =
-  is-decidable-Π-ℕ
-    ( λ x → (is-common-divisor-ℕ a b x) → (div-ℕ x (succ-ℕ n)))
-    ( λ x →
-      is-decidable-function-type
-        ( is-decidable-prod (is-decidable-div-ℕ x a) (is-decidable-div-ℕ x b))
-        ( is-decidable-div-ℕ x (succ-ℕ n)))
-    ( succ-ℕ (add-ℕ a b))
-    ( λ x l H →
-      ex-falso
-        ( contradiction-leq-ℕ x
-          ( add-ℕ a b)
-          ( leq-sum-is-common-divisor-ℕ a b x
-            ( is-successor-is-nonzero-ℕ
-              ( add-ℕ a b)
-              ( functor-neg (is-zero-summand-is-zero-sum-ℕ a b) f))
-            ( H))
-          ( l)))
-  
+is-decidable-is-multiple-of-gcd-ℕ a b n =
+  is-decidable-function-type'
+    ( is-decidable-neg (has-decidable-equality-ℕ (add-ℕ a b) zero-ℕ))
+    ( λ np →
+      is-decidable-prod
+        ( is-decidable-neg (has-decidable-equality-ℕ n zero-ℕ))
+        ( is-decidable-Π-ℕ
+            ( λ x → (is-common-divisor-ℕ a b x) → (div-ℕ x n))
+            ( λ x →
+              is-decidable-function-type
+              ( is-decidable-prod
+                ( is-decidable-div-ℕ x a)
+                ( is-decidable-div-ℕ x b))
+              ( is-decidable-div-ℕ x n))
+            ( succ-ℕ (add-ℕ a b))
+            ( λ x l H →
+              ex-falso
+              ( contradiction-leq-ℕ x
+                ( add-ℕ a b)
+                ( leq-sum-is-common-divisor-ℕ a b x np H)
+                ( l)))))
+
+{- Lemma 8.3.7 -}
+
+sum-is-multiple-of-gcd-ℕ : (a b : ℕ) → is-multiple-of-gcd-ℕ a b (add-ℕ a b)
+sum-is-multiple-of-gcd-ℕ a b np =
+  pair np (λ x H → div-add-ℕ x a b (pr1 H) (pr2 H))
+
+{- Definition 8.3.8 The greatest common divisor -}
+
+GCD-ℕ : (a b : ℕ) → minimal-element-ℕ (is-multiple-of-gcd-ℕ a b)
+GCD-ℕ a b =
+  well-ordering-principle-ℕ
+    ( is-multiple-of-gcd-ℕ a b)
+    ( is-decidable-is-multiple-of-gcd-ℕ a b)
+    ( pair (add-ℕ a b) (sum-is-multiple-of-gcd-ℕ a b))
+
+gcd-ℕ : ℕ → ℕ → ℕ
+gcd-ℕ a b = pr1 (GCD-ℕ a b)
+
+is-multiple-of-gcd-gcd-ℕ : (a b : ℕ) → is-multiple-of-gcd-ℕ a b (gcd-ℕ a b)
+is-multiple-of-gcd-gcd-ℕ a b = pr1 (pr2 (GCD-ℕ a b))
+
+is-lower-bound-gcd-ℕ :
+  (a b : ℕ) → is-lower-bound-ℕ (is-multiple-of-gcd-ℕ a b) (gcd-ℕ a b)
+is-lower-bound-gcd-ℕ a b = pr2 (pr2 (GCD-ℕ a b))
+
+{- Theorem 8.3.9 -}
+
+is-nonzero-gcd-ℕ :
+  (a b : ℕ) → is-nonzero-ℕ (add-ℕ a b) → is-nonzero-ℕ (gcd-ℕ a b)
+is-nonzero-gcd-ℕ a b ne = pr1 (is-multiple-of-gcd-gcd-ℕ a b ne)
+
+is-successor-gcd-ℕ :
+  (a b : ℕ) → is-nonzero-ℕ (add-ℕ a b) → is-successor-ℕ (gcd-ℕ a b)
+is-successor-gcd-ℕ a b ne =
+  is-successor-is-nonzero-ℕ (gcd-ℕ a b) (is-nonzero-gcd-ℕ a b ne)
+
+is-zero-gcd-ℕ :
+  (a b : ℕ) → Id (add-ℕ a b) zero-ℕ → Id (gcd-ℕ a b) zero-ℕ
+is-zero-gcd-ℕ a b p =
+  is-zero-well-ordering-principle-ℕ
+    ( is-multiple-of-gcd-ℕ a b)
+    ( is-decidable-is-multiple-of-gcd-ℕ a b)
+    ( pair (add-ℕ a b) (sum-is-multiple-of-gcd-ℕ a b))
+    ( λ np → ex-falso (np p))
+
+{-
+is-gcd-gcd-ℕ : (a b : ℕ) → is-gcd-ℕ a b (gcd-ℕ a b)
+is-gcd-gcd-ℕ a b x with has-decidable-equality-ℕ (add-ℕ a b) zero-ℕ
+... | inl p =
+  pair
+    ( λ H → {!!})
+    ( λ H → {!!})
+... | inr np = {!!}
+-}
 
 --------------------------------------------------------------------------------
 
