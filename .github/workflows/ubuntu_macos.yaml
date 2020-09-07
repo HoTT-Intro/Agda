@@ -34,23 +34,39 @@ jobs:
     # Steps of this action
     steps:
       - name: Checkout code
-        uses: actions/checkout@v1
-
+        uses: actions/checkout@v2
+      
       - name: Update package listings
         run: ${{ matrix.pm }} update
 
       - name: Install cabal-install
         run: ${{ matrix.pm }} install ${{ matrix.flags }} cabal-install
-        
+
+        # Caching the ~/.cabal directory allows us to reuse previous cabal builds
+        # Notably it means we don't have to build agda everytime saving around 1 hour of time
+      - name: Cache ~/.cabal
+        id: cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cabal
+          # We cache each os sperately
+          key: ${{ matrix.os }}
+
+        # If we have not already cached update cabal listings
       - name: Update cabal listings
+        if: steps.cache.outputs.cache-hit != 'true'
         run: cabal update
 
+        # If we have not already cached install alex and happy
       - name: Install alex and happy with cabal
+        if: steps.cache.outputs.cache-hit != 'true'
         run: cabal install alex happy
-      
+
+        # If we have not already cached install agda
       - name: Install Agda with cabal
+        if: steps.cache.outputs.cache-hit != 'true'
         run: cabal install Agda-2.6.1
       
-        # TODO: Add ".cabal/bin" to $PATH so we don't have to explicitly give the path to agda
       - name: Build book
-        run: $HOME/.cabal/bin/agda book.agda
+        run: ~/.cabal/bin/agda book.agda
