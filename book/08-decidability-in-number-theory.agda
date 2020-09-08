@@ -338,17 +338,17 @@ is-decidable-is-multiple-of-gcd-ℕ a b n =
             ( λ x → (is-common-divisor-ℕ a b x) → (div-ℕ x n))
             ( λ x →
               is-decidable-function-type
-              ( is-decidable-prod
-                ( is-decidable-div-ℕ x a)
-                ( is-decidable-div-ℕ x b))
-              ( is-decidable-div-ℕ x n))
+                ( is-decidable-prod
+                  ( is-decidable-div-ℕ x a)
+                  ( is-decidable-div-ℕ x b))
+                ( is-decidable-div-ℕ x n))
             ( succ-ℕ (add-ℕ a b))
             ( λ x l H →
               ex-falso
-              ( contradiction-leq-ℕ x
-                ( add-ℕ a b)
-                ( leq-sum-is-common-divisor-ℕ a b x np H)
-                ( l)))))
+                ( contradiction-leq-ℕ x
+                  ( add-ℕ a b)
+                  ( leq-sum-is-common-divisor-ℕ a b x np H)
+                  ( l)))))
 
 {- Lemma 8.4.7 -}
 
