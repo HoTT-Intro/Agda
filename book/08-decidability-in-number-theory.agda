@@ -18,6 +18,10 @@ open book.07-finite-types public
 is-decidable : {l : Level} (A : UU l) → UU l
 is-decidable A = coprod A (¬ A)
 
+is-decidable-fam :
+  {l1 l2 : Level} {A : UU l1} (P : A → UU l2) → UU (l1 ⊔ l2)
+is-decidable-fam {A = A} P = (x : A) → is-decidable (P x)
+
 {- Example 8.1.2 -}
 
 is-decidable-unit : is-decidable unit
@@ -103,27 +107,108 @@ is-decidable-div-ℕ (succ-ℕ d) x =
 
 {- Section 8.2 Case analysis and definitions by with-abstraction -}
 
+{- Definition 8.2.2 -}
+
 collatz-function : ℕ → ℕ
 collatz-function n with is-decidable-div-ℕ two-ℕ n
 ... | inl (pair y p) = y
 ... | inr f = succ-ℕ (mul-ℕ three-ℕ n)
 
+{- Remark 8.2.4 -}
+
+is-decidable-coprod :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  is-decidable A → is-decidable B → is-decidable (coprod A B)
+is-decidable-coprod (inl a) y = inl (inl a)
+is-decidable-coprod (inr na) (inl b) = inl (inr b)
+is-decidable-coprod (inr na) (inr nb) = inr (ind-coprod (λ x → empty) na nb)
+
+is-decidable-prod :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  is-decidable A → is-decidable B → is-decidable (A × B)
+is-decidable-prod (inl a) (inl b) = inl (pair a b)
+is-decidable-prod (inl a) (inr g) = inr (g ∘ pr2)
+is-decidable-prod (inr f) (inl b) = inr (f ∘ pr1)
+is-decidable-prod (inr f) (inr g) = inr (f ∘ pr1)
+
+is-decidable-function-type :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  is-decidable A → is-decidable B → is-decidable (A → B)
+is-decidable-function-type (inl a) (inl b) = inl (λ x → b)
+is-decidable-function-type (inl a) (inr g) = inr (λ h → g (h a))
+is-decidable-function-type (inr f) (inl b) = inl (ex-falso ∘ f)
+is-decidable-function-type (inr f) (inr g) = inl (ex-falso ∘ f)
+
+is-decidable-neg :
+  {l : Level} {A : UU l} → is-decidable A → is-decidable (¬ A)
+is-decidable-neg d = is-decidable-function-type d is-decidable-empty
+
+{- Proposition 8.2.5 -}
+
+is-decidable-function-type' :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  is-decidable A → (A → is-decidable B) → is-decidable (A → B)
+is-decidable-function-type' (inl a) d with d a
+... | inl b = inl (λ x → b)
+... | inr nb = inr (λ f → nb (f a))
+is-decidable-function-type' (inr na) d = inl (ex-falso ∘ na)
+
+is-decidable-prod' :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  is-decidable A → (A → is-decidable B) → is-decidable (A × B)
+is-decidable-prod' (inl a) d with d a
+... | inl b = inl (pair a b)
+... | inr nb = inr (nb ∘ pr2)
+is-decidable-prod' (inr na) d = inr (na ∘ pr1)
+
+{- Proposition 8.2.6 -}
+
+-- There's a really cool application of with-abstraction here, on the recursive
+-- call of the function itself!
+
+is-decidable-Π-ℕ :
+  {l : Level} (P : ℕ → UU l) (d : is-decidable-fam P) →
+  (m : ℕ) → ((x : ℕ) → (leq-ℕ m x) → P x) → is-decidable ((x : ℕ) → P x)
+is-decidable-Π-ℕ P d zero-ℕ H = inl (λ x → H x (leq-zero-ℕ x))
+is-decidable-Π-ℕ P d (succ-ℕ m) H with d zero-ℕ
+... | inr np = inr (λ f → np (f zero-ℕ))
+... | inl p with
+  is-decidable-Π-ℕ
+    ( λ x → P (succ-ℕ x))
+    ( λ x → d (succ-ℕ x))
+    ( m)
+    ( λ x l → H (succ-ℕ x) l)
+... | inl g = inl (ind-ℕ p (λ x y → g x))
+... | inr ng = inr (λ f → ng (λ x → f (succ-ℕ x)))
+
+{- Corollary 8.2.7 -}
+
+is-upper-bound-ℕ :
+  {l : Level} (P : ℕ → UU l) (n : ℕ) → UU l
+is-upper-bound-ℕ P n =
+  (m : ℕ) → P m → leq-ℕ m n
+
+is-decidable-bounded-Π-ℕ :
+  {l1 l2 : Level} (P : ℕ → UU l1) (Q : ℕ → UU l2) (dP : is-decidable-fam P) →
+  (dQ : is-decidable-fam Q) (m : ℕ) (H : is-upper-bound-ℕ P m) →
+  is-decidable ((x : ℕ) → P x → Q x)
+is-decidable-bounded-Π-ℕ P Q dP dQ m H =
+  is-decidable-Π-ℕ
+    ( λ x → P x → Q x)
+    ( λ x → is-decidable-function-type (dP x) (dQ x))
+    ( succ-ℕ m)
+    ( λ x l p → ex-falso (contradiction-leq-ℕ x m (H x p) l))
+
 --------------------------------------------------------------------------------
 
 {- Section 8.3 The well-ordering principle of ℕ -}
-
-{- Definition 8.3.1 -}
-
-is-decidable-fam :
-  {l1 l2 : Level} {A : UU l1} (P : A → UU l2) → UU (l1 ⊔ l2)
-is-decidable-fam {A = A} P = (x : A) → is-decidable (P x)
 
 {- Definition 8.3.2 -}
 
 is-lower-bound-ℕ :
   {l : Level} (P : ℕ → UU l) (n : ℕ) → UU l
 is-lower-bound-ℕ P n =
-  (m : ℕ) → P m → (leq-ℕ n m)
+  (m : ℕ) → P m → leq-ℕ n m
 
 {- Theorem 8.3.3 (The well-ordering principle of ℕ) -}
 
@@ -208,6 +293,13 @@ is-zero-well-ordering-principle-ℕ P d (pair (succ-ℕ m) p) =
 is-common-divisor-ℕ : (a b x : ℕ) → UU lzero
 is-common-divisor-ℕ a b x = (div-ℕ x a) × (div-ℕ x b)
 
+is-decidable-is-common-divisor-ℕ :
+  (a b : ℕ) → is-decidable-fam (is-common-divisor-ℕ a b)
+is-decidable-is-common-divisor-ℕ a b x =
+  is-decidable-prod
+    ( is-decidable-div-ℕ x a)
+    ( is-decidable-div-ℕ x b)
+
 is-gcd-ℕ : (a b d : ℕ) → UU lzero
 is-gcd-ℕ a b d =
   (x : ℕ) →
@@ -236,65 +328,6 @@ is-multiple-of-gcd-ℕ : (a b n : ℕ) → UU lzero
 is-multiple-of-gcd-ℕ a b n =
   is-nonzero-ℕ (add-ℕ a b) →
   (is-nonzero-ℕ n) × ((x : ℕ) → is-common-divisor-ℕ a b x → div-ℕ x n)
-
-{- Lemma 8.4.4 -}
-
-is-decidable-function-type' :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-  is-decidable A → (A → is-decidable B) → is-decidable (A → B)
-is-decidable-function-type' (inl a) d with d a
-... | inl b = inl (λ x → b)
-... | inr nb = inr (λ f → nb (f a))
-is-decidable-function-type' (inr na) d = inl (ex-falso ∘ na)
-
-is-decidable-function-type :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-  is-decidable A → is-decidable B → is-decidable (A → B)
-is-decidable-function-type d e = is-decidable-function-type' d (λ x → e)
-
-is-decidable-prod' :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-  is-decidable A → (A → is-decidable B) → is-decidable (A × B)
-is-decidable-prod' (inl a) d with d a
-... | inl b = inl (pair a b)
-... | inr nb = inr (nb ∘ pr2)
-is-decidable-prod' (inr na) d = inr (na ∘ pr1)
-
-is-decidable-prod :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-  is-decidable A → is-decidable B → is-decidable (A × B)
-is-decidable-prod d e = is-decidable-prod' d (λ x → e)
-
-is-decidable-coprod :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-  is-decidable A → is-decidable B → is-decidable (coprod A B)
-is-decidable-coprod (inl a) y = inl (inl a)
-is-decidable-coprod (inr na) (inl b) = inl (inr b)
-is-decidable-coprod (inr na) (inr nb) = inr (ind-coprod (λ x → empty) na nb)
-
-is-decidable-neg :
-  {l : Level} {A : UU l} → is-decidable A → is-decidable (¬ A)
-is-decidable-neg d = is-decidable-function-type d is-decidable-empty
-
-{- Lemma 8.4.5 -}
-
--- There's a really cool application of with-abstraction here, on the recursive
--- call of the function itself!
-
-is-decidable-Π-ℕ :
-  {l : Level} (P : ℕ → UU l) (d : is-decidable-fam P) →
-  (m : ℕ) → ((x : ℕ) → (leq-ℕ m x) → P x) → is-decidable ((x : ℕ) → P x)
-is-decidable-Π-ℕ P d zero-ℕ H = inl (λ x → H x (leq-zero-ℕ x))
-is-decidable-Π-ℕ P d (succ-ℕ m) H with d zero-ℕ
-... | inr np = inr (λ f → np (f zero-ℕ))
-... | inl p with
-  is-decidable-Π-ℕ
-    ( λ x → P (succ-ℕ x))
-    ( λ x → d (succ-ℕ x))
-    ( m)
-    ( λ x l → H (succ-ℕ x) l)
-... | inl g = inl (ind-ℕ p (λ x y → g x))
-... | inr ng = inr (λ f → ng (λ x → f (succ-ℕ x)))
 
 {- Corollary 8.4.6 -}
 
@@ -334,21 +367,13 @@ is-decidable-is-multiple-of-gcd-ℕ a b n =
     ( λ np →
       is-decidable-prod
         ( is-decidable-neg (has-decidable-equality-ℕ n zero-ℕ))
-        ( is-decidable-Π-ℕ
-            ( λ x → (is-common-divisor-ℕ a b x) → (div-ℕ x n))
-            ( λ x →
-              is-decidable-function-type
-                ( is-decidable-prod
-                  ( is-decidable-div-ℕ x a)
-                  ( is-decidable-div-ℕ x b))
-                ( is-decidable-div-ℕ x n))
-            ( succ-ℕ (add-ℕ a b))
-            ( λ x l H →
-              ex-falso
-                ( contradiction-leq-ℕ x
-                  ( add-ℕ a b)
-                  ( leq-sum-is-common-divisor-ℕ a b x np H)
-                  ( l)))))
+        ( is-decidable-bounded-Π-ℕ
+          ( is-common-divisor-ℕ a b)
+          ( λ x → div-ℕ x n)
+          ( is-decidable-is-common-divisor-ℕ a b)
+          ( λ x → is-decidable-div-ℕ x n)
+          ( add-ℕ a b)
+          ( λ x → leq-sum-is-common-divisor-ℕ a b x np)))
 
 {- Lemma 8.4.7 -}
 
