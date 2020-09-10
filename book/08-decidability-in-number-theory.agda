@@ -167,17 +167,19 @@ is-decidable-prod' (inr na) d = inr (na ∘ pr1)
 -- call of the function itself!
 
 is-decidable-Π-ℕ :
-  {l : Level} (P : ℕ → UU l) (d : is-decidable-fam P) →
-  (m : ℕ) → ((x : ℕ) → (leq-ℕ m x) → P x) → is-decidable ((x : ℕ) → P x)
-is-decidable-Π-ℕ P d zero-ℕ H = inl (λ x → H x (leq-zero-ℕ x))
-is-decidable-Π-ℕ P d (succ-ℕ m) H with d zero-ℕ
+  {l : Level} (P : ℕ → UU l) (d : is-decidable-fam P) (m : ℕ) →
+  is-decidable ((x : ℕ) → (leq-ℕ m x) → P x) → is-decidable ((x : ℕ) → P x)
+is-decidable-Π-ℕ P d zero-ℕ (inr nH) = inr (λ f → nH (λ x y → f x))
+is-decidable-Π-ℕ P d zero-ℕ (inl H) = inl (λ x → H x (leq-zero-ℕ x))
+is-decidable-Π-ℕ P d (succ-ℕ m) (inr nH) = inr (λ f → nH (λ x y → f x))
+is-decidable-Π-ℕ P d (succ-ℕ m) (inl H) with d zero-ℕ
 ... | inr np = inr (λ f → np (f zero-ℕ))
 ... | inl p with
   is-decidable-Π-ℕ
     ( λ x → P (succ-ℕ x))
     ( λ x → d (succ-ℕ x))
     ( m)
-    ( λ x l → H (succ-ℕ x) l)
+    ( inl (λ x → H (succ-ℕ x)))
 ... | inl g = inl (ind-ℕ p (λ x y → g x))
 ... | inr ng = inr (λ f → ng (λ x → f (succ-ℕ x)))
 
@@ -197,7 +199,7 @@ is-decidable-bounded-Π-ℕ P Q dP dQ m H =
     ( λ x → P x → Q x)
     ( λ x → is-decidable-function-type (dP x) (dQ x))
     ( succ-ℕ m)
-    ( λ x l p → ex-falso (contradiction-leq-ℕ x m (H x p) l))
+    ( inl (λ x l p → ex-falso (contradiction-leq-ℕ x m (H x p) l)))
 
 --------------------------------------------------------------------------------
 
