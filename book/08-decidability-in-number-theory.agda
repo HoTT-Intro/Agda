@@ -385,12 +385,13 @@ sum-is-multiple-of-gcd-ℕ a b np =
 
 {- Definition 8.4.8 The greatest common divisor -}
 
-GCD-ℕ : (a b : ℕ) → minimal-element-ℕ (is-multiple-of-gcd-ℕ a b)
-GCD-ℕ a b =
-  well-ordering-principle-ℕ
-    ( is-multiple-of-gcd-ℕ a b)
-    ( is-decidable-is-multiple-of-gcd-ℕ a b)
-    ( pair (add-ℕ a b) (sum-is-multiple-of-gcd-ℕ a b))
+abstract
+  GCD-ℕ : (a b : ℕ) → minimal-element-ℕ (is-multiple-of-gcd-ℕ a b)
+  GCD-ℕ a b =
+    well-ordering-principle-ℕ
+      ( is-multiple-of-gcd-ℕ a b)
+      ( is-decidable-is-multiple-of-gcd-ℕ a b)
+      ( pair (add-ℕ a b) (sum-is-multiple-of-gcd-ℕ a b))
 
 gcd-ℕ : ℕ → ℕ → ℕ
 gcd-ℕ a b = pr1 (GCD-ℕ a b)
@@ -413,14 +414,24 @@ is-successor-gcd-ℕ :
 is-successor-gcd-ℕ a b ne =
   is-successor-is-nonzero-ℕ (gcd-ℕ a b) (is-nonzero-gcd-ℕ a b ne)
 
-is-zero-gcd-ℕ :
-  (a b : ℕ) → Id (add-ℕ a b) zero-ℕ → Id (gcd-ℕ a b) zero-ℕ
-is-zero-gcd-ℕ a b p =
-  is-zero-well-ordering-principle-ℕ
-    ( is-multiple-of-gcd-ℕ a b)
-    ( is-decidable-is-multiple-of-gcd-ℕ a b)
-    ( pair (add-ℕ a b) (sum-is-multiple-of-gcd-ℕ a b))
-    ( λ np → ex-falso (np p))
+abstract
+  is-zero-gcd-ℕ :
+    (a b : ℕ) → Id (add-ℕ a b) zero-ℕ → Id (gcd-ℕ a b) zero-ℕ
+  is-zero-gcd-ℕ a b p =
+    is-zero-well-ordering-principle-ℕ
+      ( is-multiple-of-gcd-ℕ a b)
+      ( is-decidable-is-multiple-of-gcd-ℕ a b)
+      ( pair (add-ℕ a b) (sum-is-multiple-of-gcd-ℕ a b))
+      ( λ np → ex-falso (np p))
+
+{-
+is-divisor-of-gcd-is-common-divisor-ℕ :
+  (a b x : ℕ) → is-common-divisor-ℕ a b x → div-ℕ x (gcd-ℕ a b)
+is-divisor-of-gcd-is-common-divisor-ℕ a b x H with
+  has-decidable-equality-ℕ (add-ℕ a b) zero-ℕ
+... | inl p = tr (div-ℕ x) (inv (is-zero-gcd-ℕ a b p)) (div-zero-ℕ x)
+... | inr np = {!!}
+-}
 
 {-
 is-gcd-gcd-ℕ : (a b : ℕ) → is-gcd-ℕ a b (gcd-ℕ a b)
