@@ -1080,6 +1080,22 @@ eq-euclidean-division-succ-ℕ k x =
   ( is-difference-dist-ℕ' (remainder-euclidean-division-succ-ℕ k x) x
     ( leq-nat-mod-succ-ℕ k x))
 
+is-successor-ℕ : ℕ → UU lzero
+is-successor-ℕ n = Σ ℕ (λ y → Id n (succ-ℕ y))
+
+is-nonzero-ℕ : ℕ → UU lzero
+is-nonzero-ℕ n = ¬ (Id n zero-ℕ)
+
+is-successor-is-nonzero-ℕ :
+  (x : ℕ) → is-nonzero-ℕ x → is-successor-ℕ x
+is-successor-is-nonzero-ℕ zero-ℕ H = ex-falso (H refl)
+is-successor-is-nonzero-ℕ (succ-ℕ x) H = pair x refl
+
+euclidean-division-ℕ :
+  (k x : ℕ) → is-nonzero-ℕ k → Σ ℕ (λ r → (cong-ℕ k x r) × (le-ℕ r k))
+euclidean-division-ℕ k x np with is-successor-is-nonzero-ℕ k np
+... | pair l refl = euclidean-division-succ-ℕ l x
+
 
 
 

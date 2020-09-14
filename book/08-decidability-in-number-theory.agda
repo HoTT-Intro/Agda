@@ -323,9 +323,6 @@ uniqueness-is-gcd-ℕ a b d d' H H' =
 
 {- Definition 8.4.3 -}
 
-is-nonzero-ℕ : ℕ → UU lzero
-is-nonzero-ℕ n = ¬ (Id n zero-ℕ)
-
 is-multiple-of-gcd-ℕ : (a b n : ℕ) → UU lzero
 is-multiple-of-gcd-ℕ a b n =
   is-nonzero-ℕ (add-ℕ a b) →
@@ -337,9 +334,6 @@ leq-div-ℕ : (d x : ℕ) → div-ℕ d (succ-ℕ x) → leq-ℕ d (succ-ℕ x)
 leq-div-ℕ d x (pair (succ-ℕ k) p) =
   concatenate-leq-eq-ℕ d (leq-mul-ℕ' k d) p
 
-is-successor-ℕ : ℕ → UU lzero
-is-successor-ℕ n = Σ ℕ (λ y → Id n (succ-ℕ y))
-
 leq-sum-is-common-divisor-ℕ' :
   (a b d : ℕ) →
   is-successor-ℕ (add-ℕ a b) → is-common-divisor-ℕ a b d → leq-ℕ d (add-ℕ a b)
@@ -349,11 +343,6 @@ leq-sum-is-common-divisor-ℕ' a zero-ℕ d (pair k p) H =
     ( inv p)
 leq-sum-is-common-divisor-ℕ' a (succ-ℕ b) d (pair k p) H =
   leq-div-ℕ d (add-ℕ a b) (div-add-ℕ d a (succ-ℕ b) (pr1 H) (pr2 H))
-
-is-successor-is-nonzero-ℕ :
-  (x : ℕ) → is-nonzero-ℕ x → is-successor-ℕ x
-is-successor-is-nonzero-ℕ zero-ℕ H = ex-falso (H refl)
-is-successor-is-nonzero-ℕ (succ-ℕ x) H = pair x refl
 
 leq-sum-is-common-divisor-ℕ :
   (a b d : ℕ) →
@@ -424,14 +413,19 @@ abstract
       ( pair (add-ℕ a b) (sum-is-multiple-of-gcd-ℕ a b))
       ( λ np → ex-falso (np p))
 
-{-
 is-divisor-of-gcd-is-common-divisor-ℕ :
   (a b x : ℕ) → is-common-divisor-ℕ a b x → div-ℕ x (gcd-ℕ a b)
 is-divisor-of-gcd-is-common-divisor-ℕ a b x H with
   has-decidable-equality-ℕ (add-ℕ a b) zero-ℕ
 ... | inl p = tr (div-ℕ x) (inv (is-zero-gcd-ℕ a b p)) (div-zero-ℕ x)
-... | inr np = {!!}
--}
+... | inr np = pr2 (is-multiple-of-gcd-gcd-ℕ a b np) x H
+
+is-divisor-of-first-is-divisor-of-gcd-ℕ :
+  (a b x : ℕ) → div-ℕ x (gcd-ℕ a b) → div-ℕ x a
+is-divisor-of-first-is-divisor-of-gcd-ℕ a b x d with
+  has-decidable-equality-ℕ a zero-ℕ
+... | inl p = tr (div-ℕ x) (inv p) (div-zero-ℕ x)
+... | inr np = {!quotient-euclidean-div-ℕ!}
 
 {-
 is-gcd-gcd-ℕ : (a b : ℕ) → is-gcd-ℕ a b (gcd-ℕ a b)
