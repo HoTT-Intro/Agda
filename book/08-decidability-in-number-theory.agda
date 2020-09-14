@@ -420,12 +420,14 @@ is-divisor-of-gcd-is-common-divisor-ℕ a b x H with
 ... | inl p = tr (div-ℕ x) (inv (is-zero-gcd-ℕ a b p)) (div-zero-ℕ x)
 ... | inr np = pr2 (is-multiple-of-gcd-gcd-ℕ a b np) x H
 
+{-
 is-divisor-of-first-is-divisor-of-gcd-ℕ :
   (a b x : ℕ) → div-ℕ x (gcd-ℕ a b) → div-ℕ x a
 is-divisor-of-first-is-divisor-of-gcd-ℕ a b x d with
   has-decidable-equality-ℕ a zero-ℕ
 ... | inl p = tr (div-ℕ x) (inv p) (div-zero-ℕ x)
 ... | inr np = {!quotient-euclidean-div-ℕ!}
+-}
 
 {-
 is-gcd-gcd-ℕ : (a b : ℕ) → is-gcd-ℕ a b (gcd-ℕ a b)
