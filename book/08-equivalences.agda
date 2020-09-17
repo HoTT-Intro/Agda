@@ -1148,6 +1148,8 @@ equiv-functor-coprod (pair e is-equiv-e) (pair f is-equiv-f) =
     ( functor-coprod e f)
     ( is-equiv-functor-coprod is-equiv-e is-equiv-f)
 
+--------------------------------------------------------------------------------
+
 -- Extra material
 
 abstract
@@ -1229,19 +1231,128 @@ htpy-right-whisk-htpy-inv :
   ((htpy-inv H) ·r f) ~ (htpy-inv (H ·r f))
 htpy-right-whisk-htpy-inv H f = refl-htpy
 
+--------------------------------------------------------------------------------
 
--- Old stuff
+map-assoc-coprod :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
+  coprod (coprod A B) C → coprod A (coprod B C)
+map-assoc-coprod (inl (inl x)) = inl x
+map-assoc-coprod (inl (inr x)) = inr (inl x)
+map-assoc-coprod (inr x) = inr (inr x)
 
-element :
-  {i : Level} {A : UU i} → A → unit → A
-element a star = a
+inv-map-assoc-coprod :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
+  coprod A (coprod B C) → coprod (coprod A B) C
+inv-map-assoc-coprod (inl x) = inl (inl x)
+inv-map-assoc-coprod (inr (inl x)) = inl (inr x)
+inv-map-assoc-coprod (inr (inr x)) = inr x
 
-htpy-element-constant :
-  {i : Level} {A : UU i} (a : A) →
-  (element a) ~ (const unit A a)
-htpy-element-constant a star = refl
+issec-inv-map-assoc-coprod :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
+  ( map-assoc-coprod {A = A} {B} {C} ∘ inv-map-assoc-coprod) ~ id
+issec-inv-map-assoc-coprod (inl x) = refl
+issec-inv-map-assoc-coprod (inr (inl x)) = refl
+issec-inv-map-assoc-coprod (inr (inr x)) = refl
 
-ap-const :
-  {i j : Level} {A : UU i} {B : UU j} (b : B) (x y : A) →
-  (ap (const A B b) {x} {y}) ~ const (Id x y) (Id b b) refl
-ap-const b x .x refl = refl
+isretr-inv-map-assoc-coprod :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
+  ( inv-map-assoc-coprod ∘ map-assoc-coprod {A = A} {B} {C}) ~ id
+isretr-inv-map-assoc-coprod (inl (inl x)) = refl
+isretr-inv-map-assoc-coprod (inl (inr x)) = refl
+isretr-inv-map-assoc-coprod (inr x) = refl
+
+is-equiv-map-assoc-coprod :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
+  is-equiv (map-assoc-coprod {A = A} {B} {C})
+is-equiv-map-assoc-coprod =
+  is-equiv-has-inverse
+    inv-map-assoc-coprod
+    issec-inv-map-assoc-coprod
+    isretr-inv-map-assoc-coprod
+
+is-equiv-inv-map-assoc-coprod :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
+  is-equiv (inv-map-assoc-coprod {A = A} {B} {C})
+is-equiv-inv-map-assoc-coprod =
+  is-equiv-has-inverse
+    map-assoc-coprod
+    isretr-inv-map-assoc-coprod
+    issec-inv-map-assoc-coprod
+
+assoc-coprod :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
+  coprod (coprod A B) C ≃ coprod A (coprod B C)
+assoc-coprod = pair map-assoc-coprod is-equiv-map-assoc-coprod
+
+inv-assoc-coprod :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
+  coprod A (coprod B C) ≃ coprod (coprod A B) C
+inv-assoc-coprod = pair inv-map-assoc-coprod is-equiv-inv-map-assoc-coprod
+
+coprod-Fin :
+  (k l : ℕ) → coprod (Fin k) (Fin l) ≃ Fin (add-ℕ k l)
+coprod-Fin k zero-ℕ = inv-equiv (right-unit-law-coprod (Fin k))
+coprod-Fin k (succ-ℕ l) =
+  (equiv-functor-coprod (coprod-Fin k l) (equiv-id unit)) ∘e inv-assoc-coprod
+
+{- We construct the functoriality of cartesian products. -}
+
+functor-prod :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {D : UU l4}
+  (f : A → C) (g : B → D) → (A × B) → (C × D)
+functor-prod f g (pair a b) = pair (f a) (g b)
+
+functor-prod-pr1 :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {D : UU l4}
+  (f : A → C) (g : B → D) → (pr1 ∘ (functor-prod f g)) ~ (f ∘ pr1)
+functor-prod-pr1 f g (pair a b) = refl
+
+functor-prod-pr2 :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {D : UU l4}
+  (f : A → C) (g : B → D) → (pr2 ∘ (functor-prod f g)) ~ (g ∘ pr2)
+functor-prod-pr2 f g (pair a b) = refl
+
+{- For our convenience we show that the functorial action of cartesian products
+   preserves identity maps, compositions, homotopies, and equivalences. -}
+
+functor-prod-id :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  (functor-prod (id {A = A}) (id {A = B})) ~ id
+functor-prod-id (pair a b) = refl
+
+functor-prod-comp :
+  {l1 l2 l3 l4 l5 l6 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {D : UU l4}
+  {E : UU l5} {F : UU l6} (f : A → C) (g : B → D) (h : C → E) (k : D → F) →
+  functor-prod (h ∘ f) (k ∘ g) ~ ((functor-prod h k) ∘ (functor-prod f g))
+functor-prod-comp f g h k (pair a b) = refl
+
+functor-prod-htpy :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {D : UU l4}
+  {f f' : A → C} (H : f ~ f') {g g' : B → D} (K : g ~ g') →
+  functor-prod f g ~ functor-prod f' g'
+functor-prod-htpy {f = f} {f'} H {g} {g'} K (pair a b) =
+  eq-pair-triv (pair (H a) (K b))
+
+abstract
+  is-equiv-functor-prod :
+    {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {D : UU l4}
+    (f : A → C) (g : B → D) →
+    is-equiv f → is-equiv g → is-equiv (functor-prod f g)
+  is-equiv-functor-prod f g
+    ( pair (pair sf issec-sf) (pair rf isretr-rf))
+    ( pair (pair sg issec-sg) (pair rg isretr-rg)) =
+    pair
+      ( pair
+        ( functor-prod sf sg)
+        ( ( htpy-inv (functor-prod-comp sf sg f g)) ∙h
+          ( (functor-prod-htpy issec-sf issec-sg) ∙h functor-prod-id)))
+      ( pair
+        ( functor-prod rf rg)
+        ( ( htpy-inv (functor-prod-comp f g rf rg)) ∙h
+          ( (functor-prod-htpy isretr-rf isretr-rg) ∙h functor-prod-id)))
+
+equiv-functor-prod :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {D : UU l4}
+  (f : A ≃ C) (g : B ≃ D) → (A × B) ≃ (C × D)
+equiv-functor-prod (pair f is-equiv-f) (pair g is-equiv-g) =
+  pair (functor-prod f g) (is-equiv-functor-prod f g is-equiv-f is-equiv-g)
