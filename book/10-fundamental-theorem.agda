@@ -522,7 +522,7 @@ abstract
           ( coprod (Σ A (Id x)) empty)
           ( equiv-functor-coprod
             ( equiv-id (Σ A (Id x)))
-            ( equiv-Σ-empty-fam B))
+            ( right-absorption-Σ B))
           ( is-contr-equiv'
             ( Σ A (Id x))
             ( right-unit-law-coprod (Σ A (Id x)))
@@ -546,7 +546,7 @@ abstract
         ( is-contr-equiv
           ( coprod empty (Σ B (Id x)))
           ( equiv-functor-coprod
-            ( equiv-Σ-empty-fam A)
+            ( right-absorption-Σ A)
             ( equiv-id (Σ B (Id x))))
           ( is-contr-equiv'
             ( Σ B (Id x))
@@ -733,7 +733,7 @@ abstract
   is-contr-Σ {A = A} {B = B} is-contr-A is-contr-B =
     is-contr-equiv'
       ( B (center is-contr-A))
-      ( left-unit-law-Σ B is-contr-A)
+      ( left-unit-law-Σ-is-contr B is-contr-A)
       ( is-contr-B (center is-contr-A))
 
 abstract
@@ -743,8 +743,8 @@ abstract
   is-contr-Σ' {A = A} {B} is-contr-A a is-contr-B =
     is-contr-is-equiv'
       ( B a)
-      ( left-unit-law-Σ-map-gen B is-contr-A a)
-      ( is-equiv-left-unit-law-Σ-map-gen B is-contr-A a)
+      ( map-left-unit-law-Σ-is-contr-gen B is-contr-A a)
+      ( is-equiv-map-left-unit-law-Σ-is-contr-gen B is-contr-A a)
       ( is-contr-B)
 
 abstract

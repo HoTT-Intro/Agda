@@ -837,8 +837,12 @@ abstract
     {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
     (b : B) → is-pullback f (const unit B b) (cone-fiber f b)
   is-pullback-cone-fiber f b =
-    is-equiv-tot-is-fiberwise-equiv ( λ a →
-      is-equiv-left-unit-law-Σ-map-gen (λ t → Id (f a) b) is-contr-unit star)
+    is-equiv-tot-is-fiberwise-equiv
+      ( λ a →
+        is-equiv-map-left-unit-law-Σ-is-contr-gen
+          ( λ t → Id (f a) b)
+          ( is-contr-unit)
+          ( star))
 
 abstract
   universal-property-pullback-cone-fiber :

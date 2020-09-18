@@ -354,9 +354,147 @@ inv-equiv :
   {i j : Level} {A : UU i} {B : UU j} → (A ≃ B) → (B ≃ A)
 inv-equiv e = pair (inv-map-equiv e) (is-equiv-inv-map-equiv e)
 
--- Remark
+-- Remarks
 
--- Remark
+-- Right absorption law for Σ-types and cartesian products
+
+abstract
+  is-equiv-map-to-empty :
+    {l : Level} {A : UU l} (f : A → empty) → is-equiv f
+  is-equiv-map-to-empty f =
+    is-equiv-has-inverse
+      ex-falso
+      ind-empty
+      ( λ x → ind-empty {P = λ t → Id (ind-empty (f x)) x} (f x))
+
+map-right-absorption-Σ :
+  {l : Level} (A : UU l) → Σ A (λ x → empty) → empty
+map-right-absorption-Σ A (pair x ())
+
+map-right-absorption-prod = map-right-absorption-Σ
+
+abstract
+  is-equiv-map-right-absorption-Σ :
+    {l : Level} (A : UU l) → is-equiv (map-right-absorption-Σ A)
+  is-equiv-map-right-absorption-Σ A =
+    is-equiv-map-to-empty (map-right-absorption-Σ A)
+
+  is-equiv-map-right-absorption-prod = is-equiv-map-right-absorption-Σ
+
+right-absorption-Σ :
+  {l : Level} (A : UU l) → Σ A (λ x → empty) ≃ empty
+right-absorption-Σ A =
+  pair (map-right-absorption-Σ A) (is-equiv-map-right-absorption-Σ A)
+
+right-absorption-prod :
+  {l : Level} (A : UU l) → (A × empty) ≃ empty
+right-absorption-prod = right-absorption-Σ
+
+-- Left absorption law for Σ and cartesian products
+
+map-left-absorption-Σ :
+  {l : Level} (A : empty → UU l) → Σ empty A → empty
+map-left-absorption-Σ A = pr1
+
+map-left-absorption-prod :
+  {l : Level} (A : UU l) → empty × A → empty
+map-left-absorption-prod A = map-left-absorption-Σ (λ x → A)
+
+is-equiv-map-left-absorption-Σ :
+  {l : Level} (A : empty → UU l) → is-equiv (map-left-absorption-Σ A)
+is-equiv-map-left-absorption-Σ A =
+  is-equiv-map-to-empty (map-left-absorption-Σ A)
+
+is-equiv-map-left-absorption-prod :
+  {l : Level} (A : UU l) → is-equiv (map-left-absorption-prod A)
+is-equiv-map-left-absorption-prod A =
+  is-equiv-map-left-absorption-Σ (λ x → A)
+
+left-absorption-Σ :
+  {l : Level} (A : empty → UU l) → Σ empty A ≃ empty
+left-absorption-Σ A =
+  pair (map-left-absorption-Σ A) (is-equiv-map-left-absorption-Σ A)
+
+left-absorption-prod :
+  {l : Level} (A : UU l) → (empty × A) ≃ empty
+left-absorption-prod A = left-absorption-Σ (λ x → A)
+
+-- Unit laws for Σ-types and cartesian products
+
+map-left-unit-law-Σ :
+  {l : Level} (A : unit → UU l) → Σ unit A → A star
+map-left-unit-law-Σ A (pair star a) = a
+
+inv-map-left-unit-law-Σ :
+  {l : Level} (A : unit → UU l) → A star → Σ unit A
+inv-map-left-unit-law-Σ A a = (pair star a)
+
+issec-inv-map-left-unit-law-Σ :
+  {l : Level} (A : unit → UU l) →
+  ( map-left-unit-law-Σ A ∘ inv-map-left-unit-law-Σ A) ~ id
+issec-inv-map-left-unit-law-Σ A a = refl
+
+isretr-inv-map-left-unit-law-Σ :
+  {l : Level} (A : unit → UU l) →
+  ( inv-map-left-unit-law-Σ A ∘ map-left-unit-law-Σ A) ~ id
+isretr-inv-map-left-unit-law-Σ A (pair star a) = refl
+
+is-equiv-map-left-unit-law-Σ :
+  {l : Level} (A : unit → UU l) → is-equiv (map-left-unit-law-Σ A)
+is-equiv-map-left-unit-law-Σ A =
+  is-equiv-has-inverse
+    ( inv-map-left-unit-law-Σ A)
+    ( issec-inv-map-left-unit-law-Σ A)
+    ( isretr-inv-map-left-unit-law-Σ A)
+
+left-unit-law-Σ :
+  {l : Level} (A : unit → UU l) → Σ unit A ≃ A star
+left-unit-law-Σ A =
+  pair (map-left-unit-law-Σ A) (is-equiv-map-left-unit-law-Σ A)
+
+map-left-unit-law-prod :
+  {l : Level} (A : UU l) → unit × A → A
+map-left-unit-law-prod A = pr2
+
+inv-map-left-unit-law-prod :
+  {l : Level} (A : UU l) → A → unit × A
+inv-map-left-unit-law-prod A = inv-map-left-unit-law-Σ (λ x → A)
+
+issec-inv-map-left-unit-law-prod :
+  {l : Level} (A : UU l) →
+  ( map-left-unit-law-prod A ∘ inv-map-left-unit-law-prod A) ~ id
+issec-inv-map-left-unit-law-prod A =
+  issec-inv-map-left-unit-law-Σ (λ x → A)
+
+isretr-inv-map-left-unit-law-prod :
+  {l : Level} (A : UU l) →
+  ( inv-map-left-unit-law-prod A ∘ map-left-unit-law-prod A) ~ id
+isretr-inv-map-left-unit-law-prod A (pair star a) = refl
+
+is-equiv-map-left-unit-law-prod :
+  {l : Level} (A : UU l) → is-equiv (map-left-unit-law-prod A)
+is-equiv-map-left-unit-law-prod A =
+  is-equiv-has-inverse
+    ( inv-map-left-unit-law-prod A)
+    ( issec-inv-map-left-unit-law-prod A)
+    ( isretr-inv-map-left-unit-law-prod A)
+
+left-unit-law-prod :
+  {l : Level} (A : UU l) → (unit × A) ≃ A
+left-unit-law-prod A =
+  pair
+    ( map-left-unit-law-prod A)
+    ( is-equiv-map-left-unit-law-prod A)
+
+inv-left-unit-law-prod :
+  {l : Level} (A : UU l) → A ≃ (unit × A)
+inv-left-unit-law-prod A =
+  pair
+    ( inv-map-left-unit-law-prod A)
+    ( is-equiv-has-inverse
+      ( map-left-unit-law-prod A)
+      ( isretr-inv-map-left-unit-law-prod A)
+      ( issec-inv-map-left-unit-law-prod A))
 
 -- Associativity of Σ-types
 
@@ -454,30 +592,37 @@ inv-assoc-Σ' A B C =
       ( isretr-inv-map-assoc-Σ' A B C)
       ( issec-inv-map-assoc-Σ' A B C))
 
--- Right absorption law for Σ-types
+-- Associativity of cartesian products
 
-abstract
-  is-equiv-map-to-empty :
-    {l : Level} {A : UU l} (f : A → empty) → is-equiv f
-  is-equiv-map-to-empty f =
-    is-equiv-has-inverse
-      ind-empty
-      ind-empty
-      ( λ x → ind-empty {P = λ t → Id (ind-empty (f x)) x} (f x))
+map-assoc-prod :
+  {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : UU l3) →
+  (A × B) × C → A × (B × C)
+map-assoc-prod A B C = map-assoc-Σ A (λ x → B) (λ w → C)
 
-map-Σ-empty-fam :
-  {l : Level} (A : UU l) → Σ A (λ x → empty) → empty
-map-Σ-empty-fam A (pair x ()) 
+inv-map-assoc-prod :
+  {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : UU l3) →
+  A × (B × C) → (A × B) × C
+inv-map-assoc-prod A B C = inv-map-assoc-Σ A (λ x → B) (λ w → C)
 
-abstract
-  is-equiv-map-Σ-empty-fam :
-    {l : Level} (A : UU l) → is-equiv (map-Σ-empty-fam A)
-  is-equiv-map-Σ-empty-fam A = is-equiv-map-to-empty (map-Σ-empty-fam A)
+issec-inv-map-assoc-prod :
+  {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : UU l3) →
+  ( map-assoc-prod A B C ∘ inv-map-assoc-prod A B C) ~ id
+issec-inv-map-assoc-prod A B C = issec-inv-map-assoc-Σ A (λ x → B) (λ w → C)
 
-equiv-Σ-empty-fam :
-  {l : Level} (A : UU l) → Σ A (λ x → empty) ≃ empty
-equiv-Σ-empty-fam A =
-  pair (map-Σ-empty-fam A) (is-equiv-map-Σ-empty-fam A)
+isretr-inv-map-assoc-prod :
+  {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : UU l3) →
+  ( inv-map-assoc-prod A B C ∘ map-assoc-prod A B C) ~ id
+isretr-inv-map-assoc-prod A B C = isretr-inv-map-assoc-Σ A (λ x → B) (λ w → C)
+
+is-equiv-map-assoc-prod :
+  {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : UU l3) →
+  is-equiv (map-assoc-prod A B C)
+is-equiv-map-assoc-prod A B C = is-equiv-map-assoc-Σ A (λ x → B) (λ w → C)
+
+assoc-prod :
+  {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : UU l3) →
+  ((A × B) × C) ≃ (A × (B × C))
+assoc-prod A B C = assoc-Σ A (λ x → B) (λ w → C)
 
 -- Right distributivity of Σ over coproducts
 
@@ -1619,3 +1764,10 @@ equiv-functor-prod :
   (f : A ≃ C) (g : B ≃ D) → (A × B) ≃ (C × D)
 equiv-functor-prod (pair f is-equiv-f) (pair g is-equiv-g) =
   pair (functor-prod f g) (is-equiv-functor-prod f g is-equiv-f is-equiv-g)
+
+prod-Fin : (k l : ℕ) → ((Fin k) × (Fin l)) ≃ Fin (mul-ℕ k l)
+prod-Fin zero-ℕ l = left-absorption-prod (Fin l)
+prod-Fin (succ-ℕ k) l =
+  ( ( coprod-Fin (mul-ℕ k l) l) ∘e
+    ( equiv-functor-coprod (prod-Fin k l) (left-unit-law-prod (Fin l)))) ∘e
+  ( right-distributive-prod-coprod (Fin k) unit (Fin l))

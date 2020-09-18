@@ -111,8 +111,11 @@ abstract
       ( is-equiv-double-structure-swap A P B)
       ( is-contr-is-equiv'
         ( P a)
-        ( left-unit-law-Σ-map-gen (λ t → P (pr1 t)) is-contr-AB (pair a b))
-        ( is-equiv-left-unit-law-Σ-map-gen _ is-contr-AB (pair a b))
+        ( map-left-unit-law-Σ-is-contr-gen
+          ( λ t → P (pr1 t))
+          ( is-contr-AB)
+          ( pair a b))
+        ( is-equiv-map-left-unit-law-Σ-is-contr-gen _ is-contr-AB (pair a b))
         ( is-contr-is-prop-inh (is-subtype-P a) p))
 
 Eq-total-subtype :
@@ -502,11 +505,7 @@ abstract
     {i j : Level} (k : 𝕋) {A : UU i} (B : A → UU j) →
     ((x : A) → is-trunc k (B x)) → is-trunc-map k (pr1 {i} {j} {A} {B})
   is-trunc-pr1-is-trunc-fam k B H x =
-    is-trunc-is-equiv k
-      ( B x)
-      ( fib-fam-fib-pr1 B x)
-      ( is-equiv-fib-fam-fib-pr1 B x)
-      ( H x)
+    is-trunc-equiv k (B x) (equiv-fib-fam-fib-pr1 B x) (H x)
 
 trunc-pr1 :
   {i j : Level} (k : 𝕋) {A : UU i} (B : A → UU-Truncated-Type k j) →
@@ -518,11 +517,7 @@ abstract
   is-trunc-fam-is-trunc-pr1 : {i j : Level} (k : 𝕋) {A : UU i} (B : A → UU j) →
     is-trunc-map k (pr1 {i} {j} {A} {B}) → ((x : A) → is-trunc k (B x))
   is-trunc-fam-is-trunc-pr1 k B is-trunc-pr1 x =
-    is-trunc-is-equiv k
-      ( fib pr1 x)
-      ( fib-pr1-fib-fam B x)
-      ( is-equiv-fib-pr1-fib-fam B x)
-      ( is-trunc-pr1 x)
+    is-trunc-equiv k (fib pr1 x) (equiv-fib-pr1-fib-fam B x) (is-trunc-pr1 x)
 
 abstract
   is-trunc-map-is-trunc-ap : {i j : Level} (k : 𝕋) {A : UU i} {B : UU j}
@@ -572,13 +567,9 @@ fib-prop-emb f y =
 abstract
   is-emb-pr1-is-subtype : {i j : Level} {A : UU i} {B : A → UU j} →
     is-subtype B → is-emb (pr1 {B = B})
-  is-emb-pr1-is-subtype {B = B} is-subtype-B =
+  is-emb-pr1-is-subtype {B = B} H =
     is-emb-is-prop-map pr1
-      ( λ x → is-trunc-is-equiv neg-one-𝕋
-        ( B x)
-        ( fib-fam-fib-pr1 _ x)
-        ( is-equiv-fib-fam-fib-pr1 _ x)
-        ( is-subtype-B x))
+      ( λ x → is-trunc-equiv neg-one-𝕋 (B x) (equiv-fib-fam-fib-pr1 _ x) (H x))
 
 equiv-ap-pr1-is-subtype : {i j : Level} {A : UU i} {B : A → UU j} →
   is-subtype B → {s t : Σ A B} → Id s t ≃ Id (pr1 s) (pr1 t)
@@ -591,10 +582,9 @@ abstract
   is-subtype-is-emb-pr1 : {i j : Level} {A : UU i} {B : A → UU j} →
     is-emb (pr1 {B = B}) → is-subtype B
   is-subtype-is-emb-pr1 is-emb-pr1-B x =
-    is-trunc-is-equiv neg-one-𝕋
+    is-trunc-equiv neg-one-𝕋
       ( fib pr1 x)
-      ( fib-pr1-fib-fam _ x)
-      ( is-equiv-fib-pr1-fib-fam _ x)
+      ( equiv-fib-pr1-fib-fam _ x)
       ( is-prop-map-is-emb pr1 is-emb-pr1-B x)
 
 abstract
@@ -790,10 +780,9 @@ abstract
     {l1 l2 : Level} (k : 𝕋) {A : UU l1} {B : A → UU l2} →
     is-trunc k A → is-trunc k (Σ A B) → (x : A) → is-trunc k (B x)
   is-trunc-fam-is-trunc-Σ k {B = B} is-trunc-A is-trunc-ΣAB x =
-    is-trunc-is-equiv' k
+    is-trunc-equiv' k
       ( fib pr1 x)
-      ( fib-fam-fib-pr1 B x)
-      ( is-equiv-fib-fam-fib-pr1 B x)
+      ( equiv-fib-fam-fib-pr1 B x)
       ( is-trunc-map-is-trunc-domain-codomain k is-trunc-ΣAB is-trunc-A x)
 
 -- Exercise 8.3
@@ -854,40 +843,36 @@ abstract
       ( Eq-coprod A B (inl x) (inl y))
       ( Eq-coprod-eq A B (inl x) (inl y))
       ( is-equiv-Eq-coprod-eq A B (inl x) (inl y))
-      ( is-trunc-is-equiv' (succ-𝕋 k)
+      ( is-trunc-equiv' (succ-𝕋 k)
         ( Id x y)
-        ( map-raise {A = Id x y})
-        ( is-equiv-map-raise _ (Id x y))
+        ( equiv-raise _ (Id x y))
         ( is-trunc-A x y))
   is-trunc-coprod k {A} {B} is-trunc-A is-trunc-B (inl x) (inr y) =
     is-trunc-is-equiv (succ-𝕋 k)
       ( Eq-coprod A B (inl x) (inr y))
       ( Eq-coprod-eq A B (inl x) (inr y))
       ( is-equiv-Eq-coprod-eq A B (inl x) (inr y))
-      ( is-trunc-is-equiv' (succ-𝕋 k)
+      ( is-trunc-equiv' (succ-𝕋 k)
         ( empty)
-        ( map-raise {A = empty})
-        ( is-equiv-map-raise _ empty)
+        ( equiv-raise _ empty)
         ( is-trunc-succ-empty k))
   is-trunc-coprod k {A} {B} is-trunc-A is-trunc-B (inr x) (inl y) =
     is-trunc-is-equiv (succ-𝕋 k)
       ( Eq-coprod A B (inr x) (inl y))
       ( Eq-coprod-eq A B (inr x) (inl y))
       ( is-equiv-Eq-coprod-eq A B (inr x) (inl y))
-      ( is-trunc-is-equiv' (succ-𝕋 k)
+      ( is-trunc-equiv' (succ-𝕋 k)
         ( empty)
-        ( map-raise {A = empty})
-        ( is-equiv-map-raise _ empty)
+        ( equiv-raise _ empty)
         ( is-trunc-succ-empty k))
   is-trunc-coprod k {A} {B} is-trunc-A is-trunc-B (inr x) (inr y) =
     is-trunc-is-equiv (succ-𝕋 k)
       ( Eq-coprod A B (inr x) (inr y))
       ( Eq-coprod-eq A B (inr x) (inr y))
       ( is-equiv-Eq-coprod-eq A B (inr x) (inr y))
-      ( is-trunc-is-equiv' (succ-𝕋 k)
+      ( is-trunc-equiv' (succ-𝕋 k)
         ( Id x y)
-        ( map-raise {A = Id x y})
-        ( is-equiv-map-raise _ (Id x y))
+        ( equiv-raise _ (Id x y))
         ( is-trunc-B x y))
 
 abstract
@@ -1006,20 +991,18 @@ abstract
   is-trunc-const-is-trunc : {l : Level} (k : 𝕋) {A : UU l} →
     is-trunc (succ-𝕋 k) A → (x : A) → is-trunc-map k (const unit A x)
   is-trunc-const-is-trunc k is-trunc-A x y =
-    is-trunc-is-equiv' k
+    is-trunc-equiv k
       ( Id x y)
-      ( left-unit-law-Σ-map (λ t → Id x y) is-contr-unit)
-      ( is-equiv-left-unit-law-Σ-map (λ t → Id x y) is-contr-unit)
+      ( left-unit-law-Σ (λ t → Id x y))
       ( is-trunc-A x y)
 
 abstract
   is-trunc-is-trunc-const : {l : Level} (k : 𝕋) {A : UU l} →
     ((x : A) → is-trunc-map k (const unit A x)) → is-trunc (succ-𝕋 k) A
   is-trunc-is-trunc-const k is-trunc-const x y =
-    is-trunc-is-equiv k
+    is-trunc-equiv' k
       ( Σ unit (λ t → Id x y))
-      ( left-unit-law-Σ-map (λ t → Id x y) is-contr-unit)
-      ( is-equiv-left-unit-law-Σ-map (λ t → Id x y) is-contr-unit)
+      ( left-unit-law-Σ (λ t → Id x y))
       ( is-trunc-const x y)
 
 -- Exercise 8.10

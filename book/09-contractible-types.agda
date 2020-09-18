@@ -440,26 +440,26 @@ equiv-is-contr is-contr-A is-contr-B =
 
 -- In this exercise we will show that if the base type in a Σ-type is contractible, then the Σ-type is equivalent to the fiber at the center of contraction. This can be seen as a left unit law for Σ-types. We will derive a right unit law for Σ-types in Lecture 7 (not because it is unduable here, but it is useful to have some knowledge of fiberwise equivalences).
 
-left-unit-law-Σ-map :
+map-left-unit-law-Σ-is-contr :
   {i j : Level} {C : UU i} (B : C → UU j)
   (is-contr-C : is-contr C) → B (center is-contr-C) → Σ C B
-left-unit-law-Σ-map B is-contr-C y = pair (center is-contr-C) y
+map-left-unit-law-Σ-is-contr B is-contr-C y = pair (center is-contr-C) y
 
-left-unit-law-Σ-map-conv :
+inv-map-left-unit-law-Σ-is-contr :
   {i j : Level} {C : UU i} (B : C → UU j)
   (is-contr-C : is-contr C) → Σ C B → B (center is-contr-C)
-left-unit-law-Σ-map-conv B is-contr-C =
+inv-map-left-unit-law-Σ-is-contr B is-contr-C =
   ind-Σ
     ( sing-ind-is-contr _ is-contr-C
       ( λ x → B x → B (center is-contr-C))
       ( center is-contr-C)
       ( id))
 
-left-inverse-left-unit-law-Σ-map-conv :
+isretr-inv-map-left-unit-law-Σ-is-contr :
   {i j : Level} {C : UU i} (B : C → UU j) (is-contr-C : is-contr C) →
-  ( ( left-unit-law-Σ-map-conv B is-contr-C) ∘
-    ( left-unit-law-Σ-map B is-contr-C)) ~ id
-left-inverse-left-unit-law-Σ-map-conv B is-contr-C y =
+  ( ( inv-map-left-unit-law-Σ-is-contr B is-contr-C) ∘
+    ( map-left-unit-law-Σ-is-contr B is-contr-C)) ~ id
+isretr-inv-map-left-unit-law-Σ-is-contr B is-contr-C y =
   ap
     ( λ (f : B (center is-contr-C) → B (center is-contr-C)) → f y)
     ( sing-comp-is-contr _ is-contr-C
@@ -467,79 +467,79 @@ left-inverse-left-unit-law-Σ-map-conv B is-contr-C y =
       ( center is-contr-C)
       ( id))
 
-right-inverse-left-unit-law-Σ-map-conv :
+issec-inv-map-left-unit-law-Σ-is-contr :
   {i j : Level} {C : UU i} (B : C → UU j) (is-contr-C : is-contr C) →
-  ( ( left-unit-law-Σ-map B is-contr-C) ∘
-    ( left-unit-law-Σ-map-conv B is-contr-C)) ~ id
-right-inverse-left-unit-law-Σ-map-conv B is-contr-C =
+  ( ( map-left-unit-law-Σ-is-contr B is-contr-C) ∘
+    ( inv-map-left-unit-law-Σ-is-contr B is-contr-C)) ~ id
+issec-inv-map-left-unit-law-Σ-is-contr B is-contr-C =
   ind-Σ
     ( sing-ind-is-contr _ is-contr-C
       ( λ x → (y : B x) →
-        Id ( ( ( left-unit-law-Σ-map B is-contr-C) ∘
-               ( left-unit-law-Σ-map-conv B is-contr-C))
+        Id ( ( ( map-left-unit-law-Σ-is-contr B is-contr-C) ∘
+               ( inv-map-left-unit-law-Σ-is-contr B is-contr-C))
              ( pair x y))
            ( id (pair x y))) (center is-contr-C)
       ( λ y → ap
-        ( left-unit-law-Σ-map B is-contr-C)
+        ( map-left-unit-law-Σ-is-contr B is-contr-C)
         ( ap
           ( λ f → f y)
           ( sing-comp-is-contr _ is-contr-C
             ( λ x → B x → B (center is-contr-C)) (center is-contr-C) id))))
 
 abstract
-  is-equiv-left-unit-law-Σ-map :
+  is-equiv-map-left-unit-law-Σ-is-contr :
     {i j : Level} {C : UU i} (B : C → UU j) (is-contr-C : is-contr C) →
-    is-equiv (left-unit-law-Σ-map B is-contr-C)
-  is-equiv-left-unit-law-Σ-map B is-contr-C =
+    is-equiv (map-left-unit-law-Σ-is-contr B is-contr-C)
+  is-equiv-map-left-unit-law-Σ-is-contr B is-contr-C =
     is-equiv-has-inverse
-      ( left-unit-law-Σ-map-conv B is-contr-C)
-      ( right-inverse-left-unit-law-Σ-map-conv B is-contr-C)
-      ( left-inverse-left-unit-law-Σ-map-conv B is-contr-C)
+      ( inv-map-left-unit-law-Σ-is-contr B is-contr-C)
+      ( issec-inv-map-left-unit-law-Σ-is-contr B is-contr-C)
+      ( isretr-inv-map-left-unit-law-Σ-is-contr B is-contr-C)
 
 abstract
-  is-equiv-left-unit-law-Σ-map-conv :
+  is-equiv-inv-map-left-unit-law-Σ-is-contr :
     {i j : Level} {C : UU i} (B : C → UU j) (is-contr-C : is-contr C) →
-    is-equiv (left-unit-law-Σ-map-conv B is-contr-C)
-  is-equiv-left-unit-law-Σ-map-conv B is-contr-C =
+    is-equiv (inv-map-left-unit-law-Σ-is-contr B is-contr-C)
+  is-equiv-inv-map-left-unit-law-Σ-is-contr B is-contr-C =
     is-equiv-has-inverse
-      ( left-unit-law-Σ-map B is-contr-C)
-      ( left-inverse-left-unit-law-Σ-map-conv B is-contr-C)
-      ( right-inverse-left-unit-law-Σ-map-conv B is-contr-C)
+      ( map-left-unit-law-Σ-is-contr B is-contr-C)
+      ( isretr-inv-map-left-unit-law-Σ-is-contr B is-contr-C)
+      ( issec-inv-map-left-unit-law-Σ-is-contr B is-contr-C)
 
-left-unit-law-Σ : {i j : Level} {C : UU i} (B : C → UU j)
+left-unit-law-Σ-is-contr : {i j : Level} {C : UU i} (B : C → UU j)
   (is-contr-C : is-contr C) → B (center is-contr-C) ≃ Σ C B
-left-unit-law-Σ B is-contr-C =
+left-unit-law-Σ-is-contr B is-contr-C =
   pair
-    ( left-unit-law-Σ-map B is-contr-C)
-    ( is-equiv-left-unit-law-Σ-map B is-contr-C)
+    ( map-left-unit-law-Σ-is-contr B is-contr-C)
+    ( is-equiv-map-left-unit-law-Σ-is-contr B is-contr-C)
 
-left-unit-law-Σ-map-gen :
+map-left-unit-law-Σ-is-contr-gen :
   {l1 l2 : Level} {A : UU l1} (B : A → UU l2) →
   is-contr A → (x : A) → B x → Σ A B
-left-unit-law-Σ-map-gen B is-contr-A x y = pair x y
+map-left-unit-law-Σ-is-contr-gen B is-contr-A x y = pair x y
 
 abstract
-  is-equiv-left-unit-law-Σ-map-gen :
+  is-equiv-map-left-unit-law-Σ-is-contr-gen :
     {l1 l2 : Level} {A : UU l1} (B : A → UU l2) →
     (is-contr-A : is-contr A) →
-    (x : A) → is-equiv (left-unit-law-Σ-map-gen B is-contr-A x)
-  is-equiv-left-unit-law-Σ-map-gen B is-contr-A x =
+    (x : A) → is-equiv (map-left-unit-law-Σ-is-contr-gen B is-contr-A x)
+  is-equiv-map-left-unit-law-Σ-is-contr-gen B is-contr-A x =
     is-equiv-comp
-      ( left-unit-law-Σ-map-gen B is-contr-A x)
-      ( left-unit-law-Σ-map B is-contr-A)
+      ( map-left-unit-law-Σ-is-contr-gen B is-contr-A x)
+      ( map-left-unit-law-Σ-is-contr B is-contr-A)
       ( tr B (inv (contraction is-contr-A x)))
       ( λ y → eq-pair (inv (contraction is-contr-A x)) refl)
       ( is-equiv-tr B (inv (contraction is-contr-A x)))
-      ( is-equiv-left-unit-law-Σ-map B is-contr-A)
+      ( is-equiv-map-left-unit-law-Σ-is-contr B is-contr-A)
 
-left-unit-law-Σ-gen :
+left-unit-law-Σ-is-contr-gen :
   {l1 l2 : Level} {A : UU l1} (B : A → UU l2) →
   (is-contr-A : is-contr A) →
   (x : A) → B x ≃ Σ A B
-left-unit-law-Σ-gen B is-contr-A x =
+left-unit-law-Σ-is-contr-gen B is-contr-A x =
   pair
-    ( left-unit-law-Σ-map-gen B is-contr-A x)
-    ( is-equiv-left-unit-law-Σ-map-gen B is-contr-A x)
+    ( map-left-unit-law-Σ-is-contr-gen B is-contr-A x)
+    ( is-equiv-map-left-unit-law-Σ-is-contr-gen B is-contr-A x)
 
 -- Exercise 6.6
 
@@ -614,7 +614,7 @@ abstract
     is-contr A → is-contr B → is-contr (A × B)
   is-contr-prod {A = A} {B = B} is-contr-A is-contr-B =
     is-contr-equiv' B
-      ( left-unit-law-Σ (λ x → B) is-contr-A)
+      ( left-unit-law-Σ-is-contr (λ x → B) is-contr-A)
       ( is-contr-B)
 
 -- Exercise 6.8

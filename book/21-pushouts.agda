@@ -909,31 +909,6 @@ right-unit-law-join :
 right-unit-law-join X =
   pair (inl-join X empty) (is-equiv-inl-join-empty X)
 
-inv-map-left-unit-law-prod :
-  {l : Level} (X : UU l) → X → (unit × X)
-inv-map-left-unit-law-prod X = pair star
-
-issec-inv-map-left-unit-law-prod :
-  {l : Level} (X : UU l) → (pr2 ∘ (inv-map-left-unit-law-prod X)) ~ id
-issec-inv-map-left-unit-law-prod X x = refl
-
-isretr-inv-map-left-unit-law-prod :
-  {l : Level} (X : UU l) → ((inv-map-left-unit-law-prod X) ∘ pr2) ~ id
-isretr-inv-map-left-unit-law-prod X (pair star x) = refl
-
-is-equiv-left-unit-law-prod :
-  {l : Level} (X : UU l) → is-equiv (pr2 {A = unit} {B = λ t → X})
-is-equiv-left-unit-law-prod X =
-  is-equiv-has-inverse
-    ( inv-map-left-unit-law-prod X)
-    ( issec-inv-map-left-unit-law-prod X)
-    ( isretr-inv-map-left-unit-law-prod X)
-
-left-unit-law-prod :
-  {l : Level} (X : UU l) → (unit × X) ≃ X
-left-unit-law-prod X =
-  pair pr2 (is-equiv-left-unit-law-prod X)
-
 is-equiv-inl-join-unit :
   {l : Level} (X : UU l) → is-equiv (inl-join unit X)
 is-equiv-inl-join-unit X =
@@ -941,7 +916,7 @@ is-equiv-inl-join-unit X =
     ( pr1)
     ( pr2)
     ( cocone-join unit X)
-    ( is-equiv-left-unit-law-prod X)
+    ( is-equiv-map-left-unit-law-prod X)
     ( up-join unit X)
 
 left-zero-law-join :
