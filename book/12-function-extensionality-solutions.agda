@@ -550,7 +550,7 @@ abstract
         ( Σ (sec f)
           ( λ sf → Σ (((pr1 sf) ∘ f) ~ id)
             ( λ H → (htpy-right-whisk (pr2 sf) f) ~ (htpy-left-whisk f H))))
-        ( equiv-Σ-assoc (B → A)
+        ( assoc-Σ (B → A)
           ( λ g → ((f ∘ g) ~ id))
           ( λ sf → Σ (((pr1 sf) ∘ f) ~ id)
             ( λ H → (htpy-right-whisk (pr2 sf) f) ~ (htpy-left-whisk f H))))
@@ -589,7 +589,7 @@ is-invertible-id-htpy-id-id A H = pair id (pair refl-htpy H)
 triangle-is-invertible-id-htpy-id-id :
   {l : Level} (A : UU l) →
   ( is-invertible-id-htpy-id-id A) ~
-    ( (Σ-assoc (A → A) (λ g → (id ∘ g) ~ id) (λ s → ((pr1 s) ∘ id) ~ id)) ∘
+    ( ( map-assoc-Σ (A → A) (λ g → (id ∘ g) ~ id) (λ s → ((pr1 s) ∘ id) ~ id)) ∘
       ( left-unit-law-Σ-map-gen
         ( λ s → ((pr1 s) ∘ id) ~ id)
         ( is-contr-sec-is-equiv (is-equiv-id A)) (pair id refl-htpy)))
@@ -601,7 +601,7 @@ abstract
   is-equiv-invertible-id-htpy-id-id A =
     is-equiv-comp
       ( is-invertible-id-htpy-id-id A)
-      ( Σ-assoc (A → A) (λ g → (id ∘ g) ~ id) (λ s → ((pr1 s) ∘ id) ~ id))
+      ( map-assoc-Σ (A → A) (λ g → (id ∘ g) ~ id) (λ s → ((pr1 s) ∘ id) ~ id))
       ( left-unit-law-Σ-map-gen
         ( λ s → ((pr1 s) ∘ id) ~ id)
         ( is-contr-sec-is-equiv (is-equiv-id A))
@@ -611,7 +611,7 @@ abstract
         ( λ s → ((pr1 s) ∘ id) ~ id)
         ( is-contr-sec-is-equiv (is-equiv-id A))
         ( pair id refl-htpy))
-      ( is-equiv-Σ-assoc _ _ _)
+      ( is-equiv-map-assoc-Σ _ _ _)
 
 -- Exercise 12.9
 

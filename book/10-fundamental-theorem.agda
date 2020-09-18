@@ -480,76 +480,6 @@ Raise :
   (l : Level) {l1 : Level} (A : UU l1) → Σ (UU (l1 ⊔ l)) (λ X → A ≃ X)
 Raise l A = pair (raise l A) (equiv-raise l A)
 
--- Lemmas about coproducts
-
-left-distributive-coprod-Σ-map :
-  {l1 l2 l3 : Level} (A : UU l1) (B : UU l2)
-  (C : coprod A B → UU l3) → Σ (coprod A B) C →
-  coprod (Σ A (λ x → C (inl x))) (Σ B (λ y → C (inr y)))
-left-distributive-coprod-Σ-map A B C (pair (inl x) z) = inl (pair x z)
-left-distributive-coprod-Σ-map A B C (pair (inr y) z) = inr (pair y z)
-
-inv-left-distributive-coprod-Σ-map :
-  {l1 l2 l3 : Level} (A : UU l1) (B : UU l2)
-  (C : coprod A B → UU l3) →
-  coprod (Σ A (λ x → C (inl x))) (Σ B (λ y → C (inr y))) → Σ (coprod A B) C
-inv-left-distributive-coprod-Σ-map A B C (inl (pair x z)) = pair (inl x) z
-inv-left-distributive-coprod-Σ-map A B C (inr (pair y z)) = pair (inr y) z
-
-issec-inv-left-distributive-coprod-Σ-map :
-  {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : coprod A B → UU l3) →
-  ( (left-distributive-coprod-Σ-map A B C) ∘
-    (inv-left-distributive-coprod-Σ-map A B C)) ~ id
-issec-inv-left-distributive-coprod-Σ-map A B C (inl (pair x z)) = refl
-issec-inv-left-distributive-coprod-Σ-map A B C (inr (pair y z)) = refl
-
-isretr-inv-left-distributive-coprod-Σ-map :
-  {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : coprod A B → UU l3) →
-  ( (inv-left-distributive-coprod-Σ-map A B C) ∘
-    (left-distributive-coprod-Σ-map A B C)) ~ id
-isretr-inv-left-distributive-coprod-Σ-map A B C (pair (inl x) z) = refl
-isretr-inv-left-distributive-coprod-Σ-map A B C (pair (inr y) z) = refl
-
-abstract
-  is-equiv-left-distributive-coprod-Σ-map :
-    {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : coprod A B → UU l3) →
-    is-equiv (left-distributive-coprod-Σ-map A B C)
-  is-equiv-left-distributive-coprod-Σ-map A B C =
-    is-equiv-has-inverse
-      ( inv-left-distributive-coprod-Σ-map A B C)
-      ( issec-inv-left-distributive-coprod-Σ-map A B C)
-      ( isretr-inv-left-distributive-coprod-Σ-map A B C)
-
-equiv-left-distributive-coprod-Σ :
-  {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : coprod A B → UU l3) →
-  Σ (coprod A B) C ≃ coprod (Σ A (λ x → C (inl x))) (Σ B (λ y → C (inr y)))
-equiv-left-distributive-coprod-Σ A B C =
-  pair ( left-distributive-coprod-Σ-map A B C)
-       ( is-equiv-left-distributive-coprod-Σ-map A B C)
-
-abstract
-  is-equiv-map-to-empty :
-    {l : Level} {A : UU l} (f : A → empty) → is-equiv f
-  is-equiv-map-to-empty f =
-    is-equiv-has-inverse
-      ind-empty
-      ind-empty
-      ( λ x → ind-empty {P = λ t → Id (ind-empty (f x)) x} (f x))
-
-map-Σ-empty-fam :
-  {l : Level} (A : UU l) → Σ A (λ x → empty) → empty
-map-Σ-empty-fam A (pair x ()) 
-
-abstract
-  is-equiv-map-Σ-empty-fam :
-    {l : Level} (A : UU l) → is-equiv (map-Σ-empty-fam A)
-  is-equiv-map-Σ-empty-fam A = is-equiv-map-to-empty (map-Σ-empty-fam A)
-
-equiv-Σ-empty-fam :
-  {l : Level} (A : UU l) → Σ A (λ x → empty) ≃ empty
-equiv-Σ-empty-fam A =
-  pair (map-Σ-empty-fam A) (is-equiv-map-Σ-empty-fam A)
-
 -- The identity types of coproducts
 
 Eq-coprod :
@@ -580,7 +510,7 @@ abstract
       ( coprod
         ( Σ A (λ y → Eq-coprod A B (inl x) (inl y)))
         ( Σ B (λ y → Eq-coprod A B (inl x) (inr y))))
-      ( equiv-left-distributive-coprod-Σ A B (Eq-coprod A B (inl x)))
+      ( right-distributive-Σ-coprod A B (Eq-coprod A B (inl x)))
       ( is-contr-equiv'
         ( coprod
           ( Σ A (Id x))
@@ -607,7 +537,7 @@ abstract
       ( coprod
         ( Σ A (λ y → Eq-coprod A B (inr x) (inl y)))
         ( Σ B (λ y → Eq-coprod A B (inr x) (inr y))))
-      ( equiv-left-distributive-coprod-Σ A B (Eq-coprod A B (inr x)))
+      ( right-distributive-Σ-coprod A B (Eq-coprod A B (inr x)))
       ( is-contr-equiv'
         ( coprod (Σ A (λ y → empty)) (Σ B (Id x)))
         ( equiv-functor-coprod

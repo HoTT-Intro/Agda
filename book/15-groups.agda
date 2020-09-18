@@ -950,13 +950,13 @@ abstract
           ( is-iso-is-equiv-hom-Semi-Group G H)
           ( is-equiv-hom-is-iso-hom-Semi-Group G H)) ∘e
         ( ( inv-equiv
-            ( equiv-Σ-assoc
+            ( assoc-Σ
               ( type-Semi-Group G → type-Semi-Group H)
               ( preserves-mul G H)
               ( λ f → is-equiv (map-hom-Semi-Group G H f)))) ∘e
           ( equiv-tot
             ( λ f → equiv-swap-prod (is-equiv f) (preserves-mul G H f))))) ∘e
-      ( equiv-Σ-assoc
+      ( assoc-Σ
         ( type-Semi-Group G → type-Semi-Group H)
         ( is-equiv)
         ( λ e → preserves-mul G H (map-equiv e)))) ∘e
