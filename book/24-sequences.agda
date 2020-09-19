@@ -184,7 +184,7 @@ reflexive-htpy-cone-sequence :
 reflexive-htpy-cone-sequence A c =
   pair
     ( λ n → refl-htpy)
-    ( λ n → htpy-inv htpy-right-unit)
+    ( λ n → inv-htpy right-unit-htpy)
 
 htpy-cone-sequence-eq :
   { l1 l2 : Level} (A : Sequence' l1) {X : UU l2} (c c' : cone-sequence A X) →
@@ -268,7 +268,7 @@ reflexive-Eq-canonical-sequential-limit :
   { l1 : Level} (A : Sequence' l1) (x : canonical-sequential-limit A) →
   Eq-canonical-sequential-limit A x x
 reflexive-Eq-canonical-sequential-limit A x =
-  pair refl-htpy (htpy-inv htpy-right-unit)
+  pair refl-htpy (inv-htpy right-unit-htpy)
 
 Eq-canonical-sequential-limit-eq :
   { l1 : Level} (A : Sequence' l1) (x y : canonical-sequential-limit A) →
@@ -606,7 +606,7 @@ reflexive-htpy-cocone-sequence :
 reflexive-htpy-cocone-sequence A c =
   pair
     ( λ n → refl-htpy)
-    ( λ n → htpy-inv htpy-right-unit)
+    ( λ n → inv-htpy right-unit-htpy)
 
 htpy-cocone-sequence-eq :
   { l1 l2 : Level} (A : Sequence l1) {X : UU l2} →

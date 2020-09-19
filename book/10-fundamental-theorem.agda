@@ -953,7 +953,7 @@ abstract
     {i j : Level} {A : UU i} {B : UU j} (f g : A → B) → (f ~ g) →
     is-emb f → is-emb g
   is-emb-htpy' f g H is-emb-f =
-    is-emb-htpy g f (htpy-inv H) is-emb-f
+    is-emb-htpy g f (inv-htpy H) is-emb-f
 
 -- Exercise 7.4
 
@@ -986,7 +986,7 @@ abstract
       ( ap h)
       ( ap-comp g h)
       ( is-emb-g (h x) (h y))
-      ( is-emb-htpy (g ∘ h) f (htpy-inv H) is-emb-f x y)
+      ( is-emb-htpy (g ∘ h) f (inv-htpy H) is-emb-f x y)
 
 abstract
   is-emb-triangle-is-equiv :
@@ -1079,7 +1079,7 @@ abstract
         ( is-contr-retract-of (Σ _ (λ y → Id a y))
           ( pair (tot i)
             ( pair (tot λ x → pr1 (R x))
-              ( ( htpy-inv (tot-comp i (λ x → pr1 (R x)))) ∙h
+              ( ( inv-htpy (tot-comp i (λ x → pr1 (R x)))) ∙h
                 ( ( tot-htpy λ x → pr2 (R x)) ∙h (tot-id B)))))
           ( is-contr-total-path a))
         ( is-contr-total-path a))
@@ -1093,7 +1093,7 @@ abstract
         h = inv-is-equiv is-equiv-sec-f
     in
     is-equiv-htpy h
-      ( ( htpy-left-whisk f (htpy-inv (issec-inv-is-equiv is-equiv-sec-f))) ∙h
+      ( ( htpy-left-whisk f (inv-htpy (issec-inv-is-equiv is-equiv-sec-f))) ∙h
         ( htpy-right-whisk issec-g h))
       ( is-equiv-inv-is-equiv is-equiv-sec-f)
 
@@ -1156,7 +1156,7 @@ abstract
     let φ : ((x : A) → fib (ap f) (issec-g (f x))) →
                 Σ ((g ∘ f) ~ id)
                 ( λ H → (htpy-right-whisk issec-g f) ~ (htpy-left-whisk f H))
-        φ =  ( tot (λ H' → htpy-inv)) ∘
+        φ =  ( tot (λ H' → inv-htpy)) ∘
                ( λ s → pair (λ x → pr1 (s x)) (λ x → pr2 (s x)))
     in
     pair g

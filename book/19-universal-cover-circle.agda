@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module book.19-fundamental-cover where
+module book.19-universal-cover-circle where
 
 import book.18-circle
 open book.18-circle public
@@ -81,7 +81,7 @@ triangle-comparison-fam-circle l P =
   eq-Eq-Fam-circle
     ( ev-fam-circle l P)
     ( comparison-fam-circle _ (ev-free-loop l (UU _) P))
-    ( pair (equiv-id _) (htpy-inv (tr-equiv-eq-ap (pr2 l))))
+    ( pair (equiv-id _) (inv-htpy (tr-equiv-eq-ap (pr2 l))))
 
 abstract
   is-equiv-ev-fam-circle-universal-property-circle :
@@ -719,8 +719,8 @@ abstract
   is-contr-total-htpy' {A = A} {B} f =
     is-contr-is-equiv'
       ( Σ ((x : A) → B x) (λ g → f ~ g))
-      ( tot (λ g → htpy-inv))
-      ( is-equiv-tot-is-fiberwise-equiv (λ g → is-equiv-htpy-inv f g))
+      ( tot (λ g → inv-htpy))
+      ( is-equiv-tot-is-fiberwise-equiv (λ g → is-equiv-inv-htpy f g))
       ( is-contr-total-htpy f)
 
 abstract
@@ -873,7 +873,7 @@ abstract
   is-contr-total-fundamental-cover-circle l dup-circle =
     is-contr-total-fundamental-cover-circle-data l dup-circle
       ( pr1 (Contraction-fundamental-cover-circle l dup-circle))
-      ( htpy-inv
+      ( inv-htpy
         ( pr2 (pr2 (Contraction-fundamental-cover-circle l dup-circle))))
 
 pt-fundamental-cover-circle :

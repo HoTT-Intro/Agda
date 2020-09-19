@@ -54,7 +54,7 @@ module hom-Fam-pushout
       ( λ x → refl-htpy)
       ( pair
         ( λ y → refl-htpy)
-        ( λ s → htpy-inv htpy-right-unit))
+        ( λ s → inv-htpy right-unit-htpy))
 
   htpy-hom-Fam-pushout-eq :
     ( h k : hom-Fam-pushout) → Id h k → htpy-hom-Fam-pushout h k
@@ -212,7 +212,7 @@ triangle-hom-Fam-pushout-dep-cocone {f = f} {g} c P Q h =
         ( λ s →
           ( htpy-eq
             ( coherence-naturality-fam-maps P Q (pr2 (pr2 c)) h s)) ∙h
-          ( htpy-inv htpy-right-unit))))
+          ( inv-htpy right-unit-htpy))))
 
 is-equiv-hom-Fam-pushout-map :
   { l1 l2 l3 l4 l5 l6 : Level} {S : UU l1} {A : UU l2} {B : UU l3} {X : UU l4}

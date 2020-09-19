@@ -35,60 +35,60 @@ refl-htpy' :
   {i j : Level} {A : UU i} {B : A → UU j} (f : (x : A) → B x) → f ~ f
 refl-htpy' f = refl-htpy
 
-htpy-inv :
+inv-htpy :
   {i j : Level} {A : UU i} {B : A → UU j} {f g : (x : A) → B x} →
   (f ~ g) → (g ~ f)
-htpy-inv H x = inv (H x)
+inv-htpy H x = inv (H x)
 
 _∙h_ :
   {i j : Level} {A : UU i} {B : A → UU j} {f g h : (x : A) → B x} →
   (f ~ g) → (g ~ h) → (f ~ h)
 _∙h_ H K x = (H x) ∙ (K x)
 
-htpy-concat :
+concat-htpy :
   {i j : Level} {A : UU i} {B : A → UU j} {f g : (x : A) → B x} →
   (f ~ g) → (h : (x : A) → B x) → (g ~ h) → (f ~ h)
-htpy-concat H h K x = concat (H x) (h x) (K x)
+concat-htpy H h K x = concat (H x) (h x) (K x)
 
-htpy-concat' :
+concat-htpy' :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
   (f : (x : A) → B x) {g h : (x : A) → B x} →
   (g ~ h) → (f ~ g) → (f ~ h)
-htpy-concat' f K H = H ∙h K
+concat-htpy' f K H = H ∙h K
 
 -- Proposition 8.1.6
 
 -- Proposition 8.1.6 (i)
 
-htpy-assoc :
+assoc-htpy :
   {i j : Level} {A : UU i} {B : A → UU j} {f g h k : (x : A) → B x} →
   (H : f ~ g) → (K : g ~ h) → (L : h ~ k) →
   ((H ∙h K) ∙h L) ~ (H ∙h (K ∙h L))
-htpy-assoc H K L x = assoc (H x) (K x) (L x)
+assoc-htpy H K L x = assoc (H x) (K x) (L x)
 
 -- Proposition 8.1.6 (ii)
 
-htpy-left-unit :
+left-unit-htpy :
   {i j : Level} {A : UU i} {B : A → UU j} {f g : (x : A) → B x}
   {H : f ~ g} → (refl-htpy ∙h H) ~ H
-htpy-left-unit x = left-unit
+left-unit-htpy x = left-unit
 
-htpy-right-unit :
+right-unit-htpy :
   {i j : Level} {A : UU i} {B : A → UU j} {f g : (x : A) → B x}
   {H : f ~ g} → (H ∙h refl-htpy) ~ H
-htpy-right-unit x = right-unit
+right-unit-htpy x = right-unit
 
 -- Proposition 8.1.6 (iii)
 
-htpy-left-inv :
+left-inv-htpy :
   {i j : Level} {A : UU i} {B : A → UU j} {f g : (x : A) → B x}
-  (H : f ~ g) → ((htpy-inv H) ∙h H) ~ refl-htpy
-htpy-left-inv H x = left-inv (H x)
+  (H : f ~ g) → ((inv-htpy H) ∙h H) ~ refl-htpy
+left-inv-htpy H x = left-inv (H x)
 
-htpy-right-inv :
+right-inv-htpy :
   {i j : Level} {A : UU i} {B : A → UU j} {f g : (x : A) → B x}
-  (H : f ~ g) → (H ∙h (htpy-inv H)) ~ refl-htpy
-htpy-right-inv H x = right-inv (H x)
+  (H : f ~ g) → (H ∙h (inv-htpy H)) ~ refl-htpy
+right-inv-htpy H x = right-inv (H x)
 
 -- Definition 8.1.7
 
@@ -300,7 +300,7 @@ htpy-section-retraction :
   ( is-equiv-f : is-equiv f) →
   ( (pr1 (pr1 is-equiv-f))) ~ (pr1 (pr2 is-equiv-f))
 htpy-section-retraction {i} {j} {A} {B} {f} (pair (pair g G) (pair h H)) =
-    (htpy-inv (H ·r g)) ∙h (h ·l G)
+    (inv-htpy (H ·r g)) ∙h (h ·l G)
 
 has-inverse-is-equiv :
   {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
@@ -1407,15 +1407,15 @@ abstract
   is-equiv-htpy' :
     {i j : Level} {A : UU i} {B : UU j} (f : A → B) {g : A → B} →
     f ~ g → is-equiv f → is-equiv g
-  is-equiv-htpy' f H = is-equiv-htpy f (htpy-inv H)
+  is-equiv-htpy' f H = is-equiv-htpy f (inv-htpy H)
 
 -- Exercise 8.3(b)
 
-htpy-inv-is-equiv :
+inv-htpy-is-equiv :
   {i j : Level} {A : UU i} {B : UU j} {f f' : A → B} (H : f ~ f') →
   (is-equiv-f : is-equiv f) (is-equiv-f' : is-equiv f') →
   (inv-is-equiv is-equiv-f) ~ (inv-is-equiv is-equiv-f')
-htpy-inv-is-equiv H is-equiv-f is-equiv-f' b =
+inv-htpy-is-equiv H is-equiv-f is-equiv-f' b =
   ( inv (isretr-inv-is-equiv is-equiv-f' (inv-is-equiv is-equiv-f b))) ∙
   ( ap (inv-is-equiv is-equiv-f')
     ( ( inv (H (inv-is-equiv is-equiv-f b))) ∙
@@ -1435,14 +1435,14 @@ triangle-section :
   (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) (S : sec h) →
   g ~ (f ∘ (pr1 S))
 triangle-section f g h H (pair s issec) =
-  htpy-inv (( H ·r s) ∙h (g ·l issec))
+  inv-htpy (( H ·r s) ∙h (g ·l issec))
 
 section-comp :
   {i j k : Level} {A : UU i} {B : UU j} {X : UU k}
   (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) →
   sec h → sec f → sec g
 section-comp f g h H sec-h sec-f =
-  pair (h ∘ (pr1 sec-f)) ((htpy-inv (H ·r (pr1 sec-f))) ∙h (pr2 sec-f))
+  pair (h ∘ (pr1 sec-f)) ((inv-htpy (H ·r (pr1 sec-f))) ∙h (pr2 sec-f))
 
 section-comp' :
   {i j k : Level} {A : UU i} {B : UU j} {X : UU k}
@@ -1466,7 +1466,7 @@ triangle-retraction :
   (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) (R : retr g) →
   h ~ ((pr1 R) ∘ f)
 triangle-retraction f g h H (pair r isretr) =
-  htpy-inv (( r ·l H) ∙h (isretr ·r h))
+  inv-htpy (( r ·l H) ∙h (isretr ·r h))
 
 retraction-comp :
   {i j k : Level} {A : UU i} {B : UU j} {X : UU k}
@@ -1475,7 +1475,7 @@ retraction-comp :
 retraction-comp f g h H retr-g retr-f =
   pair
     ( (pr1 retr-f) ∘ g)
-    ( (htpy-inv ((pr1 retr-f) ·l H)) ∙h (pr2 retr-f))
+    ( (inv-htpy ((pr1 retr-f) ·l H)) ∙h (pr2 retr-f))
 
 retraction-comp' :
   {i j k : Level} {A : UU i} {B : UU j} {X : UU k}
@@ -1568,14 +1568,14 @@ abstract
     {i j : Level} {A : UU i} {B : UU j} {f : A → B} {g : B → A} →
     is-equiv f → (f ∘ g) ~ id → is-equiv g
   is-equiv-is-section-is-equiv {B = B} {f = f} {g = g} is-equiv-f H =
-    is-equiv-right-factor id f g (htpy-inv H) is-equiv-f (is-equiv-id B)
+    is-equiv-right-factor id f g (inv-htpy H) is-equiv-f (is-equiv-id B)
 
 abstract
   is-equiv-is-retraction-is-equiv :
     {i j : Level} {A : UU i} {B : UU j} {f : A → B} {g : B → A} →
     is-equiv f  → (g ∘ f) ~ id → is-equiv g
   is-equiv-is-retraction-is-equiv {A = A} {f = f} {g = g} is-equiv-f H =
-    is-equiv-left-factor id g f (htpy-inv H) (is-equiv-id A) is-equiv-f
+    is-equiv-left-factor id g f (inv-htpy H) (is-equiv-id A) is-equiv-f
     
 -- Exercise 8.5
 
@@ -1740,12 +1740,12 @@ abstract
     pair
       ( pair
         ( functor-coprod sf sg)
-        ( ( ( htpy-inv (compose-functor-coprod sf f sg g)) ∙h
+        ( ( ( inv-htpy (compose-functor-coprod sf f sg g)) ∙h
             ( htpy-functor-coprod issec-sf issec-sg)) ∙h
           ( id-functor-coprod A' B')))
       ( pair
         ( functor-coprod rf rg)
-        ( ( ( htpy-inv (compose-functor-coprod f rf g rg)) ∙h
+        ( ( ( inv-htpy (compose-functor-coprod f rf g rg)) ∙h
             ( htpy-functor-coprod isretr-rf isretr-rg)) ∙h
           ( id-functor-coprod A B)))
   
@@ -1790,16 +1790,16 @@ equiv-con-inv p q r = pair (con-inv p q r) (is-equiv-con-inv p q r)
 
 -- Extra constructions with homotopies
 
-htpy-inv-con :
+inv-htpy-con :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {f g h : (x : A) → B x} →
   (H : f ~ g) (K : g ~ h) (L : f ~ h) →
-  (H ∙h K) ~ L → K ~ ((htpy-inv H) ∙h L)
-htpy-inv-con H K L M x = inv-con (H x) (K x) (L x) (M x)
+  (H ∙h K) ~ L → K ~ ((inv-htpy H) ∙h L)
+inv-htpy-con H K L M x = inv-con (H x) (K x) (L x) (M x)
 
 htpy-con-inv :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {f g h : (x : A) → B x} →
   (H : f ~ g) (K : g ~ h) (L : f ~ h) →
-  (H ∙h K) ~ L → H ~ (L ∙h (htpy-inv K))
+  (H ∙h K) ~ L → H ~ (L ∙h (inv-htpy K))
 htpy-con-inv H K L M x = con-inv (H x) (K x) (L x) (M x)
 
 htpy-ap-concat :
@@ -1819,26 +1819,26 @@ htpy-ap-concat' H H' K L x =
 htpy-distributive-inv-concat :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {f g h : (x : A) → B x} →
   (H : f ~ g) (K : g ~ h) →
-  (htpy-inv (H ∙h K)) ~ ((htpy-inv K) ∙h (htpy-inv H))
+  (inv-htpy (H ∙h K)) ~ ((inv-htpy K) ∙h (inv-htpy H))
 htpy-distributive-inv-concat H K x = distributive-inv-concat (H x) (K x)
 
 htpy-ap-inv :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {f g : (x : A) → B x} →
   {H H' : f ~ g} →
-  H ~ H' → (htpy-inv H) ~ (htpy-inv H')
+  H ~ H' → (inv-htpy H) ~ (inv-htpy H')
 htpy-ap-inv K x = ap inv (K x)
 
-htpy-left-whisk-htpy-inv :
+htpy-left-whisk-inv-htpy :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3}
   {f f' : A → B} (g : B → C) (H : f ~ f') →
-  (g ·l (htpy-inv H)) ~ htpy-inv (g ·l H)
-htpy-left-whisk-htpy-inv g H x = ap-inv g (H x)
+  (g ·l (inv-htpy H)) ~ inv-htpy (g ·l H)
+htpy-left-whisk-inv-htpy g H x = ap-inv g (H x)
 
-htpy-right-whisk-htpy-inv :
+htpy-right-whisk-inv-htpy :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3}
   {g g' : B → C} (H : g ~ g') (f : A → B) →
-  ((htpy-inv H) ·r f) ~ (htpy-inv (H ·r f))
-htpy-right-whisk-htpy-inv H f = refl-htpy
+  ((inv-htpy H) ·r f) ~ (inv-htpy (H ·r f))
+htpy-right-whisk-inv-htpy H f = refl-htpy
 
 --------------------------------------------------------------------------------
 
@@ -1897,11 +1897,11 @@ abstract
     pair
       ( pair
         ( functor-prod sf sg)
-        ( ( htpy-inv (functor-prod-comp sf sg f g)) ∙h
+        ( ( inv-htpy (functor-prod-comp sf sg f g)) ∙h
           ( (functor-prod-htpy issec-sf issec-sg) ∙h functor-prod-id)))
       ( pair
         ( functor-prod rf rg)
-        ( ( htpy-inv (functor-prod-comp f g rf rg)) ∙h
+        ( ( inv-htpy (functor-prod-comp f g rf rg)) ∙h
           ( (functor-prod-htpy isretr-rf isretr-rg) ∙h functor-prod-id)))
 
 equiv-functor-prod :

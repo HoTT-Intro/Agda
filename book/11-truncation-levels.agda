@@ -1088,7 +1088,7 @@ abstract
         ( Σ A (λ z → Id (g (h z)) (g b)))
         ( map-fib-comp g h (g b))
         ( is-equiv-map-fib-comp g h (g b))
-        ( is-trunc-map-htpy k (g ∘ h) f (htpy-inv H) is-trunc-f (g b)))
+        ( is-trunc-map-htpy k (g ∘ h) f (inv-htpy H) is-trunc-f (g b)))
       ( pair b refl)
 
 abstract

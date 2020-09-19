@@ -40,7 +40,7 @@ reflexive-htpy-cocone :
   (f : S → A) (g : S → B) {X : UU l4} (c : cocone f g X) →
   htpy-cocone f g c c
 reflexive-htpy-cocone f g (pair i (pair j H)) =
-  pair refl-htpy (pair refl-htpy htpy-right-unit)
+  pair refl-htpy (pair refl-htpy right-unit-htpy)
 
 htpy-cocone-eq :
   {l1 l2 l3 l4 : Level} {S : UU l1} {A : UU l2} {B : UU l3}
@@ -66,8 +66,8 @@ is-contr-total-htpy-cocone f g c =
       ( pair (pr1 (pr2 c)) refl-htpy)
       ( is-contr-is-equiv'
         ( Σ (((pr1 c) ∘ f) ~ ((pr1 (pr2 c)) ∘ g)) (λ H' → (pr2 (pr2 c)) ~ H'))
-        ( tot (λ H' M → htpy-right-unit ∙h M))
-        ( is-equiv-tot-is-fiberwise-equiv (λ H' → is-equiv-htpy-concat _ _))
+        ( tot (λ H' M → right-unit-htpy ∙h M))
+        ( is-equiv-tot-is-fiberwise-equiv (λ H' → is-equiv-concat-htpy _ _))
         ( is-contr-total-htpy (pr2 (pr2 c)))))
 
 is-equiv-htpy-cocone-eq :
@@ -417,7 +417,7 @@ is-equiv-ev-suspension {X = X} susp-str-Y up-Y Z =
       ( const X unit star)
       ( const X unit star)
       ( cocone-suspension-structure X _ susp-str-Y))
-    ( htpy-inv (triangle-ev-suspension susp-str-Y Z))
+    ( inv-htpy (triangle-ev-suspension susp-str-Y Z))
     ( up-Y Z)
     ( is-equiv-map-comparison-suspension-cocone X Z)
 

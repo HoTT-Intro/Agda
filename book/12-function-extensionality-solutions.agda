@@ -12,73 +12,73 @@ open book.12-function-extensionality public
 -- Exercise 12.1
 
 abstract
-  is-equiv-htpy-inv :
+  is-equiv-inv-htpy :
     {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
-    (f g : (x : A) → B x) → is-equiv (htpy-inv {f = f} {g = g})
-  is-equiv-htpy-inv f g =
+    (f g : (x : A) → B x) → is-equiv (inv-htpy {f = f} {g = g})
+  is-equiv-inv-htpy f g =
     is-equiv-has-inverse
-      ( htpy-inv)
+      ( inv-htpy)
       ( λ H → eq-htpy (λ x → inv-inv (H x)))
       ( λ H → eq-htpy (λ x → inv-inv (H x)))
 
-equiv-htpy-inv :
+equiv-inv-htpy :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
   (f g : (x : A) → B x) → (f ~ g) ≃ (g ~ f)
-equiv-htpy-inv f g = pair htpy-inv (is-equiv-htpy-inv f g)
+equiv-inv-htpy f g = pair inv-htpy (is-equiv-inv-htpy f g)
 
 abstract
-  is-equiv-htpy-concat :
+  is-equiv-concat-htpy :
     {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
     {f g : (x : A) → B x} (H : f ~ g) →
-    (h : (x : A) → B x) → is-equiv (htpy-concat H h)
-  is-equiv-htpy-concat {A = A} {B = B} {f} =
+    (h : (x : A) → B x) → is-equiv (concat-htpy H h)
+  is-equiv-concat-htpy {A = A} {B = B} {f} =
     ind-htpy f
-      ( λ g H → (h : (x : A) → B x) → is-equiv (htpy-concat H h))
+      ( λ g H → (h : (x : A) → B x) → is-equiv (concat-htpy H h))
       ( λ h → is-equiv-id (f ~ h))
 
-equiv-htpy-concat :
+equiv-concat-htpy :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
   {f g : (x : A) → B x} (H : f ~ g) (h : (x : A) → B x) →
   (g ~ h) ≃ (f ~ h)
-equiv-htpy-concat H h =
-  pair (htpy-concat H h) (is-equiv-htpy-concat H h)
+equiv-concat-htpy H h =
+  pair (concat-htpy H h) (is-equiv-concat-htpy H h)
 
-inv-htpy-concat' :
+inv-concat-htpy' :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
   (f : (x : A) → B x) {g h : (x : A) → B x} →
   (g ~ h) → (f ~ h) → (f ~ g)
-inv-htpy-concat' f K = htpy-concat' f (htpy-inv K)
+inv-concat-htpy' f K = concat-htpy' f (inv-htpy K)
 
-issec-inv-htpy-concat' :
+issec-inv-concat-htpy' :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
   (f : (x : A) → B x) {g h : (x : A) → B x}
-  (K : g ~ h) → ((htpy-concat' f K) ∘ (inv-htpy-concat' f K)) ~ id
-issec-inv-htpy-concat' f K L =
+  (K : g ~ h) → ((concat-htpy' f K) ∘ (inv-concat-htpy' f K)) ~ id
+issec-inv-concat-htpy' f K L =
   eq-htpy (λ x → issec-inv-concat' (f x) (K x) (L x))
 
-isretr-inv-htpy-concat' :
+isretr-inv-concat-htpy' :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
   (f : (x : A) → B x) {g h : (x : A) → B x}
-  (K : g ~ h) → ((inv-htpy-concat' f K) ∘ (htpy-concat' f K)) ~ id
-isretr-inv-htpy-concat' f K L =
+  (K : g ~ h) → ((inv-concat-htpy' f K) ∘ (concat-htpy' f K)) ~ id
+isretr-inv-concat-htpy' f K L =
   eq-htpy (λ x → isretr-inv-concat' (f x) (K x) (L x))
 
-is-equiv-htpy-concat' :
+is-equiv-concat-htpy' :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
   (f : (x : A) → B x) {g h : (x : A) → B x} (K : g ~ h) →
-  is-equiv (htpy-concat' f K)
-is-equiv-htpy-concat' f K =
+  is-equiv (concat-htpy' f K)
+is-equiv-concat-htpy' f K =
   is-equiv-has-inverse
-    ( inv-htpy-concat' f K)
-    ( issec-inv-htpy-concat' f K)
-    ( isretr-inv-htpy-concat' f K)
+    ( inv-concat-htpy' f K)
+    ( issec-inv-concat-htpy' f K)
+    ( isretr-inv-concat-htpy' f K)
 
-equiv-htpy-concat' :
+equiv-concat-htpy' :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
   (f : (x : A) → B x) {g h : (x : A) → B x} (K : g ~ h) →
   (f ~ g) ≃ (f ~ h)
-equiv-htpy-concat' f K =
-  pair (htpy-concat' f K) (is-equiv-htpy-concat' f K)
+equiv-concat-htpy' f K =
+  pair (concat-htpy' f K) (is-equiv-concat-htpy' f K)
 
 -- Exercise 12.2
 
@@ -768,11 +768,23 @@ abstract
       ( ind-Σ (λ f g → eq-pair-triv (pair refl refl)))
       ( λ s → eq-htpy (ind-coprod _ (λ x → refl) λ y → refl))
 
+equiv-dependent-universal-property-coprod :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (P : coprod A B → UU l3) →
+  ((x : coprod A B) → P x) ≃ (((a : A) → P (inl a)) × ((b : B) → P (inr b)))
+equiv-dependent-universal-property-coprod P =
+  pair (ev-inl-inr P) (dependent-universal-property-coprod P)
+
 abstract
   universal-property-coprod :
     {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (X : UU l3) →
     is-equiv (ev-inl-inr (λ (t : coprod A B) → X))
   universal-property-coprod X = dependent-universal-property-coprod (λ t → X)
+
+equiv-universal-property-coprod :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (X : UU l3) →
+  (coprod A B → X) ≃ ((A → X) × (B → X))
+equiv-universal-property-coprod X =
+  equiv-dependent-universal-property-coprod (λ t → X)
 
 abstract
   uniqueness-coprod :
@@ -862,16 +874,16 @@ isretr-section-comp f g h H (pair k K) (pair l L) =
   eq-Eq-sec g
     ( pair
       ( K ·r l)
-      ( ( htpy-inv
-          ( htpy-assoc
-            ( htpy-inv (H ·r (k ∘ l)))
+      ( ( inv-htpy
+          ( assoc-htpy
+            ( inv-htpy (H ·r (k ∘ l)))
             ( H ·r (k ∘ l))
             ( (g ·l (K ·r l)) ∙h L))) ∙h
         ( htpy-ap-concat'
-          ( (htpy-inv (H ·r (k ∘ l))) ∙h (H ·r (k ∘ l)))
+          ( (inv-htpy (H ·r (k ∘ l))) ∙h (H ·r (k ∘ l)))
           ( refl-htpy)
           ( (g ·l (K ·r l)) ∙h L)
-          ( htpy-left-inv (H ·r (k ∘ l))))))
+          ( left-inv-htpy (H ·r (k ∘ l))))))
 
 sec-left-factor-retract-of-sec-composition :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
@@ -936,16 +948,16 @@ isretr-retraction-comp f g h H (pair l L) (pair k K) =
   eq-Eq-retr h
     ( pair
       ( k ·l L)
-      ( ( htpy-inv
-          ( htpy-assoc
-            ( htpy-inv ((k ∘ l) ·l H))
+      ( ( inv-htpy
+          ( assoc-htpy
+            ( inv-htpy ((k ∘ l) ·l H))
             ( (k ∘ l) ·l H)
             ( (k ·l (L ·r h)) ∙h K))) ∙h
         ( htpy-ap-concat'
-          ( (htpy-inv ((k ∘ l) ·l H)) ∙h ((k ∘ l) ·l H))
+          ( (inv-htpy ((k ∘ l) ·l H)) ∙h ((k ∘ l) ·l H))
           ( refl-htpy)
           ( (k ·l (L ·r h)) ∙h K)
-          ( htpy-left-inv ((k ∘ l) ·l H)))))
+          ( left-inv-htpy ((k ∘ l) ·l H)))))
   
 sec-right-factor-retract-of-sec-left-factor :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
@@ -1164,7 +1176,7 @@ refl-htpy-hom-slice :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
   (f : A → X) (g : B → X) (h : hom-slice f g) →
   htpy-hom-slice f g h h
-refl-htpy-hom-slice f g h = pair refl-htpy htpy-right-unit
+refl-htpy-hom-slice f g h = pair refl-htpy right-unit-htpy
 
 htpy-hom-slice-eq :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
@@ -1184,7 +1196,7 @@ is-contr-total-htpy-hom-slice f g h =
     ( is-contr-equiv'
       ( Σ ( f ~ (g ∘ (map-hom-slice f g h)))
           ( λ H' → (triangle-hom-slice f g h) ~ H'))
-      ( equiv-tot (equiv-htpy-concat htpy-right-unit))
+      ( equiv-tot (equiv-concat-htpy right-unit-htpy))
       ( is-contr-total-htpy (triangle-hom-slice f g h)))
 
 is-equiv-htpy-hom-slice-eq :
@@ -1520,21 +1532,21 @@ abstract
 {- Some lemmas about equivalences on Π-types -}
 
 abstract
-  is-equiv-htpy-inv-con :
+  is-equiv-inv-htpy-con :
     { l1 l2 : Level} {A : UU l1} {B : A → UU l2} {f g h : (x : A) → B x}
     ( H : f ~ g) (K : g ~ h) (L : f ~ h) →
-    is-equiv (htpy-inv-con H K L)
-  is-equiv-htpy-inv-con H K L =
+    is-equiv (inv-htpy-con H K L)
+  is-equiv-inv-htpy-con H K L =
     is-equiv-postcomp-Π _ (λ x → is-equiv-inv-con (H x) (K x) (L x))
 
-equiv-htpy-inv-con :
+equiv-inv-htpy-con :
   { l1 l2 : Level} {A : UU l1} {B : A → UU l2} {f g h : (x : A) → B x}
   ( H : f ~ g) (K : g ~ h) (L : f ~ h) →
-  ( (H ∙h K) ~ L) ≃ (K ~ ((htpy-inv H) ∙h L))
-equiv-htpy-inv-con H K L =
+  ( (H ∙h K) ~ L) ≃ (K ~ ((inv-htpy H) ∙h L))
+equiv-inv-htpy-con H K L =
   pair
-    ( htpy-inv-con H K L)
-    ( is-equiv-htpy-inv-con H K L)
+    ( inv-htpy-con H K L)
+    ( is-equiv-inv-htpy-con H K L)
 
 abstract
   is-equiv-htpy-con-inv :
@@ -1547,7 +1559,7 @@ abstract
 equiv-htpy-con-inv :
   { l1 l2 : Level} {A : UU l1} {B : A → UU l2} {f g h : (x : A) → B x}
   ( H : f ~ g) (K : g ~ h) (L : f ~ h) →
-  ( (H ∙h K) ~ L) ≃ (H ~ (L ∙h (htpy-inv K)))
+  ( (H ∙h K) ~ L) ≃ (H ~ (L ∙h (inv-htpy K)))
 equiv-htpy-con-inv H K L =
   pair
     ( htpy-con-inv H K L)
@@ -1624,3 +1636,15 @@ automorphism-Π :
   ( (a : A) → B a) ≃ ((a : A) → B a)
 automorphism-Π e f =
   pair (map-automorphism-Π e f) (is-equiv-map-automorphism-Π e f)
+
+--------------------------------------------------------------------------------
+
+function-Fin :
+  (k l : ℕ) → (Fin k → Fin l) ≃ Fin (pow-ℕ l k)
+function-Fin zero-ℕ l =
+  ( inv-left-unit-law-coprod unit) ∘e
+  ( equiv-is-contr (universal-property-empty (Fin l)) is-contr-unit)
+function-Fin (succ-ℕ k) l =
+  ( ( prod-Fin (pow-ℕ l k) l) ∘e
+    ( equiv-functor-prod (function-Fin k l) (equiv-ev-star' (Fin l)))) ∘e
+  ( equiv-universal-property-coprod (Fin l))

@@ -71,7 +71,7 @@ reflexive-htpy-dep-cocone :
   htpy-dep-cocone f g c P s s
 reflexive-htpy-dep-cocone f g (pair i (pair j H)) P
   (pair hA (pair hB hS)) =
-  pair refl-htpy (pair refl-htpy htpy-right-unit)
+  pair refl-htpy (pair refl-htpy right-unit-htpy)
 
 htpy-dep-cocone-eq :
   {l1 l2 l3 l4 l5 : Level} {S : UU l1} {A : UU l2} {B : UU l3}
@@ -109,11 +109,9 @@ abstract
             ( L))
         ( is-contr-total-htpy hB)
         ( pair hB refl-htpy)
-        ( is-contr-is-equiv
+        ( is-contr-equiv
           ( Σ ((s : S) → Id (tr P (H s) (hA (f s))) (hB (g s))) (λ γ → hS ~ γ))
-          ( tot (htpy-concat (htpy-inv htpy-right-unit)))
-          ( is-equiv-tot-is-fiberwise-equiv
-            ( is-equiv-htpy-concat (htpy-inv htpy-right-unit)))
+          ( equiv-tot (equiv-concat-htpy (inv-htpy right-unit-htpy)))
           ( is-contr-total-htpy hS)))
 
 abstract
@@ -589,12 +587,12 @@ coherence-triangle-precompose-lifts-refl-htpy :
   (f : A → B) → COHERENCE-TRIANGLE-PRECOMPOSE-LIFTS P (refl-htpy' f)
 coherence-triangle-precompose-lifts-refl-htpy P f h =
   ( htpy-eq (htpy-eq (compute-triangle-precompose-lifts P f) h)) ∙h
-  ( ( ( htpy-inv htpy-right-unit) ∙h
+  ( ( ( inv-htpy right-unit-htpy) ∙h
       ( htpy-ap-concat
         ( λ h' → tr-eq-htpy-fam-lifts-refl-htpy P h f (λ a → h' (f a)))
         ( refl-htpy)
         ( triangle-precompose-lifts' P refl-htpy h)
-        ( htpy-inv (compute-triangle-precompose-lifts' P f h)))) ∙h
+        ( inv-htpy (compute-triangle-precompose-lifts' P f h)))) ∙h
     ( htpy-eq
       ( ap
         ( λ t →
@@ -699,26 +697,26 @@ compute-htpy-precompose-total-lifts {A = A} P f (pair h h') =
               ( htpy-eq (compute-triangle-precompose-lifts P f) h) h')) ∙
           ( left-inv (triangle-precompose-lifts-refl-htpy P f h h')))))
 
-COHERENCE-HTPY-INV-CHOICE-∞ :
+COHERENCE-INV-HTPY-CHOICE-∞ :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {X : UU l3} (P : X → UU l4)
   {f g : A → B} (H : f ~ g) → UU _
-COHERENCE-HTPY-INV-CHOICE-∞ P {f} {g} H =
+COHERENCE-INV-HTPY-CHOICE-∞ P {f} {g} H =
   ( ( coherence-square-inv-choice-∞ P f) ∙h
     ( inv-choice-∞ ·l ( htpy-precompose-total-lifts P H))) ~
   ( ( ( λ h → eq-htpy (h ·l H)) ·r inv-choice-∞) ∙h
     ( coherence-square-inv-choice-∞ P g))
 
-coherence-htpy-inv-choice-∞-refl-htpy :
+coherence-inv-htpy-choice-∞-refl-htpy :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {X : UU l3} (P : X → UU l4)
-  (f : A → B) → COHERENCE-HTPY-INV-CHOICE-∞ P (refl-htpy' f)
-coherence-htpy-inv-choice-∞-refl-htpy {X = X} P f =
+  (f : A → B) → COHERENCE-INV-HTPY-CHOICE-∞ P (refl-htpy' f)
+coherence-inv-htpy-choice-∞-refl-htpy {X = X} P f =
   ( htpy-ap-concat
     ( coherence-square-inv-choice-∞ P f)
     ( inv-choice-∞ ·l ( htpy-precompose-total-lifts P refl-htpy))
     ( refl-htpy)
     ( λ h →
       ap (ap inv-choice-∞) (compute-htpy-precompose-total-lifts P f h))) ∙h
-  ( htpy-inv
+  ( inv-htpy
     ( htpy-ap-concat'
       ( ( htpy-precomp refl-htpy (Σ X P)) ·r inv-choice-∞)
       ( refl-htpy)
@@ -726,13 +724,13 @@ coherence-htpy-inv-choice-∞-refl-htpy {X = X} P f =
       ( λ h → compute-htpy-precomp f (Σ X P) (inv-choice-∞ h))))
 
 abstract
-  coherence-htpy-inv-choice-∞ :
+  coherence-inv-htpy-choice-∞ :
     {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {X : UU l3} (P : X → UU l4)
-    {f g : A → B} (H : f ~ g) → COHERENCE-HTPY-INV-CHOICE-∞ P H
-  coherence-htpy-inv-choice-∞ P {f} =
+    {f g : A → B} (H : f ~ g) → COHERENCE-INV-HTPY-CHOICE-∞ P H
+  coherence-inv-htpy-choice-∞ P {f} =
     ind-htpy f
-      ( λ g H → COHERENCE-HTPY-INV-CHOICE-∞ P H)
-      ( coherence-htpy-inv-choice-∞-refl-htpy P f)
+      ( λ g H → COHERENCE-INV-HTPY-CHOICE-∞ P H)
+      ( coherence-inv-htpy-choice-∞-refl-htpy P f)
     
 cone-family-dependent-pullback-property :
   {l1 l2 l3 l4 l : Level} {S : UU l1} {A : UU l2} {B : UU l3} {X : UU l4}
@@ -789,7 +787,7 @@ is-pullback-cone-family-dependent-pullback-property {S = S} {A} {B} {X}
       ( refl-htpy)
       ( refl-htpy)
       ( htpy-precomp H (Σ X P))
-      ( coherence-htpy-inv-choice-∞ P H)
+      ( coherence-inv-htpy-choice-∞ P H)
       ( is-equiv-inv-choice-∞)
       ( is-equiv-inv-choice-∞)
       ( is-equiv-inv-choice-∞)
@@ -814,7 +812,7 @@ dependent-pullback-property-pullback-property-pushout
     { c' = cone-dependent-pullback-property-pushout f g c P}
     ( pair refl-htpy
       ( pair refl-htpy
-        ( htpy-right-unit ∙h (coherence-triangle-precompose-lifts P H id))))
+        ( right-unit-htpy ∙h (coherence-triangle-precompose-lifts P H id))))
     ( is-pullback-cone-family-dependent-pullback-property f g c pullback-c P id)
 
 {- This concludes the proof of Theorem 18.1.4. -}
@@ -1125,7 +1123,7 @@ cocone-flattening-pushout f g c P Q e =
       ( htpy-toto Q
         ( pr2 (pr2 c))
         ( λ s → map-equiv (pr1 e (f s)))
-        ( λ s → htpy-inv (pr2 (pr2 e) s))))
+        ( λ s → inv-htpy (pr2 (pr2 e) s))))
 
 {- Theorem 18.3.2 The flattening lemma -}
 
@@ -1210,7 +1208,7 @@ flattening-pushout' f g c P Q e l T =
       ( htpy-toto Q
         ( pr2 (pr2 c))
         ( λ s → map-equiv (pr1 e (f s)))
-        ( λ s → htpy-inv (pr2 (pr2 e) s)))
+        ( λ s → inv-htpy (pr2 (pr2 e) s)))
       ( T))
     refl-htpy
     refl-htpy
@@ -1219,7 +1217,7 @@ flattening-pushout' f g c P Q e l T =
     ( λ h → eq-htpy (λ s → eq-htpy
       ( coherence-bottom-flattening-lemma
         ( pr2 (pr2 c))
-        ( λ s → htpy-inv (pr2 (pr2 e) s))
+        ( λ s → inv-htpy (pr2 (pr2 e) s))
         ( h)
         ( s))))
     {!!}

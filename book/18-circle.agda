@@ -281,7 +281,7 @@ abstract
       ( ev-free-loop' l (λ x → Y))
       ( comparison-free-loops l Y)
       ( ev-free-loop l Y)
-      ( htpy-inv (triangle-comparison-free-loops l Y))
+      ( inv-htpy (triangle-comparison-free-loops l Y))
       ( is-equiv-comparison-free-loops l Y)
       ( dup-circle (λ x → Y))
 

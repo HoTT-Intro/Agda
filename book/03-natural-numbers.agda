@@ -109,7 +109,7 @@ mul-ℕ' x y = mul-ℕ y x
 
 pow-ℕ : ℕ → (ℕ → ℕ)
 pow-ℕ m zero-ℕ = one-ℕ
-pow-ℕ m (succ-ℕ n) = mul-ℕ m (pow-ℕ m n)
+pow-ℕ m (succ-ℕ n) = mul-ℕ (pow-ℕ m n) m
 
 -- Exercise 3.2
 
