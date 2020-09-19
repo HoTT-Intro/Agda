@@ -23,7 +23,7 @@ open import book.15-groups public
 open import book.16-sets public
 open import book.17-number-theory public
 open import book.18-circle public
-open import book.19-universal-cover-circe public
+open import book.19-universal-cover-circle public
 open import book.20-pullbacks public
 open import book.21-pushouts public
 open import book.22-cubical-diagrams public
