@@ -356,6 +356,314 @@ inv-equiv e = pair (inv-map-equiv e) (is-equiv-inv-map-equiv e)
 
 -- Remarks
 
+-- Left tnit law of coproducts
+
+inv-coprod-elim-right :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) → is-empty A → B → coprod A B
+inv-coprod-elim-right A B H = inr
+
+issec-inv-coprod-elim-right :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) (H : is-empty A) →
+  ( coprod-elim-right A B H ∘ inv-coprod-elim-right A B H) ~ id
+issec-inv-coprod-elim-right A B H a = refl
+
+isretr-inv-coprod-elim-right :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) (H : is-empty A) →
+  ( inv-coprod-elim-right A B H ∘ coprod-elim-right A B H) ~ id
+isretr-inv-coprod-elim-right A B H (inl a) = ex-falso (H a)
+isretr-inv-coprod-elim-right A B H (inr b) = refl
+
+is-equiv-coprod-elim-right :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) (H : is-empty A) →
+  is-equiv (coprod-elim-right A B H)
+is-equiv-coprod-elim-right A B H =
+  is-equiv-has-inverse
+    ( inv-coprod-elim-right A B H)
+    ( issec-inv-coprod-elim-right A B H)
+    ( isretr-inv-coprod-elim-right A B H)
+
+left-unit-law-coprod-is-empty :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) (H : is-empty A) →
+  coprod A B ≃ B
+left-unit-law-coprod-is-empty A B H =
+  pair (coprod-elim-right A B H) (is-equiv-coprod-elim-right A B H)
+
+inv-left-unit-law-coprod-is-empty :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) (H : is-empty A) →
+  B ≃ coprod A B
+inv-left-unit-law-coprod-is-empty A B H =
+  pair ( inv-coprod-elim-right A B H)
+       ( is-equiv-has-inverse
+         ( coprod-elim-right A B H)
+         ( isretr-inv-coprod-elim-right A B H)
+         ( issec-inv-coprod-elim-right A B H))
+
+map-left-unit-law-coprod :
+  {l : Level} (B : UU l) → coprod empty B → B
+map-left-unit-law-coprod B =
+  coprod-elim-right empty B id
+
+inv-map-left-unit-law-coprod :
+  {l : Level} (B : UU l) → B → coprod empty B
+inv-map-left-unit-law-coprod A = inr
+
+issec-inv-map-left-unit-law-coprod :
+  {l : Level} (B : UU l) →
+  ( map-left-unit-law-coprod B ∘ inv-map-left-unit-law-coprod B) ~ id
+issec-inv-map-left-unit-law-coprod B =
+  issec-inv-coprod-elim-right empty B id
+
+isretr-inv-map-left-unit-law-coprod :
+  {l : Level} (B : UU l) →
+  ( inv-map-left-unit-law-coprod B ∘ map-left-unit-law-coprod B) ~ id
+isretr-inv-map-left-unit-law-coprod B =
+  isretr-inv-coprod-elim-right empty B id
+
+is-equiv-map-left-unit-law-coprod :
+  {l : Level} (B : UU l) → is-equiv (map-left-unit-law-coprod B)
+is-equiv-map-left-unit-law-coprod B =
+  is-equiv-coprod-elim-right empty B id
+
+left-unit-law-coprod :
+  {l : Level} (B : UU l) → coprod empty B ≃ B
+left-unit-law-coprod B =
+  left-unit-law-coprod-is-empty empty B id
+
+inv-left-unit-law-coprod :
+  {l : Level} (B : UU l) → B ≃ (coprod empty B)
+inv-left-unit-law-coprod B =
+  inv-left-unit-law-coprod-is-empty empty B id
+
+-- The right unit law for coproducts
+
+inv-coprod-elim-left :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) → is-empty B → A → coprod A B
+inv-coprod-elim-left A B is-empty-B = inl
+
+issec-inv-coprod-elim-left :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) (H : is-empty B) →
+  ( coprod-elim-left A B H ∘ inv-coprod-elim-left A B H) ~ id
+issec-inv-coprod-elim-left A B H a = refl
+
+isretr-inv-coprod-elim-left :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) (H : is-empty B) →
+  ( inv-coprod-elim-left A B H ∘ coprod-elim-left A B H) ~ id
+isretr-inv-coprod-elim-left A B H (inl a) = refl
+isretr-inv-coprod-elim-left A B H (inr b) = ex-falso (H b)
+
+is-equiv-coprod-elim-left :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) (H : is-empty B) →
+  is-equiv (coprod-elim-left A B H)
+is-equiv-coprod-elim-left A B H =
+  is-equiv-has-inverse
+    ( inv-coprod-elim-left A B H)
+    ( issec-inv-coprod-elim-left A B H)
+    ( isretr-inv-coprod-elim-left A B H)
+
+is-equiv-inl-is-empty :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) →
+  is-empty B → is-equiv (inl {l1} {l2} {A} {B})
+is-equiv-inl-is-empty A B H =
+  is-equiv-has-inverse
+    ( coprod-elim-left A B H)
+    ( isretr-inv-coprod-elim-left A B H)
+    ( issec-inv-coprod-elim-left A B H)
+
+right-unit-law-coprod-is-empty :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) → is-empty B →
+  (coprod A B) ≃ A
+right-unit-law-coprod-is-empty A B H =
+  pair ( coprod-elim-left A B H)
+       ( is-equiv-coprod-elim-left A B H)
+
+inv-right-unit-law-coprod-is-empty :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) → is-empty B →
+  A ≃ (coprod A B)
+inv-right-unit-law-coprod-is-empty A B H =
+  pair ( inl)
+       ( is-equiv-has-inverse
+         ( coprod-elim-left A B H)
+         ( isretr-inv-coprod-elim-left A B H)
+         ( issec-inv-coprod-elim-left A B H))
+
+map-right-unit-law-coprod :
+  {l1 : Level} (A : UU l1) → coprod A empty → A
+map-right-unit-law-coprod A = coprod-elim-left A empty id
+
+inv-map-right-unit-law-coprod :
+  {l1 : Level} (A : UU l1) → A → coprod A empty
+inv-map-right-unit-law-coprod A = inl
+
+issec-inv-map-right-unit-law-coprod :
+  {l1 : Level} (A : UU l1) →
+  ( map-right-unit-law-coprod A ∘ inv-map-right-unit-law-coprod A) ~ id
+issec-inv-map-right-unit-law-coprod A =
+  issec-inv-coprod-elim-left A empty id
+
+isretr-inv-map-right-unit-law-coprod :
+  {l1 : Level} (A : UU l1) →
+  ( inv-map-right-unit-law-coprod A ∘ map-right-unit-law-coprod A) ~ id
+isretr-inv-map-right-unit-law-coprod A =
+  isretr-inv-coprod-elim-left A empty id
+
+is-equiv-map-right-unit-law-coprod :
+  {l1 : Level} (A : UU l1) → is-equiv (map-right-unit-law-coprod A)
+is-equiv-map-right-unit-law-coprod A =
+  is-equiv-coprod-elim-left A empty id
+
+right-unit-law-coprod :
+  {l1 : Level} (A : UU l1) → coprod A empty ≃ A
+right-unit-law-coprod A =
+  right-unit-law-coprod-is-empty A empty id
+
+inv-right-unit-law-coprod :
+  {l1 : Level} (A : UU l1) → A ≃ coprod A empty
+inv-right-unit-law-coprod A =
+  inv-right-unit-law-coprod-is-empty A empty id
+
+-- Commutativity of coproducts
+
+map-commutative-coprod :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) → coprod A B → coprod B A
+map-commutative-coprod A B (inl a) = inr a
+map-commutative-coprod A B (inr b) = inl b
+
+inv-map-commutative-coprod :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) → coprod B A → coprod A B
+inv-map-commutative-coprod A B = map-commutative-coprod B A
+
+issec-map-commutative-coprod :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) →
+  ( map-commutative-coprod A B ∘ map-commutative-coprod B A) ~ id
+issec-map-commutative-coprod A B (inl b) = refl
+issec-map-commutative-coprod A B (inr a) = refl
+
+isretr-map-commutative-coprod :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) →
+  ( map-commutative-coprod B A ∘ map-commutative-coprod A B) ~ id
+isretr-map-commutative-coprod A B = issec-map-commutative-coprod B A
+
+is-equiv-map-commutative-coprod :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) →
+  is-equiv (map-commutative-coprod A B)
+is-equiv-map-commutative-coprod A B =
+  is-equiv-has-inverse
+    ( inv-map-commutative-coprod A B)
+    ( issec-map-commutative-coprod A B)
+    ( isretr-map-commutative-coprod A B)
+
+-- Associativity of coproducts
+
+map-assoc-coprod :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
+  coprod (coprod A B) C → coprod A (coprod B C)
+map-assoc-coprod (inl (inl x)) = inl x
+map-assoc-coprod (inl (inr x)) = inr (inl x)
+map-assoc-coprod (inr x) = inr (inr x)
+
+inv-map-assoc-coprod :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
+  coprod A (coprod B C) → coprod (coprod A B) C
+inv-map-assoc-coprod (inl x) = inl (inl x)
+inv-map-assoc-coprod (inr (inl x)) = inl (inr x)
+inv-map-assoc-coprod (inr (inr x)) = inr x
+
+issec-inv-map-assoc-coprod :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
+  ( map-assoc-coprod {A = A} {B} {C} ∘ inv-map-assoc-coprod) ~ id
+issec-inv-map-assoc-coprod (inl x) = refl
+issec-inv-map-assoc-coprod (inr (inl x)) = refl
+issec-inv-map-assoc-coprod (inr (inr x)) = refl
+
+isretr-inv-map-assoc-coprod :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
+  ( inv-map-assoc-coprod ∘ map-assoc-coprod {A = A} {B} {C}) ~ id
+isretr-inv-map-assoc-coprod (inl (inl x)) = refl
+isretr-inv-map-assoc-coprod (inl (inr x)) = refl
+isretr-inv-map-assoc-coprod (inr x) = refl
+
+is-equiv-map-assoc-coprod :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
+  is-equiv (map-assoc-coprod {A = A} {B} {C})
+is-equiv-map-assoc-coprod =
+  is-equiv-has-inverse
+    inv-map-assoc-coprod
+    issec-inv-map-assoc-coprod
+    isretr-inv-map-assoc-coprod
+
+is-equiv-inv-map-assoc-coprod :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
+  is-equiv (inv-map-assoc-coprod {A = A} {B} {C})
+is-equiv-inv-map-assoc-coprod =
+  is-equiv-has-inverse
+    map-assoc-coprod
+    isretr-inv-map-assoc-coprod
+    issec-inv-map-assoc-coprod
+
+assoc-coprod :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
+  coprod (coprod A B) C ≃ coprod A (coprod B C)
+assoc-coprod = pair map-assoc-coprod is-equiv-map-assoc-coprod
+
+inv-assoc-coprod :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
+  coprod A (coprod B C) ≃ coprod (coprod A B) C
+inv-assoc-coprod = pair inv-map-assoc-coprod is-equiv-inv-map-assoc-coprod
+
+{- We prove a left zero law for cartesian products. -}
+
+inv-pr1-prod-empty :
+  {l : Level} (X : UU l) → empty → empty × X
+inv-pr1-prod-empty X ()
+
+issec-inv-pr1-prod-empty :
+  {l : Level} (X : UU l) → (pr1 ∘ (inv-pr1-prod-empty X)) ~ id
+issec-inv-pr1-prod-empty X ()
+
+isretr-inv-pr1-prod-empty :
+  {l : Level} (X : UU l) → ((inv-pr1-prod-empty X) ∘ pr1) ~ id
+isretr-inv-pr1-prod-empty X (pair () x)
+
+is-equiv-pr1-prod-empty :
+  {l : Level} (X : UU l) → is-equiv (pr1 {A = empty} {B = λ t → X})
+is-equiv-pr1-prod-empty X =
+  is-equiv-has-inverse
+    ( inv-pr1-prod-empty X)
+    ( issec-inv-pr1-prod-empty X)
+    ( isretr-inv-pr1-prod-empty X)
+
+left-zero-law-prod :
+  {l : Level} (X : UU l) → (empty × X) ≃ empty
+left-zero-law-prod X =
+  pair pr1 (is-equiv-pr1-prod-empty X)
+
+{- We prove the right zero law for cartesian products. -}
+
+inv-pr2-prod-empty :
+  {l : Level} (X : UU l) → empty → (X × empty)
+inv-pr2-prod-empty X ()
+
+issec-inv-pr2-prod-empty :
+  {l : Level} (X : UU l) → (pr2 ∘ (inv-pr2-prod-empty X)) ~ id
+issec-inv-pr2-prod-empty X ()
+
+isretr-inv-pr2-prod-empty :
+  {l : Level} (X : UU l) → ((inv-pr2-prod-empty X) ∘ pr2) ~ id
+isretr-inv-pr2-prod-empty X (pair x ())
+
+is-equiv-pr2-prod-empty :
+  {l : Level} (X : UU l) → is-equiv (pr2 {A = X} {B = λ x → empty})
+is-equiv-pr2-prod-empty X =
+  is-equiv-has-inverse
+    ( inv-pr2-prod-empty X)
+    ( issec-inv-pr2-prod-empty X)
+    ( isretr-inv-pr2-prod-empty X)
+
+right-zero-law-prod :
+  {l : Level} (X : UU l) → (X × empty) ≃ empty
+right-zero-law-prod X =
+  pair pr2 (is-equiv-pr2-prod-empty X)
+
 -- Right absorption law for Σ-types and cartesian products
 
 abstract
@@ -1275,113 +1583,6 @@ abstract
 
 -- Exercise 8.5 (b)
 
-{- We prove the left unit law for coproducts. -}
-
-inv-inr-coprod-empty :
-  {l : Level} (X : UU l) → coprod empty X → X
-inv-inr-coprod-empty X (inr x) = x
-
-issec-inv-inr-coprod-empty :
-  {l : Level} (X : UU l) → (inr ∘ (inv-inr-coprod-empty X)) ~ id
-issec-inv-inr-coprod-empty X (inr x) = refl
-
-isretr-inv-inr-coprod-empty :
-  {l : Level} (X : UU l) → ((inv-inr-coprod-empty X) ∘ inr) ~ id
-isretr-inv-inr-coprod-empty X x = refl
-
-is-equiv-inr-coprod-empty :
-  {l : Level} (X : UU l) → is-equiv (inr {A = empty} {B = X})
-is-equiv-inr-coprod-empty X =
-  is-equiv-has-inverse
-    ( inv-inr-coprod-empty X)
-    ( issec-inv-inr-coprod-empty X)
-    ( isretr-inv-inr-coprod-empty X)
-
-left-unit-law-coprod :
-  {l : Level} (X : UU l) → X ≃ (coprod empty X)
-left-unit-law-coprod X = pair inr (is-equiv-inr-coprod-empty X)
-
-{- We prove the right unit law for coproducts. -}
-
-inv-inl-coprod-empty :
-  {l : Level} (X : UU l) → (coprod X empty) → X
-inv-inl-coprod-empty X (inl x) = x
-
-issec-inv-inl-coprod-empty :
-  {l : Level} (X : UU l) → (inl ∘ (inv-inl-coprod-empty X)) ~ id
-issec-inv-inl-coprod-empty X (inl x) = refl
-
-isretr-inv-inl-coprod-empty :
-  {l : Level} (X : UU l) → ((inv-inl-coprod-empty X) ∘ inl) ~ id
-isretr-inv-inl-coprod-empty X x = refl
-
-is-equiv-inl-coprod-empty :
-  {l : Level} (X : UU l) → is-equiv (inl {A = X} {B = empty})
-is-equiv-inl-coprod-empty X =
-  is-equiv-has-inverse
-    ( inv-inl-coprod-empty X)
-    ( issec-inv-inl-coprod-empty X)
-    ( isretr-inv-inl-coprod-empty X)
-
-right-unit-law-coprod :
-  {l : Level} (X : UU l) → X ≃ (coprod X empty)
-right-unit-law-coprod X =
-  pair inl (is-equiv-inl-coprod-empty X)
-
-{- We prove a left zero law for cartesian products. -}
-
-inv-pr1-prod-empty :
-  {l : Level} (X : UU l) → empty → empty × X
-inv-pr1-prod-empty X ()
-
-issec-inv-pr1-prod-empty :
-  {l : Level} (X : UU l) → (pr1 ∘ (inv-pr1-prod-empty X)) ~ id
-issec-inv-pr1-prod-empty X ()
-
-isretr-inv-pr1-prod-empty :
-  {l : Level} (X : UU l) → ((inv-pr1-prod-empty X) ∘ pr1) ~ id
-isretr-inv-pr1-prod-empty X (pair () x)
-
-is-equiv-pr1-prod-empty :
-  {l : Level} (X : UU l) → is-equiv (pr1 {A = empty} {B = λ t → X})
-is-equiv-pr1-prod-empty X =
-  is-equiv-has-inverse
-    ( inv-pr1-prod-empty X)
-    ( issec-inv-pr1-prod-empty X)
-    ( isretr-inv-pr1-prod-empty X)
-
-left-zero-law-prod :
-  {l : Level} (X : UU l) → (empty × X) ≃ empty
-left-zero-law-prod X =
-  pair pr1 (is-equiv-pr1-prod-empty X)
-
-{- We prove the right zero law for cartesian products. -}
-
-inv-pr2-prod-empty :
-  {l : Level} (X : UU l) → empty → (X × empty)
-inv-pr2-prod-empty X ()
-
-issec-inv-pr2-prod-empty :
-  {l : Level} (X : UU l) → (pr2 ∘ (inv-pr2-prod-empty X)) ~ id
-issec-inv-pr2-prod-empty X ()
-
-isretr-inv-pr2-prod-empty :
-  {l : Level} (X : UU l) → ((inv-pr2-prod-empty X) ∘ pr2) ~ id
-isretr-inv-pr2-prod-empty X (pair x ())
-
-is-equiv-pr2-prod-empty :
-  {l : Level} (X : UU l) → is-equiv (pr2 {A = X} {B = λ x → empty})
-is-equiv-pr2-prod-empty X =
-  is-equiv-has-inverse
-    ( inv-pr2-prod-empty X)
-    ( issec-inv-pr2-prod-empty X)
-    ( isretr-inv-pr2-prod-empty X)
-
-right-zero-law-prod :
-  {l : Level} (X : UU l) → (X × empty) ≃ empty
-right-zero-law-prod X =
-  pair pr2 (is-equiv-pr2-prod-empty X)
-
 -- Exercise 7.5
 
 -- Exercise 7.5(a)
@@ -1641,65 +1842,9 @@ htpy-right-whisk-htpy-inv H f = refl-htpy
 
 --------------------------------------------------------------------------------
 
-map-assoc-coprod :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
-  coprod (coprod A B) C → coprod A (coprod B C)
-map-assoc-coprod (inl (inl x)) = inl x
-map-assoc-coprod (inl (inr x)) = inr (inl x)
-map-assoc-coprod (inr x) = inr (inr x)
-
-inv-map-assoc-coprod :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
-  coprod A (coprod B C) → coprod (coprod A B) C
-inv-map-assoc-coprod (inl x) = inl (inl x)
-inv-map-assoc-coprod (inr (inl x)) = inl (inr x)
-inv-map-assoc-coprod (inr (inr x)) = inr x
-
-issec-inv-map-assoc-coprod :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
-  ( map-assoc-coprod {A = A} {B} {C} ∘ inv-map-assoc-coprod) ~ id
-issec-inv-map-assoc-coprod (inl x) = refl
-issec-inv-map-assoc-coprod (inr (inl x)) = refl
-issec-inv-map-assoc-coprod (inr (inr x)) = refl
-
-isretr-inv-map-assoc-coprod :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
-  ( inv-map-assoc-coprod ∘ map-assoc-coprod {A = A} {B} {C}) ~ id
-isretr-inv-map-assoc-coprod (inl (inl x)) = refl
-isretr-inv-map-assoc-coprod (inl (inr x)) = refl
-isretr-inv-map-assoc-coprod (inr x) = refl
-
-is-equiv-map-assoc-coprod :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
-  is-equiv (map-assoc-coprod {A = A} {B} {C})
-is-equiv-map-assoc-coprod =
-  is-equiv-has-inverse
-    inv-map-assoc-coprod
-    issec-inv-map-assoc-coprod
-    isretr-inv-map-assoc-coprod
-
-is-equiv-inv-map-assoc-coprod :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
-  is-equiv (inv-map-assoc-coprod {A = A} {B} {C})
-is-equiv-inv-map-assoc-coprod =
-  is-equiv-has-inverse
-    map-assoc-coprod
-    isretr-inv-map-assoc-coprod
-    issec-inv-map-assoc-coprod
-
-assoc-coprod :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
-  coprod (coprod A B) C ≃ coprod A (coprod B C)
-assoc-coprod = pair map-assoc-coprod is-equiv-map-assoc-coprod
-
-inv-assoc-coprod :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
-  coprod A (coprod B C) ≃ coprod (coprod A B) C
-inv-assoc-coprod = pair inv-map-assoc-coprod is-equiv-inv-map-assoc-coprod
-
 coprod-Fin :
   (k l : ℕ) → coprod (Fin k) (Fin l) ≃ Fin (add-ℕ k l)
-coprod-Fin k zero-ℕ = inv-equiv (right-unit-law-coprod (Fin k))
+coprod-Fin k zero-ℕ = right-unit-law-coprod (Fin k)
 coprod-Fin k (succ-ℕ l) =
   (equiv-functor-coprod (coprod-Fin k l) (equiv-id unit)) ∘e inv-assoc-coprod
 

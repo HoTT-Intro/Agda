@@ -16,7 +16,7 @@ data unit : UU lzero where
   
 𝟙 = unit
 
-ind-unit : {i : Level} {P : unit → UU i} → P star → ((x : unit) → P x)
+ind-unit : {l : Level} {P : unit → UU l} → P star → ((x : unit) → P x)
 ind-unit p star = p
 
 --------------------------------------------------------------------------------
@@ -29,16 +29,19 @@ data empty : UU lzero where
 
 𝟘 = empty
 
-ind-empty : {i : Level} {P : empty → UU i} → ((x : empty) → P x)
+ind-empty : {l : Level} {P : empty → UU l} → ((x : empty) → P x)
 ind-empty ()
 
-ex-falso : {i : Level} {A : UU i} → empty → A
+ex-falso : {l : Level} {A : UU l} → empty → A
 ex-falso = ind-empty
 
 -- Definition 4.3.2
 
-¬ : {i : Level} → UU i → UU i
+¬ : {l : Level} → UU l → UU l
 ¬ A = A → empty
+
+is-empty : {l : Level} → UU l → UU l
+is-empty = ¬
 
 -- Proposition 4.3.3
 
@@ -79,11 +82,12 @@ disjunction-𝟚 false false = false
 
 -- Definition 4.5.1
 
-data coprod {i j : Level} (A : UU i) (B : UU j) : UU (i ⊔ j)  where
+data coprod {l1 l2 : Level} (A : UU l1) (B : UU l2) : UU (l1 ⊔ l2)  where
   inl : A → coprod A B
   inr : B → coprod A B
 
-ind-coprod : {i j k : Level} {A : UU i} {B : UU j} (C : coprod A B → UU k) →
+ind-coprod :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (C : coprod A B → UU l3) →
   ((x : A) → C (inl x)) → ((y : B) → C (inr y)) →
   (t : coprod A B) → C t
 ind-coprod C f g (inl x) = f x
@@ -100,14 +104,12 @@ functor-coprod f g (inr y) = inr (g y)
 -- Proposition 4.5.3
 
 coprod-elim-left :
-  {i j : Level} (A : UU i) (B : UU j) →
-  ¬ B → coprod A B → A
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) → is-empty B → coprod A B → A
 coprod-elim-left A B nb (inl a) = a
 coprod-elim-left A B nb (inr b) = ex-falso (nb b)
 
 coprod-elim-right :
-  {i j : Level} (A : UU i) (B : UU j) →
-  ¬ A → coprod A B → B
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) → is-empty A → coprod A B → B
 coprod-elim-right A B na (inl a) = ex-falso (na a)
 coprod-elim-right A B na (inr b) = b
 
@@ -117,10 +119,11 @@ coprod-elim-right A B na (inr b) = b
 
 -- Definition 4.6.1
 
-data Σ {i j : Level} (A : UU i) (B : A → UU j) : UU (i ⊔ j) where
+data Σ {l1 l2 : Level} (A : UU l1) (B : A → UU l2) : UU (l1 ⊔ l2) where
   pair : (x : A) → (B x → Σ A B)
 
-ind-Σ : {i j k : Level} {A : UU i} {B : A → UU j} {C : Σ A B → UU k} →
+ind-Σ :
+  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {C : Σ A B → UU l3} →
   ((x : A) (y : B x) → C (pair x y)) → ((t : Σ A B) → C t)
 ind-Σ f (pair x y) = f x y
 
@@ -133,22 +136,22 @@ ev-pair f x y = f (pair x y)
 
 -- Definition 4.6.3
 
-pr1 : {i j : Level} {A : UU i} {B : A → UU j} → Σ A B → A
+pr1 : {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → Σ A B → A
 pr1 (pair a b) = a
 
-pr2 : {i j : Level} {A : UU i} {B : A → UU j} → (t : Σ A B) → B (pr1 t)
+pr2 : {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → (t : Σ A B) → B (pr1 t)
 pr2 (pair a b) = b
 
 -- Definition 4.6.4
 
-prod : {i j : Level} (A : UU i) (B : UU j) → UU (i ⊔ j)
+prod : {l1 l2 : Level} (A : UU l1) (B : UU l2) → UU (l1 ⊔ l2)
 prod A B = Σ A (λ a → B)
 
 pair' :
-  {i j : Level} {A : UU i} {B : UU j} → A → B → prod A B
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} → A → B → prod A B
 pair' = pair
 
-_×_ :  {i j : Level} (A : UU i) (B : UU j) → UU (i ⊔ j)
+_×_ :  {l1 l2 : Level} (A : UU l1) (B : UU l2) → UU (l1 ⊔ l2)
 A × B = prod A B
 
 --------------------------------------------------------------------------------
@@ -196,7 +199,7 @@ int-ℕ (succ-ℕ n) = in-pos n
 -- Proposition 4.7.2
 
 ind-ℤ :
-  {i : Level} (P : ℤ → UU i) →
+  {l : Level} (P : ℤ → UU l) →
   P neg-one-ℤ → ((n : ℕ) → P (inl n) → P (inl (succ-ℕ n))) →
   P zero-ℤ →
   P one-ℤ → ((n : ℕ) → P (inr (inr (n))) → P (inr (inr (succ-ℕ n)))) →
@@ -275,7 +278,7 @@ mul-ℤ' x y = mul-ℤ y x
 -- Exercise 4.2 (a)
 
 no-fixed-points-neg :
-  {l1 : Level} (A : UU l1) → ¬ ((A → ¬ A) × (¬ A → A))
+  {l : Level} (A : UU l) → ¬ ((A → ¬ A) × (¬ A → A))
 no-fixed-points-neg A (pair f g) =
   ( λ (h : ¬ A) → h (g h)) (λ (a : A) → f a a)
 
@@ -297,7 +300,7 @@ functor-dn f = functor-neg (functor-neg f)
    decidable. -}
 
 double-negation-elim-is-decidable :
-  {i : Level} (P : UU i) → coprod P (¬ P) → (¬¬ P → P)
+  {l : Level} (P : UU l) → coprod P (¬ P) → (¬¬ P → P)
 double-negation-elim-is-decidable P (inl x) p = x
 double-negation-elim-is-decidable P (inr x) p = ind-empty (p x)
 

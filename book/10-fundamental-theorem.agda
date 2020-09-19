@@ -525,7 +525,7 @@ abstract
             ( right-absorption-Σ B))
           ( is-contr-equiv'
             ( Σ A (Id x))
-            ( right-unit-law-coprod (Σ A (Id x)))
+            ( inv-right-unit-law-coprod (Σ A (Id x)))
             ( is-contr-total-path x))))
 
 abstract
@@ -550,7 +550,7 @@ abstract
             ( equiv-id (Σ B (Id x))))
           ( is-contr-equiv'
             ( Σ B (Id x))
-            ( left-unit-law-coprod (Σ B (Id x)))
+            ( inv-left-unit-law-coprod (Σ B (Id x)))
             ( is-contr-total-path x))))
 
 abstract
