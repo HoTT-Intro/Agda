@@ -94,53 +94,76 @@ is-injective-left-mul-ℕ k m n p =
 
 -- We conclude that y = 1 if (x+1)y = x+1
 
-eq-one-is-right-unit-mul-ℕ :
-  (x y : ℕ) → Id (mul-ℕ (succ-ℕ x) y) (succ-ℕ x) → Id y one-ℕ
-eq-one-is-right-unit-mul-ℕ x y p =
+is-one-ℕ : ℕ → UU lzero
+is-one-ℕ n = Id n one-ℕ
+
+is-one-ℕ' : ℕ → UU lzero
+is-one-ℕ' n = Id one-ℕ n
+
+is-one-is-right-unit-mul-ℕ :
+  (x y : ℕ) → Id (mul-ℕ (succ-ℕ x) y) (succ-ℕ x) → is-one-ℕ y
+is-one-is-right-unit-mul-ℕ x y p =
   is-injective-left-mul-ℕ x y one-ℕ (p ∙ inv (right-unit-law-mul-ℕ (succ-ℕ x)))
 
-eq-one-is-left-unit-mul-ℕ :
-  (x y : ℕ) → Id (mul-ℕ x (succ-ℕ y)) (succ-ℕ y) → Id x one-ℕ
-eq-one-is-left-unit-mul-ℕ x y p =
+is-one-is-left-unit-mul-ℕ :
+  (x y : ℕ) → Id (mul-ℕ x (succ-ℕ y)) (succ-ℕ y) → is-one-ℕ x
+is-one-is-left-unit-mul-ℕ x y p =
   is-injective-right-mul-ℕ y x one-ℕ (p ∙ inv (left-unit-law-mul-ℕ (succ-ℕ y)))
 
 -- Exercise 6.1 (b)
 
-eq-zero-right-add-ℕ :
-  (x y : ℕ) → Id (add-ℕ x y) zero-ℕ → Id y zero-ℕ
-eq-zero-right-add-ℕ x zero-ℕ p = refl
-eq-zero-right-add-ℕ x (succ-ℕ y) p = ex-falso (Peano-8 (add-ℕ x y) (inv p))
+is-zero-ℕ : ℕ → UU lzero
+is-zero-ℕ n = Id n zero-ℕ
 
-eq-zero-left-add-ℕ :
-  (x y : ℕ) → Id (add-ℕ x y) zero-ℕ → Id x zero-ℕ
-eq-zero-left-add-ℕ x y p =
-  eq-zero-right-add-ℕ y x ((commutative-add-ℕ y x) ∙ p)
+is-zero-ℕ' : ℕ → UU lzero
+is-zero-ℕ' n = Id zero-ℕ n
+
+is-successor-ℕ : ℕ → UU lzero
+is-successor-ℕ n = Σ ℕ (λ y → Id n (succ-ℕ y))
+
+is-nonzero-ℕ : ℕ → UU lzero
+is-nonzero-ℕ n = ¬ (Id n zero-ℕ)
+
+is-successor-is-nonzero-ℕ :
+  (x : ℕ) → is-nonzero-ℕ x → is-successor-ℕ x
+is-successor-is-nonzero-ℕ zero-ℕ H = ex-falso (H refl)
+is-successor-is-nonzero-ℕ (succ-ℕ x) H = pair x refl
+
+is-zero-right-is-zero-add-ℕ :
+  (x y : ℕ) → is-zero-ℕ (add-ℕ x y) → is-zero-ℕ y
+is-zero-right-is-zero-add-ℕ x zero-ℕ p = refl
+is-zero-right-is-zero-add-ℕ x (succ-ℕ y) p = ex-falso (Peano-8 (add-ℕ x y) (inv p))
+
+is-zero-left-is-zero-add-ℕ :
+  (x y : ℕ) → is-zero-ℕ (add-ℕ x y) → is-zero-ℕ x
+is-zero-left-is-zero-add-ℕ x y p =
+  is-zero-right-is-zero-add-ℕ y x ((commutative-add-ℕ y x) ∙ p)
 
 is-zero-summand-is-zero-sum-ℕ :
-  (x y : ℕ) → Id (add-ℕ x y) zero-ℕ → (Id x zero-ℕ) × (Id y zero-ℕ)
+  (x y : ℕ) → is-zero-ℕ (add-ℕ x y) → (is-zero-ℕ x) × (is-zero-ℕ y)
 is-zero-summand-is-zero-sum-ℕ x y p =
-  pair (eq-zero-left-add-ℕ x y p) (eq-zero-right-add-ℕ x y p)
+  pair (is-zero-left-is-zero-add-ℕ x y p) (is-zero-right-is-zero-add-ℕ x y p)
 
 is-zero-sum-is-zero-summand-ℕ :
   (x y : ℕ) → (Id x zero-ℕ) × (Id y zero-ℕ) → Id (add-ℕ x y) zero-ℕ
 is-zero-sum-is-zero-summand-ℕ .zero-ℕ .zero-ℕ (pair refl refl) = refl
 
-eq-one-right-mul-ℕ :
-  (x y : ℕ) → Id (mul-ℕ x y) one-ℕ → Id y one-ℕ
-eq-one-right-mul-ℕ zero-ℕ zero-ℕ p = p
-eq-one-right-mul-ℕ zero-ℕ (succ-ℕ y) p =
+is-one-right-is-one-mul-ℕ :
+  (x y : ℕ) → is-one-ℕ (mul-ℕ x y) → is-one-ℕ y
+is-one-right-is-one-mul-ℕ zero-ℕ zero-ℕ p = p
+is-one-right-is-one-mul-ℕ zero-ℕ (succ-ℕ y) p =
   ex-falso (Peano-8 zero-ℕ p)
-eq-one-right-mul-ℕ (succ-ℕ x) zero-ℕ p =
-  eq-one-right-mul-ℕ x zero-ℕ p
-eq-one-right-mul-ℕ (succ-ℕ x) (succ-ℕ y) p =
+is-one-right-is-one-mul-ℕ (succ-ℕ x) zero-ℕ p =
+  is-one-right-is-one-mul-ℕ x zero-ℕ p
+is-one-right-is-one-mul-ℕ (succ-ℕ x) (succ-ℕ y) p =
   ap ( succ-ℕ)
-     ( eq-zero-right-add-ℕ (mul-ℕ x (succ-ℕ y)) y
+     ( is-zero-right-is-zero-add-ℕ (mul-ℕ x (succ-ℕ y)) y
        ( is-injective-succ-ℕ (add-ℕ (mul-ℕ x (succ-ℕ y)) y) zero-ℕ p))
 
-eq-one-left-mul-ℕ :
-  (x y : ℕ) → Id (mul-ℕ x y) one-ℕ → Id x one-ℕ
-eq-one-left-mul-ℕ x y p =
-  eq-one-right-mul-ℕ y x (commutative-mul-ℕ y x ∙ p)
+is-one-left-is-one-mul-ℕ :
+  (x y : ℕ) → is-one-ℕ (mul-ℕ x y) → is-one-ℕ x
+is-one-left-is-one-mul-ℕ x y p =
+  is-one-right-is-one-mul-ℕ y x (commutative-mul-ℕ y x ∙ p)
 
 -- Exercise 6.1 (c)
 
@@ -472,15 +495,15 @@ symmetric-dist-ℕ (succ-ℕ m) (succ-ℕ n) = symmetric-dist-ℕ m n
 
 -- We compute the distance from zero --
 
-left-zero-law-dist-ℕ :
+left-unit-law-dist-ℕ :
   (n : ℕ) → Id (dist-ℕ zero-ℕ n) n
-left-zero-law-dist-ℕ zero-ℕ = refl
-left-zero-law-dist-ℕ (succ-ℕ n) = refl
+left-unit-law-dist-ℕ zero-ℕ = refl
+left-unit-law-dist-ℕ (succ-ℕ n) = refl
 
-right-zero-law-dist-ℕ :
+right-unit-law-dist-ℕ :
   (n : ℕ) → Id (dist-ℕ n zero-ℕ) n
-right-zero-law-dist-ℕ zero-ℕ = refl
-right-zero-law-dist-ℕ (succ-ℕ n) = refl
+right-unit-law-dist-ℕ zero-ℕ = refl
+right-unit-law-dist-ℕ (succ-ℕ n) = refl
 
 -- We prove the triangle inequality --
 
@@ -498,16 +521,16 @@ triangle-inequality-dist-ℕ zero-ℕ (succ-ℕ n) zero-ℕ =
      ( reflexive-leq-ℕ (succ-ℕ n))
 triangle-inequality-dist-ℕ zero-ℕ (succ-ℕ n) (succ-ℕ k) =
   concatenate-eq-leq-eq-ℕ
-    ( inv (ap succ-ℕ (left-zero-law-dist-ℕ n)))
+    ( inv (ap succ-ℕ (left-unit-law-dist-ℕ n)))
     ( triangle-inequality-dist-ℕ zero-ℕ n k)
-    ( ( ap (succ-ℕ ∘ (add-ℕ' (dist-ℕ k n))) (left-zero-law-dist-ℕ k)) ∙
+    ( ( ap (succ-ℕ ∘ (add-ℕ' (dist-ℕ k n))) (left-unit-law-dist-ℕ k)) ∙
       ( inv (left-successor-law-add-ℕ k (dist-ℕ k n))))
 triangle-inequality-dist-ℕ (succ-ℕ m) zero-ℕ zero-ℕ = reflexive-leq-ℕ (succ-ℕ m)
 triangle-inequality-dist-ℕ (succ-ℕ m) zero-ℕ (succ-ℕ k) =
   concatenate-eq-leq-eq-ℕ
-    ( inv (ap succ-ℕ (right-zero-law-dist-ℕ m)))
+    ( inv (ap succ-ℕ (right-unit-law-dist-ℕ m)))
     ( triangle-inequality-dist-ℕ m zero-ℕ k)
-    ( ap (succ-ℕ ∘ (add-ℕ (dist-ℕ m k))) (right-zero-law-dist-ℕ k))
+    ( ap (succ-ℕ ∘ (add-ℕ (dist-ℕ m k))) (right-unit-law-dist-ℕ k))
 triangle-inequality-dist-ℕ (succ-ℕ m) (succ-ℕ n) zero-ℕ =
   concatenate-leq-eq-ℕ
     ( dist-ℕ m n)
@@ -523,7 +546,7 @@ triangle-inequality-dist-ℕ (succ-ℕ m) (succ-ℕ n) zero-ℕ =
         ( succ-leq-ℕ (add-ℕ (dist-ℕ m zero-ℕ) (dist-ℕ zero-ℕ n))))
       ( succ-leq-ℕ (succ-ℕ (add-ℕ (dist-ℕ m zero-ℕ) (dist-ℕ zero-ℕ n)))))
     ( ( ap (succ-ℕ ∘ succ-ℕ)
-           ( ap-add-ℕ (right-zero-law-dist-ℕ m) (left-zero-law-dist-ℕ n))) ∙
+           ( ap-add-ℕ (right-unit-law-dist-ℕ m) (left-unit-law-dist-ℕ n))) ∙
       ( inv (left-successor-law-add-ℕ m (succ-ℕ n))))
 triangle-inequality-dist-ℕ (succ-ℕ m) (succ-ℕ n) (succ-ℕ k) =
   triangle-inequality-dist-ℕ m n k

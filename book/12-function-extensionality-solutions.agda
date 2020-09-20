@@ -1640,11 +1640,11 @@ automorphism-Π e f =
 --------------------------------------------------------------------------------
 
 function-Fin :
-  (k l : ℕ) → (Fin k → Fin l) ≃ Fin (pow-ℕ l k)
+  (k l : ℕ) → (Fin k → Fin l) ≃ Fin (exp-ℕ l k)
 function-Fin zero-ℕ l =
   ( inv-left-unit-law-coprod unit) ∘e
   ( equiv-is-contr (universal-property-empty (Fin l)) is-contr-unit)
 function-Fin (succ-ℕ k) l =
-  ( ( prod-Fin (pow-ℕ l k) l) ∘e
+  ( ( prod-Fin (exp-ℕ l k) l) ∘e
     ( equiv-functor-prod (function-Fin k l) (equiv-ev-star' (Fin l)))) ∘e
   ( equiv-universal-property-coprod (Fin l))

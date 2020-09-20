@@ -72,6 +72,18 @@ has-decidable-equality-ℕ : has-decidable-equality ℕ
 has-decidable-equality-ℕ x y =
   is-decidable-iff (eq-Eq-ℕ x y) Eq-ℕ-eq (is-decidable-Eq-ℕ x y)
 
+is-decidable-is-zero-ℕ : (n : ℕ) → is-decidable (is-zero-ℕ n)
+is-decidable-is-zero-ℕ n = has-decidable-equality-ℕ n zero-ℕ
+
+is-decidable-is-zero-ℕ' : (n : ℕ) → is-decidable (is-zero-ℕ' n)
+is-decidable-is-zero-ℕ' n = has-decidable-equality-ℕ zero-ℕ n
+
+is-decidable-is-one-ℕ : (n : ℕ) → is-decidable (is-one-ℕ n)
+is-decidable-is-one-ℕ n = has-decidable-equality-ℕ n one-ℕ
+
+is-decidable-is-one-ℕ' : (n : ℕ) → is-decidable (is-one-ℕ' n)
+is-decidable-is-one-ℕ' n = has-decidable-equality-ℕ one-ℕ n
+
 {- Proposition 8.1.6 -}
 
 {- We show that Fin k has decidable equality, for each k : ℕ. -}
@@ -95,8 +107,8 @@ is-decidable-div-ℕ :
 is-decidable-div-ℕ zero-ℕ x =
   is-decidable-iff
     ( div-eq-ℕ zero-ℕ x)
-    ( inv ∘ (eq-zero-div-zero-ℕ x))
-    ( has-decidable-equality-ℕ zero-ℕ x)
+    ( inv ∘ (is-zero-div-zero-ℕ x))
+    ( is-decidable-is-zero-ℕ' x)
 is-decidable-div-ℕ (succ-ℕ d) x =
   is-decidable-iff
     ( div-succ-eq-zero-ℕ d x)
@@ -354,10 +366,10 @@ is-decidable-is-multiple-of-gcd-ℕ :
   (a b : ℕ) → is-decidable-fam (is-multiple-of-gcd-ℕ a b)
 is-decidable-is-multiple-of-gcd-ℕ a b n =
   is-decidable-function-type'
-    ( is-decidable-neg (has-decidable-equality-ℕ (add-ℕ a b) zero-ℕ))
+    ( is-decidable-neg (is-decidable-is-zero-ℕ (add-ℕ a b)))
     ( λ np →
       is-decidable-prod
-        ( is-decidable-neg (has-decidable-equality-ℕ n zero-ℕ))
+        ( is-decidable-neg (is-decidable-is-zero-ℕ n))
         ( is-decidable-bounded-Π-ℕ
           ( is-common-divisor-ℕ a b)
           ( λ x → div-ℕ x n)
@@ -403,41 +415,96 @@ is-successor-gcd-ℕ :
 is-successor-gcd-ℕ a b ne =
   is-successor-is-nonzero-ℕ (gcd-ℕ a b) (is-nonzero-gcd-ℕ a b ne)
 
-abstract
-  is-zero-gcd-ℕ :
-    (a b : ℕ) → Id (add-ℕ a b) zero-ℕ → Id (gcd-ℕ a b) zero-ℕ
-  is-zero-gcd-ℕ a b p =
-    is-zero-well-ordering-principle-ℕ
-      ( is-multiple-of-gcd-ℕ a b)
-      ( is-decidable-is-multiple-of-gcd-ℕ a b)
-      ( pair (add-ℕ a b) (sum-is-multiple-of-gcd-ℕ a b))
-      ( λ np → ex-falso (np p))
+is-zero-gcd-ℕ :
+  (a b : ℕ) → is-zero-ℕ (add-ℕ a b) → is-zero-ℕ (gcd-ℕ a b)
+is-zero-gcd-ℕ a b p =
+  inv
+    ( eq-leq-zero-ℕ
+      ( gcd-ℕ a b)
+      ( concatenate-leq-eq-ℕ
+        ( gcd-ℕ a b)
+        ( is-lower-bound-gcd-ℕ a b
+          ( add-ℕ a b)
+          ( sum-is-multiple-of-gcd-ℕ a b))
+        ( p)))
 
-is-divisor-of-gcd-is-common-divisor-ℕ :
+div-gcd-is-common-divisor-ℕ :
   (a b x : ℕ) → is-common-divisor-ℕ a b x → div-ℕ x (gcd-ℕ a b)
-is-divisor-of-gcd-is-common-divisor-ℕ a b x H with
-  has-decidable-equality-ℕ (add-ℕ a b) zero-ℕ
+div-gcd-is-common-divisor-ℕ a b x H with
+  is-decidable-is-zero-ℕ (add-ℕ a b)
 ... | inl p = tr (div-ℕ x) (inv (is-zero-gcd-ℕ a b p)) (div-zero-ℕ x)
 ... | inr np = pr2 (is-multiple-of-gcd-gcd-ℕ a b np) x H
 
-{-
-is-divisor-of-first-is-divisor-of-gcd-ℕ :
-  (a b x : ℕ) → div-ℕ x (gcd-ℕ a b) → div-ℕ x a
-is-divisor-of-first-is-divisor-of-gcd-ℕ a b x d with
-  has-decidable-equality-ℕ a zero-ℕ
-... | inl p = tr (div-ℕ x) (inv p) (div-zero-ℕ x)
-... | inr np = {!quotient-euclidean-div-ℕ!}
--}
+is-zero-is-common-divisor-le-gcd-ℕ :
+  (a b r : ℕ) → le-ℕ r (gcd-ℕ a b) →
+  ((x : ℕ) → is-common-divisor-ℕ a b x → div-ℕ x r) → is-zero-ℕ r
+is-zero-is-common-divisor-le-gcd-ℕ a b r l d with is-decidable-is-zero-ℕ r
+... | inl H = H
+... | inr x =
+  ex-falso
+    ( contradiction-le-ℕ r (gcd-ℕ a b) l
+      ( is-lower-bound-gcd-ℕ a b r (λ np → pair x d)))
 
-{-
-is-gcd-gcd-ℕ : (a b : ℕ) → is-gcd-ℕ a b (gcd-ℕ a b)
-is-gcd-gcd-ℕ a b x with has-decidable-equality-ℕ (add-ℕ a b) zero-ℕ
+is-divisor-left-div-gcd-ℕ :
+  (a b x : ℕ) → div-ℕ x (gcd-ℕ a b) → div-ℕ x a
+is-divisor-left-div-gcd-ℕ a b x d with
+  is-decidable-is-zero-ℕ (add-ℕ a b)
 ... | inl p =
+  tr (div-ℕ x) (inv (is-zero-left-is-zero-add-ℕ a b p)) (div-zero-ℕ x)
+... | inr np =
+  transitive-div-ℕ x (gcd-ℕ a b) a d
+    ( pair q
+      ( ( α ∙ ( ap ( dist-ℕ a)
+               ( is-zero-is-common-divisor-le-gcd-ℕ a b r B
+                 ( λ x H →
+                   div-right-summand-ℕ x (mul-ℕ q (gcd-ℕ a b)) r
+                     ( div-mul-ℕ q x (gcd-ℕ a b)
+                       ( div-gcd-is-common-divisor-ℕ a b x H))
+                     ( tr (div-ℕ x) (inv β) (pr1 H)))))) ∙
+        ( right-unit-law-dist-ℕ a)))
+  where
+  r = remainder-euclidean-division-ℕ (gcd-ℕ a b) a (is-nonzero-gcd-ℕ a b np)
+  q = quotient-euclidean-division-ℕ (gcd-ℕ a b) a (is-nonzero-gcd-ℕ a b np)
+  α = eq-quotient-euclidean-division-ℕ (gcd-ℕ a b) a (is-nonzero-gcd-ℕ a b np)
+  B = strict-upper-bound-remainder-euclidean-division-ℕ (gcd-ℕ a b) a
+       ( is-nonzero-gcd-ℕ a b np)
+  β = eq-euclidean-division-ℕ (gcd-ℕ a b) a (is-nonzero-gcd-ℕ a b np)
+
+is-divisor-right-div-gcd-ℕ :
+  (a b x : ℕ) → div-ℕ x (gcd-ℕ a b) → div-ℕ x b
+is-divisor-right-div-gcd-ℕ a b x d with
+  is-decidable-is-zero-ℕ (add-ℕ a b)
+... | inl p =
+  tr (div-ℕ x) (inv (is-zero-right-is-zero-add-ℕ a b p)) (div-zero-ℕ x)
+... | inr np =
+  transitive-div-ℕ x (gcd-ℕ a b) b d
+    ( pair q
+      ( ( α ∙ ( ap ( dist-ℕ b)
+               ( is-zero-is-common-divisor-le-gcd-ℕ a b r B
+                 ( λ x H →
+                   div-right-summand-ℕ x (mul-ℕ q (gcd-ℕ a b)) r
+                     ( div-mul-ℕ q x (gcd-ℕ a b)
+                       ( div-gcd-is-common-divisor-ℕ a b x H))
+                     ( tr (div-ℕ x) (inv β) (pr2 H)))))) ∙
+        ( right-unit-law-dist-ℕ b)))
+  where
+  r = remainder-euclidean-division-ℕ (gcd-ℕ a b) b (is-nonzero-gcd-ℕ a b np)
+  q = quotient-euclidean-division-ℕ (gcd-ℕ a b) b (is-nonzero-gcd-ℕ a b np)
+  α = eq-quotient-euclidean-division-ℕ (gcd-ℕ a b) b (is-nonzero-gcd-ℕ a b np)
+  B = strict-upper-bound-remainder-euclidean-division-ℕ (gcd-ℕ a b) b
+       ( is-nonzero-gcd-ℕ a b np)
+  β = eq-euclidean-division-ℕ (gcd-ℕ a b) b (is-nonzero-gcd-ℕ a b np)
+
+is-common-divisor-div-gcd-ℕ :
+  (a b x : ℕ) → div-ℕ x (gcd-ℕ a b) → is-common-divisor-ℕ a b x
+is-common-divisor-div-gcd-ℕ a b x d =
+  pair (is-divisor-left-div-gcd-ℕ a b x d) (is-divisor-right-div-gcd-ℕ a b x d)
+
+is-gcd-gcd-ℕ : (a b : ℕ) → is-gcd-ℕ a b (gcd-ℕ a b)
+is-gcd-gcd-ℕ a b x =
   pair
-    ( λ H → {!!})
-    ( λ H → {!!})
-... | inr np = {!!}
--}
+    ( div-gcd-is-common-divisor-ℕ a b x)
+    ( is-common-divisor-div-gcd-ℕ a b x)
 
 --------------------------------------------------------------------------------
 

@@ -113,7 +113,7 @@ is-discrete-cong-zero-ℕ x y (pair k p) =
 cong-zero-ℕ :
   (k : ℕ) → cong-ℕ k k zero-ℕ
 cong-zero-ℕ k =
-  pair one-ℕ ((left-unit-law-mul-ℕ k) ∙ (inv (right-zero-law-dist-ℕ k)))
+  pair one-ℕ ((left-unit-law-mul-ℕ k) ∙ (inv (right-unit-law-dist-ℕ k)))
 
 {- Proposition 7.1.6 -}
 
@@ -322,6 +322,12 @@ zero-Fin : {k : ℕ} → Fin (succ-ℕ k)
 zero-Fin {zero-ℕ} = inr star
 zero-Fin {succ-ℕ k} = inl zero-Fin
 
+is-zero-Fin : {k : ℕ} → Fin k → UU lzero
+is-zero-Fin {succ-ℕ k} x = Id x zero-Fin
+
+is-zero-Fin' : {k : ℕ} → Fin k → UU lzero
+is-zero-Fin' {succ-ℕ k} x = Id zero-Fin x
+
 -- We define a function skip-zero-Fin in order to define succ-Fin.
 
 skip-zero-Fin : {k : ℕ} → Fin k → Fin (succ-ℕ k)
@@ -353,7 +359,7 @@ mod-three-ℕ = mod-succ-ℕ two-ℕ
 -- We prove three things to help calculating with nat-Fin.
 
 nat-zero-Fin :
-  {k : ℕ} → Id (nat-Fin (zero-Fin {k})) zero-ℕ
+  {k : ℕ} → is-zero-ℕ (nat-Fin (zero-Fin {k}))
 nat-zero-Fin {zero-ℕ} = refl 
 nat-zero-Fin {succ-ℕ k} = nat-zero-Fin {k}
 
@@ -398,10 +404,10 @@ cong-nat-mod-succ-ℕ k (succ-ℕ x) =
 
 {- Proposition 7.3.5 -}
 
-eq-zero-div-ℕ :
-  (d x : ℕ) → le-ℕ x d → div-ℕ d x → Id x zero-ℕ
-eq-zero-div-ℕ d zero-ℕ H D = refl
-eq-zero-div-ℕ d (succ-ℕ x) H (pair (succ-ℕ k) p) =
+is-zero-div-ℕ :
+  (d x : ℕ) → le-ℕ x d → div-ℕ d x → is-zero-ℕ x
+is-zero-div-ℕ d zero-ℕ H D = refl
+is-zero-div-ℕ d (succ-ℕ x) H (pair (succ-ℕ k) p) =
   ex-falso
     ( contradiction-le-ℕ
       ( succ-ℕ x) d H
@@ -411,7 +417,7 @@ eq-zero-div-ℕ d (succ-ℕ x) H (pair (succ-ℕ k) p) =
 eq-cong-le-dist-ℕ :
   (k x y : ℕ) → le-ℕ (dist-ℕ x y) k → cong-ℕ k x y → Id x y
 eq-cong-le-dist-ℕ k x y H K =
-  eq-dist-ℕ x y (inv (eq-zero-div-ℕ k (dist-ℕ x y) H K))
+  eq-dist-ℕ x y (inv (is-zero-div-ℕ k (dist-ℕ x y) H K))
 
 strict-upper-bound-dist-ℕ :
   (b x y : ℕ) → le-ℕ x b → le-ℕ y b → le-ℕ (dist-ℕ x y) b
@@ -468,15 +474,15 @@ eq-cong-ℕ k x y H =
 -- We record some immediate corollaries
 
 eq-zero-div-succ-ℕ :
-  (k x : ℕ) → div-ℕ (succ-ℕ k) x → Id (mod-succ-ℕ k x) zero-Fin
+  (k x : ℕ) → div-ℕ (succ-ℕ k) x → is-zero-Fin (mod-succ-ℕ k x)
 eq-zero-div-succ-ℕ k x d =
   eq-cong-ℕ k x zero-ℕ
-    ( tr (div-ℕ (succ-ℕ k)) (inv (right-zero-law-dist-ℕ x)) d)
+    ( tr (div-ℕ (succ-ℕ k)) (inv (right-unit-law-dist-ℕ x)) d)
 
 div-succ-eq-zero-ℕ :
-  (k x : ℕ) → Id (mod-succ-ℕ k x) zero-Fin → div-ℕ (succ-ℕ k) x
+  (k x : ℕ) → is-zero-Fin (mod-succ-ℕ k x) → div-ℕ (succ-ℕ k) x
 div-succ-eq-zero-ℕ k x p =
-  tr (div-ℕ (succ-ℕ k)) (right-zero-law-dist-ℕ x) (cong-eq-ℕ k x zero-ℕ p)
+  tr (div-ℕ (succ-ℕ k)) (right-unit-law-dist-ℕ x) (cong-eq-ℕ k x zero-ℕ p)
 
 {- Theorem 7.3.7 -}
 
@@ -640,7 +646,7 @@ left-unit-law-add-Fin {k} x =
 -- We show that addition satisfies the left inverse law --
 
 left-inverse-law-add-Fin :
-  {k : ℕ} (x : Fin (succ-ℕ k)) → Id (add-Fin (neg-Fin x) x) zero-Fin
+  {k : ℕ} (x : Fin (succ-ℕ k)) → is-zero-Fin (add-Fin (neg-Fin x) x)
 left-inverse-law-add-Fin {k} x =
   eq-cong-ℕ k
     ( add-ℕ (nat-Fin (neg-Fin x)) (nat-Fin x))
@@ -661,7 +667,7 @@ left-inverse-law-add-Fin {k} x =
       ( cong-zero-ℕ' (succ-ℕ k)))
 
 right-inverse-law-add-Fin :
-  {k : ℕ} (x : Fin (succ-ℕ k)) → Id (add-Fin x (neg-Fin x)) zero-Fin
+  {k : ℕ} (x : Fin (succ-ℕ k)) → is-zero-Fin (add-Fin x (neg-Fin x))
 right-inverse-law-add-Fin x =
   ( commutative-add-Fin x (neg-Fin x)) ∙ (left-inverse-law-add-Fin x)
 
@@ -691,8 +697,8 @@ anti-symmetric-div-ℕ (succ-ℕ x) (succ-ℕ y) (pair k p) (pair l q) =
   ( inv (left-unit-law-mul-ℕ (succ-ℕ x))) ∙
   ( ( ap ( mul-ℕ' (succ-ℕ x))
          ( inv
-           ( eq-one-right-mul-ℕ l k
-             ( eq-one-is-left-unit-mul-ℕ (mul-ℕ l k) x
+           ( is-one-right-is-one-mul-ℕ l k
+             ( is-one-is-left-unit-mul-ℕ (mul-ℕ l k) x
                ( ( associative-mul-ℕ l k (succ-ℕ x)) ∙
                  ( ap (mul-ℕ l) p ∙ q)))))) ∙
     ( p))
@@ -703,15 +709,20 @@ transitive-div-ℕ x y z (pair k p) (pair l q) =
   pair ( mul-ℕ l k)
        ( associative-mul-ℕ l k x ∙ (ap (mul-ℕ l) p ∙ q))
 
+div-mul-ℕ :
+  (k x y : ℕ) → div-ℕ x y → div-ℕ x (mul-ℕ k y)
+div-mul-ℕ k x y H =
+  transitive-div-ℕ x y (mul-ℕ k y) H (pair k refl)
+
 -- We conclude that 0 | x implies x = 0 and x | 1 implies x = 1.
 
-eq-zero-div-zero-ℕ :
-  (x : ℕ) → div-ℕ zero-ℕ x → Id x zero-ℕ
-eq-zero-div-zero-ℕ x H =
+is-zero-div-zero-ℕ :
+  (x : ℕ) → div-ℕ zero-ℕ x → is-zero-ℕ x
+is-zero-div-zero-ℕ x H =
   anti-symmetric-div-ℕ x zero-ℕ (div-zero-ℕ x) H
 
 eq-one-div-one-ℕ :
-  (x : ℕ) → div-ℕ x one-ℕ → Id x one-ℕ
+  (x : ℕ) → div-ℕ x one-ℕ → is-one-ℕ x
 eq-one-div-one-ℕ x H =
   anti-symmetric-div-ℕ x one-ℕ H (div-one-ℕ x)
 
@@ -940,7 +951,7 @@ commutative-mul-Fin {succ-ℕ k} x y =
 one-Fin : {k : ℕ} → Fin (succ-ℕ k)
 one-Fin {k} = mod-succ-ℕ k one-ℕ
 
-nat-one-Fin : {k : ℕ} → Id (nat-Fin (one-Fin {succ-ℕ k})) one-ℕ
+nat-one-Fin : {k : ℕ} → is-one-ℕ (nat-Fin (one-Fin {succ-ℕ k}))
 nat-one-Fin {zero-ℕ} = refl
 nat-one-Fin {succ-ℕ k} = nat-one-Fin {k}
 
@@ -1068,6 +1079,13 @@ quotient-euclidean-division-succ-ℕ : (k x : ℕ) → ℕ
 quotient-euclidean-division-succ-ℕ k x =
   pr1 (cong-euclidean-division-succ-ℕ k x)
 
+eq-quotient-euclidean-division-succ-ℕ :
+  (k x : ℕ) →
+  Id ( mul-ℕ (quotient-euclidean-division-succ-ℕ k x) (succ-ℕ k))
+     ( dist-ℕ x (remainder-euclidean-division-succ-ℕ k x))
+eq-quotient-euclidean-division-succ-ℕ k x =
+  pr2 (cong-euclidean-division-succ-ℕ k x)
+
 eq-euclidean-division-succ-ℕ :
   (k x : ℕ) →
   Id ( add-ℕ ( mul-ℕ (quotient-euclidean-division-succ-ℕ k x) (succ-ℕ k))
@@ -1080,24 +1098,52 @@ eq-euclidean-division-succ-ℕ k x =
   ( is-difference-dist-ℕ' (remainder-euclidean-division-succ-ℕ k x) x
     ( leq-nat-mod-succ-ℕ k x))
 
-is-successor-ℕ : ℕ → UU lzero
-is-successor-ℕ n = Σ ℕ (λ y → Id n (succ-ℕ y))
-
-is-nonzero-ℕ : ℕ → UU lzero
-is-nonzero-ℕ n = ¬ (Id n zero-ℕ)
-
-is-successor-is-nonzero-ℕ :
-  (x : ℕ) → is-nonzero-ℕ x → is-successor-ℕ x
-is-successor-is-nonzero-ℕ zero-ℕ H = ex-falso (H refl)
-is-successor-is-nonzero-ℕ (succ-ℕ x) H = pair x refl
-
 euclidean-division-ℕ :
   (k x : ℕ) → is-nonzero-ℕ k → Σ ℕ (λ r → (cong-ℕ k x r) × (le-ℕ r k))
-euclidean-division-ℕ k x np with is-successor-is-nonzero-ℕ k np
+euclidean-division-ℕ k x is-nonzero-k with
+  is-successor-is-nonzero-ℕ k is-nonzero-k
 ... | pair l refl = euclidean-division-succ-ℕ l x
 
+remainder-euclidean-division-ℕ : (k x : ℕ) → is-nonzero-ℕ k → ℕ
+remainder-euclidean-division-ℕ k x is-nonzero-k with
+  is-successor-is-nonzero-ℕ k is-nonzero-k
+... | pair l refl = remainder-euclidean-division-succ-ℕ l x
 
+strict-upper-bound-remainder-euclidean-division-ℕ :
+  (k x : ℕ) (is-nonzero-k : is-nonzero-ℕ k) →
+  le-ℕ (remainder-euclidean-division-ℕ k x is-nonzero-k) k
+strict-upper-bound-remainder-euclidean-division-ℕ k x is-nonzero-k with
+  is-successor-is-nonzero-ℕ k is-nonzero-k
+... | pair l refl = strict-upper-bound-remainder-euclidean-division-succ-ℕ l x
 
+cong-euclidean-division-ℕ :
+  (k x : ℕ) (is-nonzero-k : is-nonzero-ℕ k) →
+  cong-ℕ k x (remainder-euclidean-division-ℕ k x is-nonzero-k)
+cong-euclidean-division-ℕ k x is-nonzero-k with
+  is-successor-is-nonzero-ℕ k is-nonzero-k
+... | pair l refl = cong-euclidean-division-succ-ℕ l x
+
+quotient-euclidean-division-ℕ : (k x : ℕ) → is-nonzero-ℕ k → ℕ
+quotient-euclidean-division-ℕ k x is-nonzero-k with
+  is-successor-is-nonzero-ℕ k is-nonzero-k
+... | pair l refl = quotient-euclidean-division-succ-ℕ l x
+
+eq-quotient-euclidean-division-ℕ :
+  (k x : ℕ) (H : is-nonzero-ℕ k) →
+  Id ( mul-ℕ (quotient-euclidean-division-ℕ k x H) k)
+     ( dist-ℕ x (remainder-euclidean-division-ℕ k x H))
+eq-quotient-euclidean-division-ℕ k x H with
+  is-successor-is-nonzero-ℕ k H
+... | pair l refl = eq-quotient-euclidean-division-succ-ℕ l x
+
+eq-euclidean-division-ℕ :
+  (k x : ℕ) (is-nonzero-k : is-nonzero-ℕ k) →
+  Id ( add-ℕ ( mul-ℕ ( quotient-euclidean-division-ℕ k x is-nonzero-k) k)
+             ( remainder-euclidean-division-ℕ k x is-nonzero-k))
+     ( x)
+eq-euclidean-division-ℕ k x is-nonzero-k with
+  is-successor-is-nonzero-ℕ k is-nonzero-k
+... | pair l refl = eq-euclidean-division-succ-ℕ l x
 
 
 
@@ -1235,16 +1281,16 @@ triangle-inequality-dist-ℕ zero-ℕ (succ-ℕ n) zero-ℕ =
      ( reflexive-leq-ℕ (succ-ℕ n))
 triangle-inequality-dist-ℕ zero-ℕ (succ-ℕ n) (succ-ℕ k) =
   concatenate-eq-leq-eq-ℕ
-    ( inv (ap succ-ℕ (left-zero-law-dist-ℕ n)))
+    ( inv (ap succ-ℕ (left-unit-law-dist-ℕ n)))
     ( triangle-inequality-dist-ℕ zero-ℕ n k)
-    ( ( ap (succ-ℕ ∘ (add-ℕ' (dist-ℕ k n))) (left-zero-law-dist-ℕ k)) ∙
+    ( ( ap (succ-ℕ ∘ (add-ℕ' (dist-ℕ k n))) (left-unit-law-dist-ℕ k)) ∙
       ( inv (left-successor-law-add-ℕ k (dist-ℕ k n))))
 triangle-inequality-dist-ℕ (succ-ℕ m) zero-ℕ zero-ℕ = reflexive-leq-ℕ (succ-ℕ m)
 triangle-inequality-dist-ℕ (succ-ℕ m) zero-ℕ (succ-ℕ k) =
   concatenate-eq-leq-eq-ℕ
-    ( inv (ap succ-ℕ (right-zero-law-dist-ℕ m)))
+    ( inv (ap succ-ℕ (right-unit-law-dist-ℕ m)))
     ( triangle-inequality-dist-ℕ m zero-ℕ k)
-    ( ap (succ-ℕ ∘ (add-ℕ (dist-ℕ m k))) (right-zero-law-dist-ℕ k))
+    ( ap (succ-ℕ ∘ (add-ℕ (dist-ℕ m k))) (right-unit-law-dist-ℕ k))
 triangle-inequality-dist-ℕ (succ-ℕ m) (succ-ℕ n) zero-ℕ =
   concatenate-leq-eq-ℕ
     ( dist-ℕ m n)
@@ -1260,7 +1306,7 @@ triangle-inequality-dist-ℕ (succ-ℕ m) (succ-ℕ n) zero-ℕ =
         ( succ-leq-ℕ (add-ℕ (dist-ℕ m zero-ℕ) (dist-ℕ zero-ℕ n))))
       ( succ-leq-ℕ (succ-ℕ (add-ℕ (dist-ℕ m zero-ℕ) (dist-ℕ zero-ℕ n)))))
     ( ( ap (succ-ℕ ∘ succ-ℕ)
-           ( ap-add-ℕ (right-zero-law-dist-ℕ m) (left-zero-law-dist-ℕ n))) ∙
+           ( ap-add-ℕ (right-unit-law-dist-ℕ m) (left-unit-law-dist-ℕ n))) ∙
       ( inv (left-successor-law-add-ℕ m (succ-ℕ n))))
 triangle-inequality-dist-ℕ (succ-ℕ m) (succ-ℕ n) (succ-ℕ k) =
   triangle-inequality-dist-ℕ m n k

@@ -107,9 +107,9 @@ mul-ℕ (succ-ℕ m) n = add-ℕ (mul-ℕ m n) n
 mul-ℕ' : ℕ → (ℕ → ℕ)
 mul-ℕ' x y = mul-ℕ y x
 
-pow-ℕ : ℕ → (ℕ → ℕ)
-pow-ℕ m zero-ℕ = one-ℕ
-pow-ℕ m (succ-ℕ n) = mul-ℕ (pow-ℕ m n) m
+exp-ℕ : ℕ → (ℕ → ℕ)
+exp-ℕ m zero-ℕ = one-ℕ
+exp-ℕ m (succ-ℕ n) = mul-ℕ (exp-ℕ m n) m
 
 -- Exercise 3.2
 
