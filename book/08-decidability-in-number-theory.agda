@@ -500,6 +500,10 @@ is-common-divisor-div-gcd-ℕ :
 is-common-divisor-div-gcd-ℕ a b x d =
   pair (is-divisor-left-div-gcd-ℕ a b x d) (is-divisor-right-div-gcd-ℕ a b x d)
 
+is-common-divisor-gcd-ℕ : (a b : ℕ) → is-common-divisor-ℕ a b (gcd-ℕ a b)
+is-common-divisor-gcd-ℕ a b =
+  is-common-divisor-div-gcd-ℕ a b (gcd-ℕ a b) (refl-div-ℕ (gcd-ℕ a b))
+
 is-gcd-gcd-ℕ : (a b : ℕ) → is-gcd-ℕ a b (gcd-ℕ a b)
 is-gcd-gcd-ℕ a b x =
   pair
@@ -510,84 +514,85 @@ is-gcd-gcd-ℕ a b x =
 
 {- Section 8.5 The infinitude of primes -}
 
---------------------------------------------------------------------------------
+{- Definition 8.5.1 -}
 
-{- Proposition 7.2.6 -}
+is-prime : ℕ → UU lzero
+is-prime n =
+  ¬ (Id n one-ℕ) × ((x : ℕ) → (div-ℕ x n) → coprod (Id x one-ℕ) (Id x n))
 
-{- Section 7.3 Definitions by case analysis -}
+is-prime-two-ℕ' :
+  (x : ℕ) → div-ℕ x two-ℕ → coprod (Id x one-ℕ) (Id x two-ℕ)
+is-prime-two-ℕ' zero-ℕ H =
+  ex-falso (Eq-ℕ-eq (is-zero-div-zero-ℕ two-ℕ H))
+is-prime-two-ℕ' (succ-ℕ zero-ℕ) H = inl refl
+is-prime-two-ℕ' (succ-ℕ (succ-ℕ zero-ℕ)) H = inr refl
+is-prime-two-ℕ' (succ-ℕ (succ-ℕ (succ-ℕ x))) H =
+  ex-falso (leq-div-ℕ (succ-ℕ (succ-ℕ (succ-ℕ x))) one-ℕ H)
 
-{- We define an alternative definition of the predecessor function with manual 
-   with-abstraction. -}
+is-prime-two-ℕ : is-prime two-ℕ
+is-prime-two-ℕ = pair Eq-ℕ-eq is-prime-two-ℕ'
 
-cases-pred-Fin-2 :
-  {k : ℕ} (x : Fin (succ-ℕ k))
-  (d : is-decidable (Eq-Fin (succ-ℕ k) x zero-Fin)) → Fin (succ-ℕ k)
-cases-pred-Fin-2 {zero-ℕ} (inr star) d = zero-Fin
-cases-pred-Fin-2 {succ-ℕ k} (inl x) (inl e) = neg-one-Fin
-cases-pred-Fin-2 {succ-ℕ k} (inl x) (inr f) =
-  inl (cases-pred-Fin-2 {k} x (inr f))
-cases-pred-Fin-2 {succ-ℕ k} (inr star) (inr f) = inl neg-one-Fin
+{- Proposition 8.5.2 -}
 
-pred-Fin-2 : {k : ℕ} → Fin k → Fin k
-pred-Fin-2 {succ-ℕ k} x =
-  cases-pred-Fin-2 {k} x (is-decidable-Eq-Fin (succ-ℕ k) x zero-Fin)
+is-decidable-is-prime : (n : ℕ) → is-decidable (is-prime n)
+is-decidable-is-prime zero-ℕ =
+  inr
+    ( λ d →
+      Peano-8 one-ℕ
+        ( inv
+          ( coprod-elim-right
+            ( Id two-ℕ one-ℕ)
+            ( Id two-ℕ zero-ℕ)
+            ( Eq-ℕ-eq)
+            ( pr2 d two-ℕ (div-zero-ℕ two-ℕ)))))
+is-decidable-is-prime (succ-ℕ n) = 
+  is-decidable-prod
+    ( is-decidable-neg (has-decidable-equality-ℕ (succ-ℕ n) one-ℕ))
+    ( is-decidable-bounded-Π-ℕ
+      ( λ x → div-ℕ x (succ-ℕ n))
+      ( λ x → coprod (Id x one-ℕ) (Id x (succ-ℕ n)))
+      ( λ x → is-decidable-div-ℕ x (succ-ℕ n))
+      ( λ x → is-decidable-coprod
+                ( has-decidable-equality-ℕ x one-ℕ)
+                ( has-decidable-equality-ℕ x (succ-ℕ n)))
+      ( succ-ℕ n)
+      ( λ x → leq-div-ℕ x n))
 
-{- We give a solution to the exercise for the alternative definition of the
-   predecessor function, using with-abstraction. -}
+{- Definition 8.5.3 -}
 
-pred-zero-Fin-2 :
-  {k : ℕ} → Id (pred-Fin-2 {succ-ℕ k} zero-Fin) neg-one-Fin
-pred-zero-Fin-2 {k} with is-decidable-Eq-Fin (succ-ℕ k) zero-Fin zero-Fin
-pred-zero-Fin-2 {zero-ℕ} | d = refl
-pred-zero-Fin-2 {succ-ℕ k} | inl e = refl
-pred-zero-Fin-2 {succ-ℕ k} | inr f =
-  ex-falso (f (refl-Eq-Fin {succ-ℕ k} zero-Fin))
-  
-cases-succ-pred-Fin-2 :
-  {k : ℕ} (x : Fin (succ-ℕ k))
-  (d : is-decidable (Eq-Fin (succ-ℕ k) x zero-Fin)) →
-  Id (succ-Fin (cases-pred-Fin-2 x d)) x
-cases-succ-pred-Fin-2 {zero-ℕ} (inr star) d =
-  refl
-cases-succ-pred-Fin-2 {succ-ℕ k} (inl x) (inl e) =
-  inv (eq-Eq-Fin e)
-cases-succ-pred-Fin-2 {succ-ℕ zero-ℕ} (inl (inr x)) (inr f) =
-  ex-falso (f star)
-cases-succ-pred-Fin-2 {succ-ℕ (succ-ℕ k)} (inl (inl x)) (inr f) =
-  ap inl (cases-succ-pred-Fin-2 (inl x) (inr f))
-cases-succ-pred-Fin-2 {succ-ℕ (succ-ℕ k)} (inl (inr star)) (inr f) =
-  refl
-cases-succ-pred-Fin-2 {succ-ℕ k} (inr star) (inr f) =
-  refl
+is-relatively-prime-ℕ : ℕ → ℕ → UU lzero
+is-relatively-prime-ℕ a b = is-one-ℕ (gcd-ℕ a b)
 
-succ-pred-Fin-2 :
-  {k : ℕ} (x : Fin k) → Id (succ-Fin (pred-Fin-2 x)) x
-succ-pred-Fin-2 {succ-ℕ k} x =
-  cases-succ-pred-Fin-2 x (is-decidable-Eq-Fin (succ-ℕ k) x zero-Fin)
+is-gcd-succ-one-ℕ : (n : ℕ) → is-gcd-ℕ n (succ-ℕ n) one-ℕ
+is-gcd-succ-one-ℕ n x =
+  pair
+    ( λ H → div-right-summand-ℕ x n one-ℕ (pr1 H) (pr2 H))
+    ( λ H → pair
+              ( transitive-div-ℕ x one-ℕ n H (div-one-ℕ n))
+              ( transitive-div-ℕ x one-ℕ (succ-ℕ n) H (div-one-ℕ (succ-ℕ n))))
 
-pred-inl-Fin-2 :
-  {k : ℕ} (x : Fin (succ-ℕ k)) (f : ¬ (Eq-Fin (succ-ℕ k) x zero-Fin)) →
-  Id (pred-Fin-2 (inl x)) (inl (pred-Fin-2 x))
-pred-inl-Fin-2 {k} x f with is-decidable-Eq-Fin (succ-ℕ k) x zero-Fin
-... | inl e = ex-falso (f e)
-... | inr f' = refl
+succ-is-relatively-prime-ℕ : (n : ℕ) → is-relatively-prime-ℕ n (succ-ℕ n)
+succ-is-relatively-prime-ℕ n =
+  uniqueness-is-gcd-ℕ n (succ-ℕ n) (gcd-ℕ n (succ-ℕ n)) one-ℕ
+    ( is-gcd-gcd-ℕ n (succ-ℕ n))
+    ( is-gcd-succ-one-ℕ n)
 
-nEq-zero-succ-Fin :
-  {k : ℕ} (x : Fin (succ-ℕ k)) →
-  ¬ (Eq-Fin (succ-ℕ (succ-ℕ k)) (succ-Fin (inl x)) zero-Fin)
-nEq-zero-succ-Fin {succ-ℕ k} (inl (inl x)) e = nEq-zero-succ-Fin (inl x) e
-nEq-zero-succ-Fin {succ-ℕ k} (inl (inr star)) ()
-nEq-zero-succ-Fin {succ-ℕ k} (inr star) ()
+is-relatively-prime-div-ℕ :
+  (d x y : ℕ) → div-ℕ d x →
+  is-relatively-prime-ℕ x y → is-relatively-prime-ℕ d y
+is-relatively-prime-div-ℕ d x y H K =
+  is-one-div-one-ℕ
+    ( gcd-ℕ d y)
+    ( tr (div-ℕ (gcd-ℕ d y)) K
+      ( div-gcd-is-common-divisor-ℕ x y (gcd-ℕ d y)
+        ( pair
+          ( transitive-div-ℕ (gcd-ℕ d y) d x
+            ( pr1 (is-common-divisor-gcd-ℕ d y))
+            ( H))
+          ( pr2 (is-common-divisor-gcd-ℕ d y)))))
 
-pred-succ-Fin-2 :
-  {k : ℕ} (x : Fin (succ-ℕ k)) → Id (pred-Fin-2 (succ-Fin x)) x
-pred-succ-Fin-2 {zero-ℕ} (inr star) = refl
-pred-succ-Fin-2 {succ-ℕ zero-ℕ} (inl (inr star)) = refl
-pred-succ-Fin-2 {succ-ℕ zero-ℕ} (inr star) = refl
-pred-succ-Fin-2 {succ-ℕ (succ-ℕ k)} (inl (inl (inl x))) =
-  ( pred-inl-Fin-2 (inl (succ-Fin (inl x))) (nEq-zero-succ-Fin (inl x))) ∙
-  ( ( ap inl (pred-inl-Fin-2 (succ-Fin (inl x)) (nEq-zero-succ-Fin (inl x)))) ∙
-    ( ap (inl ∘ inl) (pred-succ-Fin-2 (inl x))))
-pred-succ-Fin-2 {succ-ℕ (succ-ℕ k)} (inl (inl (inr star))) = refl
-pred-succ-Fin-2 {succ-ℕ (succ-ℕ k)} (inl (inr star)) = refl
-pred-succ-Fin-2 {succ-ℕ (succ-ℕ k)} (inr star) = pred-zero-Fin-2
+{-
+infinitude-of-primes :
+  (n : ℕ) → Σ ℕ (λ x → (is-prime x) × (leq-ℕ n x))
+infinitude-of-primes n = {!!}
+-}

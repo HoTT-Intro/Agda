@@ -550,13 +550,6 @@ div-ℤ k l = Σ ℤ (λ x → Id (mul-ℤ x k) l)
 
 -- From before
 
-
-is-even-ℕ : ℕ → UU lzero
-is-even-ℕ n = div-ℕ two-ℕ n
-
-is-prime : ℕ → UU lzero
-is-prime n = (one-ℕ < n) × ((m : ℕ) → (one-ℕ < m) → (div-ℕ m n) → Id m n)
-
 {- The Goldbach conjecture asserts that every even number above 2 is the sum
    of two primes. -}
 

@@ -721,9 +721,9 @@ is-zero-div-zero-ℕ :
 is-zero-div-zero-ℕ x H =
   anti-symmetric-div-ℕ x zero-ℕ (div-zero-ℕ x) H
 
-eq-one-div-one-ℕ :
+is-one-div-one-ℕ :
   (x : ℕ) → div-ℕ x one-ℕ → is-one-ℕ x
-eq-one-div-one-ℕ x H =
+is-one-div-one-ℕ x H =
   anti-symmetric-div-ℕ x one-ℕ H (div-one-ℕ x)
 
 div-eq-ℕ :
