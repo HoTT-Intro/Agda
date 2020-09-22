@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split --safe #-}
 
-module book.09-contractible-types where
+module book.10-contractible-types where
 
-import book.08-equivalences
-open book.08-equivalences public
+import book.09-equivalences
+open book.09-equivalences public
 
 -- Section 6.1 Contractible types
 

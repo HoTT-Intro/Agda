@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module book.12-function-extensionality-solutions where
+module book.13-function-extensionality-solutions where
 
-import book.12-function-extensionality
-open book.12-function-extensionality public
+import book.13-function-extensionality
+open book.13-function-extensionality public
 
 --------------------------------------------------------------------------------
 

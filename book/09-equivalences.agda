@@ -1,6 +1,7 @@
+
 {-# OPTIONS --without-K --exact-split --safe #-}
 
-module book.08-equivalences where
+module book.09-equivalences where
 
 import book.08-decidability-in-number-theory
 open book.08-decidability-in-number-theory public

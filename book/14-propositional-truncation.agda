@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module book.13-propositional-truncation where
+module book.14-propositional-truncation where
 
-import book.12-function-extensionality-solutions
-open book.12-function-extensionality-solutions public
+import book.13-function-extensionality-solutions
+open book.13-function-extensionality-solutions public
 
 -- Section 13 Propositional truncations and the image of a map
 

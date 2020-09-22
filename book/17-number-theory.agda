@@ -2,8 +2,8 @@
 
 module book.17-number-theory where
 
-import book.16-sets
-open book.16-sets public
+import book.17-set-quotients
+open book.17-set-quotients public
 
 -- Exercise 6.7
 

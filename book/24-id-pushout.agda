@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module book.23-id-pushout where
+module book.24-id-pushout where
 
-import book.22-descent
-open book.22-descent public
+import book.24-descent
+open book.24-descent public
 
 -- Section 19.1 Characterizing families of maps over pushouts
 

@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module book.24-sequences where
+module book.25-sequences where
 
-import book.23-id-pushout
-open book.23-id-pushout public
+import book.24-id-pushout
+open book.24-id-pushout public
 
 {- We introduce two types of sequences: one with the arrows going up and one
    with the arrows going down. -}

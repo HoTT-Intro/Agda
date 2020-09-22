@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module book.14-univalence where
+module book.15-univalence where
 
-import book.13-propositional-truncation-solutions
-open book.13-propositional-truncation-solutions public
+import book.14-propositional-truncation-solutions
+open book.14-propositional-truncation-solutions public
 
 -- Section 10.1 Type extensionality
 
@@ -227,6 +227,8 @@ funext-univalence :
 funext-univalence {A = A} {B} f =
   FUNEXT-WEAK-FUNEXT (λ A B → weak-funext-univalence) A B f
 
+--------------------------------------------------------------------------------
+
 -- Finite sets
 
 is-finite-Prop :
@@ -237,16 +239,20 @@ is-finite :
   {l : Level} → UU l → UU l
 is-finite X = type-Prop (is-finite-Prop X)
 
-{-
-cardinality-is-finite :
-  {l : Level} (A : UU l) →
-  is-finite A → Σ ℕ (λ n → type-trunc-Prop (Fin n ≃ A))
-cardinality-is-finite A
--}
-
 is-prop-is-finite :
   {l : Level} (X : UU l) → is-prop (is-finite X)
 is-prop-is-finite X = is-prop-type-Prop (is-finite-Prop X)
+
+is-finite' :
+  {l : Level} → UU l → UU l
+is-finite' X = Σ ℕ (λ n → type-trunc-Prop (Fin n ≃ X))
+
+--
+is-finite-empty : is-finite empty
+is-finite-empty =
+  unit-trunc-Prop
+    ( Σ ℕ (λ n → Fin n ≃ empty))
+    ( pair zero-ℕ (equiv-id empty))
 
 𝔽 : UU (lsuc lzero)
 𝔽 = Σ (UU lzero) is-finite
@@ -260,6 +266,78 @@ is-finite-type-𝔽 X = pr2 X
 type-free-symmetric-monoid :
   {l1 : Level} (A : UU l1) → UU (lsuc lzero ⊔ l1)
 type-free-symmetric-monoid A = Σ 𝔽 (λ X → type-𝔽 X → A)
+
+map-universal-property-is-finite :
+  {l1 l2 : Level} (X : UU l1) (P : UU-Prop l2) →
+  ((n : ℕ) → (Fin n ≃ X) → type-Prop P) →
+  is-finite X → type-Prop P
+map-universal-property-is-finite X P f =
+  map-universal-property-trunc-Prop P (ind-Σ f)
+
+is-finite-is-finite :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
+  ((n : ℕ) → (Fin n ≃ X) → is-finite Y) →
+  is-finite X → is-finite Y
+is-finite-is-finite {l1} {l2} {X} {Y} f =
+  map-universal-property-is-finite X (is-finite-Prop Y) f
+
+is-finite-coprod :
+  {l1 l2 : Level} (X : UU l1) (Y : UU l2) →
+  is-finite X → is-finite Y → is-finite (coprod X Y)
+is-finite-coprod X Y is-finite-X is-finite-Y =
+  is-finite-is-finite 
+    ( λ n e →
+      is-finite-is-finite 
+        ( λ m f →
+          unit-trunc-Prop _
+            ( pair
+              ( add-ℕ n m)
+              ( equiv-functor-coprod e f ∘e
+                inv-equiv (coprod-Fin n m))))
+        is-finite-Y)
+    ( is-finite-X)
+    
+{-
+  map-universal-property-is-finite X 
+    ( is-finite-Prop (coprod X Y))
+    ( λ n e →
+      map-universal-property-is-finite Y
+        ( is-finite-Prop (coprod X Y))
+        ( λ m f →
+          unit-trunc-Prop _
+            ( pair
+              ( add-ℕ n m)
+              ( equiv-functor-coprod e f ∘e
+                inv-equiv (coprod-Fin n m))))
+        is-finite-Y)
+    is-finite-X
+-}
+
+is-finite-is-equiv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  is-equiv f → is-finite A → is-finite B
+is-finite-is-equiv f is-equiv-f =
+  is-finite-is-finite
+    ( λ n e → unit-trunc-Prop _ (pair n ((pair f is-equiv-f) ∘e e)))
+
+is-finite-equiv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
+  is-finite A → is-finite B
+is-finite-equiv (pair f is-equiv-f) = is-finite-is-equiv f is-equiv-f
+
+{-
+is-finite-is-equiv' :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  is-equiv f → is-finite' A → is-finite' B
+is-finite-is-equiv' f is-equiv-f (pair n e) =
+  pair n ({!!}) 
+
+is-finite-Π :
+  {l1 l2 : Level} (A : UU l1) (B : A → UU l2) →
+  is-finite' A → ((x : A) → is-finite' (B x)) → is-finite' ((x : A) → B x)
+is-finite-Π A B (pair zero-ℕ e) is-finite-B = pair one-ℕ {!!}
+is-finite-Π A B (pair (succ-ℕ n) e) is-finite-B = {!!}
+-}
 
 {-
 μ-free-symmetric-monoid :

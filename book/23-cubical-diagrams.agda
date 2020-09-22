@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --allow-unsolved-metas --exact-split #-}
 
-module book.22-cubical-diagrams where
+module book.23-cubical-diagrams where
 
-import book.21-pushouts
-open book.21-pushouts public
+import book.22-pushouts
+open book.22-pushouts public
 
 -- Section 15.1 Commuting cubes
 

@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --allow-unsolved-metas --exact-split #-}
 
-module book.21-pushouts where
+module book.22-pushouts where
 
-import book.20-pullbacks
-open book.20-pullbacks public
+import book.21-pullbacks
+open book.21-pullbacks public
 
 -- Section 14.1
 
