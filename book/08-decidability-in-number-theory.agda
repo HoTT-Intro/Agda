@@ -516,17 +516,29 @@ is-gcd-gcd-ℕ a b x =
 
 {- Definition 8.5.1 -}
 
+is-proper-divisor-ℕ : ℕ → ℕ → UU lzero
+is-proper-divisor-ℕ d x = (¬ (is-one-ℕ d)) × div-ℕ d x
+
+is-decidable-is-proper-divisor-ℕ :
+  (d x : ℕ) → is-decidable (is-proper-divisor-ℕ d x)
+is-decidable-is-proper-divisor-ℕ d x =
+  is-decidable-prod
+    ( is-decidable-neg (is-decidable-is-one-ℕ d))
+    ( is-decidable-div-ℕ d x)
+
+is-prime-ℕ' : ℕ → UU lzero
+is-prime-ℕ' n = (x : ℕ) → is-proper-divisor-ℕ x n → Id x n
+
 is-prime : ℕ → UU lzero
 is-prime n =
-  ¬ (Id n one-ℕ) × ((x : ℕ) → (div-ℕ x n) → coprod (Id x one-ℕ) (Id x n))
+  ¬ (Id n one-ℕ) × (is-prime-ℕ' n)
 
-is-prime-two-ℕ' :
-  (x : ℕ) → div-ℕ x two-ℕ → coprod (Id x one-ℕ) (Id x two-ℕ)
-is-prime-two-ℕ' zero-ℕ H =
+is-prime-two-ℕ' : is-prime-ℕ' two-ℕ
+is-prime-two-ℕ' zero-ℕ (pair f H) =
   ex-falso (Eq-ℕ-eq (is-zero-div-zero-ℕ two-ℕ H))
-is-prime-two-ℕ' (succ-ℕ zero-ℕ) H = inl refl
-is-prime-two-ℕ' (succ-ℕ (succ-ℕ zero-ℕ)) H = inr refl
-is-prime-two-ℕ' (succ-ℕ (succ-ℕ (succ-ℕ x))) H =
+is-prime-two-ℕ' (succ-ℕ zero-ℕ) (pair f H) = ex-falso (f refl)
+is-prime-two-ℕ' (succ-ℕ (succ-ℕ zero-ℕ)) (pair f H) = refl
+is-prime-two-ℕ' (succ-ℕ (succ-ℕ (succ-ℕ x))) (pair f H) =
   ex-falso (leq-div-ℕ (succ-ℕ (succ-ℕ (succ-ℕ x))) one-ℕ H)
 
 is-prime-two-ℕ : is-prime two-ℕ
@@ -538,25 +550,17 @@ is-decidable-is-prime : (n : ℕ) → is-decidable (is-prime n)
 is-decidable-is-prime zero-ℕ =
   inr
     ( λ d →
-      Peano-8 one-ℕ
-        ( inv
-          ( coprod-elim-right
-            ( Id two-ℕ one-ℕ)
-            ( Id two-ℕ zero-ℕ)
-            ( Eq-ℕ-eq)
-            ( pr2 d two-ℕ (div-zero-ℕ two-ℕ)))))
-is-decidable-is-prime (succ-ℕ n) = 
+      Peano-8 one-ℕ (inv (pr2 d two-ℕ (pair Eq-ℕ-eq (div-zero-ℕ two-ℕ)))))
+is-decidable-is-prime (succ-ℕ n) =
   is-decidable-prod
     ( is-decidable-neg (has-decidable-equality-ℕ (succ-ℕ n) one-ℕ))
     ( is-decidable-bounded-Π-ℕ
-      ( λ x → div-ℕ x (succ-ℕ n))
-      ( λ x → coprod (Id x one-ℕ) (Id x (succ-ℕ n)))
-      ( λ x → is-decidable-div-ℕ x (succ-ℕ n))
-      ( λ x → is-decidable-coprod
-                ( has-decidable-equality-ℕ x one-ℕ)
-                ( has-decidable-equality-ℕ x (succ-ℕ n)))
+      ( λ x → is-proper-divisor-ℕ x (succ-ℕ n))
+      ( λ x → Id x (succ-ℕ n))
+      ( λ x → is-decidable-is-proper-divisor-ℕ x (succ-ℕ n))
+      ( λ x → has-decidable-equality-ℕ x (succ-ℕ n))
       ( succ-ℕ n)
-      ( λ x → leq-div-ℕ x n))
+      ( λ x H → leq-div-ℕ x n (pr2 H)))
 
 {- Definition 8.5.3 -}
 
