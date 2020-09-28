@@ -192,7 +192,7 @@ equiv-subtype-equiv :
   {l1 l2 l3 l4 : Level}
   {A : UU l1} {B : UU l2} (e : A ≃ B)
   (C : A → UU-Prop l3) (D : B → UU-Prop l4) →
-  ((x : A) → (C x) ↔ (D (map-equiv e x))) →
+  ((x : A) → (C x) ⇔ (D (map-equiv e x))) →
   total-subtype C ≃ total-subtype D
 equiv-subtype-equiv e C D H =
   equiv-toto (λ y → type-Prop (D y)) e

@@ -517,50 +517,104 @@ is-gcd-gcd-ℕ a b x =
 {- Definition 8.5.1 -}
 
 is-proper-divisor-ℕ : ℕ → ℕ → UU lzero
-is-proper-divisor-ℕ d x = (¬ (is-one-ℕ d)) × div-ℕ d x
+is-proper-divisor-ℕ n d = ¬ (Id d n) × div-ℕ d n
 
-is-decidable-is-proper-divisor-ℕ :
-  (d x : ℕ) → is-decidable (is-proper-divisor-ℕ d x)
-is-decidable-is-proper-divisor-ℕ d x =
-  is-decidable-prod
-    ( is-decidable-neg (is-decidable-is-one-ℕ d))
-    ( is-decidable-div-ℕ d x)
-
-is-prime-ℕ' : ℕ → UU lzero
-is-prime-ℕ' n = (x : ℕ) → is-proper-divisor-ℕ x n → Id x n
-
-is-prime : ℕ → UU lzero
-is-prime n =
-  ¬ (Id n one-ℕ) × (is-prime-ℕ' n)
-
-is-prime-two-ℕ' : is-prime-ℕ' two-ℕ
-is-prime-two-ℕ' zero-ℕ (pair f H) =
-  ex-falso (Eq-ℕ-eq (is-zero-div-zero-ℕ two-ℕ H))
-is-prime-two-ℕ' (succ-ℕ zero-ℕ) (pair f H) = ex-falso (f refl)
-is-prime-two-ℕ' (succ-ℕ (succ-ℕ zero-ℕ)) (pair f H) = refl
-is-prime-two-ℕ' (succ-ℕ (succ-ℕ (succ-ℕ x))) (pair f H) =
-  ex-falso (leq-div-ℕ (succ-ℕ (succ-ℕ (succ-ℕ x))) one-ℕ H)
-
-is-prime-two-ℕ : is-prime two-ℕ
-is-prime-two-ℕ = pair Eq-ℕ-eq is-prime-two-ℕ'
+is-prime-ℕ : ℕ → UU lzero
+is-prime-ℕ n = (x : ℕ) → (is-proper-divisor-ℕ n x ↔ is-one-ℕ x) 
 
 {- Proposition 8.5.2 -}
 
-is-decidable-is-prime : (n : ℕ) → is-decidable (is-prime n)
-is-decidable-is-prime zero-ℕ =
-  inr
-    ( λ d →
-      Peano-8 one-ℕ (inv (pr2 d two-ℕ (pair Eq-ℕ-eq (div-zero-ℕ two-ℕ)))))
-is-decidable-is-prime (succ-ℕ n) =
+is-prime-easy-ℕ : ℕ → UU lzero
+is-prime-easy-ℕ n =
+  (is-not-one-ℕ n) × ((x : ℕ) → is-proper-divisor-ℕ n x → is-one-ℕ x)
+
+is-not-one-is-prime-ℕ : (n : ℕ) → is-prime-ℕ n → is-not-one-ℕ n
+is-not-one-is-prime-ℕ n H p = pr1 (pr2 (H one-ℕ) refl) (inv p)
+
+is-prime-easy-is-prime-ℕ : (n : ℕ) → is-prime-ℕ n → is-prime-easy-ℕ n
+is-prime-easy-is-prime-ℕ n H =
+  pair (is-not-one-is-prime-ℕ n H) (λ x → pr1 (H x))
+
+is-prime-is-prime-easy-ℕ : (n : ℕ) → is-prime-easy-ℕ n → is-prime-ℕ n
+is-prime-is-prime-easy-ℕ n H x =
+  pair ( pr2 H x)
+       ( λ p → tr ( is-proper-divisor-ℕ n)
+                  ( inv p)
+                  ( pair (λ q → pr1 H (inv q)) (div-one-ℕ n)))
+
+is-decidable-is-proper-divisor-ℕ :
+  (n d : ℕ) → is-decidable (is-proper-divisor-ℕ n d)
+is-decidable-is-proper-divisor-ℕ n d =
   is-decidable-prod
-    ( is-decidable-neg (has-decidable-equality-ℕ (succ-ℕ n) one-ℕ))
+    ( is-decidable-neg (has-decidable-equality-ℕ d n))
+    ( is-decidable-div-ℕ d n)
+
+is-proper-divisor-zero-succ-ℕ : (n : ℕ) → is-proper-divisor-ℕ zero-ℕ (succ-ℕ n)
+is-proper-divisor-zero-succ-ℕ n =
+  pair (λ p → Peano-8 n (inv p)) (div-zero-ℕ (succ-ℕ n))
+
+is-decidable-is-prime-easy-ℕ : (n : ℕ) → is-decidable (is-prime-easy-ℕ n)
+is-decidable-is-prime-easy-ℕ zero-ℕ =
+  inr
+    ( λ H →
+      is-not-one-two-ℕ (pr2 H two-ℕ (is-proper-divisor-zero-succ-ℕ one-ℕ)))
+is-decidable-is-prime-easy-ℕ (succ-ℕ n) =
+  is-decidable-prod
+    ( is-decidable-neg (is-decidable-is-one-ℕ (succ-ℕ n)))
     ( is-decidable-bounded-Π-ℕ
-      ( λ x → is-proper-divisor-ℕ x (succ-ℕ n))
-      ( λ x → Id x (succ-ℕ n))
-      ( λ x → is-decidable-is-proper-divisor-ℕ x (succ-ℕ n))
-      ( λ x → has-decidable-equality-ℕ x (succ-ℕ n))
+      ( is-proper-divisor-ℕ (succ-ℕ n))
+      ( is-one-ℕ)
+      ( is-decidable-is-proper-divisor-ℕ (succ-ℕ n))
+      ( is-decidable-is-one-ℕ)
       ( succ-ℕ n)
       ( λ x H → leq-div-ℕ x n (pr2 H)))
+
+is-decidable-is-prime-ℕ : (n : ℕ) → is-decidable (is-prime-ℕ n)
+is-decidable-is-prime-ℕ n =
+  is-decidable-iff
+    ( is-prime-is-prime-easy-ℕ n)
+    ( is-prime-easy-is-prime-ℕ n)
+    ( is-decidable-is-prime-easy-ℕ n)
+
+
+{-
+prime-factor-ℕ : ℕ → ℕ → UU lzero
+prime-factor-ℕ n x = (is-prime-ℕ x) × (div-ℕ x n)
+-}
+
+{-
+Minimal-factor-ℕ :
+  (n : ℕ) → is-not-one-ℕ n →
+  Σ ℕ ( λ m →
+        ( is-proper-divisor-ℕ n m) ×
+        ( is-lower-bound-ℕ (is-proper-divisor-ℕ n) m))
+Minimal-factor-ℕ n f =
+  well-ordering-principle-ℕ
+    ( is-proper-divisor-ℕ n)
+    ( is-decidable-is-proper-divisor-ℕ n)
+    ( pair n (pair f (refl-div-ℕ n)))
+
+minimal-factor-ℕ : (n : ℕ) → is-not-one-ℕ n → ℕ
+minimal-factor-ℕ n f = pr1 (Minimal-factor-ℕ n f)
+
+is-proper-divisor-minimal-factor-ℕ :
+  (n : ℕ) (f : is-not-one-ℕ n) → is-proper-divisor-ℕ n (minimal-factor-ℕ n f)
+is-proper-divisor-minimal-factor-ℕ n f =
+  pr1 (pr2 (Minimal-factor-ℕ n f))
+
+is-not-one-minimal-factor-ℕ :
+  (n : ℕ) (f : is-not-one-ℕ n) → is-not-one-ℕ (minimal-factor-ℕ n f)
+is-not-one-minimal-factor-ℕ n f = {!pr1 (is-proper-divisor-minimal-factor-ℕ n f)!}
+
+is-lower-bound-minimal-factor-ℕ :
+  (n : ℕ) (f : is-not-one-ℕ n) →
+  is-lower-bound-ℕ (is-proper-divisor-ℕ n) (minimal-factor-ℕ n f)
+is-lower-bound-minimal-factor-ℕ n f = pr2 (pr2 (Minimal-factor-ℕ n f))
+
+has-prime-factor-ℕ :
+  (n : ℕ) → Σ ℕ (prime-factor-ℕ n)
+has-prime-factor-ℕ n = {!!}
+-}
 
 {- Definition 8.5.3 -}
 
@@ -597,6 +651,37 @@ is-relatively-prime-div-ℕ d x y H K =
 
 {-
 infinitude-of-primes :
-  (n : ℕ) → Σ ℕ (λ x → (is-prime x) × (leq-ℕ n x))
+  (n : ℕ) → Σ ℕ (λ x → (is-prime-ℕ x) × (leq-ℕ n x))
 infinitude-of-primes n = {!!}
 -}
+
+--------------------------------------------------------------------------------
+
+{- Section 8.6 Boolean reflection -}
+
+{- Definition 8.6.1 -}
+
+booleanization : {l : Level} {A : UU l} → is-decidable A → bool
+booleanization (inl a) = true
+booleanization (inr f) = false
+
+{- Proposition 8.6.2 -}
+
+inv-boolean-reflection :
+  {l : Level} {A : UU l} (d : is-decidable A) → A → Id (booleanization d) true
+inv-boolean-reflection (inl a) x = refl
+inv-boolean-reflection (inr f) x = ex-falso (f x)
+
+four-hundred-and-nine-ℕ : ℕ
+four-hundred-and-nine-ℕ = add-ℕ (mul-ℕ twenty-ℕ twenty-ℕ) nine-ℕ
+
+boolean-reflection :
+  {l : Level} {A : UU l} (d : is-decidable A) → Id (booleanization d) true → A
+boolean-reflection (inl a) p = a
+boolean-reflection (inr f) p = ex-falso (Eq-eq-𝟚 p)
+
+is-prime-four-hundred-and-nine-ℕ : is-prime-ℕ four-hundred-and-nine-ℕ
+is-prime-four-hundred-and-nine-ℕ =
+  boolean-reflection
+    ( is-decidable-is-prime-ℕ four-hundred-and-nine-ℕ)
+    ( refl)

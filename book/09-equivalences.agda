@@ -668,13 +668,19 @@ right-zero-law-prod X =
 -- Right absorption law for Σ-types and cartesian products
 
 abstract
-  is-equiv-map-to-empty :
-    {l : Level} {A : UU l} (f : A → empty) → is-equiv f
-  is-equiv-map-to-empty f =
+  is-equiv-is-empty :
+    {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+    is-empty B → is-equiv f
+  is-equiv-is-empty f H =
     is-equiv-has-inverse
-      ex-falso
-      ind-empty
-      ( λ x → ind-empty {P = λ t → Id (ind-empty (f x)) x} (f x))
+      ( ex-falso ∘ H)
+      ( λ y → ex-falso (H y))
+      ( λ x → ex-falso (H (f x)))
+
+abstract
+  is-equiv-is-empty' :
+    {l : Level} {A : UU l} (f : is-empty A) → is-equiv f
+  is-equiv-is-empty' f = is-equiv-is-empty f id
 
 map-right-absorption-Σ :
   {l : Level} (A : UU l) → Σ A (λ x → empty) → empty
@@ -686,7 +692,7 @@ abstract
   is-equiv-map-right-absorption-Σ :
     {l : Level} (A : UU l) → is-equiv (map-right-absorption-Σ A)
   is-equiv-map-right-absorption-Σ A =
-    is-equiv-map-to-empty (map-right-absorption-Σ A)
+    is-equiv-is-empty' (map-right-absorption-Σ A)
 
   is-equiv-map-right-absorption-prod = is-equiv-map-right-absorption-Σ
 
@@ -712,7 +718,7 @@ map-left-absorption-prod A = map-left-absorption-Σ (λ x → A)
 is-equiv-map-left-absorption-Σ :
   {l : Level} (A : empty → UU l) → is-equiv (map-left-absorption-Σ A)
 is-equiv-map-left-absorption-Σ A =
-  is-equiv-map-to-empty (map-left-absorption-Σ A)
+  is-equiv-is-empty' (map-left-absorption-Σ A)
 
 is-equiv-map-left-absorption-prod :
   {l : Level} (A : UU l) → is-equiv (map-left-absorption-prod A)

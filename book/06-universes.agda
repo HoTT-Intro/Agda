@@ -100,6 +100,15 @@ is-one-ℕ n = Id n one-ℕ
 is-one-ℕ' : ℕ → UU lzero
 is-one-ℕ' n = Id one-ℕ n
 
+is-not-one-ℕ : ℕ → UU lzero
+is-not-one-ℕ n = ¬ (is-one-ℕ n)
+
+is-not-one-ℕ' : ℕ → UU lzero
+is-not-one-ℕ' n = ¬ (is-one-ℕ' n)
+
+is-not-one-two-ℕ : is-not-one-ℕ two-ℕ
+is-not-one-two-ℕ = Eq-ℕ-eq
+
 is-one-is-right-unit-mul-ℕ :
   (x y : ℕ) → Id (mul-ℕ (succ-ℕ x) y) (succ-ℕ x) → is-one-ℕ y
 is-one-is-right-unit-mul-ℕ x y p =

@@ -877,11 +877,11 @@ map-cantor :
 map-cantor X f x = neg-Prop (f x x)
 
 iff-eq :
-  {l1 : Level} {P Q : UU-Prop l1} → Id P Q → P ↔ Q
+  {l1 : Level} {P Q : UU-Prop l1} → Id P Q → P ⇔ Q
 iff-eq refl = pair id id
 
 no-fixed-points-neg-Prop :
-  {l1 : Level} (P : UU-Prop l1) → ¬ (P ↔ neg-Prop P)
+  {l1 : Level} (P : UU-Prop l1) → ¬ (P ⇔ neg-Prop P)
 no-fixed-points-neg-Prop P = no-fixed-points-neg (type-Prop P)
 
 not-in-image-map-cantor :

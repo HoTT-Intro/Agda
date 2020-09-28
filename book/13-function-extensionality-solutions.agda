@@ -459,23 +459,23 @@ set-equiv A B =
 
 -- Exercise 12.6
 
-_↔_ :
+_⇔_ :
   {l1 l2 : Level} → UU-Prop l1 → UU-Prop l2 → UU (l1 ⊔ l2)
-P ↔ Q = (pr1 P → pr1 Q) × (pr1 Q → pr1 P)
+P ⇔ Q = (pr1 P → pr1 Q) × (pr1 Q → pr1 P)
 
 equiv-iff :
   {l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) →
-  (P ↔ Q) → (pr1 P ≃ pr1 Q)
+  (P ⇔ Q) → (pr1 P ≃ pr1 Q)
 equiv-iff P Q t = pair (pr1 t) (is-equiv-is-prop (pr2 P) (pr2 Q) (pr2 t))
 
 iff-equiv :
   {l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) →
-  (pr1 P ≃ pr1 Q) → (P ↔ Q)
+  (pr1 P ≃ pr1 Q) → (P ⇔ Q)
 iff-equiv P Q equiv-PQ = pair (pr1 equiv-PQ) (inv-is-equiv (pr2 equiv-PQ))
 
 abstract
   is-prop-iff :
-    {l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) → is-prop (P ↔ Q)
+    {l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) → is-prop (P ⇔ Q)
   is-prop-iff P Q =
     is-prop-prod
       ( is-prop-function-type (pr2 Q))
