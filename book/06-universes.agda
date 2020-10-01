@@ -49,9 +49,30 @@ Peano-7 x y = pair (ap succ-ℕ) (is-injective-succ-ℕ x y)
 
 -- Theorem 6.4.2
 
-Peano-8 :
-  (x : ℕ) → ¬ (Id zero-ℕ (succ-ℕ x))
+is-zero-ℕ : ℕ → UU lzero
+is-zero-ℕ n = Id n zero-ℕ
+
+is-zero-ℕ' : ℕ → UU lzero
+is-zero-ℕ' n = Id zero-ℕ n
+
+is-successor-ℕ : ℕ → UU lzero
+is-successor-ℕ n = Σ ℕ (λ y → Id n (succ-ℕ y))
+
+is-nonzero-ℕ : ℕ → UU lzero
+is-nonzero-ℕ n = ¬ (is-zero-ℕ n)
+
+Peano-8 : (x : ℕ) → is-nonzero-ℕ (succ-ℕ x)
 Peano-8 x p = Eq-ℕ-eq p
+
+is-nonzero-succ-ℕ : (x : ℕ) → is-nonzero-ℕ (succ-ℕ x)
+is-nonzero-succ-ℕ = Peano-8
+
+is-nonzero-is-successor-ℕ : (x : ℕ) → is-successor-ℕ x → is-nonzero-ℕ x
+is-nonzero-is-successor-ℕ .(succ-ℕ x) (pair x refl) = Peano-8 x
+
+is-successor-is-nonzero-ℕ : (x : ℕ) → is-nonzero-ℕ x → is-successor-ℕ x
+is-successor-is-nonzero-ℕ zero-ℕ H = ex-falso (H refl)
+is-successor-is-nonzero-ℕ (succ-ℕ x) H = pair x refl
 
 --------------------------------------------------------------------------------
 
@@ -81,6 +102,12 @@ is-injective-right-mul-ℕ k (succ-ℕ m) (succ-ℕ n) p =
           ( ( p) ∙
             ( left-successor-law-mul-ℕ n (succ-ℕ k))))))
 
+is-injective-right-mul-is-nonzero-ℕ :
+  (k m n : ℕ) → is-nonzero-ℕ k → Id (mul-ℕ m k) (mul-ℕ n k) → Id m n
+is-injective-right-mul-is-nonzero-ℕ k m n H p with
+  is-successor-is-nonzero-ℕ k H
+... | pair l refl = is-injective-right-mul-ℕ l m n p
+
 ap-mul-ℕ :
   {x y x' y' : ℕ} → Id x x' → Id y y' → Id (mul-ℕ x y) (mul-ℕ x' y')
 ap-mul-ℕ refl refl = refl
@@ -91,6 +118,18 @@ is-injective-left-mul-ℕ k m n p =
   is-injective-right-mul-ℕ k m n
     ( ( commutative-mul-ℕ m (succ-ℕ k)) ∙
       ( p ∙ commutative-mul-ℕ (succ-ℕ k) n))
+
+is-injective-left-mul-is-nonzero-ℕ :
+  (k m n : ℕ) → is-nonzero-ℕ k → Id (mul-ℕ k m) (mul-ℕ k n) → Id m n
+is-injective-left-mul-is-nonzero-ℕ k m n H p with
+  is-successor-is-nonzero-ℕ k H
+... | pair l refl = is-injective-left-mul-ℕ l m n p
+
+is-nonzero-mul-ℕ :
+  (x y : ℕ) → is-nonzero-ℕ x → is-nonzero-ℕ y → is-nonzero-ℕ (mul-ℕ x y)
+is-nonzero-mul-ℕ x y H K p =
+  K ( is-injective-left-mul-is-nonzero-ℕ x y zero-ℕ H
+      ( p ∙ (inv (right-zero-law-mul-ℕ x))))
 
 -- We conclude that y = 1 if (x+1)y = x+1
 
@@ -121,27 +160,10 @@ is-one-is-left-unit-mul-ℕ x y p =
 
 -- Exercise 6.1 (b)
 
-is-zero-ℕ : ℕ → UU lzero
-is-zero-ℕ n = Id n zero-ℕ
-
-is-zero-ℕ' : ℕ → UU lzero
-is-zero-ℕ' n = Id zero-ℕ n
-
-is-successor-ℕ : ℕ → UU lzero
-is-successor-ℕ n = Σ ℕ (λ y → Id n (succ-ℕ y))
-
-is-nonzero-ℕ : ℕ → UU lzero
-is-nonzero-ℕ n = ¬ (Id n zero-ℕ)
-
-is-successor-is-nonzero-ℕ :
-  (x : ℕ) → is-nonzero-ℕ x → is-successor-ℕ x
-is-successor-is-nonzero-ℕ zero-ℕ H = ex-falso (H refl)
-is-successor-is-nonzero-ℕ (succ-ℕ x) H = pair x refl
-
 is-zero-right-is-zero-add-ℕ :
   (x y : ℕ) → is-zero-ℕ (add-ℕ x y) → is-zero-ℕ y
 is-zero-right-is-zero-add-ℕ x zero-ℕ p = refl
-is-zero-right-is-zero-add-ℕ x (succ-ℕ y) p = ex-falso (Peano-8 (add-ℕ x y) (inv p))
+is-zero-right-is-zero-add-ℕ x (succ-ℕ y) p = ex-falso (Peano-8 (add-ℕ x y) p)
 
 is-zero-left-is-zero-add-ℕ :
   (x y : ℕ) → is-zero-ℕ (add-ℕ x y) → is-zero-ℕ x
@@ -161,7 +183,7 @@ is-one-right-is-one-mul-ℕ :
   (x y : ℕ) → is-one-ℕ (mul-ℕ x y) → is-one-ℕ y
 is-one-right-is-one-mul-ℕ zero-ℕ zero-ℕ p = p
 is-one-right-is-one-mul-ℕ zero-ℕ (succ-ℕ y) p =
-  ex-falso (Peano-8 zero-ℕ p)
+  ex-falso (Peano-8 zero-ℕ (inv p))
 is-one-right-is-one-mul-ℕ (succ-ℕ x) zero-ℕ p =
   is-one-right-is-one-mul-ℕ x zero-ℕ p
 is-one-right-is-one-mul-ℕ (succ-ℕ x) (succ-ℕ y) p =
@@ -243,9 +265,13 @@ leq-zero-ℕ :
   (n : ℕ) → leq-ℕ zero-ℕ n
 leq-zero-ℕ n = star
 
-eq-leq-zero-ℕ :
-  (x : ℕ) → leq-ℕ x zero-ℕ → Id zero-ℕ x
-eq-leq-zero-ℕ zero-ℕ star = refl
+is-zero-leq-zero-ℕ :
+  (x : ℕ) → leq-ℕ x zero-ℕ → is-zero-ℕ x
+is-zero-leq-zero-ℕ zero-ℕ star = refl
+
+is-zero-leq-zero-ℕ' :
+  (x : ℕ) → leq-ℕ x zero-ℕ → is-zero-ℕ' x
+is-zero-leq-zero-ℕ' zero-ℕ star = refl
 
 succ-leq-ℕ : (n : ℕ) → leq-ℕ n (succ-ℕ n)
 succ-leq-ℕ zero-ℕ = star
@@ -262,6 +288,15 @@ concatenate-leq-eq-ℕ m H refl = H
 concatenate-eq-leq-ℕ :
   {m m' : ℕ} (n : ℕ) → Id m' m → leq-ℕ m n → leq-ℕ m' n
 concatenate-eq-leq-ℕ n refl H = H
+
+decide-leq-succ-ℕ :
+  (m n : ℕ) → leq-ℕ m (succ-ℕ n) → coprod (leq-ℕ m n) (Id m (succ-ℕ n))
+decide-leq-succ-ℕ zero-ℕ zero-ℕ l = inl star
+decide-leq-succ-ℕ zero-ℕ (succ-ℕ n) l = inl star
+decide-leq-succ-ℕ (succ-ℕ m) zero-ℕ l =
+  inr (ap succ-ℕ (is-zero-leq-zero-ℕ m l))
+decide-leq-succ-ℕ (succ-ℕ m) (succ-ℕ n) l =
+  functor-coprod id (ap succ-ℕ) (decide-leq-succ-ℕ m n l)
 
 -- Exercise 6.3 (a)
 
@@ -354,6 +389,16 @@ leq-mul-ℕ' k x =
   concatenate-leq-eq-ℕ x
     ( leq-mul-ℕ k x)
     ( commutative-mul-ℕ x (succ-ℕ k))
+
+leq-mul-is-nonzero-ℕ :
+  (k x : ℕ) → is-nonzero-ℕ k → leq-ℕ x (mul-ℕ x k)
+leq-mul-is-nonzero-ℕ k x H with is-successor-is-nonzero-ℕ k H
+... | pair l refl = leq-mul-ℕ l x
+
+leq-mul-is-nonzero-ℕ' :
+  (k x : ℕ) → is-nonzero-ℕ k → leq-ℕ x (mul-ℕ k x)
+leq-mul-is-nonzero-ℕ' k x H with is-successor-is-nonzero-ℕ k H
+... | pair l refl = leq-mul-ℕ' l x
 
 -- Exercise 6.3 (e)
 
@@ -677,9 +722,9 @@ int-abs-ℤ : ℤ → ℤ
 int-abs-ℤ = int-ℕ ∘ abs-ℤ
 
 eq-abs-ℤ : (x : ℤ) → Id zero-ℕ (abs-ℤ x) → Id zero-ℤ x
-eq-abs-ℤ (inl x) p = ex-falso (Peano-8 x p)
+eq-abs-ℤ (inl x) p = ex-falso (Peano-8 x (inv p))
 eq-abs-ℤ (inr (inl star)) p = refl
-eq-abs-ℤ (inr (inr x)) p = ex-falso (Peano-8 x p)
+eq-abs-ℤ (inr (inr x)) p = ex-falso (Peano-8 x (inv p))
 
 abs-eq-ℤ : (x : ℤ) → Id zero-ℤ x → Id zero-ℕ (abs-ℤ x)
 abs-eq-ℤ .zero-ℤ refl = refl

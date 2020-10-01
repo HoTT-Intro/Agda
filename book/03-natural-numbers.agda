@@ -125,13 +125,13 @@ max-ℕ (succ-ℕ m) (succ-ℕ n) = succ-ℕ (max-ℕ m n)
 
 -- Exercise 3.3
 
-triangular-number : ℕ → ℕ
-triangular-number zero-ℕ = zero-ℕ
-triangular-number (succ-ℕ n) = add-ℕ (triangular-number n) (succ-ℕ n)
+triangular-number-ℕ : ℕ → ℕ
+triangular-number-ℕ zero-ℕ = zero-ℕ
+triangular-number-ℕ (succ-ℕ n) = add-ℕ (triangular-number-ℕ n) (succ-ℕ n)
 
-factorial : ℕ → ℕ
-factorial zero-ℕ = one-ℕ
-factorial (succ-ℕ m) = mul-ℕ (factorial m) (succ-ℕ m)
+factorial-ℕ : ℕ → ℕ
+factorial-ℕ zero-ℕ = one-ℕ
+factorial-ℕ (succ-ℕ m) = mul-ℕ (factorial-ℕ m) (succ-ℕ m)
 
 -- Exercise 3.4
 

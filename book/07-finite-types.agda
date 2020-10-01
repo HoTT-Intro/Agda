@@ -22,9 +22,17 @@ div-one-ℕ :
   (x : ℕ) → div-ℕ one-ℕ x
 div-one-ℕ x = pair x (right-unit-law-mul-ℕ x)
 
+div-is-one-ℕ :
+  (k x : ℕ) → is-one-ℕ k → div-ℕ k x
+div-is-one-ℕ .one-ℕ x refl = div-one-ℕ x
+
 div-zero-ℕ :
   (k : ℕ) → div-ℕ k zero-ℕ
 div-zero-ℕ k = pair zero-ℕ (left-zero-law-mul-ℕ k)
+
+div-is-zero-ℕ :
+  (k x : ℕ) → is-zero-ℕ x → div-ℕ k x
+div-is-zero-ℕ k .zero-ℕ refl = div-zero-ℕ k
 
 {- Proposition 7.1.3 -}
 
@@ -298,7 +306,7 @@ upper-bound-nat-Fin {succ-ℕ k} (inr star) = reflexive-leq-ℕ (succ-ℕ k)
 -- We show that nat-Fin is an injective function
 
 neq-le-ℕ : {x y : ℕ} → le-ℕ x y → ¬ (Id x y)
-neq-le-ℕ {zero-ℕ} {succ-ℕ y} H = Peano-8 y
+neq-le-ℕ {zero-ℕ} {succ-ℕ y} H = Peano-8 y ∘ inv
 neq-le-ℕ {succ-ℕ x} {succ-ℕ y} H p = neq-le-ℕ H (is-injective-succ-ℕ x y p)
 
 is-injective-nat-Fin : {k : ℕ} {x y : Fin k} →
@@ -716,18 +724,19 @@ div-mul-ℕ k x y H =
 
 -- We conclude that 0 | x implies x = 0 and x | 1 implies x = 1.
 
-is-zero-div-zero-ℕ :
-  (x : ℕ) → div-ℕ zero-ℕ x → is-zero-ℕ x
-is-zero-div-zero-ℕ x H =
-  anti-symmetric-div-ℕ x zero-ℕ (div-zero-ℕ x) H
+is-zero-div-zero-ℕ : (x : ℕ) → div-ℕ zero-ℕ x → is-zero-ℕ x
+is-zero-div-zero-ℕ x H = anti-symmetric-div-ℕ x zero-ℕ (div-zero-ℕ x) H
 
-is-one-div-one-ℕ :
-  (x : ℕ) → div-ℕ x one-ℕ → is-one-ℕ x
-is-one-div-one-ℕ x H =
-  anti-symmetric-div-ℕ x one-ℕ H (div-one-ℕ x)
+is-zero-is-zero-div-ℕ : (x y : ℕ) → div-ℕ x y → is-zero-ℕ x → is-zero-ℕ y
+is-zero-is-zero-div-ℕ .zero-ℕ y d refl = is-zero-div-zero-ℕ y d
 
-div-eq-ℕ :
-  (x y : ℕ) → Id x y → div-ℕ x y
+is-one-div-one-ℕ : (x : ℕ) → div-ℕ x one-ℕ → is-one-ℕ x
+is-one-div-one-ℕ x H = anti-symmetric-div-ℕ x one-ℕ H (div-one-ℕ x)
+
+is-one-div-ℕ : (x y : ℕ) → div-ℕ x y → div-ℕ x (succ-ℕ y) → is-one-ℕ x
+is-one-div-ℕ x y H K = is-one-div-one-ℕ x (div-right-summand-ℕ x y one-ℕ H K)
+
+div-eq-ℕ : (x y : ℕ) → Id x y → div-ℕ x y
 div-eq-ℕ x .x refl = refl-div-ℕ x
 
 {- Exercise 7.3 -}
@@ -1204,11 +1213,11 @@ ap-dist-ℤ refl refl = refl
 eq-dist-ℤ :
   (x y : ℤ) → Id zero-ℕ (dist-ℤ x y) → Id x y
 eq-dist-ℤ (inl x) (inl y) p = ap inl (eq-dist-ℕ x y p)
-eq-dist-ℤ (inl x) (inr (inl star)) p = ex-falso (Peano-8 x p)
-eq-dist-ℤ (inr (inl star)) (inl y) p = ex-falso (Peano-8 y p)
+eq-dist-ℤ (inl x) (inr (inl star)) p = ex-falso (Peano-8 x (inv p))
+eq-dist-ℤ (inr (inl star)) (inl y) p = ex-falso (Peano-8 y (inv p))
 eq-dist-ℤ (inr (inl star)) (inr (inl star)) p = refl
-eq-dist-ℤ (inr (inl star)) (inr (inr y)) p = ex-falso (Peano-8 y p)
-eq-dist-ℤ (inr (inr x)) (inr (inl star)) p = ex-falso (Peano-8 x p)
+eq-dist-ℤ (inr (inl star)) (inr (inr y)) p = ex-falso (Peano-8 y (inv p))
+eq-dist-ℤ (inr (inr x)) (inr (inl star)) p = ex-falso (Peano-8 x (inv p))
 eq-dist-ℤ (inr (inr x)) (inr (inr y)) p = ap (inr ∘ inr) (eq-dist-ℕ x y p)
 
 dist-eq-ℤ' :

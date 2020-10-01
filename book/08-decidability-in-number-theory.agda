@@ -155,6 +155,11 @@ is-decidable-neg :
   {l : Level} {A : UU l} → is-decidable A → is-decidable (¬ A)
 is-decidable-neg d = is-decidable-function-type d is-decidable-empty
 
+is-decidable-is-not-one-ℕ :
+  (x : ℕ) → is-decidable (is-not-one-ℕ x)
+is-decidable-is-not-one-ℕ x =
+  is-decidable-neg (is-decidable-is-one-ℕ x)
+
 {- Proposition 8.2.5 -}
 
 is-decidable-function-type' :
@@ -418,15 +423,14 @@ is-successor-gcd-ℕ a b ne =
 is-zero-gcd-ℕ :
   (a b : ℕ) → is-zero-ℕ (add-ℕ a b) → is-zero-ℕ (gcd-ℕ a b)
 is-zero-gcd-ℕ a b p =
-  inv
-    ( eq-leq-zero-ℕ
+  is-zero-leq-zero-ℕ
+    ( gcd-ℕ a b)
+    ( concatenate-leq-eq-ℕ
       ( gcd-ℕ a b)
-      ( concatenate-leq-eq-ℕ
-        ( gcd-ℕ a b)
-        ( is-lower-bound-gcd-ℕ a b
-          ( add-ℕ a b)
-          ( sum-is-multiple-of-gcd-ℕ a b))
-        ( p)))
+      ( is-lower-bound-gcd-ℕ a b
+        ( add-ℕ a b)
+        ( sum-is-multiple-of-gcd-ℕ a b))
+      ( p))
 
 div-gcd-is-common-divisor-ℕ :
   (a b x : ℕ) → is-common-divisor-ℕ a b x → div-ℕ x (gcd-ℕ a b)
@@ -551,7 +555,7 @@ is-decidable-is-proper-divisor-ℕ n d =
 
 is-proper-divisor-zero-succ-ℕ : (n : ℕ) → is-proper-divisor-ℕ zero-ℕ (succ-ℕ n)
 is-proper-divisor-zero-succ-ℕ n =
-  pair (λ p → Peano-8 n (inv p)) (div-zero-ℕ (succ-ℕ n))
+  pair (λ p → Peano-8 n p) (div-zero-ℕ (succ-ℕ n))
 
 is-decidable-is-prime-easy-ℕ : (n : ℕ) → is-decidable (is-prime-easy-ℕ n)
 is-decidable-is-prime-easy-ℕ zero-ℕ =
@@ -576,6 +580,93 @@ is-decidable-is-prime-ℕ n =
     ( is-prime-easy-is-prime-ℕ n)
     ( is-decidable-is-prime-easy-ℕ n)
 
+has-exactly-one-divisor-below-ℕ : ℕ → ℕ → UU lzero
+has-exactly-one-divisor-below-ℕ n a =
+  (leq-ℕ n a) × ((x : ℕ) → leq-ℕ x n → div-ℕ x a → is-one-ℕ x)
+
+is-decidable-has-exactly-one-divisor-below-ℕ :
+  (n a : ℕ) → is-decidable (has-exactly-one-divisor-below-ℕ n a)
+is-decidable-has-exactly-one-divisor-below-ℕ n a =
+  is-decidable-prod
+    ( is-decidable-leq-ℕ n a)
+    ( is-decidable-bounded-Π-ℕ
+      ( λ x → leq-ℕ x n)
+      ( λ x → div-ℕ x a → is-one-ℕ x)
+      ( λ x → is-decidable-leq-ℕ x n)
+      ( λ x →
+        is-decidable-function-type
+          ( is-decidable-div-ℕ x a)
+          ( is-decidable-is-one-ℕ x))
+      ( n)
+      ( λ x → id))
+
+leq-has-exactly-one-divisor-below-ℕ :
+  (n a : ℕ) → has-exactly-one-divisor-below-ℕ n a → leq-ℕ n a
+leq-has-exactly-one-divisor-below-ℕ n a = pr1
+
+is-nonzero-factorial-ℕ :
+  (x : ℕ) → is-nonzero-ℕ (factorial-ℕ x)
+is-nonzero-factorial-ℕ zero-ℕ = Eq-ℕ-eq
+is-nonzero-factorial-ℕ (succ-ℕ x) =
+  is-nonzero-mul-ℕ
+    ( factorial-ℕ x)
+    ( succ-ℕ x)
+    ( is-nonzero-factorial-ℕ x)
+    ( Peano-8 x)
+
+leq-factorial-ℕ :
+  (n : ℕ) → leq-ℕ n (factorial-ℕ n)
+leq-factorial-ℕ zero-ℕ = leq-zero-ℕ one-ℕ
+leq-factorial-ℕ (succ-ℕ n) =
+  leq-mul-is-nonzero-ℕ'
+    ( factorial-ℕ n)
+    ( succ-ℕ n)
+    ( is-nonzero-factorial-ℕ n) 
+
+div-factorial-is-nonzero-ℕ :
+  (n x : ℕ) → leq-ℕ x n → is-nonzero-ℕ x → div-ℕ x (factorial-ℕ n)
+div-factorial-is-nonzero-ℕ zero-ℕ zero-ℕ l H = ex-falso (H refl)
+div-factorial-is-nonzero-ℕ (succ-ℕ n) x l H with
+  is-decidable-leq-ℕ x n
+... | inl l' =
+  transitive-div-ℕ x
+    ( factorial-ℕ n)
+    ( factorial-ℕ (succ-ℕ n))
+    ( div-factorial-is-nonzero-ℕ n x l' H)
+    ( pair (succ-ℕ n) (commutative-mul-ℕ (succ-ℕ n) (factorial-ℕ n)))
+... | inr f with
+  coprod-elim-right (leq-ℕ x n) (Id x (succ-ℕ n)) f (decide-leq-succ-ℕ x n l)
+... | refl = pair (factorial-ℕ n) refl
+
+has-exactly-one-divisor-below-succ-factorial-ℕ :
+  (n : ℕ) → has-exactly-one-divisor-below-ℕ n (succ-ℕ (factorial-ℕ n))
+has-exactly-one-divisor-below-succ-factorial-ℕ zero-ℕ =
+  pair
+    ( star)
+    ( λ x l d →
+      ex-falso
+        ( Eq-ℕ-eq
+          ( is-zero-is-zero-div-ℕ x two-ℕ d (is-zero-leq-zero-ℕ x l))))
+has-exactly-one-divisor-below-succ-factorial-ℕ (succ-ℕ n) =
+  pair
+    ( preserves-leq-succ-ℕ
+      ( succ-ℕ n)
+      ( factorial-ℕ (succ-ℕ n))
+      ( leq-factorial-ℕ (succ-ℕ n)))
+    ( α)
+  where
+  α : (x : ℕ) → leq-ℕ x (succ-ℕ n) → div-ℕ x (succ-ℕ (factorial-ℕ (succ-ℕ n))) → is-one-ℕ x
+  α x l (pair y p) with is-decidable-is-zero-ℕ x
+  ... | inl refl =
+    ex-falso
+      ( Peano-8
+        ( factorial-ℕ (succ-ℕ n))
+        ( inv p ∙ (right-zero-law-mul-ℕ y)))
+  ... | inr f =
+    is-one-div-ℕ x
+      ( factorial-ℕ (succ-ℕ n))
+      ( div-factorial-is-nonzero-ℕ (succ-ℕ n) x l f)
+      ( pair y p)
 
 {-
 prime-factor-ℕ : ℕ → ℕ → UU lzero
@@ -672,16 +763,18 @@ inv-boolean-reflection :
 inv-boolean-reflection (inl a) x = refl
 inv-boolean-reflection (inr f) x = ex-falso (f x)
 
-four-hundred-and-nine-ℕ : ℕ
-four-hundred-and-nine-ℕ = add-ℕ (mul-ℕ twenty-ℕ twenty-ℕ) nine-ℕ
-
 boolean-reflection :
   {l : Level} {A : UU l} (d : is-decidable A) → Id (booleanization d) true → A
 boolean-reflection (inl a) p = a
 boolean-reflection (inr f) p = ex-falso (Eq-eq-𝟚 p)
+
+{-
+four-hundred-and-nine-ℕ : ℕ
+four-hundred-and-nine-ℕ = add-ℕ (mul-ℕ twenty-ℕ twenty-ℕ) nine-ℕ
 
 is-prime-four-hundred-and-nine-ℕ : is-prime-ℕ four-hundred-and-nine-ℕ
 is-prime-four-hundred-and-nine-ℕ =
   boolean-reflection
     ( is-decidable-is-prime-ℕ four-hundred-and-nine-ℕ)
     ( refl)
+-}
