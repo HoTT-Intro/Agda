@@ -784,9 +784,9 @@ is-prime-larger-prime-ℕ n H =
       ( is-not-one-larger-prime-ℕ n H)
       ( is-one-is-proper-divisor-larger-prime-ℕ n H))
 
-infinitude-of-primes-ℕ' :
+infinitude-of-primes-ℕ :
   (n : ℕ) → Σ ℕ (λ p → is-prime-ℕ p × le-ℕ n p)
-infinitude-of-primes-ℕ' n with is-decidable-is-zero-ℕ n
+infinitude-of-primes-ℕ n with is-decidable-is-zero-ℕ n
 ... | inl refl = pair two-ℕ (pair is-prime-two-ℕ star)
 ... | inr H =
   pair
