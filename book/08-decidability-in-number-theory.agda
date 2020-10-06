@@ -868,6 +868,26 @@ Collatz-conjecture =
   (n : ℕ) →
   is-nonzero-ℕ n → Σ ℕ (λ k → Id (iterate-collatz k n) one-ℕ)
 
+--------------------------------------------------------------------------------
+
+{- Exercise 8.2 -}
+
+-- Exercise 8.2 (a)
+
+prime-ℕ : ℕ → ℕ
+prime-ℕ zero-ℕ = two-ℕ
+prime-ℕ (succ-ℕ n) = pr1 (infinitude-of-primes-ℕ (prime-ℕ n))
+
+-- Exercise 8.2 (b)
+
+prime-counting-ℕ : ℕ → ℕ
+prime-counting-ℕ zero-ℕ = zero-ℕ
+prime-counting-ℕ (succ-ℕ n) with is-decidable-is-prime-ℕ (succ-ℕ n)
+... | inl x = succ-ℕ (prime-counting-ℕ n)
+... | inr x = prime-counting-ℕ n
+
+--------------------------------------------------------------------------------
+
 {- Exercise 8.3 -}
 
 has-decidable-equality-prod' :
