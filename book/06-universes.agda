@@ -492,6 +492,15 @@ contradiction-le-ℕ (succ-ℕ m) (succ-ℕ n) H = contradiction-le-ℕ m n H
 contradiction-le-ℕ' : (m n : ℕ) → leq-ℕ n m → ¬ (le-ℕ m n)
 contradiction-le-ℕ' m n K H = contradiction-le-ℕ m n H K
 
+leq-not-le-ℕ : (m n : ℕ) → ¬ (le-ℕ m n) → leq-ℕ n m
+leq-not-le-ℕ zero-ℕ zero-ℕ H = star
+leq-not-le-ℕ zero-ℕ (succ-ℕ n) H = ex-falso (H star)
+leq-not-le-ℕ (succ-ℕ m) zero-ℕ H = star
+leq-not-le-ℕ (succ-ℕ m) (succ-ℕ n) H = leq-not-le-ℕ m n H
+
+is-nonzero-le-ℕ : (m n : ℕ) → le-ℕ m n → is-nonzero-ℕ n
+is-nonzero-le-ℕ m n H p = tr (le-ℕ m) p H
+
 contradiction-leq-ℕ : (m n : ℕ) → leq-ℕ m n → ¬ (leq-ℕ (succ-ℕ n) m)
 contradiction-leq-ℕ (succ-ℕ m) (succ-ℕ n) H K = contradiction-leq-ℕ m n H K
 
@@ -502,6 +511,23 @@ leq-le-ℕ :
   {x y : ℕ} → le-ℕ x y → leq-ℕ x y
 leq-le-ℕ {zero-ℕ} {succ-ℕ y} H = star
 leq-le-ℕ {succ-ℕ x} {succ-ℕ y} H = leq-le-ℕ {x} {y} H
+
+concatenate-leq-le-ℕ :
+  {x y z : ℕ} → leq-ℕ x y → le-ℕ y z → le-ℕ x z
+concatenate-leq-le-ℕ {zero-ℕ} {zero-ℕ} {succ-ℕ z} H K = star
+concatenate-leq-le-ℕ {zero-ℕ} {succ-ℕ y} {succ-ℕ z} H K = star
+concatenate-leq-le-ℕ {succ-ℕ x} {succ-ℕ y} {succ-ℕ z} H K =
+  concatenate-leq-le-ℕ {x} {y} {z} H K
+
+le-succ-ℕ : {x : ℕ} → le-ℕ x (succ-ℕ x)
+le-succ-ℕ {zero-ℕ} = star
+le-succ-ℕ {succ-ℕ x} = le-succ-ℕ {x}
+
+le-leq-neq-ℕ : {x y : ℕ} → leq-ℕ x y → ¬ (Id x y) → le-ℕ x y
+le-leq-neq-ℕ {zero-ℕ} {zero-ℕ} l f = ex-falso (f refl)
+le-leq-neq-ℕ {zero-ℕ} {succ-ℕ y} l f = star
+le-leq-neq-ℕ {succ-ℕ x} {succ-ℕ y} l f =
+  le-leq-neq-ℕ {x} {y} l (λ p → f (ap succ-ℕ p))
 
 -- Exercise 6.5
 

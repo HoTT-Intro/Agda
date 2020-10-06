@@ -159,8 +159,8 @@ is-decidable-div-ℕ (succ-ℕ d) x =
 
 {- Definition 8.2.2 -}
 
-collatz-function : ℕ → ℕ
-collatz-function n with is-decidable-div-ℕ two-ℕ n
+collatz : ℕ → ℕ
+collatz n with is-decidable-div-ℕ two-ℕ n
 ... | inl (pair y p) = y
 ... | inr f = succ-ℕ (mul-ℕ three-ℕ n)
 
@@ -351,19 +351,23 @@ is-multiple-of-gcd-ℕ a b n =
 
 {- Corollary 8.4.6 -}
 
-leq-div-ℕ : (d x : ℕ) → div-ℕ d (succ-ℕ x) → leq-ℕ d (succ-ℕ x)
-leq-div-ℕ d x (pair (succ-ℕ k) p) =
+leq-div-succ-ℕ : (d x : ℕ) → div-ℕ d (succ-ℕ x) → leq-ℕ d (succ-ℕ x)
+leq-div-succ-ℕ d x (pair (succ-ℕ k) p) =
   concatenate-leq-eq-ℕ d (leq-mul-ℕ' k d) p
+
+leq-div-ℕ : (d x : ℕ) → is-nonzero-ℕ x → div-ℕ d x → leq-ℕ d x
+leq-div-ℕ d x f H with is-successor-is-nonzero-ℕ x f
+... | (pair y refl) = leq-div-succ-ℕ d y H
 
 leq-sum-is-common-divisor-ℕ' :
   (a b d : ℕ) →
   is-successor-ℕ (add-ℕ a b) → is-common-divisor-ℕ a b d → leq-ℕ d (add-ℕ a b)
 leq-sum-is-common-divisor-ℕ' a zero-ℕ d (pair k p) H =
   concatenate-leq-eq-ℕ d
-    ( leq-div-ℕ d k (tr (div-ℕ d) p (pr1 H)))
+    ( leq-div-succ-ℕ d k (tr (div-ℕ d) p (pr1 H)))
     ( inv p)
 leq-sum-is-common-divisor-ℕ' a (succ-ℕ b) d (pair k p) H =
-  leq-div-ℕ d (add-ℕ a b) (div-add-ℕ d a (succ-ℕ b) (pr1 H) (pr2 H))
+  leq-div-succ-ℕ d (add-ℕ a b) (div-add-ℕ d a (succ-ℕ b) (pr1 H) (pr2 H))
 
 leq-sum-is-common-divisor-ℕ :
   (a b d : ℕ) →
@@ -527,14 +531,17 @@ is-gcd-gcd-ℕ a b x =
 is-proper-divisor-ℕ : ℕ → ℕ → UU lzero
 is-proper-divisor-ℕ n d = ¬ (Id d n) × div-ℕ d n
 
+is-one-is-proper-divisor-ℕ : ℕ → UU lzero
+is-one-is-proper-divisor-ℕ n =
+  (x : ℕ) → is-proper-divisor-ℕ n x → is-one-ℕ x
+
 is-prime-ℕ : ℕ → UU lzero
 is-prime-ℕ n = (x : ℕ) → (is-proper-divisor-ℕ n x ↔ is-one-ℕ x) 
 
 {- Proposition 8.5.2 -}
 
 is-prime-easy-ℕ : ℕ → UU lzero
-is-prime-easy-ℕ n =
-  (is-not-one-ℕ n) × ((x : ℕ) → is-proper-divisor-ℕ n x → is-one-ℕ x)
+is-prime-easy-ℕ n = (is-not-one-ℕ n) × (is-one-is-proper-divisor-ℕ n)
 
 is-not-one-is-prime-ℕ : (n : ℕ) → is-prime-ℕ n → is-not-one-ℕ n
 is-not-one-is-prime-ℕ n H p = pr1 (pr2 (H one-ℕ) refl) (inv p)
@@ -575,7 +582,7 @@ is-decidable-is-prime-easy-ℕ (succ-ℕ n) =
       ( is-decidable-is-proper-divisor-ℕ (succ-ℕ n))
       ( is-decidable-is-one-ℕ)
       ( succ-ℕ n)
-      ( λ x H → leq-div-ℕ x n (pr2 H)))
+      ( λ x H → leq-div-succ-ℕ x n (pr2 H)))
 
 is-decidable-is-prime-ℕ : (n : ℕ) → is-decidable (is-prime-ℕ n)
 is-decidable-is-prime-ℕ n =
@@ -584,15 +591,43 @@ is-decidable-is-prime-ℕ n =
     ( is-prime-easy-is-prime-ℕ n)
     ( is-decidable-is-prime-easy-ℕ n)
 
-has-exactly-one-divisor-below-ℕ : ℕ → ℕ → UU lzero
-has-exactly-one-divisor-below-ℕ n a =
-  (leq-ℕ n a) × ((x : ℕ) → leq-ℕ x n → div-ℕ x a → is-one-ℕ x)
+is-one-is-proper-divisor-two-ℕ : is-one-is-proper-divisor-ℕ two-ℕ
+is-one-is-proper-divisor-two-ℕ zero-ℕ (pair f (pair k p)) =
+  ex-falso (f (inv (right-zero-law-mul-ℕ k) ∙ p))
+is-one-is-proper-divisor-two-ℕ (succ-ℕ zero-ℕ) (pair f H) = refl
+is-one-is-proper-divisor-two-ℕ (succ-ℕ (succ-ℕ zero-ℕ)) (pair f H) =
+  ex-falso (f refl)
+is-one-is-proper-divisor-two-ℕ (succ-ℕ (succ-ℕ (succ-ℕ x))) (pair f H) =
+  ex-falso (leq-div-succ-ℕ (succ-ℕ (succ-ℕ (succ-ℕ x))) one-ℕ H)
 
-is-decidable-has-exactly-one-divisor-below-ℕ :
-  (n a : ℕ) → is-decidable (has-exactly-one-divisor-below-ℕ n a)
-is-decidable-has-exactly-one-divisor-below-ℕ n a =
+is-prime-easy-two-ℕ : is-prime-easy-ℕ two-ℕ
+is-prime-easy-two-ℕ = pair Eq-ℕ-eq is-one-is-proper-divisor-two-ℕ
+
+is-prime-two-ℕ : is-prime-ℕ two-ℕ
+is-prime-two-ℕ =
+  is-prime-is-prime-easy-ℕ two-ℕ is-prime-easy-two-ℕ
+
+{- Definition 8.5.3 -}
+
+is-one-is-divisor-below-ℕ : ℕ → ℕ → UU lzero
+is-one-is-divisor-below-ℕ n a =
+  (x : ℕ) → leq-ℕ x n → div-ℕ x a → is-one-ℕ x
+
+exactly-one-divisor-below-ℕ : ℕ → ℕ → UU lzero
+exactly-one-divisor-below-ℕ n a =
+  (le-ℕ n a) × (is-one-is-divisor-below-ℕ n a)
+
+le-exactly-one-divisor-below-ℕ :
+  (n a : ℕ) → exactly-one-divisor-below-ℕ n a → le-ℕ n a
+le-exactly-one-divisor-below-ℕ n a = pr1
+
+{- Lemma 8.5.4 -}
+
+is-decidable-exactly-one-divisor-below-ℕ :
+  (n a : ℕ) → is-decidable (exactly-one-divisor-below-ℕ n a)
+is-decidable-exactly-one-divisor-below-ℕ n a =
   is-decidable-prod
-    ( is-decidable-leq-ℕ n a)
+    ( is-decidable-le-ℕ n a)
     ( is-decidable-bounded-Π-ℕ
       ( λ x → leq-ℕ x n)
       ( λ x → div-ℕ x a → is-one-ℕ x)
@@ -604,9 +639,7 @@ is-decidable-has-exactly-one-divisor-below-ℕ n a =
       ( n)
       ( λ x → id))
 
-leq-has-exactly-one-divisor-below-ℕ :
-  (n a : ℕ) → has-exactly-one-divisor-below-ℕ n a → leq-ℕ n a
-leq-has-exactly-one-divisor-below-ℕ n a = pr1
+{- Lemma 8.5.5 -}
 
 is-nonzero-factorial-ℕ :
   (x : ℕ) → is-nonzero-ℕ (factorial-ℕ x)
@@ -627,36 +660,23 @@ leq-factorial-ℕ (succ-ℕ n) =
     ( succ-ℕ n)
     ( is-nonzero-factorial-ℕ n) 
 
-div-factorial-is-nonzero-ℕ :
-  (n x : ℕ) → leq-ℕ x n → is-nonzero-ℕ x → div-ℕ x (factorial-ℕ n)
-div-factorial-is-nonzero-ℕ zero-ℕ zero-ℕ l H = ex-falso (H refl)
-div-factorial-is-nonzero-ℕ (succ-ℕ n) x l H with
-  is-decidable-leq-ℕ x n
-... | inl l' =
-  transitive-div-ℕ x
-    ( factorial-ℕ n)
-    ( factorial-ℕ (succ-ℕ n))
-    ( div-factorial-is-nonzero-ℕ n x l' H)
-    ( pair (succ-ℕ n) (commutative-mul-ℕ (succ-ℕ n) (factorial-ℕ n)))
-... | inr f with
-  coprod-elim-right (leq-ℕ x n) (Id x (succ-ℕ n)) f (decide-leq-succ-ℕ x n l)
-... | refl = pair (factorial-ℕ n) refl
-
-has-exactly-one-divisor-below-succ-factorial-ℕ :
-  (n : ℕ) → has-exactly-one-divisor-below-ℕ n (succ-ℕ (factorial-ℕ n))
-has-exactly-one-divisor-below-succ-factorial-ℕ zero-ℕ =
+exactly-one-divisor-below-succ-factorial-ℕ :
+  (n : ℕ) → exactly-one-divisor-below-ℕ n (succ-ℕ (factorial-ℕ n))
+exactly-one-divisor-below-succ-factorial-ℕ zero-ℕ =
   pair
     ( star)
     ( λ x l d →
       ex-falso
         ( Eq-ℕ-eq
           ( is-zero-is-zero-div-ℕ x two-ℕ d (is-zero-leq-zero-ℕ x l))))
-has-exactly-one-divisor-below-succ-factorial-ℕ (succ-ℕ n) =
+exactly-one-divisor-below-succ-factorial-ℕ (succ-ℕ n) =
   pair
-    ( preserves-leq-succ-ℕ
-      ( succ-ℕ n)
-      ( factorial-ℕ (succ-ℕ n))
-      ( leq-factorial-ℕ (succ-ℕ n)))
+    ( concatenate-leq-le-ℕ
+      { succ-ℕ n}
+      { factorial-ℕ (succ-ℕ n)}
+      { succ-ℕ (factorial-ℕ (succ-ℕ n))} 
+      ( leq-factorial-ℕ (succ-ℕ n))
+      ( le-succ-ℕ {factorial-ℕ (succ-ℕ n)}))
     ( α)
   where
   α : (x : ℕ) → leq-ℕ x (succ-ℕ n) → div-ℕ x (succ-ℕ (factorial-ℕ (succ-ℕ n))) → is-one-ℕ x
@@ -672,83 +692,108 @@ has-exactly-one-divisor-below-succ-factorial-ℕ (succ-ℕ n) =
       ( div-factorial-is-nonzero-ℕ (succ-ℕ n) x l f)
       ( pair y p)
 
-{-
-prime-factor-ℕ : ℕ → ℕ → UU lzero
-prime-factor-ℕ n x = (is-prime-ℕ x) × (div-ℕ x n)
--}
+{- Theorem 8.5.6 The infinitude of primes -}
 
-{-
-Minimal-factor-ℕ :
-  (n : ℕ) → is-not-one-ℕ n →
-  Σ ℕ ( λ m →
-        ( is-proper-divisor-ℕ n m) ×
-        ( is-lower-bound-ℕ (is-proper-divisor-ℕ n) m))
-Minimal-factor-ℕ n f =
+minimal-element-exactly-one-divisor-below-ℕ :
+  (n : ℕ) → minimal-element-ℕ (exactly-one-divisor-below-ℕ n)
+minimal-element-exactly-one-divisor-below-ℕ n =
   well-ordering-principle-ℕ
-    ( is-proper-divisor-ℕ n)
-    ( is-decidable-is-proper-divisor-ℕ n)
-    ( pair n (pair f (refl-div-ℕ n)))
+    ( exactly-one-divisor-below-ℕ n)
+    ( is-decidable-exactly-one-divisor-below-ℕ n)
+    ( pair
+      ( succ-ℕ (factorial-ℕ n))
+      ( exactly-one-divisor-below-succ-factorial-ℕ n))
 
-minimal-factor-ℕ : (n : ℕ) → is-not-one-ℕ n → ℕ
-minimal-factor-ℕ n f = pr1 (Minimal-factor-ℕ n f)
+larger-prime-ℕ : ℕ → ℕ
+larger-prime-ℕ n = pr1 (minimal-element-exactly-one-divisor-below-ℕ n)
 
-is-proper-divisor-minimal-factor-ℕ :
-  (n : ℕ) (f : is-not-one-ℕ n) → is-proper-divisor-ℕ n (minimal-factor-ℕ n f)
-is-proper-divisor-minimal-factor-ℕ n f =
-  pr1 (pr2 (Minimal-factor-ℕ n f))
+exactly-one-divisor-below-larger-prime-ℕ :
+  (n : ℕ) → exactly-one-divisor-below-ℕ n (larger-prime-ℕ n)
+exactly-one-divisor-below-larger-prime-ℕ n =
+  pr1 (pr2 (minimal-element-exactly-one-divisor-below-ℕ n))
 
-is-not-one-minimal-factor-ℕ :
-  (n : ℕ) (f : is-not-one-ℕ n) → is-not-one-ℕ (minimal-factor-ℕ n f)
-is-not-one-minimal-factor-ℕ n f = {!pr1 (is-proper-divisor-minimal-factor-ℕ n f)!}
+is-one-is-divisor-below-larger-prime-ℕ :
+  (n : ℕ) → is-one-is-divisor-below-ℕ n (larger-prime-ℕ n)
+is-one-is-divisor-below-larger-prime-ℕ n =
+  pr2 (exactly-one-divisor-below-larger-prime-ℕ n)
 
-is-lower-bound-minimal-factor-ℕ :
-  (n : ℕ) (f : is-not-one-ℕ n) →
-  is-lower-bound-ℕ (is-proper-divisor-ℕ n) (minimal-factor-ℕ n f)
-is-lower-bound-minimal-factor-ℕ n f = pr2 (pr2 (Minimal-factor-ℕ n f))
+le-larger-prime-ℕ : (n : ℕ) → le-ℕ n (larger-prime-ℕ n)
+le-larger-prime-ℕ n = pr1 (exactly-one-divisor-below-larger-prime-ℕ n)
 
-has-prime-factor-ℕ :
-  (n : ℕ) → Σ ℕ (prime-factor-ℕ n)
-has-prime-factor-ℕ n = {!!}
--}
+is-nonzero-larger-prime-ℕ : (n : ℕ) → is-nonzero-ℕ (larger-prime-ℕ n)
+is-nonzero-larger-prime-ℕ n =
+  is-nonzero-le-ℕ n (larger-prime-ℕ n) (le-larger-prime-ℕ n)
 
-{- Definition 8.5.3 -}
+is-lower-bound-larger-prime-ℕ :
+  (n : ℕ) → is-lower-bound-ℕ (exactly-one-divisor-below-ℕ n) (larger-prime-ℕ n)
+is-lower-bound-larger-prime-ℕ n =
+  pr2 (pr2 (minimal-element-exactly-one-divisor-below-ℕ n))
 
-is-relatively-prime-ℕ : ℕ → ℕ → UU lzero
-is-relatively-prime-ℕ a b = is-one-ℕ (gcd-ℕ a b)
+is-not-one-larger-prime-ℕ :
+  (n : ℕ) → is-nonzero-ℕ n → is-not-one-ℕ (larger-prime-ℕ n)
+is-not-one-larger-prime-ℕ n H p with is-successor-is-nonzero-ℕ n H
+... | pair k refl =
+  neq-le-ℕ {one-ℕ} {larger-prime-ℕ n}
+    ( concatenate-leq-le-ℕ {one-ℕ} {succ-ℕ k} {larger-prime-ℕ n} star
+      ( le-larger-prime-ℕ (succ-ℕ k)))
+    ( inv p)
 
-is-gcd-succ-one-ℕ : (n : ℕ) → is-gcd-ℕ n (succ-ℕ n) one-ℕ
-is-gcd-succ-one-ℕ n x =
+neg-left-factor-neg-prod :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} → ¬ (A × B) → B → ¬ A
+neg-left-factor-neg-prod f b a = f (pair a b)
+
+neg-right-factor-neg-prod :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} → ¬ (A × B) → A → ¬ B
+neg-right-factor-neg-prod f a b = f (pair a b)
+
+le-is-proper-divisor-ℕ :
+  (x y : ℕ) → is-nonzero-ℕ y → is-proper-divisor-ℕ y x → le-ℕ x y
+le-is-proper-divisor-ℕ x y H K =
+  le-leq-neq-ℕ (leq-div-ℕ x y H (pr2 K)) (pr1 K)
+
+not-exactly-one-divisor-below-is-proper-divisor-larger-prime-ℕ :
+  (n x : ℕ) → is-proper-divisor-ℕ (larger-prime-ℕ n) x →
+  ¬ (exactly-one-divisor-below-ℕ n x)
+not-exactly-one-divisor-below-is-proper-divisor-larger-prime-ℕ n x H K =
+  ex-falso
+    ( contradiction-le-ℕ x (larger-prime-ℕ n)
+      ( le-is-proper-divisor-ℕ x (larger-prime-ℕ n)
+        ( is-nonzero-larger-prime-ℕ n)
+        ( H))
+      ( is-lower-bound-larger-prime-ℕ n x K))
+
+is-one-is-proper-divisor-larger-prime-ℕ :
+  (n : ℕ) → is-nonzero-ℕ n → is-one-is-proper-divisor-ℕ (larger-prime-ℕ n)
+is-one-is-proper-divisor-larger-prime-ℕ n H x (pair f K) =
+  is-one-is-divisor-below-larger-prime-ℕ n x
+    ( leq-not-le-ℕ n x
+      ( neg-left-factor-neg-prod
+        ( not-exactly-one-divisor-below-is-proper-divisor-larger-prime-ℕ n x
+          ( pair f K))
+        ( λ y l d →
+          is-one-is-divisor-below-larger-prime-ℕ n y l
+            ( transitive-div-ℕ y x (larger-prime-ℕ n) d K))))
+    ( K)
+
+is-prime-larger-prime-ℕ :
+  (n : ℕ) → is-nonzero-ℕ n → is-prime-ℕ (larger-prime-ℕ n)
+is-prime-larger-prime-ℕ n H =
+  is-prime-is-prime-easy-ℕ
+    ( larger-prime-ℕ n)
+    ( pair
+      ( is-not-one-larger-prime-ℕ n H)
+      ( is-one-is-proper-divisor-larger-prime-ℕ n H))
+
+infinitude-of-primes-ℕ' :
+  (n : ℕ) → Σ ℕ (λ p → is-prime-ℕ p × le-ℕ n p)
+infinitude-of-primes-ℕ' n with is-decidable-is-zero-ℕ n
+... | inl refl = pair two-ℕ (pair is-prime-two-ℕ star)
+... | inr H =
   pair
-    ( λ H → div-right-summand-ℕ x n one-ℕ (pr1 H) (pr2 H))
-    ( λ H → pair
-              ( transitive-div-ℕ x one-ℕ n H (div-one-ℕ n))
-              ( transitive-div-ℕ x one-ℕ (succ-ℕ n) H (div-one-ℕ (succ-ℕ n))))
-
-succ-is-relatively-prime-ℕ : (n : ℕ) → is-relatively-prime-ℕ n (succ-ℕ n)
-succ-is-relatively-prime-ℕ n =
-  uniqueness-is-gcd-ℕ n (succ-ℕ n) (gcd-ℕ n (succ-ℕ n)) one-ℕ
-    ( is-gcd-gcd-ℕ n (succ-ℕ n))
-    ( is-gcd-succ-one-ℕ n)
-
-is-relatively-prime-div-ℕ :
-  (d x y : ℕ) → div-ℕ d x →
-  is-relatively-prime-ℕ x y → is-relatively-prime-ℕ d y
-is-relatively-prime-div-ℕ d x y H K =
-  is-one-div-one-ℕ
-    ( gcd-ℕ d y)
-    ( tr (div-ℕ (gcd-ℕ d y)) K
-      ( div-gcd-is-common-divisor-ℕ x y (gcd-ℕ d y)
-        ( pair
-          ( transitive-div-ℕ (gcd-ℕ d y) d x
-            ( pr1 (is-common-divisor-gcd-ℕ d y))
-            ( H))
-          ( pr2 (is-common-divisor-gcd-ℕ d y)))))
-
-{-
-infinitude-of-primes :
-  (n : ℕ) → Σ ℕ (λ x → (is-prime-ℕ x) × (leq-ℕ n x))
-infinitude-of-primes n = {!!}
--}
+    ( larger-prime-ℕ n)
+    ( pair
+      ( is-prime-larger-prime-ℕ n H)
+      ( le-larger-prime-ℕ n))
 
 --------------------------------------------------------------------------------
 
@@ -813,15 +858,15 @@ Twin-prime-conjecture : UU lzero
 Twin-prime-conjecture =
   (n : ℕ) → Σ ℕ (λ p → (is-twin-prime-ℕ p) × (leq-ℕ n p))
 
-iterate-collatz-function : ℕ → ℕ → ℕ
-iterate-collatz-function zero-ℕ n = n
-iterate-collatz-function (succ-ℕ k) n =
-  collatz-function (iterate-collatz-function k n)
+iterate-collatz : ℕ → ℕ → ℕ
+iterate-collatz zero-ℕ n = n
+iterate-collatz (succ-ℕ k) n =
+  collatz (iterate-collatz k n)
 
 Collatz-conjecture : UU lzero
 Collatz-conjecture =
   (n : ℕ) →
-  is-nonzero-ℕ n → Σ ℕ (λ k → Id (iterate-collatz-function k n) one-ℕ)
+  is-nonzero-ℕ n → Σ ℕ (λ k → Id (iterate-collatz k n) one-ℕ)
 
 {- Exercise 8.3 -}
 

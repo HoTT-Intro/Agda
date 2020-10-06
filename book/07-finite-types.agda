@@ -741,6 +741,21 @@ div-eq-ℕ x .x refl = refl-div-ℕ x
 
 {- Exercise 7.3 -}
 
+div-factorial-is-nonzero-ℕ :
+  (n x : ℕ) → leq-ℕ x n → is-nonzero-ℕ x → div-ℕ x (factorial-ℕ n)
+div-factorial-is-nonzero-ℕ zero-ℕ zero-ℕ l H = ex-falso (H refl)
+div-factorial-is-nonzero-ℕ (succ-ℕ n) x l H with
+  decide-leq-succ-ℕ x n l
+... | inl l' =
+  transitive-div-ℕ x
+    ( factorial-ℕ n)
+    ( factorial-ℕ (succ-ℕ n))
+    ( div-factorial-is-nonzero-ℕ n x l' H)
+    ( pair (succ-ℕ n) (commutative-mul-ℕ (succ-ℕ n) (factorial-ℕ n)))
+... | inr refl = pair (factorial-ℕ n) refl
+
+{- Exercise 7.4 -}
+
 -- We introduce the observational equality on finite sets.
 
 Eq-Fin : (k : ℕ) → Fin k → Fin k → UU lzero
@@ -749,7 +764,7 @@ Eq-Fin (succ-ℕ k) (inl x) (inr y) = empty
 Eq-Fin (succ-ℕ k) (inr x) (inl y) = empty
 Eq-Fin (succ-ℕ k) (inr x) (inr y) = unit
 
--- Exercise 7.12 (a)
+-- Exercise 7.4 (a)
 
 refl-Eq-Fin : {k : ℕ} (x : Fin k) → Eq-Fin k x x
 refl-Eq-Fin {succ-ℕ k} (inl x) = refl-Eq-Fin x
@@ -763,13 +778,13 @@ eq-Eq-Fin :
 eq-Eq-Fin {succ-ℕ k} {inl x} {inl y} e = ap inl (eq-Eq-Fin e)
 eq-Eq-Fin {succ-ℕ k} {inr star} {inr star} star = refl
 
--- Exercise 7.12 (b)
+-- Exercise 7.4 (b)
 
 is-injective-inl-Fin :
   {k : ℕ} {x y : Fin k} → Id (inl-Fin k x) (inl-Fin k y) → Id x y
 is-injective-inl-Fin p = eq-Eq-Fin (Eq-Fin-eq p)
 
--- Exercise 7.12 (c)
+-- Exercise 7.4 (c)
 
 neq-zero-succ-Fin :
   {k : ℕ} {x : Fin k} → ¬ (Id (succ-Fin (inl-Fin k x)) zero-Fin)
@@ -778,7 +793,7 @@ neq-zero-succ-Fin {succ-ℕ k} {inl x} p =
 neq-zero-succ-Fin {succ-ℕ k} {inr star} p =
   Eq-Fin-eq {succ-ℕ (succ-ℕ k)} {inr star} {zero-Fin} p
 
--- Exercise 7.12 (d)
+-- Exercise 7.4 (d)
 
 is-injective-skip-zero-Fin :
   {k : ℕ} {x y : Fin k} → Id (skip-zero-Fin x) (skip-zero-Fin y) → Id x y
@@ -800,7 +815,7 @@ is-injective-succ-Fin {succ-ℕ k} {inr star} {inl y} p =
   ex-falso (neq-zero-succ-Fin {succ-ℕ k} {inl y} (ap inl (inv p)))
 is-injective-succ-Fin {succ-ℕ k} {inr star} {inr star} p = refl
 
-{- Exercise 7.4 -}
+{- Exercise 7.5 -}
 
 -- We define the negative two element of Fin k.
 
@@ -851,7 +866,7 @@ pred-succ-Fin {succ-ℕ (succ-ℕ k)} (inl (inl x)) =
 pred-succ-Fin {succ-ℕ (succ-ℕ k)} (inl (inr star)) = refl
 pred-succ-Fin {succ-ℕ (succ-ℕ k)} (inr star) = pred-zero-Fin
 
-{- Exercise 7.5 -}
+{- Exercise 7.6 -}
 
 fin-bounded-nat :
   {k : ℕ} → Σ ℕ (λ x → le-ℕ x k) → Fin k
@@ -863,7 +878,7 @@ bounded-nat-Fin {k} x = pair (nat-Fin x) (strict-upper-bound-nat-Fin x)
 
 -- We still need to construct the identifications stated in the exercise
 
-{- Exercise 7.6 -}
+{- Exercise 7.7 -}
 
 {- We define the multiplication on the types Fin k. -}
 
@@ -876,7 +891,7 @@ ap-mul-Fin :
   Id x x' → Id y y' → Id (mul-Fin x y) (mul-Fin x' y')
 ap-mul-Fin refl refl = refl
 
--- Exercise 7.6 (a)
+-- Exercise 7.7 (a)
 
 cong-mul-Fin :
   {k : ℕ} (x y : Fin k) →
@@ -884,7 +899,7 @@ cong-mul-Fin :
 cong-mul-Fin {succ-ℕ k} x y =
   cong-nat-mod-succ-ℕ k (mul-ℕ (nat-Fin x) (nat-Fin y))
 
--- Exercise 7.6 (b)
+-- Exercise 7.7 (b)
 
 -- We show that congruence is invariant under scalar multiplication --
 
@@ -915,7 +930,7 @@ congruence-mul-ℕ k {x} {y} {x'} {y'} H K =
     ( scalar-invariant-cong-ℕ k y y' x K)
     ( scalar-invariant-cong-ℕ' k x x' y' H)
 
--- Exercise 7.6 (c)
+-- Exercise 7.7 (c)
 
 associative-mul-Fin :
   {k : ℕ} (x y z : Fin k) →
@@ -1029,7 +1044,7 @@ right-distributive-mul-add-Fin {k} x y z =
   ( ( left-distributive-mul-add-Fin z x y) ∙
     ( ap-add-Fin (commutative-mul-Fin z x) (commutative-mul-Fin z y)))
 
-{- Exercise 7.7 -}
+{- Exercise 7.8 -}
 
 -- We first prove two lemmas
 
