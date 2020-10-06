@@ -32,102 +32,6 @@ is-decidable-empty = inr id
 
 {- Example 8.1.3 -}
 
-is-decidable-Eq-ℕ :
-  (m n : ℕ) → is-decidable (Eq-ℕ m n)
-is-decidable-Eq-ℕ zero-ℕ zero-ℕ = inl star
-is-decidable-Eq-ℕ zero-ℕ (succ-ℕ n) = inr id
-is-decidable-Eq-ℕ (succ-ℕ m) zero-ℕ = inr id
-is-decidable-Eq-ℕ (succ-ℕ m) (succ-ℕ n) = is-decidable-Eq-ℕ m n
-
-is-decidable-leq-ℕ :
-  (m n : ℕ) → is-decidable (leq-ℕ m n)
-is-decidable-leq-ℕ zero-ℕ zero-ℕ = inl star
-is-decidable-leq-ℕ zero-ℕ (succ-ℕ n) = inl star
-is-decidable-leq-ℕ (succ-ℕ m) zero-ℕ = inr id
-is-decidable-leq-ℕ (succ-ℕ m) (succ-ℕ n) = is-decidable-leq-ℕ m n
-
-is-decidable-le-ℕ :
-  (m n : ℕ) → is-decidable (le-ℕ m n)
-is-decidable-le-ℕ zero-ℕ zero-ℕ = inr id
-is-decidable-le-ℕ zero-ℕ (succ-ℕ n) = inl star
-is-decidable-le-ℕ (succ-ℕ m) zero-ℕ = inr id
-is-decidable-le-ℕ (succ-ℕ m) (succ-ℕ n) = is-decidable-le-ℕ m n
-
-{- Definition 8.1.4 -}
-   
-has-decidable-equality : {l : Level} (A : UU l) → UU l
-has-decidable-equality A = (x y : A) → is-decidable (Id x y)
-
-{- Proposition 8.1.5 -}
-
-{- The type ℕ is an example of a type with decidable equality. -}
-
-is-decidable-iff :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-  (A → B) → (B → A) → is-decidable A → is-decidable B
-is-decidable-iff f g =
-  functor-coprod f (functor-neg g)
-
-has-decidable-equality-ℕ : has-decidable-equality ℕ
-has-decidable-equality-ℕ x y =
-  is-decidable-iff (eq-Eq-ℕ x y) Eq-ℕ-eq (is-decidable-Eq-ℕ x y)
-
-is-decidable-is-zero-ℕ : (n : ℕ) → is-decidable (is-zero-ℕ n)
-is-decidable-is-zero-ℕ n = has-decidable-equality-ℕ n zero-ℕ
-
-is-decidable-is-zero-ℕ' : (n : ℕ) → is-decidable (is-zero-ℕ' n)
-is-decidable-is-zero-ℕ' n = has-decidable-equality-ℕ zero-ℕ n
-
-is-decidable-is-one-ℕ : (n : ℕ) → is-decidable (is-one-ℕ n)
-is-decidable-is-one-ℕ n = has-decidable-equality-ℕ n one-ℕ
-
-is-decidable-is-one-ℕ' : (n : ℕ) → is-decidable (is-one-ℕ' n)
-is-decidable-is-one-ℕ' n = has-decidable-equality-ℕ one-ℕ n
-
-{- Proposition 8.1.6 -}
-
-{- We show that Fin k has decidable equality, for each k : ℕ. -}
-
-is-decidable-Eq-Fin :
-  (k : ℕ) (x y : Fin k) → is-decidable (Eq-Fin k x y)
-is-decidable-Eq-Fin (succ-ℕ k) (inl x) (inl y) = is-decidable-Eq-Fin k x y
-is-decidable-Eq-Fin (succ-ℕ k) (inl x) (inr y) = inr id
-is-decidable-Eq-Fin (succ-ℕ k) (inr x) (inl y) = inr id
-is-decidable-Eq-Fin (succ-ℕ k) (inr x) (inr y) = inl star
-
-has-decidable-equality-Fin :
-  (k : ℕ) (x y : Fin k) → is-decidable (Id x y)
-has-decidable-equality-Fin k x y =
-  functor-coprod eq-Eq-Fin (functor-neg Eq-Fin-eq) (is-decidable-Eq-Fin k x y)
-
-{- Corollary 8.1.7 -}
-
-is-decidable-div-ℕ :
-  (d x : ℕ) → is-decidable (div-ℕ d x)
-is-decidable-div-ℕ zero-ℕ x =
-  is-decidable-iff
-    ( div-eq-ℕ zero-ℕ x)
-    ( inv ∘ (is-zero-div-zero-ℕ x))
-    ( is-decidable-is-zero-ℕ' x)
-is-decidable-div-ℕ (succ-ℕ d) x =
-  is-decidable-iff
-    ( div-succ-eq-zero-ℕ d x)
-    ( eq-zero-div-succ-ℕ d x)
-    ( has-decidable-equality-Fin (succ-ℕ d) (mod-succ-ℕ d x) zero-Fin)
-
---------------------------------------------------------------------------------
-
-{- Section 8.2 Case analysis and definitions by with-abstraction -}
-
-{- Definition 8.2.2 -}
-
-collatz-function : ℕ → ℕ
-collatz-function n with is-decidable-div-ℕ two-ℕ n
-... | inl (pair y p) = y
-... | inr f = succ-ℕ (mul-ℕ three-ℕ n)
-
-{- Remark 8.2.4 -}
-
 is-decidable-coprod :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} →
   is-decidable A → is-decidable B → is-decidable (coprod A B)
@@ -155,12 +59,112 @@ is-decidable-neg :
   {l : Level} {A : UU l} → is-decidable A → is-decidable (¬ A)
 is-decidable-neg d = is-decidable-function-type d is-decidable-empty
 
+{- Example 8.1.4 -}
+
+is-decidable-Eq-ℕ :
+  (m n : ℕ) → is-decidable (Eq-ℕ m n)
+is-decidable-Eq-ℕ zero-ℕ zero-ℕ = inl star
+is-decidable-Eq-ℕ zero-ℕ (succ-ℕ n) = inr id
+is-decidable-Eq-ℕ (succ-ℕ m) zero-ℕ = inr id
+is-decidable-Eq-ℕ (succ-ℕ m) (succ-ℕ n) = is-decidable-Eq-ℕ m n
+
+is-decidable-leq-ℕ :
+  (m n : ℕ) → is-decidable (leq-ℕ m n)
+is-decidable-leq-ℕ zero-ℕ zero-ℕ = inl star
+is-decidable-leq-ℕ zero-ℕ (succ-ℕ n) = inl star
+is-decidable-leq-ℕ (succ-ℕ m) zero-ℕ = inr id
+is-decidable-leq-ℕ (succ-ℕ m) (succ-ℕ n) = is-decidable-leq-ℕ m n
+
+is-decidable-le-ℕ :
+  (m n : ℕ) → is-decidable (le-ℕ m n)
+is-decidable-le-ℕ zero-ℕ zero-ℕ = inr id
+is-decidable-le-ℕ zero-ℕ (succ-ℕ n) = inl star
+is-decidable-le-ℕ (succ-ℕ m) zero-ℕ = inr id
+is-decidable-le-ℕ (succ-ℕ m) (succ-ℕ n) = is-decidable-le-ℕ m n
+
+{- Definition 8.1.5 -}
+   
+has-decidable-equality : {l : Level} (A : UU l) → UU l
+has-decidable-equality A = (x y : A) → is-decidable (Id x y)
+
+{- Proposition 8.1.6 -}
+
+is-decidable-iff :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  (A → B) → (B → A) → is-decidable A → is-decidable B
+is-decidable-iff f g =
+  functor-coprod f (functor-neg g)
+
+{- Proposition 8.1.7 -}
+
+has-decidable-equality-ℕ : has-decidable-equality ℕ
+has-decidable-equality-ℕ x y =
+  is-decidable-iff (eq-Eq-ℕ x y) Eq-ℕ-eq (is-decidable-Eq-ℕ x y)
+
+-- We record some immediate corollaries
+
+is-decidable-is-zero-ℕ : (n : ℕ) → is-decidable (is-zero-ℕ n)
+is-decidable-is-zero-ℕ n = has-decidable-equality-ℕ n zero-ℕ
+
+is-decidable-is-zero-ℕ' : (n : ℕ) → is-decidable (is-zero-ℕ' n)
+is-decidable-is-zero-ℕ' n = has-decidable-equality-ℕ zero-ℕ n
+
+is-decidable-is-nonzero-ℕ : (n : ℕ) → is-decidable (is-nonzero-ℕ n)
+is-decidable-is-nonzero-ℕ n =
+  is-decidable-neg (is-decidable-is-zero-ℕ n)
+
+is-decidable-is-one-ℕ : (n : ℕ) → is-decidable (is-one-ℕ n)
+is-decidable-is-one-ℕ n = has-decidable-equality-ℕ n one-ℕ
+
+is-decidable-is-one-ℕ' : (n : ℕ) → is-decidable (is-one-ℕ' n)
+is-decidable-is-one-ℕ' n = has-decidable-equality-ℕ one-ℕ n
+
 is-decidable-is-not-one-ℕ :
   (x : ℕ) → is-decidable (is-not-one-ℕ x)
 is-decidable-is-not-one-ℕ x =
   is-decidable-neg (is-decidable-is-one-ℕ x)
 
-{- Proposition 8.2.5 -}
+{- Proposition 8.1.8 -}
+
+is-decidable-Eq-Fin :
+  (k : ℕ) (x y : Fin k) → is-decidable (Eq-Fin k x y)
+is-decidable-Eq-Fin (succ-ℕ k) (inl x) (inl y) = is-decidable-Eq-Fin k x y
+is-decidable-Eq-Fin (succ-ℕ k) (inl x) (inr y) = inr id
+is-decidable-Eq-Fin (succ-ℕ k) (inr x) (inl y) = inr id
+is-decidable-Eq-Fin (succ-ℕ k) (inr x) (inr y) = inl star
+
+has-decidable-equality-Fin :
+  (k : ℕ) (x y : Fin k) → is-decidable (Id x y)
+has-decidable-equality-Fin k x y =
+  functor-coprod eq-Eq-Fin (functor-neg Eq-Fin-eq) (is-decidable-Eq-Fin k x y)
+
+{- Theorem 8.1.9 -}
+
+is-decidable-div-ℕ :
+  (d x : ℕ) → is-decidable (div-ℕ d x)
+is-decidable-div-ℕ zero-ℕ x =
+  is-decidable-iff
+    ( div-eq-ℕ zero-ℕ x)
+    ( inv ∘ (is-zero-div-zero-ℕ x))
+    ( is-decidable-is-zero-ℕ' x)
+is-decidable-div-ℕ (succ-ℕ d) x =
+  is-decidable-iff
+    ( div-succ-eq-zero-ℕ d x)
+    ( eq-zero-div-succ-ℕ d x)
+    ( has-decidable-equality-Fin (succ-ℕ d) (mod-succ-ℕ d x) zero-Fin)
+
+--------------------------------------------------------------------------------
+
+{- Section 8.2 Case analysis and definitions by with-abstraction -}
+
+{- Definition 8.2.2 -}
+
+collatz-function : ℕ → ℕ
+collatz-function n with is-decidable-div-ℕ two-ℕ n
+... | inl (pair y p) = y
+... | inr f = succ-ℕ (mul-ℕ three-ℕ n)
+
+{- Proposition 8.2.3 -}
 
 is-decidable-function-type' :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} →
@@ -178,7 +182,7 @@ is-decidable-prod' (inl a) d with d a
 ... | inr nb = inr (nb ∘ pr2)
 is-decidable-prod' (inr na) d = inr (na ∘ pr1)
 
-{- Proposition 8.2.6 -}
+{- Proposition 8.2.4 -}
 
 -- There's a really cool application of with-abstraction here, on the recursive
 -- call of the function itself!
@@ -200,7 +204,7 @@ is-decidable-Π-ℕ P d (succ-ℕ m) (inl H) with d zero-ℕ
 ... | inl g = inl (ind-ℕ p (λ x y → g x))
 ... | inr ng = inr (λ f → ng (λ x → f (succ-ℕ x)))
 
-{- Corollary 8.2.7 -}
+{- Corollary 8.2.5 -}
 
 is-upper-bound-ℕ :
   {l : Level} (P : ℕ → UU l) (n : ℕ) → UU l
@@ -778,3 +782,223 @@ is-prime-four-hundred-and-nine-ℕ =
     ( is-decidable-is-prime-ℕ four-hundred-and-nine-ℕ)
     ( refl)
 -}
+
+--------------------------------------------------------------------------------
+
+{- Exercises -}
+
+--------------------------------------------------------------------------------
+
+{- Exercise 8.1 -}
+
+{- The Goldbach conjecture asserts that every even number above 2 is the sum
+   of two primes. -}
+
+is-even-ℕ : ℕ → UU lzero
+is-even-ℕ n = div-ℕ two-ℕ n
+
+Goldbach-conjecture : UU lzero
+Goldbach-conjecture =
+  ( n : ℕ) → (le-ℕ two-ℕ n) → (is-even-ℕ n) →
+    Σ ℕ (λ p → (is-prime-ℕ p) × (Σ ℕ (λ q → (is-prime-ℕ q) × Id (add-ℕ p q) n)))
+
+is-twin-prime-ℕ : ℕ → UU lzero
+is-twin-prime-ℕ n = (is-prime-ℕ n) × (is-prime-ℕ (succ-ℕ (succ-ℕ n)))
+
+{- The twin prime conjecture asserts that there are infinitely many twin 
+   primes. We assert that there are infinitely twin primes by asserting that 
+   for every n : ℕ there is a twin prime that is larger than n. -}
+   
+Twin-prime-conjecture : UU lzero
+Twin-prime-conjecture =
+  (n : ℕ) → Σ ℕ (λ p → (is-twin-prime-ℕ p) × (leq-ℕ n p))
+
+iterate-collatz-function : ℕ → ℕ → ℕ
+iterate-collatz-function zero-ℕ n = n
+iterate-collatz-function (succ-ℕ k) n =
+  collatz-function (iterate-collatz-function k n)
+
+Collatz-conjecture : UU lzero
+Collatz-conjecture =
+  (n : ℕ) →
+  is-nonzero-ℕ n → Σ ℕ (λ k → Id (iterate-collatz-function k n) one-ℕ)
+
+{- Exercise 8.3 -}
+
+has-decidable-equality-prod' :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  (f : B → has-decidable-equality A) (g : A → has-decidable-equality B) →
+  has-decidable-equality (A × B)
+has-decidable-equality-prod' f g (pair x y) (pair x' y') with
+  f y x x' | g x y y'
+... | inl refl | inl refl = inl refl
+... | inl refl | inr nq = inr (λ r → nq (ap pr2 r))
+... | inr np | inl refl = inr (λ r → np (ap pr1 r))
+... | inr np | inr nq = inr (λ r → np (ap pr1 r))
+
+has-decidable-equality-prod :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  has-decidable-equality A → has-decidable-equality B →
+  has-decidable-equality (A × B)
+has-decidable-equality-prod d e =
+  has-decidable-equality-prod' (λ y → d) (λ x → e)
+
+has-decidable-equality-left-factor :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  has-decidable-equality (A × B) → B → has-decidable-equality A
+has-decidable-equality-left-factor d b x y with d (pair x b) (pair y b)
+... | inl p = inl (ap pr1 p)
+... | inr np = inr (λ q → np (ap (λ z → pair z b) q))
+
+has-decidable-equality-right-factor :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  has-decidable-equality (A × B) → A → has-decidable-equality B
+has-decidable-equality-right-factor d a x y with d (pair a x) (pair a y)
+... | inl p = inl (ap pr2 p)
+... | inr np = inr (λ q → np (ap (pair a) q))
+
+--------------------------------------------------------------------------------
+
+{- Exercise 8.4 -}
+
+-- We define observational equality of coproducts.
+
+Eq-coprod :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) →
+  coprod A B → coprod A B → UU (l1 ⊔ l2)
+Eq-coprod {l1} {l2} A B (inl x) (inl y) = raise (l1 ⊔ l2) (Id x y)
+Eq-coprod {l1} {l2} A B (inl x) (inr y) = raise-empty (l1 ⊔ l2)
+Eq-coprod {l1} {l2} A B (inr x) (inl y) = raise-empty (l1 ⊔ l2)
+Eq-coprod {l1} {l2} A B (inr x) (inr y) = raise (l1 ⊔ l2) (Id x y)
+
+-- Exercise 8.4 (a)
+
+reflexive-Eq-coprod :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) →
+  (t : coprod A B) → Eq-coprod A B t t
+reflexive-Eq-coprod {l1} {l2} A B (inl x) = map-raise refl
+reflexive-Eq-coprod {l1} {l2} A B (inr x) = map-raise refl
+
+Eq-coprod-eq :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) →
+  (s t : coprod A B) → Id s t → Eq-coprod A B s t
+Eq-coprod-eq A B s .s refl = reflexive-Eq-coprod A B s
+
+eq-Eq-coprod :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) (s t : coprod A B) →
+  Eq-coprod A B s t → Id s t
+eq-Eq-coprod A B (inl x) (inl x') = ap inl ∘ inv-map-raise
+eq-Eq-coprod A B (inl x) (inr y') = ex-falso ∘ inv-map-raise
+eq-Eq-coprod A B (inr y) (inl x') = ex-falso ∘ inv-map-raise
+eq-Eq-coprod A B (inr y) (inr y') = ap inr ∘ inv-map-raise
+
+-- Exercise 8.4 (b)
+
+has-decidable-equality-coprod :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  has-decidable-equality A → has-decidable-equality B →
+  has-decidable-equality (coprod A B)
+has-decidable-equality-coprod {l1} {l2} {A} {B} d e (inl x) (inl x') =
+  is-decidable-iff
+    ( eq-Eq-coprod A B (inl x) (inl x') ∘ map-raise)
+    ( inv-map-raise ∘ Eq-coprod-eq A B (inl x) (inl x'))
+    ( d x x')
+has-decidable-equality-coprod {l1} {l2} {A} {B} d e (inl x) (inr y') =
+  inr (inv-map-raise ∘ (Eq-coprod-eq A B (inl x) (inr y')))
+has-decidable-equality-coprod {l1} {l2} {A} {B} d e (inr y) (inl x') =
+  inr (inv-map-raise ∘ (Eq-coprod-eq A B (inr y) (inl x')))
+has-decidable-equality-coprod {l1} {l2} {A} {B} d e (inr y) (inr y') =
+  is-decidable-iff
+    ( eq-Eq-coprod A B (inr y) (inr y') ∘ map-raise)
+    ( inv-map-raise ∘ Eq-coprod-eq A B (inr y) (inr y'))
+    ( e y y')
+
+has-decidable-equality-left-summand :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  has-decidable-equality (coprod A B) → has-decidable-equality A
+has-decidable-equality-left-summand {l1} {l2} {A} {B} d x y =
+  is-decidable-iff
+    ( inv-map-raise ∘ Eq-coprod-eq A B (inl x) (inl y))
+    ( eq-Eq-coprod A B (inl x) (inl y) ∘ map-raise)
+    ( d (inl x) (inl y))
+
+has-decidable-equality-right-summand :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  has-decidable-equality (coprod A B) → has-decidable-equality B
+has-decidable-equality-right-summand {l1} {l2} {A} {B} d x y =
+  is-decidable-iff
+    ( inv-map-raise ∘ Eq-coprod-eq A B (inr x) (inr y))
+    ( eq-Eq-coprod A B (inr x) (inr y) ∘ map-raise)
+    ( d (inr x) (inr y))
+
+--------------------------------------------------------------------------------
+
+{- Exercise 8.5 -}
+
+-- Exercies 8.5 (a)
+
+-- Exercise 8.5 (c)
+
+Eq-list : {l1 : Level} {A : UU l1} → list A → list A → UU l1
+Eq-list {l1} nil nil = raise-unit l1
+Eq-list {l1} nil (cons x l') = raise-empty l1
+Eq-list {l1} (cons x l) nil = raise-empty l1
+Eq-list {l1} (cons x l) (cons x' l') = (Id x x') × Eq-list l l'
+
+reflexive-Eq-list : {l1 : Level} {A : UU l1} (l : list A) → Eq-list l l
+reflexive-Eq-list nil = raise-star
+reflexive-Eq-list (cons x l) = pair refl (reflexive-Eq-list l)
+
+Eq-list-eq :
+  {l1 : Level} {A : UU l1} (l l' : list A) → Id l l' → Eq-list l l'
+Eq-list-eq l .l refl = reflexive-Eq-list l
+
+eq-Eq-list :
+  {l1 : Level} {A : UU l1} (l l' : list A) → Eq-list l l' → Id l l'
+eq-Eq-list nil nil (map-raise star) = refl
+eq-Eq-list nil (cons x l') (map-raise f) = ex-falso f
+eq-Eq-list (cons x l) nil (map-raise f) = ex-falso f
+eq-Eq-list (cons x l) (cons .x l') (pair refl e) =
+  ap (cons x) (eq-Eq-list l l' e)
+
+has-decidable-equality-list :
+  {l1 : Level} {A : UU l1} →
+  has-decidable-equality A → has-decidable-equality (list A)
+has-decidable-equality-list d nil nil = inl refl
+has-decidable-equality-list d nil (cons x l) =
+  inr (inv-map-raise ∘ Eq-list-eq nil (cons x l))
+has-decidable-equality-list d (cons x l) nil =
+  inr (inv-map-raise ∘ Eq-list-eq (cons x l) nil)
+has-decidable-equality-list d (cons x l) (cons x' l') =
+  is-decidable-iff
+    ( eq-Eq-list (cons x l) (cons x' l'))
+    ( Eq-list-eq (cons x l) (cons x' l'))
+    ( is-decidable-prod
+      ( d x x')
+      ( is-decidable-iff
+        ( Eq-list-eq l l')
+        ( eq-Eq-list l l')
+        ( has-decidable-equality-list d l l')))
+
+is-decidable-left-factor :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  is-decidable (A × B) → B → is-decidable A
+is-decidable-left-factor (inl (pair x y)) b = inl x
+is-decidable-left-factor (inr f) b = inr (λ a → f (pair a b))
+
+is-decidable-right-factor :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  is-decidable (A × B) → A → is-decidable B
+is-decidable-right-factor (inl (pair x y)) a = inl y
+is-decidable-right-factor (inr f) a = inr (λ b → f (pair a b))
+
+has-decidable-equality-has-decidable-equality-list :
+  {l1 : Level} {A : UU l1} →
+  has-decidable-equality (list A) → has-decidable-equality A
+has-decidable-equality-has-decidable-equality-list d x y =
+  is-decidable-left-factor
+    ( is-decidable-iff
+      ( Eq-list-eq (cons x nil) (cons y nil))
+      ( eq-Eq-list (cons x nil) (cons y nil))
+      ( d (cons x nil) (cons y nil)))
+    ( raise-star)

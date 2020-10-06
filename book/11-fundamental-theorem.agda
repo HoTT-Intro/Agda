@@ -7,7 +7,7 @@ open book.10-contractible-types public
 
 --------------------------------------------------------------------------------
 
--- Section 8.1 Families of equivalences
+-- Section 11.1 Families of equivalences
 
 {- Any family of maps induces a map on the total spaces. -}
 
@@ -245,7 +245,7 @@ abstract
 
 --------------------------------------------------------------------------------
 
--- Section 8.2 The fundamental theorem
+-- Section 11.2 The fundamental theorem
 
 -- The general form of the fundamental theorem of identity types
 
@@ -371,7 +371,7 @@ equiv-ap e x y =
     ( ap (map-equiv e) {x} {y})
     ( is-emb-is-equiv (map-equiv e) (is-equiv-map-equiv e) x y)
 
--- Section 7.3 Identity systems
+-- Section 11.3 Identity systems
 
 IND-identity-system :
   {i j : Level} (k : Level) {A : UU i} (B : A → UU j) (a : A) (b : B a) → UU _
@@ -443,16 +443,7 @@ abstract
 
 --------------------------------------------------------------------------------
 
--- Section 7.4 Disjointness of coproducts
-
--- Raising universe levels
-
-data raise (l : Level) {l1 : Level} (A : UU l1) : UU (l1 ⊔ l) where
-  map-raise : A → raise l A
-
-inv-map-raise :
-  {l l1 : Level} {A : UU l1} → raise l A → A
-inv-map-raise (map-raise x) = x
+{- Raising universe levels -}
 
 issec-inv-map-raise :
   {l l1 : Level} {A : UU l1} (x : raise l A) →
@@ -460,8 +451,7 @@ issec-inv-map-raise :
 issec-inv-map-raise (map-raise x) = refl
 
 isretr-inv-map-raise :
-  {l l1 : Level} {A : UU l1} (x : A) →
-  Id (inv-map-raise {l} (map-raise x)) x
+  {l l1 : Level} {A : UU l1} (x : A) → Id (inv-map-raise {l} (map-raise x)) x
 isretr-inv-map-raise x = refl
 
 is-equiv-map-raise :
@@ -472,34 +462,24 @@ is-equiv-map-raise l A =
     ( issec-inv-map-raise)
     ( isretr-inv-map-raise {l})
 
-equiv-raise :
-  (l : Level) {l1 : Level} (A : UU l1) → A ≃ raise l A
+equiv-raise : (l : Level) {l1 : Level} (A : UU l1) → A ≃ raise l A
 equiv-raise l A = pair map-raise (is-equiv-map-raise l A)
+
+equiv-raise-unit : (l : Level) → unit ≃ raise-unit l
+equiv-raise-unit l = equiv-raise l unit
+
+equiv-raise-empty : (l : Level) → empty ≃ raise-empty l
+equiv-raise-empty l = equiv-raise l empty
 
 Raise :
   (l : Level) {l1 : Level} (A : UU l1) → Σ (UU (l1 ⊔ l)) (λ X → A ≃ X)
 Raise l A = pair (raise l A) (equiv-raise l A)
 
+--------------------------------------------------------------------------------
+
+-- Section 11.4 Disjointness of coproducts
+
 -- The identity types of coproducts
-
-Eq-coprod :
-  {l1 l2 : Level} (A : UU l1) (B : UU l2) →
-  coprod A B → coprod A B → UU (l1 ⊔ l2)
-Eq-coprod {l1} {l2} A B (inl x) (inl y) = raise (l1 ⊔ l2) (Id x y)
-Eq-coprod {l1} {l2} A B (inl x) (inr y) = raise (l1 ⊔ l2) empty
-Eq-coprod {l1} {l2} A B (inr x) (inl y) = raise (l1 ⊔ l2) empty
-Eq-coprod {l1} {l2} A B (inr x) (inr y) = raise (l1 ⊔ l2) (Id x y)
-
-reflexive-Eq-coprod :
-  {l1 l2 : Level} (A : UU l1) (B : UU l2) →
-  (t : coprod A B) → Eq-coprod A B t t
-reflexive-Eq-coprod {l1} {l2} A B (inl x) = map-raise refl
-reflexive-Eq-coprod {l1} {l2} A B (inr x) = map-raise refl
-
-Eq-coprod-eq :
-  {l1 l2 : Level} (A : UU l1) (B : UU l2) →
-  (s t : coprod A B) → Id s t → Eq-coprod A B s t
-Eq-coprod-eq A B s .s refl = reflexive-Eq-coprod A B s
 
 abstract
   is-contr-total-Eq-coprod-inl :
@@ -696,9 +676,9 @@ compute-eq-coprod-inr-inr y y' =
 
 --------------------------------------------------------------------------------
 
--- Section 10.6 A recursive structure identity principle
+-- Section 11.6 The structure identity principle
 
--- Theorem 10.6.2
+-- Theorem 11.6.2
 
 swap-total-Eq-structure :
   {l1 l2 l3 l4 : Level} {A : UU l1} (B : A → UU l2) (C : A → UU l3)
@@ -763,7 +743,7 @@ abstract
       ( is-equiv-swap-total-Eq-structure B C D)
       ( is-contr-Σ' is-contr-AC t is-contr-BD)
 
--- Example 10.6.3
+-- Example 11.6.3
 
 -- Characterizing the identity type of a fiber as the fiber of the action on
 -- paths
@@ -853,14 +833,14 @@ abstract
 
 -- Exercises
 
--- Exercise 7.1
+-- Exercise 11.1
 
 abstract
   is-emb-empty :
     {i : Level} (A : UU i) → is-emb (ind-empty {P = λ x → A})
   is-emb-empty A = ind-empty
 
--- Exercise 7.2
+-- Exercise 11.2
 
 eq-transpose-equiv :
   {i j : Level} {A : UU i} {B : UU j} (e : A ≃ B) (x : A) (y : B) →
@@ -922,7 +902,7 @@ triangle-eq-transpose-equiv' e {x} {y} p =
               ( triangle-eq-transpose-equiv e (inv p))))) ∙
         ( ap-inv (map-equiv e) (map-eq-transpose-equiv' e p))))
 
--- Exercise 7.3
+-- Exercise 11.3
 
 abstract
   is-equiv-top-is-equiv-left-square :
@@ -955,7 +935,7 @@ abstract
   is-emb-htpy' f g H is-emb-f =
     is-emb-htpy g f (inv-htpy H) is-emb-f
 
--- Exercise 7.4
+-- Exercise 11.4
 
 abstract
   is-emb-comp :
@@ -1011,7 +991,7 @@ abstract
       ( is-equiv-inv-is-equiv is-equiv-e)
       ( is-emb-f)
 
--- Exercise 7.5
+-- Exercise 11.5
 
 abstract
   is-emb-inl :
@@ -1045,9 +1025,9 @@ abstract
           ( is-contr-total-path x)))
       ( λ y → ap inr)
 
--- Exercise 7.6
+-- Exercise 11.6
 
--- Exercise 7.7
+-- Exercise 11.7
 
 tot-htpy :
   {i j k : Level} {A : UU i} {B : A → UU j} {C : A → UU k}
@@ -1066,7 +1046,7 @@ tot-comp :
   tot (λ x → (g x) ∘ (f x)) ~ ((tot g) ∘ (tot f))
 tot-comp f g (pair x y) = refl
 
--- Exercise 7.8
+-- Exercise 11.8
 
 abstract
   fundamental-theorem-id-retr :
@@ -1111,7 +1091,7 @@ abstract
         is-fiberwise-equiv-i = fundamental-theorem-id-retr a i retr-i
     in is-equiv-sec-is-equiv (f x) (sec-f x) (is-fiberwise-equiv-i x)
 
--- Exercise 7.9
+-- Exercise 11.9
 
 abstract
   is-emb-sec-ap :
@@ -1120,7 +1100,7 @@ abstract
   is-emb-sec-ap f sec-ap-f x =
     fundamental-theorem-id-sec x (λ y → ap f {y = y}) (sec-ap-f x)
 
--- Exercise 7.10
+-- Exercise 11.10
 
 coherence-is-half-adjoint-equivalence :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) (g : B → A)
@@ -1187,7 +1167,7 @@ abstract
   is-half-adjoint-equivalence-is-equiv f =
     ( is-half-adjoint-equivalence-is-path-split f) ∘ (is-path-split-is-equiv f)
 
--- Exercise 7.11
+-- Exercise 11.11
 
 abstract
   is-equiv-top-is-equiv-bottom-square :

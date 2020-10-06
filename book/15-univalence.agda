@@ -393,34 +393,6 @@ not-all-types-decidable d =
   not-all-2-element-types-decidable (λ X p → d X)
 -}
 
-{- Types with decidable equality are closed under coproducts. -}
-
-has-decidable-equality-coprod : {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-  has-decidable-equality A → has-decidable-equality B →
-  has-decidable-equality (coprod A B)
-has-decidable-equality-coprod dec-A dec-B (inl x) (inl y) =
-  functor-coprod
-    ( ap inl)
-    ( λ f p → f (inv-is-equiv (is-emb-inl _ _ x y) p))
-    ( dec-A x y)
-has-decidable-equality-coprod {A = A} {B = B} dec-A dec-B (inl x) (inr y) =
-  inr
-    ( λ p →
-      inv-is-equiv
-        ( is-equiv-map-raise _ empty)
-        ( Eq-coprod-eq A B (inl x) (inr y) p))
-has-decidable-equality-coprod {A = A} {B = B} dec-A dec-B (inr x) (inl y) =
-  inr
-    ( λ p →
-      inv-is-equiv
-        ( is-equiv-map-raise _ empty)
-        ( Eq-coprod-eq A B (inr x) (inl y) p))
-has-decidable-equality-coprod dec-A dec-B (inr x) (inr y) =
-  functor-coprod
-    ( ap inr)
-    ( λ f p → f (inv-is-equiv (is-emb-inr _ _ x y) p))
-    ( dec-B x y)
-
 {- Decidable equality of Fin n. -}
 
 has-decidable-equality-empty : has-decidable-equality empty
@@ -448,28 +420,6 @@ has-decidable-equality-ℤ =
       has-decidable-equality-ℕ)
 
 {- Closure of decidable types under retracts and equivalences. -}
-
-is-decidable-retract-of :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-  A retract-of B → is-decidable B → is-decidable A
-is-decidable-retract-of (pair i (pair r H)) (inl b) = inl (r b)
-is-decidable-retract-of (pair i (pair r H)) (inr f) = inr (f ∘ i)
-
-is-decidable-is-equiv :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B}
-  (is-equiv-f : is-equiv f) → is-decidable B → is-decidable A
-is-decidable-is-equiv {f = f} (pair (pair g G) (pair h H)) =
-  is-decidable-retract-of (pair f (pair h H))
-
-is-decidable-equiv :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
-  is-decidable B → is-decidable A
-is-decidable-equiv e = is-decidable-is-equiv (is-equiv-map-equiv e)
-
-is-decidable-equiv' :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
-  is-decidable A → is-decidable B
-is-decidable-equiv' e = is-decidable-equiv (inv-equiv e)
 
 has-decidable-equality-retract-of :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} →

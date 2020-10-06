@@ -415,27 +415,6 @@ abstract
 
 -- Exercise 10.?
 
-abstract
-  has-decidable-equality-prod' : {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-    (x x' : A) (y y' : B) → is-decidable (Id x x') → is-decidable (Id y y') →
-    is-decidable (Id (pair x y) (pair x' y'))
-  has-decidable-equality-prod' x x' y y' (inl p) (inl q) =
-    inl (eq-pair-triv (pair p q))
-  has-decidable-equality-prod' x x' y y' (inl p) (inr g) =
-    inr (λ h → g (ap pr2 h))
-  has-decidable-equality-prod' x x' y y' (inr f) (inl q) =
-    inr (λ h → f (ap pr1 h))
-  has-decidable-equality-prod' x x' y y' (inr f) (inr g) =
-    inr (λ h → f (ap pr1 h))
-
-abstract
-  has-decidable-equality-prod : {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-    has-decidable-equality A → has-decidable-equality B →
-    has-decidable-equality (A × B)
-  has-decidable-equality-prod dec-A dec-B (pair x y) (pair x' y') =
-    has-decidable-equality-prod' x x' y y' (dec-A x x') (dec-B y y')
-
-
 {-
 
 bounds-fam-ℕ :
@@ -549,24 +528,6 @@ div-ℤ :
 div-ℤ k l = Σ ℤ (λ x → Id (mul-ℤ x k) l)
 
 -- From before
-
-{- The Goldbach conjecture asserts that every even number above 2 is the sum
-   of two primes. -}
-
-Goldbach-conjecture : UU lzero
-Goldbach-conjecture =
-  ( n : ℕ) → (two-ℕ < n) → (is-even-ℕ n) →
-    Σ ℕ (λ p → (is-prime p) × (Σ ℕ (λ q → (is-prime q) × Id (add-ℕ p q) n)))
-
-is-twin-prime : ℕ → UU lzero
-is-twin-prime n = (is-prime n) × (is-prime (succ-ℕ (succ-ℕ n)))
-
-{- The twin prime conjecture asserts that there are infinitely many twin 
-   primes. We assert that there are infinitely twin primes by asserting that 
-   for every n : ℕ there is a twin prime that is larger than n. -}
-   
-Twin-prime-conjecture : UU lzero
-Twin-prime-conjecture = (n : ℕ) → Σ ℕ (λ p → (is-twin-prime p) × (leq-ℕ n p))
 
 -- Exercise
 

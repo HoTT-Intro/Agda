@@ -19,6 +19,12 @@ data unit : UU lzero where
 ind-unit : {l : Level} {P : unit → UU l} → P star → ((x : unit) → P x)
 ind-unit p star = p
 
+raise-unit : (l : Level) → UU l
+raise-unit l = raise l unit
+
+raise-star : {l : Level} → raise l unit
+raise-star = map-raise star
+
 --------------------------------------------------------------------------------
 
 -- Section 4.3 The empty type
@@ -34,6 +40,9 @@ ind-empty ()
 
 ex-falso : {l : Level} {A : UU l} → empty → A
 ex-falso = ind-empty
+
+raise-empty : (l : Level) → UU l
+raise-empty l = raise l empty
 
 -- Definition 4.3.2
 
@@ -396,31 +405,29 @@ fold-list b μ (cons a l) = μ a (fold-list b μ l)
 
 -- Exercise 4.3 (c)
 
-length-list :
-  {l : Level} {A : UU l} → list A → ℕ
+length-list : {l : Level} {A : UU l} → list A → ℕ
 length-list = fold-list zero-ℕ (λ a → succ-ℕ)
 
 -- Exercise 4.3 (d)
 
-sum-list-ℕ :
-  list ℕ → ℕ
+sum-list-ℕ : list ℕ → ℕ
 sum-list-ℕ = fold-list zero-ℕ add-ℕ
+
+product-list-ℕ : list ℕ → ℕ
+product-list-ℕ = fold-list one-ℕ mul-ℕ
 
 -- Exercise 4.3 (e)
 
-concat-list :
-  {l : Level} {A : UU l} → list A → (list A → list A)
+concat-list : {l : Level} {A : UU l} → list A → (list A → list A)
 concat-list {l} {A} = fold-list id (λ a f → (cons a) ∘ f)
 
 -- Exercise 4.3 (f)
 
-flatten-list :
-  {l : Level} {A : UU l} → list (list A) → list A
+flatten-list : {l : Level} {A : UU l} → list (list A) → list A
 flatten-list = fold-list nil concat-list
 
 -- Exercise 4.3 (g)
 
-reverse-list :
-  {l : Level} {A : UU l} → list A → list A
+reverse-list : {l : Level} {A : UU l} → list A → list A
 reverse-list nil = nil
 reverse-list (cons a l) = concat-list (reverse-list l) (in-list a)

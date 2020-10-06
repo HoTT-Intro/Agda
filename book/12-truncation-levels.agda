@@ -1100,6 +1100,48 @@ abstract
 
 --------------------------------------------------------------------------------
 
+{- Exercise -}
+
+is-decidable-retract-of :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  A retract-of B → is-decidable B → is-decidable A
+is-decidable-retract-of (pair i (pair r H)) (inl b) = inl (r b)
+is-decidable-retract-of (pair i (pair r H)) (inr f) = inr (f ∘ i)
+
+is-decidable-is-equiv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B}
+  (is-equiv-f : is-equiv f) → is-decidable B → is-decidable A
+is-decidable-is-equiv {f = f} (pair (pair g G) (pair h H)) =
+  is-decidable-retract-of (pair f (pair h H))
+
+is-decidable-equiv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
+  is-decidable B → is-decidable A
+is-decidable-equiv e = is-decidable-iff (inv-map-equiv e) (map-equiv e)
+
+is-decidable-equiv' :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
+  is-decidable A → is-decidable B
+is-decidable-equiv' e = is-decidable-equiv (inv-equiv e)
+
+has-decidable-equality-Σ :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  has-decidable-equality A → ((x : A) → has-decidable-equality (B x)) →
+  has-decidable-equality (Σ A B)
+has-decidable-equality-Σ dA dB (pair x y) (pair x' y') with dA x x'
+... | inr np = inr (λ r → np (ap pr1 r))
+... | inl p =
+  is-decidable-iff eq-pair' pair-eq
+    ( is-decidable-equiv'
+      ( left-unit-law-Σ-is-contr-gen
+        ( λ α → Id (tr _ α y) y')
+        ( is-contr-is-prop-inh
+          ( is-set-has-decidable-equality _ dA x x') p)
+        ( p))
+      ( dB x' (tr _ p y) y'))
+
+--------------------------------------------------------------------------------
+
 {- We show that if f : A → B is an embedding, then the induced map
    Σ A (C ∘ f) → Σ A C is also an embedding. -}
 
