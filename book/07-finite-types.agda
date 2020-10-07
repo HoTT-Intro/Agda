@@ -16,6 +16,12 @@ open book.06-universes public
 div-ℕ : ℕ → ℕ → UU lzero
 div-ℕ m n = Σ ℕ (λ k → Id (mul-ℕ k m) n)
 
+is-even-ℕ : ℕ → UU lzero
+is-even-ℕ n = div-ℕ two-ℕ n
+
+is-odd-ℕ : ℕ → UU lzero
+is-odd-ℕ n = ¬ (is-even-ℕ n)
+
 {- Remark 7.1.2 -}
 
 div-one-ℕ :
