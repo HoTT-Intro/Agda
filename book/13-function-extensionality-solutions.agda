@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --exact-split #-}
-
 module book.13-function-extensionality-solutions where
 
 import book.13-function-extensionality
@@ -9,7 +7,7 @@ open book.13-function-extensionality public
 
 -- Exercises
 
--- Exercise 12.1
+-- Exercise 13.1
 
 abstract
   is-equiv-inv-htpy :
@@ -80,7 +78,7 @@ equiv-concat-htpy' :
 equiv-concat-htpy' f K =
   pair (concat-htpy' f K) (is-equiv-concat-htpy' f K)
 
--- Exercise 12.2
+-- Exercise 13.2
 
 successor-preserving-map-ℕ : UU lzero
 successor-preserving-map-ℕ = 
@@ -168,9 +166,9 @@ is-equiv-ev-zero-successor-preserving-map-ℕ =
     issec-inv-ev-zero-successor-preserving-map-ℕ
     isretr-inv-ev-zero-successor-preserving-map-ℕ
 
--- Exercise 12.3
+-- Exercise 13.3
 
--- Exercise 12.3 (a)
+-- Exercise 13.3 (a)
 
 abstract
   is-subtype-is-contr :
@@ -185,7 +183,7 @@ abstract
 is-contr-Prop : {l : Level} → UU l → UU-Prop l
 is-contr-Prop A = pair (is-contr A) (is-subtype-is-contr A)
 
--- Exercise 12.3 (b)
+-- Exercise 13.3 (b)
 
 abstract
   is-prop-is-trunc :
@@ -222,7 +220,7 @@ is-1-type-Prop :
   {l : Level} → UU l → UU-Prop l
 is-1-type-Prop A = pair (is-1-type A) (is-prop-is-1-type A)
 
--- Exercise 12.4
+-- Exercise 13.4
 
 postcomp :
   {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (A : UU l3) →
@@ -280,7 +278,7 @@ equiv-postcomp A e =
     ( postcomp A (map-equiv e))
     ( is-equiv-postcomp-is-equiv (map-equiv e) (is-equiv-map-equiv e) A)
 
--- Exercise 12.5
+-- Exercise 13.5
 
 is-contr-sec-is-equiv :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
@@ -457,7 +455,7 @@ set-equiv A B =
     ( type-Set A ≃ type-Set B)
     ( is-set-equiv-is-set (is-set-type-Set A) (is-set-type-Set B))
 
--- Exercise 12.6
+-- Exercise 13.6
 
 _⇔_ :
   {l1 l2 : Level} → UU-Prop l1 → UU-Prop l2 → UU (l1 ⊔ l2)
@@ -514,7 +512,7 @@ abstract
   is-contr-endomaps-is-prop P is-prop-P =
     is-contr-is-prop-inh (is-prop-function-type is-prop-P) id
 
--- Exercise 12.7
+-- Exercise 13.7
 
 abstract
   is-prop-is-path-split :
@@ -579,7 +577,7 @@ abstract
       ( is-prop-is-half-adjoint-equivalence f)
       ( is-equiv-is-half-adjoint-equivalence f)
 
--- Exercise 12.8
+-- Exercise 13.8
 
 is-invertible-id-htpy-id-id :
   {l : Level} (A : UU l) →
@@ -613,7 +611,7 @@ abstract
         ( pair id refl-htpy))
       ( is-equiv-map-assoc-Σ _ _ _)
 
--- Exercise 12.9
+-- Exercise 13.9
 
 abstract
   dependent-universal-property-empty :
@@ -650,9 +648,9 @@ abstract
       ( is-equiv-precomp-is-equiv ind-empty is-equiv-ind-empty Y)
       ( universal-property-empty Y)
 
--- Exercise 12.10
+-- Exercise 13.10
 
--- Exercise 12.10 (a)
+-- Exercise 13.10 (a)
 
 ev-star :
   {l : Level} (P : unit → UU l) → ((x : unit) → P x) → P star
@@ -684,7 +682,7 @@ equiv-ev-star' :
   {l : Level} (Y : UU l) → (unit → Y) ≃ Y
 equiv-ev-star' Y = pair (ev-star' Y) (universal-property-unit Y)
 
--- Exercise 12.10 (b)
+-- Exercise 13.10 (b)
 
 pt : {l1 : Level} {X : UU l1} (x : X) → unit → X
 pt x y = x
@@ -751,7 +749,7 @@ abstract
   is-equiv-diagonal-is-contr x is-contr-X =
     is-equiv-diagonal-is-equiv-pt x (is-equiv-pt-is-contr x is-contr-X)
     
--- Exercise 12.11
+-- Exercise 13.11
 
 ev-inl-inr :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (P : coprod A B → UU l3) →
@@ -820,7 +818,7 @@ abstract
         ( Y))
       ( universal-property-coprod Y)
     
--- Exercise 12.12
+-- Exercise 13.12
 
 Eq-sec :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
@@ -970,7 +968,7 @@ sec-right-factor-retract-of-sec-left-factor f g h H retr-g =
       ( retraction-comp f g h H retr-g)
       ( isretr-retraction-comp f g h H retr-g))
 
--- Exercise 12.13
+-- Exercise 13.13
 
 postcomp-Π :
   {l1 l2 l3 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
@@ -1051,7 +1049,7 @@ equiv-Π :
   ( (a' : A') → B' a') ≃ ( (a : A) → B a)
 equiv-Π B e f = pair (map-equiv-Π B e f) (is-equiv-map-equiv-Π B e f)
 
--- Exercise 12.14
+-- Exercise 13.14
 
 equiv-fiber-postcomp :
   {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (f : X → Y)
@@ -1097,7 +1095,7 @@ is-emb-is-emb-postcomp f is-emb-post-f =
     ( is-trunc-map-is-trunc-map-postcomp neg-one-𝕋 f
       ( λ A → is-prop-map-is-emb (postcomp A f) (is-emb-post-f A)))
 
--- Exercise 12.15
+-- Exercise 13.15
 
 {- Getting rid of fib in a Π-type -}
 
@@ -1143,7 +1141,7 @@ is-equiv-map-reduce-Π-fib f C =
     ( issec-inv-map-reduce-Π-fib f C)
     ( isretr-inv-map-reduce-Π-fib f C)
 
--- Exercise 12.16
+-- Exercise 13.16
 
 hom-slice :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
@@ -1392,7 +1390,7 @@ abstract
         ( is-equiv-hom-slice-is-fiberwise-equiv-fiberwise-hom-hom-slice
           f g))
 
--- Exercise 12.17
+-- Exercise 13.17
 
 hom-over-morphism :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {X : UU l3} {Y : UU l4}
@@ -1465,7 +1463,7 @@ abstract
       ( isretr-hom-over-morphism-fiberwise-hom i f g)
       ( issec-hom-over-morphism-fiberwise-hom i f g)
 
--- Exercise 12.18
+-- Exercise 13.18
 
 set-isomorphism :
   {l1 l2 : Level} (A : UU-Set l1) (B : UU-Set l2) → UU (l1 ⊔ l2)
@@ -1525,7 +1523,26 @@ abstract
     is-equiv-tot-is-fiberwise-equiv
       ( is-fiberwise-equiv-set-isomorphism-equiv-fiberwise A B)
 
--- Exercise 12.19
+-- Exercise 13.19
+
+-- Exercise 13.20
+
+skip-Fin : {k : ℕ} (x : Fin (succ-ℕ k)) → Fin k → Fin (succ-ℕ k)
+skip-Fin {succ-ℕ k} (inl x) (inl y) = inl (skip-Fin x y)
+skip-Fin {succ-ℕ k} (inl x) (inr star) = inr star
+skip-Fin {succ-ℕ k} (inr x) y = inl y
+
+swap-Fin : {k : ℕ} (x : Fin k) → Fin k → Fin k
+swap-Fin {succ-ℕ k} (inl x) (inl y) = skip-Fin (inl x) (swap-Fin x y)
+swap-Fin {succ-ℕ k} (inl x) (inr star) = inl x
+swap-Fin {succ-ℕ k} (inr star) y = y
+
+is-neg-one-swap-Fin :
+  {k : ℕ} (x : Fin k) → is-neg-one-Fin (swap-Fin x x)
+is-neg-one-swap-Fin {succ-ℕ k} (inr star) = refl
+is-neg-one-swap-Fin {succ-ℕ (succ-ℕ k)} (inl (inr star)) = refl
+is-neg-one-swap-Fin {succ-ℕ (succ-ℕ k)} (inl (inl x)) =
+  ap (skip-Fin (inl (inl x))) (is-neg-one-swap-Fin (inl x))
 
 --------------------------------------------------------------------------------
 
