@@ -126,8 +126,7 @@ is-decidable-is-not-one-ℕ x =
 
 {- Proposition 8.1.8 -}
 
-is-decidable-Eq-Fin :
-  (k : ℕ) (x y : Fin k) → is-decidable (Eq-Fin k x y)
+is-decidable-Eq-Fin : (k : ℕ) (x y : Fin k) → is-decidable (Eq-Fin k x y)
 is-decidable-Eq-Fin (succ-ℕ k) (inl x) (inl y) = is-decidable-Eq-Fin k x y
 is-decidable-Eq-Fin (succ-ℕ k) (inl x) (inr y) = inr id
 is-decidable-Eq-Fin (succ-ℕ k) (inr x) (inl y) = inr id
@@ -140,8 +139,7 @@ has-decidable-equality-Fin k x y =
 
 {- Theorem 8.1.9 -}
 
-is-decidable-div-ℕ :
-  (d x : ℕ) → is-decidable (div-ℕ d x)
+is-decidable-div-ℕ : (d x : ℕ) → is-decidable (div-ℕ d x)
 is-decidable-div-ℕ zero-ℕ x =
   is-decidable-iff
     ( div-eq-ℕ zero-ℕ x)
@@ -152,6 +150,12 @@ is-decidable-div-ℕ (succ-ℕ d) x =
     ( div-succ-eq-zero-ℕ d x)
     ( eq-zero-div-succ-ℕ d x)
     ( has-decidable-equality-Fin (succ-ℕ d) (mod-succ-ℕ d x) zero-Fin)
+
+is-decidable-is-even-ℕ : (x : ℕ) → is-decidable (is-even-ℕ x)
+is-decidable-is-even-ℕ x = is-decidable-div-ℕ two-ℕ x
+
+is-decidable-is-odd-ℕ : (x : ℕ) → is-decidable (is-odd-ℕ x)
+is-decidable-is-odd-ℕ x = is-decidable-neg (is-decidable-is-even-ℕ x)
 
 --------------------------------------------------------------------------------
 
@@ -283,6 +287,11 @@ well-ordering-principle-ℕ P d (pair (succ-ℕ n) p) =
       ( λ m → d (succ-ℕ m))
       ( pair n p))
 
+number-well-ordering-principle-ℕ :
+  {l : Level} (P : ℕ → UU l) (d : is-decidable-fam P) (nP : Σ ℕ P) → ℕ
+number-well-ordering-principle-ℕ P d nP =
+  pr1 (well-ordering-principle-ℕ P d nP)
+
 {- Also show that the well-ordering principle returns 0 if P 0 holds,
    independently of the input (pair n p) : Σ ℕ P. -}
 
@@ -298,7 +307,7 @@ is-zero-well-ordering-principle-succ-ℕ P d n p (inr np0) x q0 =
 
 is-zero-well-ordering-principle-ℕ :
   {l : Level} (P : ℕ → UU l) (d : is-decidable-fam P) →
-  (x : Σ ℕ P) → P zero-ℕ → Id (pr1 (well-ordering-principle-ℕ P d x)) zero-ℕ
+  (x : Σ ℕ P) → P zero-ℕ → Id (number-well-ordering-principle-ℕ P d x) zero-ℕ
 is-zero-well-ordering-principle-ℕ P d (pair zero-ℕ p) p0 = refl
 is-zero-well-ordering-principle-ℕ P d (pair (succ-ℕ m) p) =
   is-zero-well-ordering-principle-succ-ℕ P d m p (d zero-ℕ)
@@ -613,19 +622,19 @@ is-one-is-divisor-below-ℕ : ℕ → ℕ → UU lzero
 is-one-is-divisor-below-ℕ n a =
   (x : ℕ) → leq-ℕ x n → div-ℕ x a → is-one-ℕ x
 
-exactly-one-divisor-below-ℕ : ℕ → ℕ → UU lzero
-exactly-one-divisor-below-ℕ n a =
+in-sieve-of-eratosthenes-ℕ : ℕ → ℕ → UU lzero
+in-sieve-of-eratosthenes-ℕ n a =
   (le-ℕ n a) × (is-one-is-divisor-below-ℕ n a)
 
-le-exactly-one-divisor-below-ℕ :
-  (n a : ℕ) → exactly-one-divisor-below-ℕ n a → le-ℕ n a
-le-exactly-one-divisor-below-ℕ n a = pr1
+le-in-sieve-of-eratosthenes-ℕ :
+  (n a : ℕ) → in-sieve-of-eratosthenes-ℕ n a → le-ℕ n a
+le-in-sieve-of-eratosthenes-ℕ n a = pr1
 
 {- Lemma 8.5.4 -}
 
-is-decidable-exactly-one-divisor-below-ℕ :
-  (n a : ℕ) → is-decidable (exactly-one-divisor-below-ℕ n a)
-is-decidable-exactly-one-divisor-below-ℕ n a =
+is-decidable-in-sieve-of-eratosthenes-ℕ :
+  (n a : ℕ) → is-decidable (in-sieve-of-eratosthenes-ℕ n a)
+is-decidable-in-sieve-of-eratosthenes-ℕ n a =
   is-decidable-prod
     ( is-decidable-le-ℕ n a)
     ( is-decidable-bounded-Π-ℕ
@@ -660,16 +669,16 @@ leq-factorial-ℕ (succ-ℕ n) =
     ( succ-ℕ n)
     ( is-nonzero-factorial-ℕ n) 
 
-exactly-one-divisor-below-succ-factorial-ℕ :
-  (n : ℕ) → exactly-one-divisor-below-ℕ n (succ-ℕ (factorial-ℕ n))
-exactly-one-divisor-below-succ-factorial-ℕ zero-ℕ =
+in-sieve-of-eratosthenes-succ-factorial-ℕ :
+  (n : ℕ) → in-sieve-of-eratosthenes-ℕ n (succ-ℕ (factorial-ℕ n))
+in-sieve-of-eratosthenes-succ-factorial-ℕ zero-ℕ =
   pair
     ( star)
     ( λ x l d →
       ex-falso
         ( Eq-ℕ-eq
           ( is-zero-is-zero-div-ℕ x two-ℕ d (is-zero-leq-zero-ℕ x l))))
-exactly-one-divisor-below-succ-factorial-ℕ (succ-ℕ n) =
+in-sieve-of-eratosthenes-succ-factorial-ℕ (succ-ℕ n) =
   pair
     ( concatenate-leq-le-ℕ
       { succ-ℕ n}
@@ -679,7 +688,8 @@ exactly-one-divisor-below-succ-factorial-ℕ (succ-ℕ n) =
       ( le-succ-ℕ {factorial-ℕ (succ-ℕ n)}))
     ( α)
   where
-  α : (x : ℕ) → leq-ℕ x (succ-ℕ n) → div-ℕ x (succ-ℕ (factorial-ℕ (succ-ℕ n))) → is-one-ℕ x
+  α : (x : ℕ) → leq-ℕ x (succ-ℕ n) →
+        div-ℕ x (succ-ℕ (factorial-ℕ (succ-ℕ n))) → is-one-ℕ x
   α x l (pair y p) with is-decidable-is-zero-ℕ x
   ... | inl refl =
     ex-falso
@@ -694,40 +704,40 @@ exactly-one-divisor-below-succ-factorial-ℕ (succ-ℕ n) =
 
 {- Theorem 8.5.6 The infinitude of primes -}
 
-minimal-element-exactly-one-divisor-below-ℕ :
-  (n : ℕ) → minimal-element-ℕ (exactly-one-divisor-below-ℕ n)
-minimal-element-exactly-one-divisor-below-ℕ n =
+minimal-element-in-sieve-of-eratosthenes-ℕ :
+  (n : ℕ) → minimal-element-ℕ (in-sieve-of-eratosthenes-ℕ n)
+minimal-element-in-sieve-of-eratosthenes-ℕ n =
   well-ordering-principle-ℕ
-    ( exactly-one-divisor-below-ℕ n)
-    ( is-decidable-exactly-one-divisor-below-ℕ n)
+    ( in-sieve-of-eratosthenes-ℕ n)
+    ( is-decidable-in-sieve-of-eratosthenes-ℕ n)
     ( pair
       ( succ-ℕ (factorial-ℕ n))
-      ( exactly-one-divisor-below-succ-factorial-ℕ n))
+      ( in-sieve-of-eratosthenes-succ-factorial-ℕ n))
 
 larger-prime-ℕ : ℕ → ℕ
-larger-prime-ℕ n = pr1 (minimal-element-exactly-one-divisor-below-ℕ n)
+larger-prime-ℕ n = pr1 (minimal-element-in-sieve-of-eratosthenes-ℕ n)
 
-exactly-one-divisor-below-larger-prime-ℕ :
-  (n : ℕ) → exactly-one-divisor-below-ℕ n (larger-prime-ℕ n)
-exactly-one-divisor-below-larger-prime-ℕ n =
-  pr1 (pr2 (minimal-element-exactly-one-divisor-below-ℕ n))
+in-sieve-of-eratosthenes-larger-prime-ℕ :
+  (n : ℕ) → in-sieve-of-eratosthenes-ℕ n (larger-prime-ℕ n)
+in-sieve-of-eratosthenes-larger-prime-ℕ n =
+  pr1 (pr2 (minimal-element-in-sieve-of-eratosthenes-ℕ n))
 
 is-one-is-divisor-below-larger-prime-ℕ :
   (n : ℕ) → is-one-is-divisor-below-ℕ n (larger-prime-ℕ n)
 is-one-is-divisor-below-larger-prime-ℕ n =
-  pr2 (exactly-one-divisor-below-larger-prime-ℕ n)
+  pr2 (in-sieve-of-eratosthenes-larger-prime-ℕ n)
 
 le-larger-prime-ℕ : (n : ℕ) → le-ℕ n (larger-prime-ℕ n)
-le-larger-prime-ℕ n = pr1 (exactly-one-divisor-below-larger-prime-ℕ n)
+le-larger-prime-ℕ n = pr1 (in-sieve-of-eratosthenes-larger-prime-ℕ n)
 
 is-nonzero-larger-prime-ℕ : (n : ℕ) → is-nonzero-ℕ (larger-prime-ℕ n)
 is-nonzero-larger-prime-ℕ n =
   is-nonzero-le-ℕ n (larger-prime-ℕ n) (le-larger-prime-ℕ n)
 
 is-lower-bound-larger-prime-ℕ :
-  (n : ℕ) → is-lower-bound-ℕ (exactly-one-divisor-below-ℕ n) (larger-prime-ℕ n)
+  (n : ℕ) → is-lower-bound-ℕ (in-sieve-of-eratosthenes-ℕ n) (larger-prime-ℕ n)
 is-lower-bound-larger-prime-ℕ n =
-  pr2 (pr2 (minimal-element-exactly-one-divisor-below-ℕ n))
+  pr2 (pr2 (minimal-element-in-sieve-of-eratosthenes-ℕ n))
 
 is-not-one-larger-prime-ℕ :
   (n : ℕ) → is-nonzero-ℕ n → is-not-one-ℕ (larger-prime-ℕ n)
@@ -751,10 +761,10 @@ le-is-proper-divisor-ℕ :
 le-is-proper-divisor-ℕ x y H K =
   le-leq-neq-ℕ (leq-div-ℕ x y H (pr2 K)) (pr1 K)
 
-not-exactly-one-divisor-below-is-proper-divisor-larger-prime-ℕ :
+not-in-sieve-of-eratosthenes-is-proper-divisor-larger-prime-ℕ :
   (n x : ℕ) → is-proper-divisor-ℕ (larger-prime-ℕ n) x →
-  ¬ (exactly-one-divisor-below-ℕ n x)
-not-exactly-one-divisor-below-is-proper-divisor-larger-prime-ℕ n x H K =
+  ¬ (in-sieve-of-eratosthenes-ℕ n x)
+not-in-sieve-of-eratosthenes-is-proper-divisor-larger-prime-ℕ n x H K =
   ex-falso
     ( contradiction-le-ℕ x (larger-prime-ℕ n)
       ( le-is-proper-divisor-ℕ x (larger-prime-ℕ n)
@@ -768,7 +778,7 @@ is-one-is-proper-divisor-larger-prime-ℕ n H x (pair f K) =
   is-one-is-divisor-below-larger-prime-ℕ n x
     ( leq-not-le-ℕ n x
       ( neg-left-factor-neg-prod
-        ( not-exactly-one-divisor-below-is-proper-divisor-larger-prime-ℕ n x
+        ( not-in-sieve-of-eratosthenes-is-proper-divisor-larger-prime-ℕ n x
           ( pair f K))
         ( λ y l d →
           is-one-is-divisor-below-larger-prime-ℕ n y l
@@ -838,9 +848,6 @@ is-prime-four-hundred-and-nine-ℕ =
 
 {- The Goldbach conjecture asserts that every even number above 2 is the sum
    of two primes. -}
-
-is-even-ℕ : ℕ → UU lzero
-is-even-ℕ n = div-ℕ two-ℕ n
 
 Goldbach-conjecture : UU lzero
 Goldbach-conjecture =
@@ -1067,3 +1074,5 @@ has-decidable-equality-has-decidable-equality-list d x y =
       ( eq-Eq-list (cons x nil) (cons y nil))
       ( d (cons x nil) (cons y nil)))
     ( raise-star)
+
+--------------------------------------------------------------------------------
