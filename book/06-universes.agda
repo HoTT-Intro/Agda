@@ -176,7 +176,7 @@ is-zero-summand-is-zero-sum-ℕ x y p =
   pair (is-zero-left-is-zero-add-ℕ x y p) (is-zero-right-is-zero-add-ℕ x y p)
 
 is-zero-sum-is-zero-summand-ℕ :
-  (x y : ℕ) → (Id x zero-ℕ) × (Id y zero-ℕ) → Id (add-ℕ x y) zero-ℕ
+  (x y : ℕ) → (is-zero-ℕ x) × (is-zero-ℕ y) → is-zero-ℕ (add-ℕ x y)
 is-zero-sum-is-zero-summand-ℕ .zero-ℕ .zero-ℕ (pair refl refl) = refl
 
 is-one-right-is-one-mul-ℕ :
@@ -551,17 +551,17 @@ ap-dist-ℕ refl refl = refl
    zero. -}
 
 eq-dist-ℕ :
-  (m n : ℕ) → Id zero-ℕ (dist-ℕ m n) → Id m n
+  (m n : ℕ) → is-zero-ℕ (dist-ℕ m n) → Id m n
 eq-dist-ℕ zero-ℕ zero-ℕ p = refl
 eq-dist-ℕ (succ-ℕ m) (succ-ℕ n) p = ap succ-ℕ (eq-dist-ℕ m n p)
 
 dist-eq-ℕ' :
-  (n : ℕ) → Id zero-ℕ (dist-ℕ n n)
+  (n : ℕ) → is-zero-ℕ (dist-ℕ n n)
 dist-eq-ℕ' zero-ℕ = refl
 dist-eq-ℕ' (succ-ℕ n) = dist-eq-ℕ' n
 
 dist-eq-ℕ :
-  (m n : ℕ) → Id m n → Id zero-ℕ (dist-ℕ m n)
+  (m n : ℕ) → Id m n → is-zero-ℕ (dist-ℕ m n)
 dist-eq-ℕ m .m refl = dist-eq-ℕ' m
 
 -- The distance function is symmetric --
@@ -661,7 +661,7 @@ rewrite-left-add-dist-ℕ :
   (x y z : ℕ) → Id (add-ℕ x y) z → Id x (dist-ℕ y z)
 rewrite-left-add-dist-ℕ zero-ℕ zero-ℕ .zero-ℕ refl = refl
 rewrite-left-add-dist-ℕ zero-ℕ (succ-ℕ y) .(succ-ℕ (add-ℕ zero-ℕ y)) refl =
-  ( dist-eq-ℕ' y) ∙
+  ( inv (dist-eq-ℕ' y)) ∙
   ( inv (ap (dist-ℕ (succ-ℕ y)) (left-unit-law-add-ℕ (succ-ℕ y))))
 rewrite-left-add-dist-ℕ (succ-ℕ x) zero-ℕ .(succ-ℕ x) refl = refl
 rewrite-left-add-dist-ℕ
@@ -747,12 +747,15 @@ abs-ℤ (inr (inr x)) = succ-ℕ x
 int-abs-ℤ : ℤ → ℤ
 int-abs-ℤ = int-ℕ ∘ abs-ℤ
 
-eq-abs-ℤ : (x : ℤ) → Id zero-ℕ (abs-ℤ x) → Id zero-ℤ x
-eq-abs-ℤ (inl x) p = ex-falso (Peano-8 x (inv p))
-eq-abs-ℤ (inr (inl star)) p = refl
-eq-abs-ℤ (inr (inr x)) p = ex-falso (Peano-8 x (inv p))
+is-zero-ℤ : ℤ → UU lzero
+is-zero-ℤ x = Id x zero-ℤ
 
-abs-eq-ℤ : (x : ℤ) → Id zero-ℤ x → Id zero-ℕ (abs-ℤ x)
+eq-abs-ℤ : (x : ℤ) → is-zero-ℕ (abs-ℤ x) → is-zero-ℤ x
+eq-abs-ℤ (inl x) p = ex-falso (Peano-8 x p)
+eq-abs-ℤ (inr (inl star)) p = refl
+eq-abs-ℤ (inr (inr x)) p = ex-falso (Peano-8 x p)
+
+abs-eq-ℤ : (x : ℤ) → is-zero-ℤ x → is-zero-ℕ (abs-ℤ x)
 abs-eq-ℤ .zero-ℤ refl = refl
 
 predecessor-law-abs-ℤ :

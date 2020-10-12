@@ -120,7 +120,7 @@ is-indiscrete-cong-one-ℕ x y = div-one-ℕ (dist-ℕ x y)
 is-discrete-cong-zero-ℕ :
   (x y : ℕ) → cong-ℕ zero-ℕ x y → Id x y
 is-discrete-cong-zero-ℕ x y (pair k p) =
-  eq-dist-ℕ x y ((inv (right-zero-law-mul-ℕ k)) ∙ p)
+  eq-dist-ℕ x y ((inv p) ∙ (right-zero-law-mul-ℕ k))
 
 {- Example 7.1.5 -}
 
@@ -136,7 +136,7 @@ cong-zero-ℕ k =
 reflexive-cong-ℕ :
   (k x : ℕ) → cong-ℕ k x x
 reflexive-cong-ℕ k x =
-  pair zero-ℕ ((left-zero-law-mul-ℕ (succ-ℕ k)) ∙ (dist-eq-ℕ x x refl))
+  pair zero-ℕ ((left-zero-law-mul-ℕ (succ-ℕ k)) ∙ (inv (dist-eq-ℕ x x refl)))
 
 cong-identification-ℕ :
   (k : ℕ) {x y : ℕ} → Id x y → cong-ℕ k x y
@@ -276,6 +276,9 @@ inl-Fin k = inl
 neg-one-Fin : {k : ℕ} → Fin (succ-ℕ k)
 neg-one-Fin {k} = inr star
 
+is-neg-one-Fin : {k : ℕ} → Fin k → UU lzero
+is-neg-one-Fin {succ-ℕ k} x = Id x neg-one-Fin
+
 {- Definition 7.2.4 -}
 
 -- We define the inclusion of Fin k into ℕ.
@@ -341,6 +344,9 @@ is-zero-Fin {succ-ℕ k} x = Id x zero-Fin
 
 is-zero-Fin' : {k : ℕ} → Fin k → UU lzero
 is-zero-Fin' {succ-ℕ k} x = Id zero-Fin x
+
+is-nonzero-Fin : {k : ℕ} → Fin k → UU lzero
+is-nonzero-Fin {succ-ℕ k} x = ¬ (is-zero-Fin x)
 
 -- We define a function skip-zero-Fin in order to define succ-Fin.
 
@@ -431,7 +437,7 @@ is-zero-div-ℕ d (succ-ℕ x) H (pair (succ-ℕ k) p) =
 eq-cong-le-dist-ℕ :
   (k x y : ℕ) → le-ℕ (dist-ℕ x y) k → cong-ℕ k x y → Id x y
 eq-cong-le-dist-ℕ k x y H K =
-  eq-dist-ℕ x y (inv (is-zero-div-ℕ k (dist-ℕ x y) H K))
+  eq-dist-ℕ x y (is-zero-div-ℕ k (dist-ℕ x y) H K)
 
 strict-upper-bound-dist-ℕ :
   (b x y : ℕ) → le-ℕ x b → le-ℕ y b → le-ℕ (dist-ℕ x y) b
@@ -793,7 +799,7 @@ is-injective-inl-Fin p = eq-Eq-Fin (Eq-Fin-eq p)
 -- Exercise 7.4 (c)
 
 neq-zero-succ-Fin :
-  {k : ℕ} {x : Fin k} → ¬ (Id (succ-Fin (inl-Fin k x)) zero-Fin)
+  {k : ℕ} {x : Fin k} → is-nonzero-Fin (succ-Fin (inl-Fin k x))
 neq-zero-succ-Fin {succ-ℕ k} {inl x} p =
   neq-zero-succ-Fin (is-injective-inl-Fin p)
 neq-zero-succ-Fin {succ-ℕ k} {inr star} p =
@@ -846,7 +852,7 @@ pred-Fin {succ-ℕ k} (inr x) = neg-two-Fin
 -- We now turn to the exercise.
 
 pred-zero-Fin :
-  {k : ℕ} → Id (pred-Fin {succ-ℕ k} zero-Fin) neg-one-Fin
+  {k : ℕ} → is-neg-one-Fin (pred-Fin {succ-ℕ k} zero-Fin)
 pred-zero-Fin {zero-ℕ} = refl
 pred-zero-Fin {succ-ℕ k} = ap skip-neg-two-Fin (pred-zero-Fin {k})
 
@@ -980,6 +986,9 @@ commutative-mul-Fin {succ-ℕ k} x y =
 
 one-Fin : {k : ℕ} → Fin (succ-ℕ k)
 one-Fin {k} = mod-succ-ℕ k one-ℕ
+
+is-one-Fin : {k : ℕ} → Fin k → UU lzero
+is-one-Fin {succ-ℕ k} x = Id x one-Fin
 
 nat-one-Fin : {k : ℕ} → is-one-ℕ (nat-Fin (one-Fin {succ-ℕ k}))
 nat-one-Fin {zero-ℕ} = refl
@@ -1232,23 +1241,23 @@ ap-dist-ℤ :
 ap-dist-ℤ refl refl = refl
 
 eq-dist-ℤ :
-  (x y : ℤ) → Id zero-ℕ (dist-ℤ x y) → Id x y
+  (x y : ℤ) → is-zero-ℕ (dist-ℤ x y) → Id x y
 eq-dist-ℤ (inl x) (inl y) p = ap inl (eq-dist-ℕ x y p)
-eq-dist-ℤ (inl x) (inr (inl star)) p = ex-falso (Peano-8 x (inv p))
-eq-dist-ℤ (inr (inl star)) (inl y) p = ex-falso (Peano-8 y (inv p))
+eq-dist-ℤ (inl x) (inr (inl star)) p = ex-falso (Peano-8 x p)
+eq-dist-ℤ (inr (inl star)) (inl y) p = ex-falso (Peano-8 y p)
 eq-dist-ℤ (inr (inl star)) (inr (inl star)) p = refl
-eq-dist-ℤ (inr (inl star)) (inr (inr y)) p = ex-falso (Peano-8 y (inv p))
-eq-dist-ℤ (inr (inr x)) (inr (inl star)) p = ex-falso (Peano-8 x (inv p))
+eq-dist-ℤ (inr (inl star)) (inr (inr y)) p = ex-falso (Peano-8 y p)
+eq-dist-ℤ (inr (inr x)) (inr (inl star)) p = ex-falso (Peano-8 x p)
 eq-dist-ℤ (inr (inr x)) (inr (inr y)) p = ap (inr ∘ inr) (eq-dist-ℕ x y p)
 
 dist-eq-ℤ' :
-  (x : ℤ) → Id zero-ℕ (dist-ℤ x x)
+  (x : ℤ) → is-zero-ℕ (dist-ℤ x x)
 dist-eq-ℤ' (inl x) = dist-eq-ℕ' x
 dist-eq-ℤ' (inr (inl star)) = refl
 dist-eq-ℤ' (inr (inr x)) = dist-eq-ℕ' x
 
 dist-eq-ℤ :
-  (x y : ℤ) → Id x y → Id zero-ℕ (dist-ℤ x y)
+  (x y : ℤ) → Id x y → is-zero-ℕ (dist-ℤ x y)
 dist-eq-ℤ x .x refl = dist-eq-ℤ' x
 
 {- The distance function on ℤ is symmetric. -}

@@ -137,6 +137,21 @@ has-decidable-equality-Fin :
 has-decidable-equality-Fin k x y =
   functor-coprod eq-Eq-Fin (functor-neg Eq-Fin-eq) (is-decidable-Eq-Fin k x y)
 
+is-decidable-is-zero-Fin :
+  {k : ℕ} (x : Fin k) → is-decidable (is-zero-Fin x)
+is-decidable-is-zero-Fin {succ-ℕ k} x =
+  has-decidable-equality-Fin (succ-ℕ k) x zero-Fin
+
+is-decidable-is-neg-one-Fin :
+  {k : ℕ} (x : Fin k) → is-decidable (is-neg-one-Fin x)
+is-decidable-is-neg-one-Fin {succ-ℕ k} x =
+  has-decidable-equality-Fin (succ-ℕ k) x neg-one-Fin
+
+is-decidable-is-one-Fin :
+  {k : ℕ} (x : Fin k) → is-decidable (is-one-Fin x)
+is-decidable-is-one-Fin {succ-ℕ k} x =
+  has-decidable-equality-Fin (succ-ℕ k) x one-Fin
+
 {- Theorem 8.1.9 -}
 
 is-decidable-div-ℕ : (d x : ℕ) → is-decidable (div-ℕ d x)
@@ -149,7 +164,7 @@ is-decidable-div-ℕ (succ-ℕ d) x =
   is-decidable-iff
     ( div-succ-eq-zero-ℕ d x)
     ( eq-zero-div-succ-ℕ d x)
-    ( has-decidable-equality-Fin (succ-ℕ d) (mod-succ-ℕ d x) zero-Fin)
+    ( is-decidable-is-zero-Fin (mod-succ-ℕ d x))
 
 is-decidable-is-even-ℕ : (x : ℕ) → is-decidable (is-even-ℕ x)
 is-decidable-is-even-ℕ x = is-decidable-div-ℕ two-ℕ x
