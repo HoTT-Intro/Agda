@@ -1,3 +1,5 @@
+{-# OPTIONS --without-K --exact-split #-}
+
 module book.13-function-extensionality-solutions where
 
 import book.13-function-extensionality
@@ -1527,22 +1529,6 @@ abstract
 
 -- Exercise 13.20
 
-skip-Fin : {k : ℕ} (x : Fin (succ-ℕ k)) → Fin k → Fin (succ-ℕ k)
-skip-Fin {succ-ℕ k} (inl x) (inl y) = inl (skip-Fin x y)
-skip-Fin {succ-ℕ k} (inl x) (inr star) = inr star
-skip-Fin {succ-ℕ k} (inr x) y = inl y
-
-swap-Fin : {k : ℕ} (x : Fin k) → Fin k → Fin k
-swap-Fin {succ-ℕ k} (inl x) (inl y) = skip-Fin (inl x) (swap-Fin x y)
-swap-Fin {succ-ℕ k} (inl x) (inr star) = inl x
-swap-Fin {succ-ℕ k} (inr star) y = y
-
-is-neg-one-swap-Fin :
-  {k : ℕ} (x : Fin k) → is-neg-one-Fin (swap-Fin x x)
-is-neg-one-swap-Fin {succ-ℕ k} (inr star) = refl
-is-neg-one-swap-Fin {succ-ℕ (succ-ℕ k)} (inl (inr star)) = refl
-is-neg-one-swap-Fin {succ-ℕ (succ-ℕ k)} (inl (inl x)) =
-  ap (skip-Fin (inl (inl x))) (is-neg-one-swap-Fin (inl x))
 
 --------------------------------------------------------------------------------
 
@@ -1665,3 +1651,93 @@ function-Fin (succ-ℕ k) l =
   ( ( prod-Fin (exp-ℕ l k) l) ∘e
     ( equiv-functor-prod (function-Fin k l) (equiv-ev-star' (Fin l)))) ∘e
   ( equiv-universal-property-coprod (Fin l))
+
+--------------------------------------------------------------------------------
+
+pointed-successor-algebra : {l : Level} (X : UU l) → UU l
+pointed-successor-algebra X = X × (X → X)
+
+pointed-successor-algebra-ℕ : pointed-successor-algebra ℕ
+pointed-successor-algebra-ℕ = pair zero-ℕ succ-ℕ
+
+Eq-pointed-successor-algebra :
+  {l : Level} {X : UU l} (x y : pointed-successor-algebra X) → UU l
+Eq-pointed-successor-algebra x y =
+  (Id (pr1 x) (pr1 y)) × ((pr2 x) ~ (pr2 y))
+
+refl-Eq-pointed-successor-algebra :
+  {l : Level} {X : UU l} (x : pointed-successor-algebra X) →
+  Eq-pointed-successor-algebra x x
+refl-Eq-pointed-successor-algebra (pair x f) = pair refl refl-htpy
+
+Eq-pointed-successor-algebra-eq :
+  {l : Level} {X : UU l} (x y : pointed-successor-algebra X) →
+  Id x y → Eq-pointed-successor-algebra x y
+Eq-pointed-successor-algebra-eq x .x refl =
+  refl-Eq-pointed-successor-algebra x
+
+is-contr-total-Eq-pointed-successor-algebra :
+  {l : Level} {X : UU l} (x : pointed-successor-algebra X) →
+  is-contr (Σ (pointed-successor-algebra X) (Eq-pointed-successor-algebra x))
+is-contr-total-Eq-pointed-successor-algebra {l} {X} x =
+  is-contr-total-Eq-structure
+    ( λ (y : X) (g : X → X) (p : Id (pr1 x) y) → (pr2 x) ~ g)
+    ( is-contr-total-path (pr1 x))
+    ( pair (pr1 x) refl)
+    ( is-contr-total-htpy (pr2 x))
+
+ev-zero-succ-ℕ :
+  {l : Level} {X : UU l} → pointed-successor-algebra X → ℕ → X
+ev-zero-succ-ℕ (pair x f) zero-ℕ = x
+ev-zero-succ-ℕ (pair x f) (succ-ℕ n) = f (ev-zero-succ-ℕ (pair x f) n)
+
+hom-pointed-successor-algebra :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2}
+  (H : pointed-successor-algebra X) (K : pointed-successor-algebra Y) →
+  UU (l1 ⊔ l2)
+hom-pointed-successor-algebra {l1} {l2} {X} {Y} H K =
+  Σ ( X → Y)
+    ( λ h →
+      ( Id (h (pr1 H)) (pr1 K)) ×
+      ( (x : X) → Id (h (pr2 H x)) (pr2 K (h x))))
+
+map-hom-pointed-successor-algebra :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2}
+  (H : pointed-successor-algebra X) (K : pointed-successor-algebra Y) →
+  (h : hom-pointed-successor-algebra H K) → X → Y
+map-hom-pointed-successor-algebra H K h = pr1 h
+
+comp-base-hom-pointed-successor-algebra :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l1}
+  (H : pointed-successor-algebra X) (K : pointed-successor-algebra Y) →
+  (h : hom-pointed-successor-algebra H K) →
+  Id (map-hom-pointed-successor-algebra H K h (pr1 H)) (pr1 K)
+comp-base-hom-pointed-successor-algebra H K h =
+  pr1 (pr2 h)
+
+comp-succ-hom-pointed-successor-algebra :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l1}
+  (H : pointed-successor-algebra X) (K : pointed-successor-algebra Y) →
+  (h : hom-pointed-successor-algebra H K) →
+  (map-hom-pointed-successor-algebra H K h ∘ (pr2 H)) ~
+  (pr2 K ∘ (map-hom-pointed-successor-algebra H K h))
+comp-succ-hom-pointed-successor-algebra H K h =
+  pr2 (pr2 h)
+
+hom-is-initial-pointed-successor-algebra-ℕ :
+  {l1 : Level} {X : UU l1} (x : pointed-successor-algebra X) →
+  hom-pointed-successor-algebra pointed-successor-algebra-ℕ x
+hom-is-initial-pointed-successor-algebra-ℕ x =
+  pair
+    ( ind-ℕ (pr1 x) (λ n → (pr2 x)))
+    ( pair refl refl-htpy)
+
+htpy-hom-pointed-successor-algebra :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2}
+  (H : pointed-successor-algebra X) (K : pointed-successor-algebra Y) →
+  (h1 h2 : hom-pointed-successor-algebra H K) → UU (l1 ⊔ l2)
+htpy-hom-pointed-successor-algebra H K h1 h2 =
+  Σ ( (pr1 h1) ~ pr1 h2)
+    ( λ α →
+      {! Id (comp-base-hom-pointed-successor-algebra H K h1) ? × ?!})
+

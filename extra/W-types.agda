@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module W-types where
+module extra.W-types where
 
-import 17-number-theory
-open 17-number-theory public
+import book.18-real-numbers
+open book.18-real-numbers public
 
 module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
 
@@ -283,7 +283,7 @@ module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
               ( λ H → (pr2 f) ~ H))
           ( equiv-tot
             ( λ H →
-              ( equiv-htpy-concat
+              ( equiv-concat-htpy
                 ( λ x →
                   ap ( concat
                        ( pr2 f x)
@@ -292,7 +292,7 @@ module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
                      ( ap ( ap (pr2 Y))
                           ( coh-refl-htpy-polynomial-endofunctor (pr1 f) x)))
                 ( H)) ∘e
-              ( equiv-htpy-concat htpy-right-unit H)))
+              ( equiv-concat-htpy right-unit-htpy H)))
           ( is-contr-total-htpy (pr2 f)))
 
     is-equiv-htpy-hom-algebra-polynomial-endofunctor-eq :

@@ -1420,3 +1420,62 @@ linear-dist-ℕ (succ-ℕ m) (succ-ℕ n) (succ-ℕ k) =
       ( mul-ℕ (succ-ℕ k) n)) ∙
     ( linear-dist-ℕ m n (succ-ℕ k)))
 -}
+
+swap-neg-two-neg-one-Fin :
+  {k : ℕ} → Fin (succ-ℕ (succ-ℕ k)) → Fin (succ-ℕ (succ-ℕ k))
+swap-neg-two-neg-one-Fin (inl (inl x)) = inl (inl x)
+swap-neg-two-neg-one-Fin (inl (inr star)) = inr star
+swap-neg-two-neg-one-Fin (inr star) = inl (inr star)
+
+swap-Fin : {k : ℕ} (x y z : Fin k) → Fin k
+swap-Fin {succ-ℕ zero-ℕ} x y z = z
+swap-Fin {succ-ℕ (succ-ℕ k)} (inl x) (inl y) (inl z) = inl (swap-Fin x y z)
+swap-Fin {succ-ℕ (succ-ℕ k)} (inl x) (inl y) (inr star) = inr star
+swap-Fin {succ-ℕ (succ-ℕ k)} (inl x) (inr star) (inl z) =
+  functor-coprod
+    ( swap-Fin x (inr star))
+    ( id)
+    ( swap-neg-two-neg-one-Fin
+      ( inl-Fin (succ-ℕ k)
+        ( swap-Fin x (inr star) z)))
+swap-Fin {succ-ℕ (succ-ℕ k)} (inl x) (inr star) (inr star) = inl x
+swap-Fin {succ-ℕ (succ-ℕ k)} (inr star) (inl y) (inl z) =
+  functor-coprod
+    ( swap-Fin (inr star) y)
+    ( id)
+    ( swap-neg-two-neg-one-Fin
+      ( inl-Fin (succ-ℕ k)
+        ( swap-Fin (inr star) y z)))
+swap-Fin {succ-ℕ (succ-ℕ k)} (inr star) (inl y) (inr star) = inl y
+swap-Fin {succ-ℕ (succ-ℕ k)} (inr star) (inr star) (inl z) = inl z
+swap-Fin {succ-ℕ (succ-ℕ k)} (inr star) (inr star) (inr star) = inr star
+
+swap-neg-one-Fin :
+  {k : ℕ} (x : Fin (succ-ℕ k)) → Id (swap-Fin x neg-one-Fin neg-one-Fin) x
+swap-neg-one-Fin {zero-ℕ} (inr star) = refl
+swap-neg-one-Fin {succ-ℕ k} (inl x) = refl
+swap-neg-one-Fin {succ-ℕ k} (inr star) = refl
+
+is-neg-one-swap-Fin :
+  {k : ℕ} (x : Fin (succ-ℕ k)) → is-neg-one-Fin (swap-Fin x neg-one-Fin x)
+is-neg-one-swap-Fin {zero-ℕ} (inr star) = refl
+is-neg-one-swap-Fin {succ-ℕ k} (inl x) =
+  ap ( functor-coprod (swap-Fin x neg-one-Fin) id)
+     ( ap ( swap-neg-two-neg-one-Fin ∘ inl-Fin (succ-ℕ k))
+          ( is-neg-one-swap-Fin x))
+is-neg-one-swap-Fin {succ-ℕ k} (inr star) = refl
+
+{-
+swap-swap-Fin : {k : ℕ} (x y z : Fin k) →
+  Id (swap-Fin x y (swap-Fin x y z)) z
+swap-swap-Fin {succ-ℕ zero-ℕ} x y z = refl
+swap-swap-Fin {succ-ℕ (succ-ℕ k)} (inl x) (inl y) (inl z) =
+  ap inl (swap-swap-Fin x y z)
+swap-swap-Fin {succ-ℕ (succ-ℕ k)} (inl x) (inl y) (inr star) = refl
+swap-swap-Fin {succ-ℕ (succ-ℕ k)} (inl x) (inr star) (inl z) = {!!}
+swap-swap-Fin {succ-ℕ (succ-ℕ k)} (inl x) (inr star) (inr star) = {!!}
+swap-swap-Fin {succ-ℕ (succ-ℕ k)} (inr star) (inl y) (inl z) = {!!}
+swap-swap-Fin {succ-ℕ (succ-ℕ k)} (inr star) (inl y) (inr star) = {!!}
+swap-swap-Fin {succ-ℕ (succ-ℕ k)} (inr star) (inr star) (inl z) = {!!}
+swap-swap-Fin {succ-ℕ (succ-ℕ k)} (inr star) (inr star) (inr star) = {!!}
+-}
