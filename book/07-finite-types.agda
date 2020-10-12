@@ -388,6 +388,10 @@ nat-skip-zero-Fin :
 nat-skip-zero-Fin {succ-ℕ k} (inl x) = nat-skip-zero-Fin x
 nat-skip-zero-Fin {succ-ℕ k} (inr star) = refl
 
+nat-succ-Fin :
+  {k : ℕ} (x : Fin k) → Id (nat-Fin (succ-Fin (inl x))) (succ-ℕ (nat-Fin x))
+nat-succ-Fin {k} x = nat-skip-zero-Fin x
+
 cong-nat-succ-Fin :
   (k : ℕ) (x : Fin k) → cong-ℕ k (nat-Fin (succ-Fin x)) (succ-ℕ (nat-Fin x))
 cong-nat-succ-Fin (succ-ℕ k) (inl x) =
@@ -395,7 +399,7 @@ cong-nat-succ-Fin (succ-ℕ k) (inl x) =
     ( succ-ℕ k)
     { nat-Fin (succ-Fin (inl x))}
     { succ-ℕ (nat-Fin x)}
-    ( nat-skip-zero-Fin x)
+    ( nat-succ-Fin x)
 cong-nat-succ-Fin (succ-ℕ k) (inr star) =
   concatenate-eq-cong-ℕ
     ( succ-ℕ k)
@@ -1419,4 +1423,86 @@ linear-dist-ℕ (succ-ℕ m) (succ-ℕ n) (succ-ℕ k) =
       ( mul-ℕ (succ-ℕ k) m)
       ( mul-ℕ (succ-ℕ k) n)) ∙
     ( linear-dist-ℕ m n (succ-ℕ k)))
+-}
+
+--------------------------------------------------------------------------------
+
+data based-ℕ : ℕ → UU lzero where
+  constant-based-ℕ : (k : ℕ) → Fin k → based-ℕ k
+  unary-op-based-ℕ : (k : ℕ) → Fin k → based-ℕ k → based-ℕ k
+
+zero-based-ℕ : (k : ℕ) → based-ℕ (succ-ℕ k)
+zero-based-ℕ k = constant-based-ℕ (succ-ℕ k) zero-Fin
+
+succ-based-ℕ : (k : ℕ) → based-ℕ k → based-ℕ k
+succ-based-ℕ (succ-ℕ k) (constant-based-ℕ .(succ-ℕ k) (inl x)) =
+  constant-based-ℕ (succ-ℕ k) (succ-Fin (inl x))
+succ-based-ℕ (succ-ℕ k) (constant-based-ℕ .(succ-ℕ k) (inr star)) =
+  unary-op-based-ℕ (succ-ℕ k) zero-Fin (constant-based-ℕ (succ-ℕ k) zero-Fin)
+succ-based-ℕ (succ-ℕ k) (unary-op-based-ℕ .(succ-ℕ k) (inl x) n) =
+  unary-op-based-ℕ (succ-ℕ k) (succ-Fin (inl x)) n
+succ-based-ℕ (succ-ℕ k) (unary-op-based-ℕ .(succ-ℕ k) (inr x) n) =
+  unary-op-based-ℕ (succ-ℕ k) zero-Fin (succ-based-ℕ (succ-ℕ k) n)
+
+based-unary-ℕ : (k : ℕ) → ℕ → based-ℕ (succ-ℕ k)
+based-unary-ℕ k zero-ℕ = zero-based-ℕ k
+based-unary-ℕ k (succ-ℕ n) = succ-based-ℕ (succ-ℕ k) (based-unary-ℕ k n)
+
+constant-ℕ : (k : ℕ) → Fin k → ℕ
+constant-ℕ k x = nat-Fin x
+
+unary-op-ℕ : (k : ℕ) → Fin k → ℕ → ℕ
+unary-op-ℕ k x n = add-ℕ (mul-ℕ k (succ-ℕ n)) (nat-Fin x)
+
+unary-based-ℕ : (k : ℕ) → based-ℕ k → ℕ
+unary-based-ℕ k (constant-based-ℕ .k x) = constant-ℕ k x
+unary-based-ℕ k (unary-op-based-ℕ .k x n) = unary-op-ℕ k x (unary-based-ℕ k n)
+
+{-
+unary-based-succ-based-ℕ :
+  (k : ℕ) (x : based-ℕ k) →
+  Id (unary-based-ℕ k (succ-based-ℕ k x)) (succ-ℕ (unary-based-ℕ k x))
+unary-based-succ-based-ℕ (succ-ℕ k) (constant-based-ℕ .(succ-ℕ k) (inl x)) =
+  nat-succ-Fin x
+unary-based-succ-based-ℕ (succ-ℕ k) (constant-based-ℕ .(succ-ℕ k) (inr star)) =
+  ( ap (λ t → add-ℕ (mul-ℕ (succ-ℕ k) (succ-ℕ t)) t) (nat-zero-Fin {k})) ∙
+  ( right-unit-law-mul-ℕ (succ-ℕ k))
+unary-based-succ-based-ℕ (succ-ℕ k) (unary-op-based-ℕ .(succ-ℕ k) (inl x) n) =
+  ap ( add-ℕ (mul-ℕ (succ-ℕ k) (succ-ℕ (unary-based-ℕ (succ-ℕ k) n))))
+     ( nat-succ-Fin {k} x)
+unary-based-succ-based-ℕ
+  (succ-ℕ k) (unary-op-based-ℕ .(succ-ℕ k) (inr star) n) =
+  ( ap
+    ( add-ℕ 
+      ( mul-ℕ
+        ( succ-ℕ k)
+        ( succ-ℕ (unary-based-ℕ (succ-ℕ k) (succ-based-ℕ (succ-ℕ k) n)))))
+    ( nat-zero-Fin {k})) ∙
+  ( ap succ-ℕ {!ap (mul-ℕ (succ-ℕ k)) ? ∙ ?!})
+
+{- 
+  add-ℕ 
+    ( succ-ℕ 
+      ( add-ℕ
+        ( mul-ℕ k
+          ( succ-ℕ (unary-based-ℕ (succ-ℕ k) (succ-based-ℕ (succ-ℕ k) n))))
+        ( unary-based-ℕ (succ-ℕ k) (succ-based-ℕ (succ-ℕ k) n))))
+    ( nat-Fin zero-Fin)-}
+
+{-
+  succ-ℕ
+    ( add-ℕ
+      ( succ-ℕ
+        ( add-ℕ 
+          ( mul-ℕ k (succ-ℕ (unary-based-ℕ (succ-ℕ k) n)))
+          ( unary-based-ℕ (succ-ℕ k) n))) 
+      ( k))
+-}
+
+unary-based-based-unary-ℕ :
+  (k n : ℕ) → Id (unary-based-ℕ (succ-ℕ k) (based-unary-ℕ k n)) n
+unary-based-based-unary-ℕ k zero-ℕ = nat-zero-Fin {k}
+unary-based-based-unary-ℕ k (succ-ℕ n) =
+  ( unary-based-succ-based-ℕ (succ-ℕ k) (based-unary-ℕ  k n)) ∙
+  ( ap succ-ℕ (unary-based-based-unary-ℕ k n))
 -}
