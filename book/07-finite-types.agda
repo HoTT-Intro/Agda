@@ -1490,6 +1490,10 @@ data based-ℕ : ℕ → UU lzero where
   constant-based-ℕ : (k : ℕ) → Fin k → based-ℕ k
   unary-op-based-ℕ : (k : ℕ) → Fin k → based-ℕ k → based-ℕ k
 
+is-empty-based-zero-ℕ : is-empty (based-ℕ zero-ℕ)
+is-empty-based-zero-ℕ (constant-based-ℕ .zero-ℕ ())
+is-empty-based-zero-ℕ (unary-op-based-ℕ .zero-ℕ () n)
+
 zero-based-ℕ : (k : ℕ) → based-ℕ (succ-ℕ k)
 zero-based-ℕ k = constant-based-ℕ (succ-ℕ k) zero-Fin
 
@@ -1559,10 +1563,19 @@ based-unary-constant-ℕ (succ-ℕ k) (inl x) = {!!}
 based-unary-constant-ℕ zero-ℕ (inr star) = refl
 based-unary-constant-ℕ (succ-ℕ k) (inr star) = {!!}
 
+based-unary-unary-op-ℕ :
+  (k : ℕ) (x : Fin (succ-ℕ k)) (n : ℕ) →
+  Id ( based-unary-ℕ k (unary-op-ℕ (succ-ℕ k) x n))
+     ( unary-op-based-ℕ (succ-ℕ k) x (based-unary-ℕ k n))
+based-unary-unary-op-ℕ k x zero-ℕ = {!!}
+based-unary-unary-op-ℕ k x (succ-ℕ n) = {!!}
+
 based-unary-unary-based-ℕ :
   (k : ℕ) (x : based-ℕ (succ-ℕ k)) →
   Id (based-unary-ℕ k (unary-based-ℕ (succ-ℕ k) x)) x
 based-unary-unary-based-ℕ k (constant-based-ℕ .(succ-ℕ k) x) =
   based-unary-constant-ℕ k x
-based-unary-unary-based-ℕ k (unary-op-based-ℕ .(succ-ℕ k) x x₁) = {!!}
+based-unary-unary-based-ℕ k (unary-op-based-ℕ .(succ-ℕ k) x n) =
+  ( based-unary-unary-op-ℕ k x (unary-based-ℕ (succ-ℕ k) n)) ∙
+  ( ap (unary-op-based-ℕ (succ-ℕ k) x) (based-unary-unary-based-ℕ k n))
 -}
