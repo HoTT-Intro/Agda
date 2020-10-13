@@ -1555,12 +1555,126 @@ unary-based-based-unary-ℕ k (succ-ℕ n) =
   ( unary-based-succ-based-ℕ (succ-ℕ k) (based-unary-ℕ  k n)) ∙
   ( ap succ-ℕ (unary-based-based-unary-ℕ k n))
 
-{-
+Eq-based-ℕ : (k : ℕ) → (x y : based-ℕ k) → UU lzero
+Eq-based-ℕ
+  ( succ-ℕ k)
+  ( constant-based-ℕ .(succ-ℕ k) x)
+  ( constant-based-ℕ .(succ-ℕ k) y) =
+  Eq-Fin (succ-ℕ k) x y
+Eq-based-ℕ
+  ( succ-ℕ k)
+  ( constant-based-ℕ .(succ-ℕ k) x)
+  ( unary-op-based-ℕ .(succ-ℕ k) y m) =
+  empty
+Eq-based-ℕ
+  ( succ-ℕ k)
+  ( unary-op-based-ℕ .(succ-ℕ k) x n)
+  ( constant-based-ℕ .(succ-ℕ k) y) =
+  empty
+Eq-based-ℕ
+  ( succ-ℕ k)
+  ( unary-op-based-ℕ .(succ-ℕ k) x n)
+  ( unary-op-based-ℕ .(succ-ℕ k) y m) =
+  ( Eq-Fin (succ-ℕ k) x y) × (Eq-based-ℕ (succ-ℕ k) n m)
+
+refl-Eq-based-ℕ : (k : ℕ) (x : based-ℕ k) → Eq-based-ℕ k x x
+refl-Eq-based-ℕ (succ-ℕ k) (constant-based-ℕ .(succ-ℕ k) x) = refl-Eq-Fin x
+refl-Eq-based-ℕ (succ-ℕ k) (unary-op-based-ℕ .(succ-ℕ k) x n) =
+  pair
+    ( refl-Eq-Fin x)
+    ( refl-Eq-based-ℕ (succ-ℕ k) n)
+
+Eq-based-ℕ-eq :
+  (k : ℕ) (x y : based-ℕ k) → Id x y → Eq-based-ℕ k x y
+Eq-based-ℕ-eq k x .x refl = refl-Eq-based-ℕ k x
+
+eq-Eq-based-ℕ :
+  (k : ℕ) (x y : based-ℕ k) → Eq-based-ℕ k x y → Id x y
+eq-Eq-based-ℕ
+  ( succ-ℕ k)
+  ( constant-based-ℕ .(succ-ℕ k) x)
+  ( constant-based-ℕ .(succ-ℕ k) y) e =
+  ap (constant-based-ℕ (succ-ℕ k)) (eq-Eq-Fin e)
+eq-Eq-based-ℕ
+  ( succ-ℕ k)
+  ( unary-op-based-ℕ .(succ-ℕ k) x n)
+  ( unary-op-based-ℕ .(succ-ℕ k) y m)
+  ( pair e f) with eq-Eq-Fin {succ-ℕ k} {x} {y} e
+... | refl =
+  ap (unary-op-based-ℕ (succ-ℕ k) x) (eq-Eq-based-ℕ (succ-ℕ k) n m f)
+
+is-injective-unary-based-ℕ :
+  (k : ℕ) (x y : based-ℕ k) →
+  Id (unary-based-ℕ k x) (unary-based-ℕ k y) → Id x y
+is-injective-unary-based-ℕ
+  ( succ-ℕ k)
+  ( constant-based-ℕ .(succ-ℕ k) x)
+  ( constant-based-ℕ .(succ-ℕ k) y) p =
+  ap (constant-based-ℕ (succ-ℕ k)) (is-injective-nat-Fin p)
+is-injective-unary-based-ℕ
+  ( succ-ℕ k)
+  ( constant-based-ℕ .(succ-ℕ k) x)
+  ( unary-op-based-ℕ .(succ-ℕ k) y m) p = ex-falso (neq-le-ℕ H p)
+  where
+  H : le-ℕ (nat-Fin x) (unary-op-ℕ (succ-ℕ k) y (unary-based-ℕ (succ-ℕ k) m))
+  H = concatenate-le-leq-ℕ
+        { nat-Fin x}
+        { succ-ℕ k}
+        { unary-op-ℕ (succ-ℕ k) y (unary-based-ℕ (succ-ℕ k) m)}
+        ( strict-upper-bound-nat-Fin x)
+        ( transitive-leq-ℕ
+          ( succ-ℕ k)
+          ( mul-ℕ
+            ( succ-ℕ k)
+            ( succ-ℕ (unary-based-ℕ (succ-ℕ k) m)))
+          ( unary-op-ℕ (succ-ℕ k) y (unary-based-ℕ (succ-ℕ k) m))
+          ( leq-mul-ℕ (unary-based-ℕ (succ-ℕ k) m) (succ-ℕ k))
+          ( leq-add-ℕ
+            ( mul-ℕ (succ-ℕ k) (succ-ℕ (unary-based-ℕ (succ-ℕ k) m)))
+            ( nat-Fin y)))
+is-injective-unary-based-ℕ (succ-ℕ k) (unary-op-based-ℕ .(succ-ℕ k) x n) (constant-based-ℕ .(succ-ℕ k) y) p = ex-falso (neq-le-ℕ H (inv p))
+  where
+  H : le-ℕ (nat-Fin y) (unary-op-ℕ (succ-ℕ k) x (unary-based-ℕ (succ-ℕ k) n))
+  H = concatenate-le-leq-ℕ
+        { nat-Fin y}
+        { succ-ℕ k}
+        { unary-op-ℕ (succ-ℕ k) x (unary-based-ℕ (succ-ℕ k) n)}
+        ( strict-upper-bound-nat-Fin y)
+        ( transitive-leq-ℕ
+          ( succ-ℕ k)
+          ( mul-ℕ
+            ( succ-ℕ k)
+            ( succ-ℕ (unary-based-ℕ (succ-ℕ k) n)))
+          ( unary-op-ℕ (succ-ℕ k) x (unary-based-ℕ (succ-ℕ k) n))
+          ( leq-mul-ℕ (unary-based-ℕ (succ-ℕ k) n) (succ-ℕ k))
+          ( leq-add-ℕ
+            ( mul-ℕ (succ-ℕ k) (succ-ℕ (unary-based-ℕ (succ-ℕ k) n)))
+            ( nat-Fin x)))
+is-injective-unary-based-ℕ (succ-ℕ k) (unary-op-based-ℕ .(succ-ℕ k) x n) (unary-op-based-ℕ .(succ-ℕ k) y m) p = {!is-injective-nat-Fin (eq-cong-le-ℕ (succ-ℕ k) (nat-Fin x) (nat-Fin y) (strict-upper-bound-nat-Fin x) (strict-upper-bound-nat-Fin y) ?)!}
+  where
+  α : Id x y
+  α = is-injective-nat-Fin
+        ( eq-cong-le-ℕ
+          ( succ-ℕ k)
+          ( nat-Fin x)
+          ( nat-Fin y)
+          ( strict-upper-bound-nat-Fin x)
+          ( strict-upper-bound-nat-Fin y)
+          ( concatenate-cong-eq-cong-ℕ
+            { succ-ℕ k}
+            { nat-Fin x}
+            { unary-op-ℕ (succ-ℕ k) x (unary-based-ℕ (succ-ℕ k) n)}
+            { unary-op-ℕ (succ-ℕ k) y (unary-based-ℕ (succ-ℕ k) m)}
+            { nat-Fin y}
+            {! ? ∙ ((translation-invariant-dist-ℕ' (nat-Fin x) zero-ℕ (unary-op-ℕ (succ-ℕ k) x (unary-based-ℕ (succ-ℕ k) n))) ∙ ?)!}
+            ( p)
+            {!!}))
+
 based-unary-constant-ℕ :
   (k : ℕ) (x : Fin (succ-ℕ k)) →
   Id (based-unary-ℕ k (constant-ℕ (succ-ℕ k) x)) (constant-based-ℕ (succ-ℕ k) x)
-based-unary-constant-ℕ (succ-ℕ k) (inl x) = {!!}
 based-unary-constant-ℕ zero-ℕ (inr star) = refl
+based-unary-constant-ℕ (succ-ℕ k) (inl x) = {!!}
 based-unary-constant-ℕ (succ-ℕ k) (inr star) = {!!}
 
 based-unary-unary-op-ℕ :
@@ -1578,4 +1692,3 @@ based-unary-unary-based-ℕ k (constant-based-ℕ .(succ-ℕ k) x) =
 based-unary-unary-based-ℕ k (unary-op-based-ℕ .(succ-ℕ k) x n) =
   ( based-unary-unary-op-ℕ k x (unary-based-ℕ (succ-ℕ k) n)) ∙
   ( ap (unary-op-based-ℕ (succ-ℕ k) x) (based-unary-unary-based-ℕ k n))
--}

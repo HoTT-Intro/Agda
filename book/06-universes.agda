@@ -519,6 +519,12 @@ concatenate-leq-le-ℕ {zero-ℕ} {succ-ℕ y} {succ-ℕ z} H K = star
 concatenate-leq-le-ℕ {succ-ℕ x} {succ-ℕ y} {succ-ℕ z} H K =
   concatenate-leq-le-ℕ {x} {y} {z} H K
 
+concatenate-le-leq-ℕ :
+  {x y z : ℕ} → le-ℕ x y → leq-ℕ y z → le-ℕ x z
+concatenate-le-leq-ℕ {zero-ℕ} {succ-ℕ y} {succ-ℕ z} H K = star
+concatenate-le-leq-ℕ {succ-ℕ x} {succ-ℕ y} {succ-ℕ z} H K =
+  concatenate-le-leq-ℕ {x} {y} {z} H K
+
 le-succ-ℕ : {x : ℕ} → le-ℕ x (succ-ℕ x)
 le-succ-ℕ {zero-ℕ} = star
 le-succ-ℕ {succ-ℕ x} = le-succ-ℕ {x}
@@ -692,6 +698,12 @@ translation-invariant-dist-ℕ zero-ℕ m n =
   ap-dist-ℕ (left-unit-law-add-ℕ m) (left-unit-law-add-ℕ n)
 translation-invariant-dist-ℕ (succ-ℕ k)  m n =
   ( ap-dist-ℕ (left-successor-law-add-ℕ k m) (left-successor-law-add-ℕ k n)) ∙
+  ( translation-invariant-dist-ℕ k m n)
+
+translation-invariant-dist-ℕ' :
+  (k m n : ℕ) → Id (dist-ℕ (add-ℕ m k) (add-ℕ n k)) (dist-ℕ m n)
+translation-invariant-dist-ℕ' k m n =
+  ( ap-dist-ℕ (commutative-add-ℕ m k) (commutative-add-ℕ n k)) ∙
   ( translation-invariant-dist-ℕ k m n)
 
 -- We show that dist-ℕ is linear with respect to scalar multiplication

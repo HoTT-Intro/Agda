@@ -1654,6 +1654,7 @@ function-Fin (succ-ℕ k) l =
 
 --------------------------------------------------------------------------------
 
+{-
 pointed-successor-algebra : {l : Level} (X : UU l) → UU l
 pointed-successor-algebra X = X × (X → X)
 
@@ -1741,3 +1742,4 @@ htpy-hom-pointed-successor-algebra H K h1 h2 =
     ( λ α →
       {! Id (comp-base-hom-pointed-successor-algebra H K h1) ? × ?!})
 
+-}
