@@ -1221,9 +1221,11 @@ left-unit-law-add-ℕ₂ one-ℕ₂ = refl
 left-unit-law-add-ℕ₂ (double-plus-two-ℕ₂ n) = refl
 left-unit-law-add-ℕ₂ (double-plus-three-ℕ₂ n) = refl
 
+{-
 associative-add-ℕ₂ :
   (x y z : ℕ₂) → Id (add-ℕ₂ (add-ℕ₂ x y) z) (add-ℕ₂ x (add-ℕ₂ y z))
 associative-add-ℕ₂ x y zero-ℕ₂ = refl
 associative-add-ℕ₂ x y one-ℕ₂ = {!!}
 associative-add-ℕ₂ x y (double-plus-two-ℕ₂ z) = {!!}
 associative-add-ℕ₂ x y (double-plus-three-ℕ₂ z) = {!!}
+-}
