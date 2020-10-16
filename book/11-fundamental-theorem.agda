@@ -324,7 +324,7 @@ is-equiv-Eq-ℕ-eq {m} {n} =
 -- As an application we show that equivalences are embeddings.
 is-emb :
   {i j : Level} {A : UU i} {B : UU j} (f : A → B) → UU (i ⊔ j)
-is-emb f = (x y : _) → is-equiv (ap f {x} {y})
+is-emb f = {x y : _} → is-equiv (ap f {x} {y})
 
 _↪_ :
   {i j : Level} → UU i → UU j → UU (i ⊔ j)
@@ -341,23 +341,39 @@ is-emb-map-emb f = pr2 f
 eq-emb :
   {i j : Level} {A : UU i} {B : UU j} (f : A ↪ B) →
   {x y : A} → Id (map-emb f x) (map-emb f y) → Id x y
-eq-emb f {x} {y} = inv-is-equiv (is-emb-map-emb f x y)
+eq-emb f = inv-is-equiv (is-emb-map-emb f)
+
+abstract
+  is-injective-is-emb : {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
+    is-emb f → is-injective f
+  is-injective-is-emb is-emb-f = inv-is-equiv is-emb-f
 
 abstract
   is-emb-is-equiv :
     {i j : Level} {A : UU i} {B : UU j} (f : A → B) → is-equiv f → is-emb f
-  is-emb-is-equiv {i} {j} {A} {B} f is-equiv-f x =
+  is-emb-is-equiv {i} {j} {A} {B} f is-equiv-f {x} {y} =
     fundamental-theorem-id x refl
       ( is-contr-equiv
         ( fib f (f x))
         ( equiv-tot (λ y → equiv-inv (f x) (f y)))
         ( is-contr-map-is-equiv is-equiv-f (f x)))
       ( λ y p → ap f p)
+      ( y)
 
 emb-equiv :
   {i j : Level} {A : UU i} {B : UU j} → (A ≃ B) → (A ↪ B)
 emb-equiv e =
   pair (map-equiv e) (is-emb-is-equiv (map-equiv e) (is-equiv-map-equiv e))
+
+abstract
+  is-injective-is-equiv :
+    {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
+    is-equiv f → is-injective f
+  is-injective-is-equiv {f = f} = is-injective-is-emb ∘ is-emb-is-equiv f
+
+is-injective-equiv :
+  {i j : Level} {A : UU i} {B : UU j} (e : A ≃ B) → is-injective (map-equiv e)
+is-injective-equiv (pair f H) = is-injective-is-equiv H
 
 emb-id :
   {i : Level} {A : UU i} → (A ↪ A)
@@ -369,7 +385,7 @@ equiv-ap :
 equiv-ap e x y =
   pair
     ( ap (map-equiv e) {x} {y})
-    ( is-emb-is-equiv (map-equiv e) (is-equiv-map-equiv e) x y)
+    ( is-emb-is-equiv (map-equiv e) (is-equiv-map-equiv e))
 
 -- Section 11.3 Identity systems
 
@@ -836,9 +852,9 @@ abstract
 -- Exercise 11.1
 
 abstract
-  is-emb-empty :
-    {i : Level} (A : UU i) → is-emb (ind-empty {P = λ x → A})
-  is-emb-empty A = ind-empty
+  is-emb-ex-falso :
+    {i : Level} (A : UU i) → is-emb (ex-falso {A = A})
+  is-emb-ex-falso A {()}
 
 -- Exercise 11.2
 
@@ -917,7 +933,7 @@ abstract
   is-emb-htpy :
     {i j : Level} {A : UU i} {B : UU j} (f g : A → B) → (f ~ g) →
     is-emb g → is-emb f
-  is-emb-htpy f g H is-emb-g x y =
+  is-emb-htpy f g H is-emb-g {x} {y} =
     is-equiv-top-is-equiv-left-square
       ( ap g)
       ( concat' (f x) (H y))
@@ -925,7 +941,7 @@ abstract
       ( concat (H x) (g y))
       ( htpy-nat H)
       ( is-equiv-concat (H x) (g y))
-      ( is-emb-g x y)
+      ( is-emb-g)
       ( is-equiv-concat' (f x) (H y))
 
 abstract
@@ -944,9 +960,9 @@ abstract
     is-emb h → is-emb f
   is-emb-comp f g h H is-emb-g is-emb-h =
     is-emb-htpy f (g ∘ h) H
-      ( λ x y → is-equiv-comp (ap (g ∘ h)) (ap g) (ap h) (ap-comp g h)
-        ( is-emb-h x y)
-        ( is-emb-g (h x) (h y)))
+      ( λ {x} {y} → is-equiv-comp (ap (g ∘ h)) (ap g) (ap h) (ap-comp g h)
+        ( is-emb-h)
+        ( is-emb-g))
 
 abstract
   is-emb-comp' :
@@ -959,14 +975,14 @@ abstract
     {i j k : Level} {A : UU i} {B : UU j} {X : UU k}
     (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) → is-emb g →
     is-emb f → is-emb h
-  is-emb-right-factor f g h H is-emb-g is-emb-f x y =
+  is-emb-right-factor f g h H is-emb-g is-emb-f {x} {y} =
     is-equiv-right-factor
       ( ap (g ∘ h))
       ( ap g)
       ( ap h)
       ( ap-comp g h)
-      ( is-emb-g (h x) (h y))
-      ( is-emb-htpy (g ∘ h) f (inv-htpy H) is-emb-f x y)
+      ( is-emb-g)
+      ( is-emb-htpy (g ∘ h) f (inv-htpy H) is-emb-f)
 
 abstract
   is-emb-triangle-is-equiv :
@@ -996,7 +1012,7 @@ abstract
 abstract
   is-emb-inl :
     {i j : Level} (A : UU i) (B : UU j) → is-emb (inl {A = A} {B = B})
-  is-emb-inl A B x =
+  is-emb-inl A B {x} {y} =
     fundamental-theorem-id x refl
       ( is-contr-is-equiv
         ( Σ A (λ y → Eq-coprod A B (inl x) (inl y)))
@@ -1008,16 +1024,16 @@ abstract
           ( equiv-tot (λ y → equiv-raise _ (Id x y)))
           ( is-contr-total-path x)))
       ( λ y → ap inl)
+      ( y)
 
   is-injective-inl :
-    {i j : Level} (A : UU i) (B : UU j) (x y : A) →
-    Id (inl {A = A} {B = B} x) (inl y) → Id x y
-  is-injective-inl A B x y = inv-is-equiv (is-emb-inl A B x y)
+    {i j : Level} (A : UU i) (B : UU j) → is-injective (inl {A = A} {B = B})
+  is-injective-inl A B = inv-is-equiv (is-emb-inl A B)
 
 abstract
   is-emb-inr :
     {i j : Level} (A : UU i) (B : UU j) → is-emb (inr {A = A} {B = B})
-  is-emb-inr A B x =
+  is-emb-inr A B {x} {y} =
     fundamental-theorem-id x refl
       ( is-contr-is-equiv
         ( Σ B (λ y → Eq-coprod A B (inr x) (inr y)))
@@ -1029,11 +1045,11 @@ abstract
           ( equiv-tot (λ y → equiv-raise _ (Id x y)))
           ( is-contr-total-path x)))
       ( λ y → ap inr)
+      ( y)
 
   is-injective-inr :
-    {i j : Level} (A : UU i) (B : UU j) (x y : B) →
-    Id (inr {A = A} {B = B} x) (inr y) → Id x y
-  is-injective-inr A B x y = inv-is-equiv (is-emb-inr A B x y)
+    {i j : Level} (A : UU i) (B : UU j) → is-injective (inr {A = A} {B = B})
+  is-injective-inr A B = inv-is-equiv (is-emb-inr A B)
 
 -- Exercise 11.6
 
@@ -1107,8 +1123,8 @@ abstract
   is-emb-sec-ap :
     {i j : Level} {A : UU i} {B : UU j} (f : A → B) →
     ((x y : A) → sec (ap f {x = x} {y = y})) → is-emb f
-  is-emb-sec-ap f sec-ap-f x =
-    fundamental-theorem-id-sec x (λ y → ap f {y = y}) (sec-ap-f x)
+  is-emb-sec-ap f sec-ap-f {x} {y} =
+    fundamental-theorem-id-sec x (λ y → ap f {y = y}) (sec-ap-f x) y
 
 -- Exercise 11.10
 
@@ -1135,7 +1151,7 @@ abstract
     {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
     is-equiv f → is-path-split f
   is-path-split-is-equiv f is-equiv-f =
-    pair (pr1 is-equiv-f) (λ x y → pr1 (is-emb-is-equiv f is-equiv-f x y))
+    pair (pr1 is-equiv-f) (λ x y → pr1 (is-emb-is-equiv f is-equiv-f))
 
 abstract
   is-half-adjoint-equivalence-is-path-split :
@@ -1311,8 +1327,8 @@ is-emb-inl-Maybe : {l : Level} {X : UU l} → is-emb (inl-Maybe {X = X})
 is-emb-inl-Maybe {l} {X} = is-emb-inl X unit
 
 is-injective-inl-Maybe :
-  {l : Level} {X : UU l} {x y : X} → Id (inl-Maybe x) (inl-Maybe y) → Id x y
-is-injective-inl-Maybe {l} {X} {x} {y} = is-injective-inl X unit x y
+  {l : Level} {X : UU l} → is-injective (inl-Maybe {X = X})
+is-injective-inl-Maybe {l} {X} = is-injective-inl X unit
 
 -- The exception
 exception-Maybe : {l : Level} {X : UU l} → Maybe X

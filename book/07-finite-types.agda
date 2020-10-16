@@ -62,7 +62,7 @@ div-left-summand-ℕ zero-ℕ x y (pair m q) (pair n p) =
 div-left-summand-ℕ (succ-ℕ d) x y (pair m q) (pair n p) =
   pair
     ( dist-ℕ m n)
-    ( is-injective-add-ℕ (mul-ℕ m (succ-ℕ d)) (mul-ℕ (dist-ℕ m n) (succ-ℕ d)) x
+    ( is-injective-add-ℕ' (mul-ℕ m (succ-ℕ d))
       ( ( inv
           ( ( right-distributive-mul-add-ℕ m (dist-ℕ m n) (succ-ℕ d)) ∙
             ( commutative-add-ℕ
@@ -316,10 +316,9 @@ upper-bound-nat-Fin {succ-ℕ k} (inr star) = reflexive-leq-ℕ (succ-ℕ k)
 
 neq-le-ℕ : {x y : ℕ} → le-ℕ x y → ¬ (Id x y)
 neq-le-ℕ {zero-ℕ} {succ-ℕ y} H = Peano-8 y ∘ inv
-neq-le-ℕ {succ-ℕ x} {succ-ℕ y} H p = neq-le-ℕ H (is-injective-succ-ℕ x y p)
+neq-le-ℕ {succ-ℕ x} {succ-ℕ y} H p = neq-le-ℕ H (is-injective-succ-ℕ p)
 
-is-injective-nat-Fin : {k : ℕ} {x y : Fin k} →
-  Id (nat-Fin x) (nat-Fin y) → Id x y
+is-injective-nat-Fin : {k : ℕ} → is-injective (nat-Fin {k})
 is-injective-nat-Fin {succ-ℕ k} {inl x} {inl y} p =
   ap inl (is-injective-nat-Fin p)
 is-injective-nat-Fin {succ-ℕ k} {inl x} {inr star} p =
@@ -796,8 +795,7 @@ eq-Eq-Fin {succ-ℕ k} {inr star} {inr star} star = refl
 
 -- Exercise 7.4 (b)
 
-is-injective-inl-Fin :
-  {k : ℕ} {x y : Fin k} → Id (inl-Fin k x) (inl-Fin k y) → Id x y
+is-injective-inl-Fin : {k : ℕ} → is-injective (inl-Fin k)
 is-injective-inl-Fin p = eq-Eq-Fin (Eq-Fin-eq p)
 
 -- Exercise 7.4 (c)
@@ -811,8 +809,7 @@ neq-zero-succ-Fin {succ-ℕ k} {inr star} p =
 
 -- Exercise 7.4 (d)
 
-is-injective-skip-zero-Fin :
-  {k : ℕ} {x y : Fin k} → Id (skip-zero-Fin x) (skip-zero-Fin y) → Id x y
+is-injective-skip-zero-Fin : {k : ℕ} → is-injective (skip-zero-Fin {k})
 is-injective-skip-zero-Fin {succ-ℕ k} {inl x} {inl y} p =
   ap inl (is-injective-skip-zero-Fin (is-injective-inl-Fin p))
 is-injective-skip-zero-Fin {succ-ℕ k} {inl x} {inr star} p =
@@ -821,8 +818,7 @@ is-injective-skip-zero-Fin {succ-ℕ k} {inr star} {inl y} p =
   ex-falso (Eq-Fin-eq p)
 is-injective-skip-zero-Fin {succ-ℕ k} {inr star} {inr star} p = refl
 
-is-injective-succ-Fin :
-  {k : ℕ} {x y : Fin k} → Id (succ-Fin x) (succ-Fin y) → Id x y
+is-injective-succ-Fin : {k : ℕ} → is-injective (succ-Fin {k})
 is-injective-succ-Fin {succ-ℕ k} {inl x} {inl y} p =
   ap inl (is-injective-skip-zero-Fin {k} {x} {y} p)
 is-injective-succ-Fin {succ-ℕ k} {inl x} {inr star} p =
@@ -1540,30 +1536,32 @@ le-constant-unary-op-ℕ k x y m =
         ( leq-add-ℕ (mul-ℕ k (succ-ℕ m)) (nat-Fin y)))
 
 is-injective-convert-based-ℕ :
-  (k : ℕ) (x y : based-ℕ k) →
-  Id (convert-based-ℕ k x) (convert-based-ℕ k y) → Id x y
+  (k : ℕ) → is-injective (convert-based-ℕ k)
 is-injective-convert-based-ℕ
   ( succ-ℕ k)
-  ( constant-based-ℕ .(succ-ℕ k) x)
-  ( constant-based-ℕ .(succ-ℕ k) y) p =
+  { constant-based-ℕ .(succ-ℕ k) x}
+  { constant-based-ℕ .(succ-ℕ k) y} p =
   ap (constant-based-ℕ (succ-ℕ k)) (is-injective-nat-Fin p)
 is-injective-convert-based-ℕ
   ( succ-ℕ k)
-  ( constant-based-ℕ .(succ-ℕ k) x)
-  ( unary-op-based-ℕ .(succ-ℕ k) y m) p =
+  { constant-based-ℕ .(succ-ℕ k) x}
+  { unary-op-based-ℕ .(succ-ℕ k) y m} p =
   ex-falso
     ( neq-le-ℕ
       ( le-constant-unary-op-ℕ (succ-ℕ k) x y (convert-based-ℕ (succ-ℕ k) m))
       ( p))
 is-injective-convert-based-ℕ
   ( succ-ℕ k)
-  ( unary-op-based-ℕ .(succ-ℕ k) x n)
-  ( constant-based-ℕ .(succ-ℕ k) y) p =
+  { unary-op-based-ℕ .(succ-ℕ k) x n}
+  { constant-based-ℕ .(succ-ℕ k) y} p =
   ex-falso
     ( neq-le-ℕ
       ( le-constant-unary-op-ℕ (succ-ℕ k) y x (convert-based-ℕ (succ-ℕ k) n))
       ( inv p))
-is-injective-convert-based-ℕ (succ-ℕ k) (unary-op-based-ℕ .(succ-ℕ k) x n) (unary-op-based-ℕ .(succ-ℕ k) y m) p with
+is-injective-convert-based-ℕ
+  ( succ-ℕ k)
+  { unary-op-based-ℕ .(succ-ℕ k) x n}
+  { unary-op-based-ℕ .(succ-ℕ k) y m} p with
   -- the following term has type Id x y
   is-injective-nat-Fin {succ-ℕ k} {x} {y}
     ( eq-cong-le-ℕ
@@ -1586,20 +1584,11 @@ is-injective-convert-based-ℕ (succ-ℕ k) (unary-op-based-ℕ .(succ-ℕ k) x 
         ( p)
         ( cong-unary-op-ℕ (succ-ℕ k) y (convert-based-ℕ (succ-ℕ k) m))))
 ... | refl =
-  ap
-    ( unary-op-based-ℕ (succ-ℕ k) x)
-    ( is-injective-convert-based-ℕ (succ-ℕ k) n m
-      ( is-injective-succ-ℕ
-        ( convert-based-ℕ (succ-ℕ k) n)
-        ( convert-based-ℕ (succ-ℕ k) m)
-        ( is-injective-left-mul-ℕ k
-          ( succ-ℕ (convert-based-ℕ (succ-ℕ k) n))
-          ( succ-ℕ (convert-based-ℕ (succ-ℕ k) m))
-          ( is-injective-add-ℕ
-            ( nat-Fin x)
-            ( mul-ℕ (succ-ℕ k) (succ-ℕ (convert-based-ℕ (succ-ℕ k) n)))
-            ( mul-ℕ (succ-ℕ k) (succ-ℕ (convert-based-ℕ (succ-ℕ k) m)))
-            ( p)))))
+  ap ( unary-op-based-ℕ (succ-ℕ k) x)
+     ( is-injective-convert-based-ℕ (succ-ℕ k)
+       ( is-injective-succ-ℕ
+         ( is-injective-left-mul-ℕ k
+           ( is-injective-add-ℕ' (nat-Fin x) p))))
   
 {- We show that the map convert-based-ℕ has an inverse. -}
 
@@ -1666,8 +1655,6 @@ isretr-inv-convert-based-ℕ :
 isretr-inv-convert-based-ℕ k x =
   is-injective-convert-based-ℕ
     ( succ-ℕ k)
-    ( inv-convert-based-ℕ k (convert-based-ℕ (succ-ℕ k) x))
-    ( x)
     ( issec-inv-convert-based-ℕ k (convert-based-ℕ (succ-ℕ k) x))
 
 {- Observational equality of the k-ary natural numbers -}

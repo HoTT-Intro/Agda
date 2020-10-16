@@ -224,7 +224,7 @@ abstract
     {i j : Level} {A : UU i} (B : UU j) (f : A → B) (E : is-equiv f) →
     is-prop B → is-prop A
   is-prop-is-equiv B f E H x y =
-    is-contr-is-equiv _ (ap f {x} {y}) (is-emb-is-equiv f E x y) (H (f x) (f y))
+    is-contr-is-equiv _ (ap f {x} {y}) (is-emb-is-equiv f E) (H (f x) (f y))
 
 is-prop-equiv :
   {i j : Level} {A : UU i} (B : UU j) (e : A ≃ B) → is-prop B → is-prop A
@@ -428,7 +428,7 @@ abstract
     is-contr-is-equiv B f is-equiv-f H
   is-trunc-is-equiv (succ-𝕋 k) B f is-equiv-f H x y =
     is-trunc-is-equiv k (Id (f x) (f y)) (ap f {x} {y})
-      (is-emb-is-equiv f is-equiv-f x y) (H (f x) (f y))
+      (is-emb-is-equiv f is-equiv-f) (H (f x) (f y))
 
 abstract
   is-set-is-equiv :
@@ -484,7 +484,7 @@ abstract
   is-trunc-is-emb : {i j : Level} (k : 𝕋) {A : UU i} {B : UU j}
     (f : A → B) → is-emb f → is-trunc (succ-𝕋 k) B → is-trunc (succ-𝕋 k) A
   is-trunc-is-emb k f Ef H x y =
-    is-trunc-is-equiv k (Id (f x) (f y)) (ap f {x} {y}) (Ef x y) (H (f x) (f y))
+    is-trunc-is-equiv k (Id (f x) (f y)) (ap f {x} {y}) Ef (H (f x) (f y))
 
 abstract
   is-trunc-emb : {i j : Level} (k : 𝕋) {A : UU i} {B : UU j} →
@@ -547,7 +547,7 @@ is-prop-map f = (b : _) → is-trunc neg-one-𝕋 (fib f b)
 abstract
   is-emb-is-prop-map : {i j : Level} {A : UU i} {B : UU j} (f : A → B) →
     is-prop-map f → is-emb f
-  is-emb-is-prop-map f is-prop-map-f x y =
+  is-emb-is-prop-map f is-prop-map-f {x} {y} =
     is-equiv-is-contr-map
       ( is-trunc-ap-is-trunc-map neg-two-𝕋 f is-prop-map-f x y)
 
@@ -556,7 +556,7 @@ abstract
     is-emb f → is-prop-map f
   is-prop-map-is-emb f is-emb-f =
     is-trunc-map-is-trunc-ap neg-two-𝕋 f
-      ( λ x y → is-contr-map-is-equiv (is-emb-f x y))
+      ( λ x y → is-contr-map-is-equiv is-emb-f)
 
 fib-prop-emb :
   {i j : Level} {A : UU i} {B : UU j} (f : A ↪ B) → B → UU-Prop (i ⊔ j)
@@ -573,10 +573,8 @@ abstract
 
 equiv-ap-pr1-is-subtype : {i j : Level} {A : UU i} {B : A → UU j} →
   is-subtype B → {s t : Σ A B} → Id s t ≃ Id (pr1 s) (pr1 t)
-equiv-ap-pr1-is-subtype is-subtype-B {s} {t} =
-  pair
-    ( ap pr1)
-    ( is-emb-pr1-is-subtype is-subtype-B s t)
+equiv-ap-pr1-is-subtype is-subtype-B =
+  pair (ap pr1) (is-emb-pr1-is-subtype is-subtype-B)
 
 abstract
   is-subtype-is-emb-pr1 : {i j : Level} {A : UU i} {B : A → UU j} →
@@ -930,17 +928,11 @@ abstract
 
 -- Exercise 8.8
 
-is-injective : {l1 l2 : Level} {A : UU l1} (is-set-A : is-set A) {B : UU l2}
-  (is-set-B : is-set B) (f : A → B) → UU (l1 ⊔ l2)
-is-injective {A = A} is-set-A is-set-B f = (x y : A) → Id (f x) (f y) → Id x y
+is-injective-const-true : is-injective (const unit bool true)
+is-injective-const-true {x} {y} p = center (is-prop-unit x y)
 
-is-injective-const-true : is-injective is-set-unit is-set-bool
-  (const unit bool true)
-is-injective-const-true x y p = center (is-prop-unit x y)
-
-is-injective-const-false : is-injective is-set-unit is-set-bool
-  (const unit bool false)
-is-injective-const-false x y p = center (is-prop-unit x y)
+is-injective-const-false : is-injective (const unit bool false)
+is-injective-const-false {x} {y} p = center (is-prop-unit x y)
 
 abstract
   is-equiv-is-prop : {l1 l2 : Level} {A : UU l1} {B : UU l2} → is-prop A →
@@ -972,18 +964,12 @@ equiv-total-subtype is-subtype-P is-subtype-Q f g =
 abstract
   is-emb-is-injective : {l1 l2 : Level} {A : UU l1} (is-set-A : is-set A)
     {B : UU l2} (is-set-B : is-set B) (f : A → B) →
-    is-injective is-set-A is-set-B f → is-emb f
-  is-emb-is-injective is-set-A is-set-B f is-injective-f x y =
+    is-injective f → is-emb f
+  is-emb-is-injective is-set-A is-set-B f is-injective-f {x} {y} =
     is-equiv-is-prop
       ( is-set-A x y)
       ( is-set-B (f x) (f y))
-      ( is-injective-f x y)
-
-abstract
-  is-injective-is-emb : {l1 l2 : Level} {A : UU l1} {is-set-A : is-set A}
-    {B : UU l2} {is-set-B : is-set B} {f : A → B} →
-    is-emb f → is-injective is-set-A is-set-B f
-  is-injective-is-emb is-emb-f x y = inv-is-equiv (is-emb-f x y)
+      ( is-injective-f)
 
 -- Exercise 8.9
 
