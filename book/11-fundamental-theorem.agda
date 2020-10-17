@@ -871,6 +871,11 @@ map-eq-transpose-equiv :
   Id (map-equiv e x) y → Id x (inv-map-equiv e y)
 map-eq-transpose-equiv e {x} {y} = map-equiv (eq-transpose-equiv e x y)
 
+inv-map-eq-transpose-equiv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) {x : A} {y : B} →
+  Id x (inv-map-equiv e y) → Id (map-equiv e x) y
+inv-map-eq-transpose-equiv e {x} {y} = inv-map-equiv (eq-transpose-equiv e x y)
+
 triangle-eq-transpose-equiv :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) {x : A} {y : B}
   (p : Id (map-equiv e x) y) →
@@ -889,6 +894,12 @@ map-eq-transpose-equiv' :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) {a : A} {b : B} →
   Id b (map-equiv e a) → Id (inv-map-equiv e b) a
 map-eq-transpose-equiv' e p = inv (map-eq-transpose-equiv e (inv p))
+
+inv-map-eq-transpose-equiv' :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) {a : A} {b : B} →
+  Id (inv-map-equiv e b) a → Id b (map-equiv e a)
+inv-map-eq-transpose-equiv' e p =
+  inv (inv-map-eq-transpose-equiv e (inv p))
 
 triangle-eq-transpose-equiv' :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) {x : A} {y : B} →
@@ -1317,15 +1328,15 @@ is-equiv-swap-top-two-Fin =
 Maybe : {l : Level} → UU l → UU l
 Maybe X = coprod X unit
 
-inl-Maybe : {l : Level} {X : UU l} → X → Maybe X
-inl-Maybe = inl
+unit-Maybe : {l : Level} {X : UU l} → X → Maybe X
+unit-Maybe = inl
 
-is-emb-inl-Maybe : {l : Level} {X : UU l} → is-emb (inl-Maybe {X = X})
-is-emb-inl-Maybe {l} {X} = is-emb-inl X unit
+is-emb-unit-Maybe : {l : Level} {X : UU l} → is-emb (unit-Maybe {X = X})
+is-emb-unit-Maybe {l} {X} = is-emb-inl X unit
 
-is-injective-inl-Maybe :
-  {l : Level} {X : UU l} → is-injective (inl-Maybe {X = X})
-is-injective-inl-Maybe {l} {X} = is-injective-inl X unit
+is-injective-unit-Maybe :
+  {l : Level} {X : UU l} → is-injective (unit-Maybe {X = X})
+is-injective-unit-Maybe {l} {X} = is-injective-inl X unit
 
 -- The exception
 exception-Maybe : {l : Level} {X : UU l} → Maybe X
@@ -1346,6 +1357,10 @@ is-decidable-is-exception-Maybe (inr star) = inl refl
 -- The is-not-exception predicate
 is-not-exception-Maybe : {l : Level} {X : UU l} → Maybe X → UU l
 is-not-exception-Maybe x = ¬ (is-exception-Maybe x)
+
+is-not-exception-unit-Maybe :
+  {l : Level} {X : UU l} (x : X) → is-not-exception-Maybe (unit-Maybe x)
+is-not-exception-unit-Maybe {l} {X} x = neq-inl-inr x star
 
 -- The is-not-exception predicate is decidable
 is-decidable-is-not-exception-Maybe :
@@ -1396,7 +1411,7 @@ is-not-exception-is-value-Maybe :
   {l1 : Level} {X : UU l1} (x : Maybe X) →
   is-value-Maybe x → is-not-exception-Maybe x
 is-not-exception-is-value-Maybe {l1} {X} .(inl x) (pair x refl) =
-  inv-map-raise ∘ (Eq-coprod-eq X unit (inl x) (inr star))
+  is-not-exception-unit-Maybe x
 
 -- If e is an equivalence and e (inl x) is an exception, then e exception is
 -- not an exception. In the proof we see that we only need a section-retraction
@@ -1406,11 +1421,7 @@ is-not-exception-map-equiv-exception-Maybe :
   is-exception-Maybe (map-equiv e (inl x)) →
   is-not-exception-Maybe (map-equiv e exception-Maybe)
 is-not-exception-map-equiv-exception-Maybe {l1} {l2} {X} {Y} e x p q =
-  inv-map-raise
-    ( Eq-coprod-eq X unit (inl x) (inr star)
-      ( ( inv (isretr-inv-map-equiv e (inl x))) ∙
-        ( ( ap (inv-map-equiv e) (p ∙ inv q)) ∙
-          ( isretr-inv-map-equiv e exception-Maybe))))
+  is-not-exception-unit-Maybe x (is-injective-equiv e (p ∙ inv q))
 
 -- If e (inl x) is an exception, then e exception is a value
 is-value-map-equiv-exception-Maybe :
@@ -1430,11 +1441,12 @@ value-map-equiv-exception-Maybe e x H =
     ( map-equiv e exception-Maybe)
     ( is-value-map-equiv-exception-Maybe e x H)
 
-eq-map-equiv-exception-Maybe :
+comp-map-equiv-exception-Maybe :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (x : X) →
   (H : is-exception-Maybe (map-equiv e (inl x))) →
-  Id (inl (value-map-equiv-exception-Maybe e x H)) (map-equiv e exception-Maybe)
-eq-map-equiv-exception-Maybe e x H =
+  Id ( inl (value-map-equiv-exception-Maybe e x H))
+     ( map-equiv e exception-Maybe)
+comp-map-equiv-exception-Maybe e x H =
   eq-is-value-Maybe
     ( map-equiv e exception-Maybe)
     ( is-value-map-equiv-exception-Maybe e x H)
@@ -1445,77 +1457,71 @@ eq-map-equiv-exception-Maybe e x H =
 -- also prove two computation rules. Since we will prove computation rules, we
 -- make the definition abstract.
 
-abstract
-  map-equiv-equiv-Maybe' :
-    {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (x : X) →
-    is-decidable (is-exception-Maybe (map-equiv e (inl x))) → Y
-  map-equiv-equiv-Maybe' e x (inl p) =
-    value-map-equiv-exception-Maybe e x p
-  map-equiv-equiv-Maybe' e x (inr f) =
-    value-is-not-exception-Maybe (map-equiv e (inl x)) f
-  
-  map-equiv-equiv-Maybe :
-    {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) → X → Y
-  map-equiv-equiv-Maybe e x =
-    map-equiv-equiv-Maybe' e x
-      ( is-decidable-is-exception-Maybe (map-equiv e (inl x)))
-  
-  eq-map-equiv-equiv-is-exception-Maybe' :
-    {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (x : X) →
-    is-exception-Maybe (map-equiv e (inl x)) →
-    (d : is-decidable (is-exception-Maybe (map-equiv e (inl x)))) →
-    Id (inl (map-equiv-equiv-Maybe' e x d)) (map-equiv e exception-Maybe)
-  eq-map-equiv-equiv-is-exception-Maybe' e x H (inl p) =
-    eq-map-equiv-exception-Maybe e x p
-  eq-map-equiv-equiv-is-exception-Maybe' e x H (inr f) =
-    ex-falso (f H)
-  
-  eq-map-equiv-equiv-is-exception-Maybe :
-    {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (x : X) →
-    is-exception-Maybe (map-equiv e (inl x)) →
-    Id (inl (map-equiv-equiv-Maybe e x)) (map-equiv e exception-Maybe)
-  eq-map-equiv-equiv-is-exception-Maybe e x H =
-    eq-map-equiv-equiv-is-exception-Maybe' e x H
-      ( is-decidable-is-exception-Maybe (map-equiv e (inl x)))
-  
-  eq-map-equiv-equiv-is-not-exception-Maybe' :
-    {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (x : X) →
-    ( f : is-not-exception-Maybe (map-equiv e (inl x))) →
-    ( d : is-decidable (is-exception-Maybe (map-equiv e (inl x)))) →
-    Id (inl (map-equiv-equiv-Maybe' e x d)) (map-equiv e (inl x))
-  eq-map-equiv-equiv-is-not-exception-Maybe' e x f (inl p) =
-    ex-falso (f p)
-  eq-map-equiv-equiv-is-not-exception-Maybe' e x f (inr g) =
-    eq-is-not-exception-Maybe (map-equiv e (inl x)) g
-  
-  eq-map-equiv-equiv-is-not-exception-Maybe :
-    {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (x : X) →
-    ( f : is-not-exception-Maybe (map-equiv e (inl x))) →
-    Id (inl (map-equiv-equiv-Maybe e x)) (map-equiv e (inl x))
-  eq-map-equiv-equiv-is-not-exception-Maybe e x f =
-    eq-map-equiv-equiv-is-not-exception-Maybe' e x f
-      ( is-decidable-is-exception-Maybe (map-equiv e (inl x)))
+map-equiv-equiv-Maybe' :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y)
+  (x : X) (u : Maybe Y) (p : Id (map-equiv e (inl x)) u) → Y
+map-equiv-equiv-Maybe' e x (inl y) p = y
+map-equiv-equiv-Maybe' e x (inr star) p =
+  value-map-equiv-exception-Maybe e x p
+
+map-equiv-equiv-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) → X → Y
+map-equiv-equiv-Maybe e x =
+  map-equiv-equiv-Maybe' e x (map-equiv e (inl x)) refl
+
+comp-map-equiv-equiv-is-exception-Maybe' :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (x : X) →
+  (u : Maybe Y) (p : Id (map-equiv e (inl x)) u) →
+  is-exception-Maybe (map-equiv e (inl x)) →
+  Id (inl (map-equiv-equiv-Maybe' e x u p)) (map-equiv e exception-Maybe)
+comp-map-equiv-equiv-is-exception-Maybe' e x (inl y) p q =
+  ex-falso (is-not-exception-unit-Maybe y (inv p ∙ q))
+comp-map-equiv-equiv-is-exception-Maybe' e x (inr star) p q =
+  comp-map-equiv-exception-Maybe e x p
+
+comp-map-equiv-equiv-is-exception-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (x : X) →
+  is-exception-Maybe (map-equiv e (inl x)) →
+  Id (inl (map-equiv-equiv-Maybe e x)) (map-equiv e exception-Maybe)
+comp-map-equiv-equiv-is-exception-Maybe e x =
+  comp-map-equiv-equiv-is-exception-Maybe' e x (map-equiv e (inl x)) refl
+
+comp-map-equiv-equiv-is-not-exception-Maybe' :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (x : X) →
+  (u : Maybe Y) (p : Id (map-equiv e (inl x)) u) →
+  is-not-exception-Maybe (map-equiv e (inl x)) →
+  Id (inl (map-equiv-equiv-Maybe' e x u p)) (map-equiv e (inl x))
+comp-map-equiv-equiv-is-not-exception-Maybe' e x (inl y) p H =
+  inv p
+comp-map-equiv-equiv-is-not-exception-Maybe' e x (inr star) p H =
+  ex-falso (H p)
+
+comp-map-equiv-equiv-is-not-exception-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (x : X) →
+  is-not-exception-Maybe (map-equiv e (inl x)) →
+  Id (inl (map-equiv-equiv-Maybe e x)) (map-equiv e (inl x))
+comp-map-equiv-equiv-is-not-exception-Maybe e x =
+  comp-map-equiv-equiv-is-not-exception-Maybe' e x (map-equiv e (inl x)) refl
 
 -- An equivalence e : Maybe X ≃ Maybe Y induces a map Y → X
-abstract
-  inv-map-equiv-equiv-Maybe :
-    {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) → Y → X
-  inv-map-equiv-equiv-Maybe e =
-    map-equiv-equiv-Maybe (inv-equiv e)
-  
-  eq-inv-map-equiv-equiv-is-exception-Maybe :
-    {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (y : Y) →
-    is-exception-Maybe (inv-map-equiv e (inl y)) →
-    Id (inl (inv-map-equiv-equiv-Maybe e y)) (inv-map-equiv e exception-Maybe)
-  eq-inv-map-equiv-equiv-is-exception-Maybe e =
-    eq-map-equiv-equiv-is-exception-Maybe (inv-equiv e)
-  
-  eq-inv-map-equiv-equiv-is-not-exception-Maybe :
-    {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (y : Y) →
-    ( f : is-not-exception-Maybe (inv-map-equiv e (inl y))) →
-    Id (inl (inv-map-equiv-equiv-Maybe e y)) (inv-map-equiv e (inl y))
-  eq-inv-map-equiv-equiv-is-not-exception-Maybe e =
-    eq-map-equiv-equiv-is-not-exception-Maybe (inv-equiv e)
+inv-map-equiv-equiv-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) → Y → X
+inv-map-equiv-equiv-Maybe e =
+  map-equiv-equiv-Maybe (inv-equiv e)
+
+comp-inv-map-equiv-equiv-is-exception-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (y : Y) →
+  is-exception-Maybe (inv-map-equiv e (inl y)) →
+  Id (inl (inv-map-equiv-equiv-Maybe e y)) (inv-map-equiv e exception-Maybe)
+comp-inv-map-equiv-equiv-is-exception-Maybe e =
+  comp-map-equiv-equiv-is-exception-Maybe (inv-equiv e)
+
+comp-inv-map-equiv-equiv-is-not-exception-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (y : Y) →
+  ( f : is-not-exception-Maybe (inv-map-equiv e (inl y))) →
+  Id (inl (inv-map-equiv-equiv-Maybe e y)) (inv-map-equiv e (inl y))
+comp-inv-map-equiv-equiv-is-not-exception-Maybe e =
+  comp-map-equiv-equiv-is-not-exception-Maybe (inv-equiv e)
     
 -- inv-map-equiv-equiv-Maybe e is a section of map-equiv-equiv-Maybe e.
 issec-inv-map-equiv-equiv-Maybe :
@@ -1524,18 +1530,18 @@ issec-inv-map-equiv-equiv-Maybe :
 issec-inv-map-equiv-equiv-Maybe e y with
   is-decidable-is-exception-Maybe (inv-map-equiv e (inl y))
 ... | inl p =
-  is-injective-inl-Maybe
-    ( ( eq-map-equiv-equiv-is-exception-Maybe e
+  is-injective-unit-Maybe
+    ( ( comp-map-equiv-equiv-is-exception-Maybe e
         ( inv-map-equiv-equiv-Maybe e y)
         ( ( ap
             ( map-equiv e)
-            ( eq-inv-map-equiv-equiv-is-exception-Maybe e y p)) ∙
+            ( comp-inv-map-equiv-equiv-is-exception-Maybe e y p)) ∙
           ( issec-inv-map-equiv e exception-Maybe))) ∙
       ( ( ap (map-equiv e) (inv p)) ∙
         ( issec-inv-map-equiv e (inl y))))
 ... | inr f =
-  is-injective-inl-Maybe
-    ( ( eq-map-equiv-equiv-is-not-exception-Maybe e
+  is-injective-unit-Maybe
+    ( ( comp-map-equiv-equiv-is-not-exception-Maybe e
         ( inv-map-equiv-equiv-Maybe e y)
         ( is-not-exception-is-value-Maybe
           ( map-equiv e (inl (inv-map-equiv-equiv-Maybe e y)))
@@ -1543,40 +1549,80 @@ issec-inv-map-equiv-equiv-Maybe e y with
             ( inv
               ( ( ap
                   ( map-equiv e)
-                  ( eq-inv-map-equiv-equiv-is-not-exception-Maybe e y f)) ∙
+                  ( comp-inv-map-equiv-equiv-is-not-exception-Maybe e y f)) ∙
                 ( issec-inv-map-equiv e (inl y))))))) ∙
       ( ( ap
           ( map-equiv e)
-          ( eq-inv-map-equiv-equiv-is-not-exception-Maybe e y f)) ∙
+          ( comp-inv-map-equiv-equiv-is-not-exception-Maybe e y f)) ∙
         ( issec-inv-map-equiv e (inl y))))
 
+{-
+-- Alternatively, we can proceed in the spirit of the definition, but that leads
+-- to cases where we have to reason by contradiction, that are avoided otherwise
+issec-inv-map-equiv-equiv-Maybe' :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (y : Y) →
+  (u : Maybe X) (p : Id (inv-map-equiv e (inl y)) u) (v : Maybe Y)
+  (q : Id (map-equiv e (inl (map-equiv-equiv-Maybe' (inv-equiv e) y u p))) v) →
+  Id ( map-equiv-equiv-Maybe' e
+       ( map-equiv-equiv-Maybe' (inv-equiv e) y u p) v q)
+     ( y)
+issec-inv-map-equiv-equiv-Maybe' e y (inl x) p (inl y') q =
+  is-injective-unit-Maybe (inv (inv-map-eq-transpose-equiv' e p ∙ q))
+issec-inv-map-equiv-equiv-Maybe' e y (inl x) p (inr star) q =
+  ex-falso (is-not-exception-unit-Maybe y (inv-map-eq-transpose-equiv' e p ∙ q))
+issec-inv-map-equiv-equiv-Maybe' e y (inr star) p (inl y') q =
+  ex-falso
+    ( is-not-exception-unit-Maybe y'
+      ( ( ( inv q) ∙
+          ( ap
+            ( map-equiv e)
+            ( comp-map-equiv-exception-Maybe (inv-equiv e) y p))) ∙
+        ( issec-inv-map-equiv e exception-Maybe))) 
+issec-inv-map-equiv-equiv-Maybe' e y (inr star) p (inr star) q =
+  is-injective-unit-Maybe
+    ( ( comp-map-equiv-exception-Maybe e
+        ( map-equiv-equiv-Maybe' (inv-equiv e) y (inr star) p)
+        ( q)) ∙
+      ( ( ap (map-equiv e) (inv p)) ∙
+        ( issec-inv-map-equiv e (inl y))))
+
+issec-inv-map-equiv-equiv-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) →
+  (map-equiv-equiv-Maybe e ∘ inv-map-equiv-equiv-Maybe e) ~ id
+issec-inv-map-equiv-equiv-Maybe e y =
+  issec-inv-map-equiv-equiv-Maybe' e y
+    ( inv-map-equiv e (inl y)) refl
+    ( map-equiv e (inl (inv-map-equiv-equiv-Maybe e y))) refl
+-}
+
+-- The map inv-map-equiv-equiv e is a retraction of the map map-equiv-equiv
 isretr-inv-map-equiv-equiv-Maybe :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) →
   (inv-map-equiv-equiv-Maybe e ∘ map-equiv-equiv-Maybe e) ~ id
 isretr-inv-map-equiv-equiv-Maybe e x with
   is-decidable-is-exception-Maybe (map-equiv e (inl x))
 ... | inl p =
-  is-injective-inl-Maybe
-    ( ( eq-inv-map-equiv-equiv-is-exception-Maybe e
+  is-injective-unit-Maybe
+    ( ( comp-inv-map-equiv-equiv-is-exception-Maybe e
         ( map-equiv-equiv-Maybe e x)
         ( ( ap ( inv-map-equiv e)
-               ( eq-map-equiv-equiv-is-exception-Maybe e x p)) ∙
+               ( comp-map-equiv-equiv-is-exception-Maybe e x p)) ∙
           ( isretr-inv-map-equiv e exception-Maybe))) ∙
       ( ( ap (inv-map-equiv e) (inv p)) ∙
         ( isretr-inv-map-equiv e (inl x))))
 ... | inr f =
-  is-injective-inl-Maybe
-    ( ( eq-inv-map-equiv-equiv-is-not-exception-Maybe e
+  is-injective-unit-Maybe
+    ( ( comp-inv-map-equiv-equiv-is-not-exception-Maybe e
         ( map-equiv-equiv-Maybe e x)
         ( is-not-exception-is-value-Maybe
           ( inv-map-equiv e (inl (map-equiv-equiv-Maybe e x)))
           ( pair x
             ( inv
               ( ( ap (inv-map-equiv e)
-                     ( eq-map-equiv-equiv-is-not-exception-Maybe e x f)) ∙
+                     ( comp-map-equiv-equiv-is-not-exception-Maybe e x f)) ∙
                 ( isretr-inv-map-equiv e (inl x))))))) ∙
       ( ( ap ( inv-map-equiv e)
-             ( eq-map-equiv-equiv-is-not-exception-Maybe e x f)) ∙
+             ( comp-map-equiv-equiv-is-not-exception-Maybe e x f)) ∙
         ( isretr-inv-map-equiv e (inl x))))
 
 -- The function map-equiv-equiv-Maybe is an equivalence
@@ -1594,33 +1640,3 @@ equiv-equiv-Maybe :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → (Maybe X ≃ Maybe Y) → (X ≃ Y)
 equiv-equiv-Maybe e =
   pair (map-equiv-equiv-Maybe e) (is-equiv-map-equiv-equiv-Maybe e)
-
-
-{-
-swap-top-Fin :
-  {n : ℕ} → Fin (succ-ℕ n) → Fin (succ-ℕ n) → Fin (succ-ℕ n)
-swap-top-Fin {zero-ℕ} x y = x
-swap-top-Fin {succ-ℕ n} (inl (inl x)) (inl (inl y)) = swap-top-two-Fin (inl (swap-top-Fin (inl x) (inl y)))
-swap-top-Fin {succ-ℕ n} (inl (inr x)) (inl (inl y)) = inl (inl y)
-swap-top-Fin {succ-ℕ n} (inl (inl x)) (inl (inr star)) = inl (inr star)
-swap-top-Fin {succ-ℕ n} (inl (inr x)) (inl (inr star)) = inr star
-swap-top-Fin {succ-ℕ n} (inl x) (inr y) = inl x
-swap-top-Fin {succ-ℕ n} (inr x) y = y
-
-idempotent-swap-top-Fin :
-  {n : ℕ} (x : Fin (succ-ℕ n)) →
-  ((swap-top-Fin x) ∘ (swap-top-Fin x)) ~ id
-idempotent-swap-top-Fin {zero-ℕ} (inr star) (inr star) = refl
-idempotent-swap-top-Fin {succ-ℕ n} (inl x) (inl y) = {!!}
-idempotent-swap-top-Fin {succ-ℕ n} (inl (inl x)) (inr star) = {!!}
-idempotent-swap-top-Fin {succ-ℕ n} (inl (inr star)) (inr star) = refl
-idempotent-swap-top-Fin {succ-ℕ n} (inr x) (inl y) = refl
-idempotent-swap-top-Fin {succ-ℕ n} (inr x) (inr y) = refl
-
-eq-ℕ-equiv-Fin :
-  {m n : ℕ} → (Fin m ≃ Fin n) → Id m n
-eq-ℕ-equiv-Fin {zero-ℕ} {zero-ℕ} e = refl
-eq-ℕ-equiv-Fin {zero-ℕ} {succ-ℕ n} e = ind-empty (inv-map-equiv e (inr star))
-eq-ℕ-equiv-Fin {succ-ℕ m} {zero-ℕ} e = ind-empty (map-equiv e (inr star))
-eq-ℕ-equiv-Fin {succ-ℕ m} {succ-ℕ n} e = {!!}
--}

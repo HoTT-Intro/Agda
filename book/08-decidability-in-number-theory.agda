@@ -979,6 +979,12 @@ eq-Eq-coprod A B (inl x) (inr y') = ex-falso ∘ inv-map-raise
 eq-Eq-coprod A B (inr y) (inl x') = ex-falso ∘ inv-map-raise
 eq-Eq-coprod A B (inr y) (inr y') = ap inr ∘ inv-map-raise
 
+neq-inl-inr :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (x : A) (y : B) →
+  ¬ (Id (inl x) (inr y))
+neq-inl-inr {l1} {l2} {A} {B} x y =
+  inv-map-raise ∘ Eq-coprod-eq A B (inl x) (inr y)
+
 -- Exercise 8.4 (b)
 
 has-decidable-equality-coprod :
