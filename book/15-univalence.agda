@@ -5,13 +5,23 @@ module book.15-univalence where
 import book.14-propositional-truncation-solutions
 open book.14-propositional-truncation-solutions public
 
--- Section 10.1 Type extensionality
+--------------------------------------------------------------------------------
+
+-- The univalence axiom
+
+--------------------------------------------------------------------------------
+
+-- Section 15.1 Equivalent forms of the univalence axiom
+
+-- Definition 15.1.1
 
 equiv-eq : {i : Level} {A : UU i} {B : UU i} → Id A B → A ≃ B
 equiv-eq {A = A} refl = equiv-id A
 
 UNIVALENCE : {i : Level} (A B : UU i) → UU (lsuc i)
 UNIVALENCE A B = is-equiv (equiv-eq {A = A} {B = B})
+
+-- Theorem 15.1.2
 
 is-contr-total-equiv-UNIVALENCE : {i : Level} (A : UU i) →
   ((B : UU i) → UNIVALENCE A B) → is-contr (Σ (UU i) (λ X → A ≃ X))
@@ -128,6 +138,113 @@ ind-equiv : {i j : Level} (A : UU i) (P : (B : UU i) (e : A ≃ B) → UU j) →
   P A (equiv-id A) → {B : UU i} (e : A ≃ B) → P B e
 ind-equiv A P p {B} = pr1 (Ind-equiv A P) p B
 
+--------------------------------------------------------------------------------
+
+-- Section 15.2 Univalence implies function extensionality
+
+-- Lemma 15.2.1
+
+is-equiv-postcomp-univalence :
+  {l1 l2 : Level} {X Y : UU l1} (A : UU l2) (e : X ≃ Y) →
+  is-equiv (postcomp A (map-equiv e))
+is-equiv-postcomp-univalence {X = X} A =
+  ind-equiv X
+    ( λ Y e → is-equiv (postcomp A (map-equiv e)))
+    ( is-equiv-id (A → X))
+
+-- Theorem 15.2.2
+
+weak-funext-univalence :
+  {l : Level} {A : UU l} {B : A → UU l} → WEAK-FUNEXT A B
+weak-funext-univalence {A = A} {B} is-contr-B =
+  is-contr-retract-of
+    ( fib (postcomp A (pr1 {B = B})) id)
+    ( pair
+      ( λ f → pair (λ x → pair x (f x)) refl)
+      ( pair
+        ( λ h x → tr B (htpy-eq (pr2 h) x) (pr2 (pr1 h x)))
+        ( refl-htpy)))
+    ( is-contr-map-is-equiv
+      ( is-equiv-postcomp-univalence A (equiv-pr1 is-contr-B))
+      ( id))
+
+funext-univalence :
+  {l : Level} {A : UU l} {B : A → UU l} (f : (x : A) → B x) → FUNEXT f
+funext-univalence {A = A} {B} f =
+  FUNEXT-WEAK-FUNEXT (λ A B → weak-funext-univalence) A B f
+
+--------------------------------------------------------------------------------
+
+-- Section 15.3 Finite sets
+
+is-finite-Prop :
+  {l : Level} → UU l → UU-Prop l
+is-finite-Prop X = trunc-Prop (Σ ℕ (λ n → Fin n ≃ X))
+
+is-finite :
+  {l : Level} → UU l → UU l
+is-finite X = type-Prop (is-finite-Prop X)
+
+is-prop-is-finite :
+  {l : Level} (X : UU l) → is-prop (is-finite X)
+is-prop-is-finite X = is-prop-type-Prop (is-finite-Prop X)
+
+is-finite' :
+  {l : Level} → UU l → UU l
+is-finite' X = Σ ℕ (λ n → type-trunc-Prop (Fin n ≃ X))
+
+--
+is-finite-empty : is-finite empty
+is-finite-empty =
+  unit-trunc-Prop
+    ( Σ ℕ (λ n → Fin n ≃ empty))
+    ( pair zero-ℕ (equiv-id empty))
+
+𝔽 : UU (lsuc lzero)
+𝔽 = Σ (UU lzero) is-finite
+
+type-𝔽 : 𝔽 → UU lzero
+type-𝔽 X = pr1 X
+
+is-finite-type-𝔽 : (X : 𝔽) → is-finite (type-𝔽 X)
+is-finite-type-𝔽 X = pr2 X
+
+type-free-symmetric-monoid :
+  {l1 : Level} (A : UU l1) → UU (lsuc lzero ⊔ l1)
+type-free-symmetric-monoid A = Σ 𝔽 (λ X → type-𝔽 X → A)
+
+map-universal-property-is-finite :
+  {l1 l2 : Level} (X : UU l1) (P : UU-Prop l2) →
+  ((n : ℕ) → (Fin n ≃ X) → type-Prop P) →
+  is-finite X → type-Prop P
+map-universal-property-is-finite X P f =
+  map-universal-property-trunc-Prop P (ind-Σ f)
+
+is-finite-is-finite :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
+  ((n : ℕ) → (Fin n ≃ X) → is-finite Y) →
+  is-finite X → is-finite Y
+is-finite-is-finite {l1} {l2} {X} {Y} f =
+  map-universal-property-is-finite X (is-finite-Prop Y) f
+
+is-finite-coprod :
+  {l1 l2 : Level} (X : UU l1) (Y : UU l2) →
+  is-finite X → is-finite Y → is-finite (coprod X Y)
+is-finite-coprod X Y is-finite-X is-finite-Y =
+  is-finite-is-finite 
+    ( λ n e →
+      is-finite-is-finite 
+        ( λ m f →
+          unit-trunc-Prop _
+            ( pair
+              ( add-ℕ n m)
+              ( equiv-functor-coprod e f ∘e
+                inv-equiv (coprod-Fin n m))))
+        is-finite-Y)
+    ( is-finite-X)
+
+--------------------------------------------------------------------------------
+
 -- Subuniverses
 
 is-subuniverse :
@@ -198,104 +315,9 @@ eq-Eq-total-subuniverse :
 eq-Eq-total-subuniverse P {s} {t} =
   inv-is-equiv (is-equiv-Eq-total-subuniverse-eq P s t)
 
--- Section 12.2 Univalence implies function extensionality
-
-is-equiv-postcomp-univalence :
-  {l1 l2 : Level} {X Y : UU l1} (A : UU l2) (e : X ≃ Y) →
-  is-equiv (postcomp A (map-equiv e))
-is-equiv-postcomp-univalence {X = X} A =
-  ind-equiv X
-    ( λ Y e → is-equiv (postcomp A (map-equiv e)))
-    ( is-equiv-id (A → X))
-
-weak-funext-univalence :
-  {l : Level} {A : UU l} {B : A → UU l} → WEAK-FUNEXT A B
-weak-funext-univalence {A = A} {B} is-contr-B =
-  is-contr-retract-of
-    ( fib (postcomp A (pr1 {B = B})) id)
-    ( pair
-      ( λ f → pair (λ x → pair x (f x)) refl)
-      ( pair
-        ( λ h x → tr B (htpy-eq (pr2 h) x) (pr2 (pr1 h x)))
-        ( refl-htpy)))
-    ( is-contr-map-is-equiv
-      ( is-equiv-postcomp-univalence A (equiv-pr1 is-contr-B))
-      ( id))
-
-funext-univalence :
-  {l : Level} {A : UU l} {B : A → UU l} (f : (x : A) → B x) → FUNEXT f
-funext-univalence {A = A} {B} f =
-  FUNEXT-WEAK-FUNEXT (λ A B → weak-funext-univalence) A B f
-
 --------------------------------------------------------------------------------
 
 -- Finite sets
-
-is-finite-Prop :
-  {l : Level} → UU l → UU-Prop l
-is-finite-Prop X = trunc-Prop (Σ ℕ (λ n → Fin n ≃ X))
-
-is-finite :
-  {l : Level} → UU l → UU l
-is-finite X = type-Prop (is-finite-Prop X)
-
-is-prop-is-finite :
-  {l : Level} (X : UU l) → is-prop (is-finite X)
-is-prop-is-finite X = is-prop-type-Prop (is-finite-Prop X)
-
-is-finite' :
-  {l : Level} → UU l → UU l
-is-finite' X = Σ ℕ (λ n → type-trunc-Prop (Fin n ≃ X))
-
---
-is-finite-empty : is-finite empty
-is-finite-empty =
-  unit-trunc-Prop
-    ( Σ ℕ (λ n → Fin n ≃ empty))
-    ( pair zero-ℕ (equiv-id empty))
-
-𝔽 : UU (lsuc lzero)
-𝔽 = Σ (UU lzero) is-finite
-
-type-𝔽 : 𝔽 → UU lzero
-type-𝔽 X = pr1 X
-
-is-finite-type-𝔽 : (X : 𝔽) → is-finite (type-𝔽 X)
-is-finite-type-𝔽 X = pr2 X
-
-type-free-symmetric-monoid :
-  {l1 : Level} (A : UU l1) → UU (lsuc lzero ⊔ l1)
-type-free-symmetric-monoid A = Σ 𝔽 (λ X → type-𝔽 X → A)
-
-map-universal-property-is-finite :
-  {l1 l2 : Level} (X : UU l1) (P : UU-Prop l2) →
-  ((n : ℕ) → (Fin n ≃ X) → type-Prop P) →
-  is-finite X → type-Prop P
-map-universal-property-is-finite X P f =
-  map-universal-property-trunc-Prop P (ind-Σ f)
-
-is-finite-is-finite :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
-  ((n : ℕ) → (Fin n ≃ X) → is-finite Y) →
-  is-finite X → is-finite Y
-is-finite-is-finite {l1} {l2} {X} {Y} f =
-  map-universal-property-is-finite X (is-finite-Prop Y) f
-
-is-finite-coprod :
-  {l1 l2 : Level} (X : UU l1) (Y : UU l2) →
-  is-finite X → is-finite Y → is-finite (coprod X Y)
-is-finite-coprod X Y is-finite-X is-finite-Y =
-  is-finite-is-finite 
-    ( λ n e →
-      is-finite-is-finite 
-        ( λ m f →
-          unit-trunc-Prop _
-            ( pair
-              ( add-ℕ n m)
-              ( equiv-functor-coprod e f ∘e
-                inv-equiv (coprod-Fin n m))))
-        is-finite-Y)
-    ( is-finite-X)
     
 {-
   map-universal-property-is-finite X 
@@ -431,13 +453,13 @@ has-decidable-equality-retract-of (pair i (pair r H)) d x y =
 
 -- Exercises
 
--- Exercise 10.1
+-- Exercise 15.1
 
 tr-equiv-eq-ap : {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {x y : A}
   (p : Id x y) → (map-equiv (equiv-eq (ap B p))) ~ tr B p
 tr-equiv-eq-ap refl = refl-htpy
 
--- Exercise 10.2
+-- Exercise 15.2
 
 subuniverse-is-contr :
   {i : Level} → subuniverse i i

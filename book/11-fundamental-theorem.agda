@@ -1640,3 +1640,10 @@ equiv-equiv-Maybe :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → (Maybe X ≃ Maybe Y) → (X ≃ Y)
 equiv-equiv-Maybe e =
   pair (map-equiv-equiv-Maybe e) (is-equiv-map-equiv-equiv-Maybe e)
+
+is-injective-Fin : {k l : ℕ} → (Fin k ≃ Fin l) → Id k l
+is-injective-Fin {zero-ℕ} {zero-ℕ} e = refl
+is-injective-Fin {zero-ℕ} {succ-ℕ l} e = ex-falso (inv-map-equiv e zero-Fin)
+is-injective-Fin {succ-ℕ k} {zero-ℕ} e = ex-falso (map-equiv e zero-Fin)
+is-injective-Fin {succ-ℕ k} {succ-ℕ l} e =
+  ap succ-ℕ (is-injective-Fin (equiv-equiv-Maybe e))
