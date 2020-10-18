@@ -315,10 +315,10 @@ functor-dn f = functor-neg (functor-neg f)
    other words, we get double negation elimination for the types that are 
    decidable. -}
 
-double-negation-elim-is-decidable :
+dn-elim-is-decidable :
   {l : Level} (P : UU l) → coprod P (¬ P) → (¬¬ P → P)
-double-negation-elim-is-decidable P (inl x) p = x
-double-negation-elim-is-decidable P (inr x) p = ind-empty (p x)
+dn-elim-is-decidable P (inl x) p = x
+dn-elim-is-decidable P (inr x) p = ex-falso (p x)
 
 -- Exercise 4.2 (e)
 
@@ -331,7 +331,7 @@ dn-is-decidable {P = P} f =
 
 dn-dn-elim : {l : Level} {P : UU l} → ¬¬ (¬¬ P → P)
 dn-dn-elim {P = P} f =
-  ( λ (np : ¬ P) → f (λ (nnp : ¬¬ P) → ind-empty {P = λ x → P} (nnp np)))
+  ( λ (np : ¬ P) → f (λ (nnp : ¬¬ P) → ex-falso (nnp np)))
     ( λ (p : P) → f (λ (nnp : ¬¬ P) → p))
 
 -- Exercise 4.2 (g)
@@ -350,7 +350,7 @@ dn-linearity-implication :
   ¬¬ (coprod (P → Q) (Q → P))
 dn-linearity-implication {P = P} {Q = Q} f =
   ( λ (np : ¬ P) →
-    functor-neg (inl {A = P → Q} {B = Q → P}) f (λ p → ind-empty (np p)))
+    functor-neg (inl {A = P → Q} {B = Q → P}) f (λ p → ex-falso (np p)))
     ( λ (p : P) →
       functor-neg (inr {A = P → Q} {B = Q → P}) f (λ q → p))
 

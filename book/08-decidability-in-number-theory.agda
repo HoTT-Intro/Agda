@@ -353,11 +353,11 @@ is-gcd-ℕ a b d =
     ( (is-common-divisor-ℕ a b x) → (div-ℕ x d)) ×
     ( (div-ℕ x d) → (is-common-divisor-ℕ a b x))
 
-{- Proposition 8.4.2 -}
-
 is-common-divisor-is-gcd-ℕ :
   (a b d : ℕ) → is-gcd-ℕ a b d → is-common-divisor-ℕ a b d
 is-common-divisor-is-gcd-ℕ a b d H = pr2 (H d) (refl-div-ℕ d)
+
+{- Proposition 8.4.2 -}
 
 uniqueness-is-gcd-ℕ :
   (a b d d' : ℕ) → is-gcd-ℕ a b d → is-gcd-ℕ a b d' → Id d d'
@@ -373,7 +373,7 @@ is-multiple-of-gcd-ℕ a b n =
   is-nonzero-ℕ (add-ℕ a b) →
   (is-nonzero-ℕ n) × ((x : ℕ) → is-common-divisor-ℕ a b x → div-ℕ x n)
 
-{- Corollary 8.4.6 -}
+{- Proposition 8.4.4 -}
 
 leq-div-succ-ℕ : (d x : ℕ) → div-ℕ d (succ-ℕ x) → leq-ℕ d (succ-ℕ x)
 leq-div-succ-ℕ d x (pair (succ-ℕ k) p) =
@@ -415,13 +415,13 @@ is-decidable-is-multiple-of-gcd-ℕ a b n =
           ( add-ℕ a b)
           ( λ x → leq-sum-is-common-divisor-ℕ a b x np)))
 
-{- Lemma 8.4.7 -}
+{- Lemma 8.4.5 -}
 
 sum-is-multiple-of-gcd-ℕ : (a b : ℕ) → is-multiple-of-gcd-ℕ a b (add-ℕ a b)
 sum-is-multiple-of-gcd-ℕ a b np =
   pair np (λ x H → div-add-ℕ x a b (pr1 H) (pr2 H))
 
-{- Definition 8.4.8 The greatest common divisor -}
+{- Definition 8.4.6 The greatest common divisor -}
 
 abstract
   GCD-ℕ : (a b : ℕ) → minimal-element-ℕ (is-multiple-of-gcd-ℕ a b)
@@ -441,16 +441,7 @@ is-lower-bound-gcd-ℕ :
   (a b : ℕ) → is-lower-bound-ℕ (is-multiple-of-gcd-ℕ a b) (gcd-ℕ a b)
 is-lower-bound-gcd-ℕ a b = pr2 (pr2 (GCD-ℕ a b))
 
-{- Theorem 8.4.9 -}
-
-is-nonzero-gcd-ℕ :
-  (a b : ℕ) → is-nonzero-ℕ (add-ℕ a b) → is-nonzero-ℕ (gcd-ℕ a b)
-is-nonzero-gcd-ℕ a b ne = pr1 (is-multiple-of-gcd-gcd-ℕ a b ne)
-
-is-successor-gcd-ℕ :
-  (a b : ℕ) → is-nonzero-ℕ (add-ℕ a b) → is-successor-ℕ (gcd-ℕ a b)
-is-successor-gcd-ℕ a b ne =
-  is-successor-is-nonzero-ℕ (gcd-ℕ a b) (is-nonzero-gcd-ℕ a b ne)
+{- Lemma 8.4.7 -}
 
 is-zero-gcd-ℕ :
   (a b : ℕ) → is-zero-ℕ (add-ℕ a b) → is-zero-ℕ (gcd-ℕ a b)
@@ -464,6 +455,26 @@ is-zero-gcd-ℕ a b p =
         ( sum-is-multiple-of-gcd-ℕ a b))
       ( p))
 
+is-zero-add-is-zero-gcd-ℕ :
+  (a b : ℕ) → is-zero-ℕ (gcd-ℕ a b) → is-zero-ℕ (add-ℕ a b)
+is-zero-add-is-zero-gcd-ℕ a b H =
+  dn-elim-is-decidable
+    ( is-zero-ℕ (add-ℕ a b))
+    ( is-decidable-is-zero-ℕ (add-ℕ a b))
+    ( λ f → pr1 (is-multiple-of-gcd-gcd-ℕ a b f) H)
+
+is-nonzero-gcd-ℕ :
+  (a b : ℕ) → is-nonzero-ℕ (add-ℕ a b) → is-nonzero-ℕ (gcd-ℕ a b)
+is-nonzero-gcd-ℕ a b ne = pr1 (is-multiple-of-gcd-gcd-ℕ a b ne)
+
+is-successor-gcd-ℕ :
+  (a b : ℕ) → is-nonzero-ℕ (add-ℕ a b) → is-successor-ℕ (gcd-ℕ a b)
+is-successor-gcd-ℕ a b ne =
+  is-successor-is-nonzero-ℕ (gcd-ℕ a b) (is-nonzero-gcd-ℕ a b ne)
+
+{- Theorem 8.4.8 -}
+
+-- any common divisor is also a divisor of the gcd
 div-gcd-is-common-divisor-ℕ :
   (a b x : ℕ) → is-common-divisor-ℕ a b x → div-ℕ x (gcd-ℕ a b)
 div-gcd-is-common-divisor-ℕ a b x H with
@@ -471,6 +482,7 @@ div-gcd-is-common-divisor-ℕ a b x H with
 ... | inl p = tr (div-ℕ x) (inv (is-zero-gcd-ℕ a b p)) (div-zero-ℕ x)
 ... | inr np = pr2 (is-multiple-of-gcd-gcd-ℕ a b np) x H
 
+-- if every common divisor divides a number r < gcd a b, then r = 0.
 is-zero-is-common-divisor-le-gcd-ℕ :
   (a b r : ℕ) → le-ℕ r (gcd-ℕ a b) →
   ((x : ℕ) → is-common-divisor-ℕ a b x → div-ℕ x r) → is-zero-ℕ r
@@ -481,6 +493,7 @@ is-zero-is-common-divisor-le-gcd-ℕ a b r l d with is-decidable-is-zero-ℕ r
     ( contradiction-le-ℕ r (gcd-ℕ a b) l
       ( is-lower-bound-gcd-ℕ a b r (λ np → pair x d)))
 
+-- any divisor of gcd a b also divides a
 is-divisor-left-div-gcd-ℕ :
   (a b x : ℕ) → div-ℕ x (gcd-ℕ a b) → div-ℕ x a
 is-divisor-left-div-gcd-ℕ a b x d with
@@ -506,6 +519,7 @@ is-divisor-left-div-gcd-ℕ a b x d with
        ( is-nonzero-gcd-ℕ a b np)
   β = eq-euclidean-division-ℕ (gcd-ℕ a b) a (is-nonzero-gcd-ℕ a b np)
 
+-- any divisor of gcd a b also divides b
 is-divisor-right-div-gcd-ℕ :
   (a b x : ℕ) → div-ℕ x (gcd-ℕ a b) → div-ℕ x b
 is-divisor-right-div-gcd-ℕ a b x d with
@@ -531,15 +545,18 @@ is-divisor-right-div-gcd-ℕ a b x d with
        ( is-nonzero-gcd-ℕ a b np)
   β = eq-euclidean-division-ℕ (gcd-ℕ a b) b (is-nonzero-gcd-ℕ a b np)
 
+-- any divisor of gcd a b is a common divisor
 is-common-divisor-div-gcd-ℕ :
   (a b x : ℕ) → div-ℕ x (gcd-ℕ a b) → is-common-divisor-ℕ a b x
 is-common-divisor-div-gcd-ℕ a b x d =
   pair (is-divisor-left-div-gcd-ℕ a b x d) (is-divisor-right-div-gcd-ℕ a b x d)
 
+-- gcd a b is itself a common divisor
 is-common-divisor-gcd-ℕ : (a b : ℕ) → is-common-divisor-ℕ a b (gcd-ℕ a b)
 is-common-divisor-gcd-ℕ a b =
   is-common-divisor-div-gcd-ℕ a b (gcd-ℕ a b) (refl-div-ℕ (gcd-ℕ a b))
 
+-- gcd a b is the greatest common divisor
 is-gcd-gcd-ℕ : (a b : ℕ) → is-gcd-ℕ a b (gcd-ℕ a b)
 is-gcd-gcd-ℕ a b x =
   pair
