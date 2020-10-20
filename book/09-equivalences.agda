@@ -8,21 +8,21 @@ open book.08-decidability-in-number-theory public
 
 --------------------------------------------------------------------------------
 
--- Section 8.1 Homotopies
+-- Section 9.1 Homotopies
 
--- Definition 8.1.2
+-- Definition 9.1.2
 
 _~_ :
   {i j : Level} {A : UU i} {B : A → UU j} (f g : (x : A) → B x) → UU (i ⊔ j)
 f ~ g = (x : _) → Id (f x) (g x)
 
--- Example 8.1.3
+-- Example 9.1.3
 
 neg-neg-𝟚 : (neg-𝟚 ∘ neg-𝟚) ~ id
 neg-neg-𝟚 true = refl
 neg-neg-𝟚 false = refl
 
--- Definition 8.1.5
+-- Definition 9.1.5
 
 refl-htpy :
   {i j : Level} {A : UU i} {B : A → UU j} {f : (x : A) → B x} → f ~ f
@@ -57,9 +57,9 @@ concat-htpy' :
   (g ~ h) → (f ~ g) → (f ~ h)
 concat-htpy' f K H = H ∙h K
 
--- Proposition 8.1.6
+-- Proposition 9.1.6
 
--- Proposition 8.1.6 (i)
+-- Proposition 9.1.6 (i)
 
 assoc-htpy :
   {i j : Level} {A : UU i} {B : A → UU j} {f g h k : (x : A) → B x} →
@@ -67,7 +67,7 @@ assoc-htpy :
   ((H ∙h K) ∙h L) ~ (H ∙h (K ∙h L))
 assoc-htpy H K L x = assoc (H x) (K x) (L x)
 
--- Proposition 8.1.6 (ii)
+-- Proposition 9.1.6 (ii)
 
 left-unit-htpy :
   {i j : Level} {A : UU i} {B : A → UU j} {f g : (x : A) → B x}
@@ -79,7 +79,7 @@ right-unit-htpy :
   {H : f ~ g} → (H ∙h refl-htpy) ~ H
 right-unit-htpy x = right-unit
 
--- Proposition 8.1.6 (iii)
+-- Proposition 9.1.6 (iii)
 
 left-inv-htpy :
   {i j : Level} {A : UU i} {B : A → UU j} {f g : (x : A) → B x}
@@ -91,9 +91,9 @@ right-inv-htpy :
   (H : f ~ g) → (H ∙h (inv-htpy H)) ~ refl-htpy
 right-inv-htpy H x = right-inv (H x)
 
--- Definition 8.1.7
+-- Definition 9.1.7
 
--- Definition 8.1.7 (i)
+-- Definition 9.1.7 (i)
 
 htpy-left-whisk :
   {i j k : Level} {A : UU i} {B : UU j} {C : UU k}
@@ -102,7 +102,7 @@ htpy-left-whisk h H x = ap h (H x)
 
 _·l_ = htpy-left-whisk
 
--- Definition 8.1.7 (ii)
+-- Definition 9.1.7 (ii)
 
 htpy-right-whisk :
   {i j k : Level} {A : UU i} {B : UU j} {C : UU k}
@@ -113,17 +113,17 @@ _·r_ = htpy-right-whisk
 
 --------------------------------------------------------------------------------
 
--- Section 8.2 Bi-invertible maps
+-- Section 9.2 Bi-invertible maps
 
--- Definition 8.2.1
+-- Definition 9.2.1
 
--- Definition 8.2.1 (i)
+-- Definition 9.2.1 (i)
 
 sec :
   {i j : Level} {A : UU i} {B : UU j} (f : A → B) → UU (i ⊔ j)
 sec {i} {j} {A} {B} f = Σ (B → A) (λ g → (f ∘ g) ~ id)
 
--- Definition 8.2.1 (ii)
+-- Definition 9.2.1 (ii)
 
 retr :
   {i j : Level} {A : UU i} {B : UU j} (f : A → B) → UU (i ⊔ j)
@@ -151,7 +151,7 @@ is-retr-retraction-retract-of :
   ((retraction-retract-of R) ∘ (section-retract-of R)) ~ id
 is-retr-retraction-retract-of R = pr2 (retr-section-retract-of R)
 
--- Definition 8.2.1 (ii)
+-- Definition 9.2.1 (ii)
 
 is-equiv :
   {i j : Level} {A : UU i} {B : UU j} (f : A → B) → UU (i ⊔ j)
@@ -169,7 +169,7 @@ is-equiv-map-equiv :
   {i j : Level} {A : UU i} {B : UU j} (e : A ≃ B) → is-equiv (map-equiv e)
 is-equiv-map-equiv e = pr2 e
 
--- Example 8.2.3
+-- Example 9.2.3
 
 is-equiv-id :
   {i : Level} (A : UU i) → is-equiv (id {i} {A})
@@ -179,7 +179,7 @@ equiv-id :
   {i : Level} (A : UU i) → A ≃ A
 equiv-id A = pair id (is-equiv-id A)
 
--- Example 8.2.4
+-- Example 9.2.4
 
 abstract
   is-equiv-neg-𝟚 : is-equiv neg-𝟚
@@ -189,7 +189,7 @@ abstract
 equiv-neg-𝟚 : bool ≃ bool
 equiv-neg-𝟚 = pair neg-𝟚 is-equiv-neg-𝟚
 
--- Example 8.2.5
+-- Example 9.2.5
 
 -- We show that succ-ℤ is an equivalence
 
@@ -274,14 +274,14 @@ equiv-neg-ℤ = pair neg-ℤ is-equiv-neg-ℤ
 
 -- We show that neg-Fin k is an equivalence
 
--- Remark 8.2.6
+-- Remark 9.2.6
 
 has-inverse :
   {i j : Level} {A : UU i} {B : UU j} (f : A → B) → UU (i ⊔ j)
 has-inverse {i} {j} {A} {B} f =
   Σ (B → A) (λ g → ((f ∘ g) ~ id) × ((g ∘ f) ~ id))
 
--- Proposition 8.2.7
+-- Proposition 9.2.7
 
 is-equiv-has-inverse' :
   {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
@@ -294,7 +294,7 @@ is-equiv-has-inverse :
 is-equiv-has-inverse g H K =
   is-equiv-has-inverse' (pair g (pair H K))
 
--- Corollary 8.2.8
+-- Corollary 9.2.8
 
 htpy-section-retraction :
   { i j : Level} {A : UU i} {B : UU j} {f : A → B}
@@ -1140,28 +1140,28 @@ abstract
 
 --------------------------------------------------------------------------------
 
--- Section 8.3 The identity type of a Σ-type
+-- Section 9.3 The identity type of a Σ-type
 
--- Definition 8.3.1
+-- Definition 9.3.1
 
 Eq-Σ :
   {i j : Level} {A : UU i} {B : A → UU j} (s t : Σ A B) → UU (i ⊔ j)
 Eq-Σ {B = B} s t = Σ (Id (pr1 s) (pr1 t)) (λ α → Id (tr B α (pr2 s)) (pr2 t))
 
--- Lemma 8.3.2
+-- Lemma 9.3.2
 
 reflexive-Eq-Σ :
   {i j : Level} {A : UU i} {B : A → UU j} (s : Σ A B) → Eq-Σ s s
 reflexive-Eq-Σ (pair a b) = pair refl refl
 
--- Definition 8.3.3
+-- Definition 9.3.3
 
 pair-eq :
   {i j : Level} {A : UU i} {B : A → UU j} {s t : Σ A B} →
   (Id s t) → Eq-Σ s t
 pair-eq {s = s} refl = reflexive-Eq-Σ s
 
--- Theorem 8.3.4
+-- Theorem 9.3.4
 
 eq-pair :
   {i j : Level} {A : UU i} {B : A → UU j} {s t : Σ A B} →
@@ -1267,7 +1267,7 @@ abstract
 
 -- Exercises
 
--- Exercise 8.1
+-- Exercise 9.1
 
 {- We show that inv is an equivalence. -}
 
@@ -1387,7 +1387,7 @@ equiv-tr :
   (p : Id x y) → (B x) ≃ (B y)
 equiv-tr B p = pair (tr B p) (is-equiv-tr B p)
 
--- Exercise 8.2
+-- Exercise 9.2
 
 abstract
   not-equiv-const :
@@ -1397,9 +1397,9 @@ abstract
   not-equiv-const false (pair (pair s issec) (pair r isretr)) =
     neq-false-true-𝟚 (issec true)
 
--- Exercise 8.3
+-- Exercise 9.3
 
--- Exercise 8.3(a)
+-- Exercise 9.3(a)
 
 abstract
   is-equiv-htpy :
@@ -1416,7 +1416,7 @@ abstract
     f ~ g → is-equiv f → is-equiv g
   is-equiv-htpy' f H = is-equiv-htpy f (inv-htpy H)
 
--- Exercise 8.3(b)
+-- Exercise 9.3(b)
 
 inv-htpy-is-equiv :
   {i j : Level} {A : UU i} {B : UU j} {f f' : A → B} (H : f ~ f') →
@@ -1428,11 +1428,11 @@ inv-htpy-is-equiv H is-equiv-f is-equiv-f' b =
     ( ( inv (H (inv-is-equiv is-equiv-f b))) ∙
       ( issec-inv-is-equiv is-equiv-f b)))
 
--- Exercise 8.4
+-- Exercise 9.4
 
--- Exercise 8.4(a)
+-- Exercise 9.4(a)
 
-{- Exercise 8.4 (a) asks to show that, given a commuting triangle f ~ g ∘ h and
+{- Exercise 9.4 (a) asks to show that, given a commuting triangle f ~ g ∘ h and
    a section s of h, we get a new commuting triangle g ~ f ∘ s. Moreover, under
    the same assumptions it follows that f has a section if and only if g has a 
    section. -}
@@ -1461,9 +1461,9 @@ section-comp' f g h H sec-h sec-g =
     ( ( H ·r ((pr1 sec-h) ∘ (pr1 sec-g))) ∙h
       ( ( g ·l ((pr2 sec-h) ·r (pr1 sec-g))) ∙h ((pr2 sec-g))))
 
--- Exercise 8.4(b)
+-- Exercise 9.4(b)
 
-{- Exercise 8.4 (b) is dual to exercise 8.4 (a). It asks to show that, given a 
+{- Exercise 9.4 (b) is dual to exercise 9.4 (a). It asks to show that, given a 
    commuting triangle f ~ g ∘ h and a retraction r of g, we get a new commuting
    triangle h ~ r ∘ f. Moreover, under these assumptions it also follows that f
    has a retraction if and only if h has a retraction. -}
@@ -1494,9 +1494,9 @@ retraction-comp' f g h H retr-g retr-h =
     ( ( ((pr1 retr-h) ∘ (pr1 retr-g)) ·l H) ∙h
       ( ((pr1 retr-h) ·l ((pr2 retr-g) ·r h)) ∙h (pr2 retr-h)))
 
--- Exercise 8.4(c)
+-- Exercise 9.4(c)
 
-{- In Exercise 8.4 (c) we use the constructions of parts (a) and (b) to derive 
+{- In Exercise 9.4 (c) we use the constructions of parts (a) and (b) to derive 
    the 3-for-2 property of equivalences. -}
 
 abstract
@@ -1584,21 +1584,44 @@ abstract
   is-equiv-is-retraction-is-equiv {A = A} {f = f} {g = g} is-equiv-f H =
     is-equiv-left-factor id g f (inv-htpy H) (is-equiv-id A) is-equiv-f
     
--- Exercise 8.5
+-- Exercise 9.5
 
--- Exercise 8.5 (a)
+inv-map-is-cyclic-map :
+  {l : Level} {X : UU l} (f : X → X) (H : is-cyclic-map f) → X → X
+inv-map-is-cyclic-map f H x =
+  iterate (length-path-is-cyclic-map H (f x) x) f x
 
--- Exercise 8.5 (b)
+issec-inv-map-is-cyclic-map :
+  {l : Level} {X : UU l} (f : X → X) (H : is-cyclic-map f) →
+  (f ∘ inv-map-is-cyclic-map f H) ~ id
+issec-inv-map-is-cyclic-map f H x =
+  ( iterate-succ-ℕ (length-path-is-cyclic-map H (f x) x) f x) ∙
+  ( eq-is-cyclic-map H (f x) x)
 
--- Exercise 7.5
+isretr-inv-map-is-cyclic-map :
+  {l : Level} {X : UU l} (f : X → X) (H : is-cyclic-map f) →
+  (inv-map-is-cyclic-map f H ∘ f) ~ id
+isretr-inv-map-is-cyclic-map f H x =
+  ( ap ( iterate (length-path-is-cyclic-map H (f (f x)) (f x)) f ∘ f)
+       ( inv (eq-is-cyclic-map H (f x) x))) ∙
+  ( ( ap ( iterate (length-path-is-cyclic-map H (f (f x)) (f x)) f)
+         ( iterate-succ-ℕ (length-path-is-cyclic-map H (f x) x) f (f x))) ∙
+    ( ( iterate-iterate
+        ( length-path-is-cyclic-map H (f (f x)) (f x))
+        ( length-path-is-cyclic-map H (f x) x) f (f (f x))) ∙
+      ( ( ap ( iterate (length-path-is-cyclic-map H (f x) x) f)
+           ( eq-is-cyclic-map H (f (f x)) (f x))) ∙
+        ( eq-is-cyclic-map H (f x) x))))
 
--- Exercise 7.5(a)
+is-equiv-is-cyclic-map :
+  {l : Level} {X : UU l} (f : X → X) → is-cyclic-map f → is-equiv f
+is-equiv-is-cyclic-map f H =
+  is-equiv-has-inverse
+    ( inv-map-is-cyclic-map f H)
+    ( issec-inv-map-is-cyclic-map f H)
+    ( isretr-inv-map-is-cyclic-map f H)
 
--- Exercise 7.5(c)
-
--- Exercise 7.6
-
--- Exercise 7.7
+-- Exercise 9.6
 
 {- In this exercise we construct an equivalence from A + B to B + A, showing 
    that the coproduct is commutative. -}
@@ -1650,7 +1673,7 @@ equiv-swap-prod :
   {i j : Level} (A : UU i) (B : UU j) → (A × B) ≃ (B × A)
 equiv-swap-prod A B = pair (swap-prod A B) (is-equiv-swap-prod A B)
 
--- Exercise 7.8
+-- Exercise 9.8
 
 {- In this exercise we show that if A is a retract of B, then so are its 
    identity types. -}
@@ -1682,9 +1705,9 @@ Id-retract-of-Id (pair i (pair r H)) x y =
     ( ap i {x} {y})
     ( retr-ap i (pair r H) x y)
 
--- Exercise 7.9
+-- Exercise 9.9
 
--- Exercise 7.11
+-- Exercise 9.11
 
 abstract
   is-equiv-add-ℤ-right :
@@ -1707,9 +1730,9 @@ abstract
       ( λ x → commutative-add-ℤ x y)
       ( is-equiv-add-ℤ-right y)
 
--- Exercise 7.12
+-- Exercise 9.12
 
--- Exercise 7.13
+-- Exercise 9.13
 
 {- We construct the functoriality of coproducts. -}
 
@@ -1923,3 +1946,5 @@ prod-Fin (succ-ℕ k) l =
   ( ( coprod-Fin (mul-ℕ k l) l) ∘e
     ( equiv-functor-coprod (prod-Fin k l) (left-unit-law-prod (Fin l)))) ∘e
   ( right-distributive-prod-coprod (Fin k) unit (Fin l))
+
+--------------------------------------------------------------------------------
