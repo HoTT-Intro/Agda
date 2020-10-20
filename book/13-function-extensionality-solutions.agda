@@ -566,7 +566,7 @@ abstract
                 ( equiv-tot
                   ( λ p → equiv-inv (ap f p) ((pr2 sf) (f x))))
                 ( is-contr-map-is-equiv
-                  ( is-emb-is-equiv f is-equiv-f ((pr1 sf) (f x)) x)
+                  ( is-emb-is-equiv f is-equiv-f (pr1 sf (f x)) x)
                   ( (pr2 sf) (f x))))))))
 
 abstract

@@ -6,7 +6,7 @@ import book.14-propositional-truncation
 open book.14-propositional-truncation public
 
 --------------------------------------------------------------------------------
-
+{-
 -- Exercises
 
 -- Exercise 13.1
@@ -355,3 +355,4 @@ equiv-impredicative-id-Prop A x y =
     ( pair
       ( map-impredicative-id-Prop A x y)
       ( inv-map-impredicative-id-Prop A x y))
+-}
