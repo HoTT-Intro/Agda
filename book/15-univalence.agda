@@ -179,7 +179,7 @@ funext-univalence {A = A} {B} f =
 
 is-finite-Prop :
   {l : Level} → UU l → UU-Prop l
-is-finite-Prop X = trunc-Prop (Σ ℕ (λ n → Fin n ≃ X))
+is-finite-Prop X = trunc-Prop (count X)
 
 is-finite :
   {l : Level} → UU l → UU l

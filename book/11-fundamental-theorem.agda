@@ -1647,3 +1647,59 @@ is-injective-Fin {zero-ℕ} {succ-ℕ l} e = ex-falso (inv-map-equiv e zero-Fin)
 is-injective-Fin {succ-ℕ k} {zero-ℕ} e = ex-falso (map-equiv e zero-Fin)
 is-injective-Fin {succ-ℕ k} {succ-ℕ l} e =
   ap succ-ℕ (is-injective-Fin (equiv-equiv-Maybe e))
+
+--------------------------------------------------------------------------------
+
+count : {l : Level} → UU l → UU l
+count X = Σ ℕ (λ k → Fin k ≃ X)
+
+number-of-elements : {l : Level} {X : UU l} → count X → ℕ
+number-of-elements = pr1
+
+equiv-count :
+  {l : Level} {X : UU l} (e : count X) → Fin (number-of-elements e) ≃ X
+equiv-count = pr2
+
+is-empty-is-zero-number-of-elements :
+  {l : Level} {X : UU l} (e : count X) →
+  is-zero-ℕ (number-of-elements e) → is-empty X
+is-empty-is-zero-number-of-elements (pair .zero-ℕ e) refl x =
+  inv-map-equiv e x
+
+is-zero-number-of-elements-is-empty :
+  {l : Level} {X : UU l} (e : count X) →
+  is-empty X → is-zero-ℕ (number-of-elements e)
+is-zero-number-of-elements-is-empty (pair zero-ℕ e) H = refl
+is-zero-number-of-elements-is-empty (pair (succ-ℕ k) e) H =
+  ex-falso (H (map-equiv e zero-Fin))
+
+count-is-empty :
+  {l : Level} {X : UU l} → is-empty X → count X
+count-is-empty H =
+  pair zero-ℕ (inv-equiv (pair H (is-equiv-is-empty' H)))
+
+count-coprod :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
+  count X → count Y → count (coprod X Y)
+count-coprod (pair k e) (pair l f) =
+  pair
+    ( add-ℕ k l)
+    ( ( equiv-functor-coprod e f) ∘e
+      ( inv-equiv (coprod-Fin k l)))
+
+count-prod :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → count X → count Y → count (X × Y)
+count-prod (pair k e) (pair l f) =
+  pair
+    ( mul-ℕ k l)
+    ( ( equiv-functor-prod e f) ∘e
+      ( inv-equiv (prod-Fin k l)))
+
+{-
+count-left-summand-count-coprod :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → count (coprod X Y) → count X
+count-left-summand-count-coprod (pair zero-ℕ e) =
+  count-is-empty
+    ( λ x → is-empty-is-zero-number-of-elements (pair zero-ℕ e) refl (inl x))
+count-left-summand-count-coprod (pair (succ-ℕ k) e) = {!!}
+-}
