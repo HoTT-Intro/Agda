@@ -1660,6 +1660,21 @@ equiv-count :
   {l : Level} {X : UU l} (e : count X) → Fin (number-of-elements e) ≃ X
 equiv-count = pr2
 
+map-equiv-count :
+  {l : Level} {X : UU l} (e : count X) → Fin (number-of-elements e) → X
+map-equiv-count e = map-equiv (equiv-count e)
+
+count-Fin : (k : ℕ) → count (Fin k)
+count-Fin k = pair k (equiv-id (Fin k))
+
+count-equiv :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ≃ Y) → count X → count Y
+count-equiv e (pair k f) = pair k (e ∘e f)
+
+count-equiv' :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ≃ Y) → count Y → count X
+count-equiv' e = count-equiv (inv-equiv e)
+
 is-empty-is-zero-number-of-elements :
   {l : Level} {X : UU l} (e : count X) →
   is-zero-ℕ (number-of-elements e) → is-empty X
@@ -1678,6 +1693,28 @@ count-is-empty :
 count-is-empty H =
   pair zero-ℕ (inv-equiv (pair H (is-equiv-is-empty' H)))
 
+count-empty : count empty
+count-empty = count-Fin zero-ℕ
+
+count-is-contr :
+  {l : Level} {X : UU l} → is-contr X → count X
+count-is-contr H = pair one-ℕ (equiv-is-contr is-contr-Fin-one-ℕ H)
+
+is-contr-is-one-number-of-elements :
+  {l : Level} {X : UU l} (e : count X) →
+  is-one-ℕ (number-of-elements e) → is-contr X
+is-contr-is-one-number-of-elements (pair .(succ-ℕ zero-ℕ) e) refl =
+  is-contr-equiv' (Fin one-ℕ) e is-contr-Fin-one-ℕ
+
+is-one-number-of-elements-is-contr :
+  {l : Level} {X : UU l} (e : count X) →
+  is-contr X → is-one-ℕ (number-of-elements e)
+is-one-number-of-elements-is-contr (pair k e) H =
+  is-injective-Fin (equiv-is-contr H is-contr-Fin-one-ℕ ∘e e)
+
+count-unit : count unit
+count-unit = count-is-contr is-contr-unit
+
 count-coprod :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
   count X → count Y → count (coprod X Y)
@@ -1687,6 +1724,9 @@ count-coprod (pair k e) (pair l f) =
     ( ( equiv-functor-coprod e f) ∘e
       ( inv-equiv (coprod-Fin k l)))
 
+count-Maybe : {l : Level} {X : UU l} → count X → count (Maybe X)
+count-Maybe {l} {X} e = count-coprod e count-unit
+
 count-prod :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → count X → count Y → count (X × Y)
 count-prod (pair k e) (pair l f) =
@@ -1695,11 +1735,42 @@ count-prod (pair k e) (pair l f) =
     ( ( equiv-functor-prod e f) ∘e
       ( inv-equiv (prod-Fin k l)))
 
-{-
+is-nonzero-number-of-elements-Maybe :
+  {l : Level} {X : UU l} (e : count (Maybe X)) →
+  is-nonzero-ℕ (number-of-elements e)
+is-nonzero-number-of-elements-Maybe e p =
+  is-empty-is-zero-number-of-elements e p exception-Maybe
+
+is-successor-number-of-elements-Maybe :
+  {l : Level} {X : UU l} (e : count (Maybe X)) →
+  is-successor-ℕ (number-of-elements e)
+is-successor-number-of-elements-Maybe e =
+  is-successor-is-nonzero-ℕ (is-nonzero-number-of-elements-Maybe e)
+
+count-count-Maybe :
+  {l : Level} {X : UU l} → count (Maybe X) → count X
+count-count-Maybe (pair k e) with
+  is-successor-number-of-elements-Maybe (pair k e)
+... | pair l refl = pair l (equiv-equiv-Maybe e)
+
+is-left : {l1 l2 : Level} {X : UU l1} {Y : UU l2} → coprod X Y → UU lzero
+is-left (inl x) = unit
+is-left (inr x) = empty
+
+is-right : {l1 l2 : Level} {X : UU l1} {Y : UU l2} → coprod X Y → UU lzero
+is-right (inl x) = empty
+is-right (inr x) = unit
+
+count-left-summand-count-coprod' :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {k : ℕ}
+  (e : Fin (succ-ℕ k) ≃ (coprod X Y))
+  (u : coprod X Y) (p : Id (map-equiv e (inr star)) u) → count X
+count-left-summand-count-coprod' e (inl x) p = {!!}
+count-left-summand-count-coprod' e (inr x) p = {!!}
+
 count-left-summand-count-coprod :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → count (coprod X Y) → count X
 count-left-summand-count-coprod (pair zero-ℕ e) =
   count-is-empty
     ( λ x → is-empty-is-zero-number-of-elements (pair zero-ℕ e) refl (inl x))
 count-left-summand-count-coprod (pair (succ-ℕ k) e) = {!!}
--}

@@ -380,7 +380,7 @@ leq-div-succ-ℕ d x (pair (succ-ℕ k) p) =
   concatenate-leq-eq-ℕ d (leq-mul-ℕ' k d) p
 
 leq-div-ℕ : (d x : ℕ) → is-nonzero-ℕ x → div-ℕ d x → leq-ℕ d x
-leq-div-ℕ d x f H with is-successor-is-nonzero-ℕ x f
+leq-div-ℕ d x f H with is-successor-is-nonzero-ℕ f
 ... | (pair y refl) = leq-div-succ-ℕ d y H
 
 leq-sum-is-common-divisor-ℕ' :
@@ -397,7 +397,7 @@ leq-sum-is-common-divisor-ℕ :
   (a b d : ℕ) →
   is-nonzero-ℕ (add-ℕ a b) → is-common-divisor-ℕ a b d → leq-ℕ d (add-ℕ a b)
 leq-sum-is-common-divisor-ℕ a b d H =
-  leq-sum-is-common-divisor-ℕ' a b d (is-successor-is-nonzero-ℕ (add-ℕ a b) H)
+  leq-sum-is-common-divisor-ℕ' a b d (is-successor-is-nonzero-ℕ H)
 
 is-decidable-is-multiple-of-gcd-ℕ :
   (a b : ℕ) → is-decidable-fam (is-multiple-of-gcd-ℕ a b)
@@ -470,7 +470,7 @@ is-nonzero-gcd-ℕ a b ne = pr1 (is-multiple-of-gcd-gcd-ℕ a b ne)
 is-successor-gcd-ℕ :
   (a b : ℕ) → is-nonzero-ℕ (add-ℕ a b) → is-successor-ℕ (gcd-ℕ a b)
 is-successor-gcd-ℕ a b ne =
-  is-successor-is-nonzero-ℕ (gcd-ℕ a b) (is-nonzero-gcd-ℕ a b ne)
+  is-successor-is-nonzero-ℕ (is-nonzero-gcd-ℕ a b ne)
 
 {- Theorem 8.4.8 -}
 
@@ -773,7 +773,7 @@ is-lower-bound-larger-prime-ℕ n =
 
 is-not-one-larger-prime-ℕ :
   (n : ℕ) → is-nonzero-ℕ n → is-not-one-ℕ (larger-prime-ℕ n)
-is-not-one-larger-prime-ℕ n H p with is-successor-is-nonzero-ℕ n H
+is-not-one-larger-prime-ℕ n H p with is-successor-is-nonzero-ℕ H
 ... | pair k refl =
   neq-le-ℕ {one-ℕ} {larger-prime-ℕ n}
     ( concatenate-leq-le-ℕ {one-ℕ} {succ-ℕ k} {larger-prime-ℕ n} star

@@ -1179,31 +1179,31 @@ eq-euclidean-division-succ-ℕ k x =
 euclidean-division-ℕ :
   (k x : ℕ) → is-nonzero-ℕ k → Σ ℕ (λ r → (cong-ℕ k x r) × (le-ℕ r k))
 euclidean-division-ℕ k x is-nonzero-k with
-  is-successor-is-nonzero-ℕ k is-nonzero-k
+  is-successor-is-nonzero-ℕ is-nonzero-k
 ... | pair l refl = euclidean-division-succ-ℕ l x
 
 remainder-euclidean-division-ℕ : (k x : ℕ) → is-nonzero-ℕ k → ℕ
 remainder-euclidean-division-ℕ k x is-nonzero-k with
-  is-successor-is-nonzero-ℕ k is-nonzero-k
+  is-successor-is-nonzero-ℕ is-nonzero-k
 ... | pair l refl = remainder-euclidean-division-succ-ℕ l x
 
 strict-upper-bound-remainder-euclidean-division-ℕ :
   (k x : ℕ) (is-nonzero-k : is-nonzero-ℕ k) →
   le-ℕ (remainder-euclidean-division-ℕ k x is-nonzero-k) k
 strict-upper-bound-remainder-euclidean-division-ℕ k x is-nonzero-k with
-  is-successor-is-nonzero-ℕ k is-nonzero-k
+  is-successor-is-nonzero-ℕ is-nonzero-k
 ... | pair l refl = strict-upper-bound-remainder-euclidean-division-succ-ℕ l x
 
 cong-euclidean-division-ℕ :
   (k x : ℕ) (is-nonzero-k : is-nonzero-ℕ k) →
   cong-ℕ k x (remainder-euclidean-division-ℕ k x is-nonzero-k)
 cong-euclidean-division-ℕ k x is-nonzero-k with
-  is-successor-is-nonzero-ℕ k is-nonzero-k
+  is-successor-is-nonzero-ℕ is-nonzero-k
 ... | pair l refl = cong-euclidean-division-succ-ℕ l x
 
 quotient-euclidean-division-ℕ : (k x : ℕ) → is-nonzero-ℕ k → ℕ
 quotient-euclidean-division-ℕ k x is-nonzero-k with
-  is-successor-is-nonzero-ℕ k is-nonzero-k
+  is-successor-is-nonzero-ℕ is-nonzero-k
 ... | pair l refl = quotient-euclidean-division-succ-ℕ l x
 
 eq-quotient-euclidean-division-ℕ :
@@ -1211,7 +1211,7 @@ eq-quotient-euclidean-division-ℕ :
   Id ( mul-ℕ (quotient-euclidean-division-ℕ k x H) k)
      ( dist-ℕ x (remainder-euclidean-division-ℕ k x H))
 eq-quotient-euclidean-division-ℕ k x H with
-  is-successor-is-nonzero-ℕ k H
+  is-successor-is-nonzero-ℕ H
 ... | pair l refl = eq-quotient-euclidean-division-succ-ℕ l x
 
 eq-euclidean-division-ℕ :
@@ -1220,7 +1220,7 @@ eq-euclidean-division-ℕ :
              ( remainder-euclidean-division-ℕ k x is-nonzero-k))
      ( x)
 eq-euclidean-division-ℕ k x is-nonzero-k with
-  is-successor-is-nonzero-ℕ k is-nonzero-k
+  is-successor-is-nonzero-ℕ is-nonzero-k
 ... | pair l refl = eq-euclidean-division-succ-ℕ l x
 
 

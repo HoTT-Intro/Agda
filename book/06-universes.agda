@@ -70,12 +70,12 @@ Peano-8 x p = Eq-ℕ-eq p
 is-nonzero-succ-ℕ : (x : ℕ) → is-nonzero-ℕ (succ-ℕ x)
 is-nonzero-succ-ℕ = Peano-8
 
-is-nonzero-is-successor-ℕ : (x : ℕ) → is-successor-ℕ x → is-nonzero-ℕ x
-is-nonzero-is-successor-ℕ .(succ-ℕ x) (pair x refl) = Peano-8 x
+is-nonzero-is-successor-ℕ : {x : ℕ} → is-successor-ℕ x → is-nonzero-ℕ x
+is-nonzero-is-successor-ℕ {.succ-ℕ x} (pair x refl) = Peano-8 x
 
-is-successor-is-nonzero-ℕ : (x : ℕ) → is-nonzero-ℕ x → is-successor-ℕ x
-is-successor-is-nonzero-ℕ zero-ℕ H = ex-falso (H refl)
-is-successor-is-nonzero-ℕ (succ-ℕ x) H = pair x refl
+is-successor-is-nonzero-ℕ : {x : ℕ} → is-nonzero-ℕ x → is-successor-ℕ x
+is-successor-is-nonzero-ℕ {zero-ℕ} H = ex-falso (H refl)
+is-successor-is-nonzero-ℕ {succ-ℕ x} H = pair x refl
 
 --------------------------------------------------------------------------------
 
@@ -108,7 +108,7 @@ is-injective-right-mul-ℕ k {succ-ℕ m} {succ-ℕ n} p =
 is-injective-right-mul-is-nonzero-ℕ :
   (k : ℕ) → is-nonzero-ℕ k → is-injective (mul-ℕ' k)
 is-injective-right-mul-is-nonzero-ℕ k H p with
-  is-successor-is-nonzero-ℕ k H
+  is-successor-is-nonzero-ℕ H
 ... | pair l refl = is-injective-right-mul-ℕ l p
 
 ap-mul-ℕ :
@@ -125,7 +125,7 @@ is-injective-left-mul-ℕ k {m} {n} p =
 is-injective-left-mul-is-nonzero-ℕ :
   (k : ℕ) → is-nonzero-ℕ k → is-injective (mul-ℕ k)
 is-injective-left-mul-is-nonzero-ℕ k H p with
-  is-successor-is-nonzero-ℕ k H
+  is-successor-is-nonzero-ℕ H
 ... | pair l refl = is-injective-left-mul-ℕ l p
 
 is-nonzero-mul-ℕ :
@@ -395,12 +395,12 @@ leq-mul-ℕ' k x =
 
 leq-mul-is-nonzero-ℕ :
   (k x : ℕ) → is-nonzero-ℕ k → leq-ℕ x (mul-ℕ x k)
-leq-mul-is-nonzero-ℕ k x H with is-successor-is-nonzero-ℕ k H
+leq-mul-is-nonzero-ℕ k x H with is-successor-is-nonzero-ℕ H
 ... | pair l refl = leq-mul-ℕ l x
 
 leq-mul-is-nonzero-ℕ' :
   (k x : ℕ) → is-nonzero-ℕ k → leq-ℕ x (mul-ℕ k x)
-leq-mul-is-nonzero-ℕ' k x H with is-successor-is-nonzero-ℕ k H
+leq-mul-is-nonzero-ℕ' k x H with is-successor-is-nonzero-ℕ H
 ... | pair l refl = leq-mul-ℕ' l x
 
 -- Exercise 6.3 (e)

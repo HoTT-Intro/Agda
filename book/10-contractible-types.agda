@@ -436,6 +436,33 @@ equiv-is-contr is-contr-A is-contr-B =
     ( λ a → center is-contr-B)
     ( is-equiv-is-contr _ is-contr-A is-contr-B)
 
+map-equiv-Fin-one-ℕ : Fin one-ℕ → unit
+map-equiv-Fin-one-ℕ (inr star) = star
+
+inv-map-equiv-Fin-one-ℕ : unit → Fin one-ℕ
+inv-map-equiv-Fin-one-ℕ star = inr star
+
+issec-inv-map-equiv-Fin-one-ℕ :
+  ( map-equiv-Fin-one-ℕ ∘ inv-map-equiv-Fin-one-ℕ) ~ id
+issec-inv-map-equiv-Fin-one-ℕ star = refl
+
+isretr-inv-map-equiv-Fin-one-ℕ :
+  ( inv-map-equiv-Fin-one-ℕ ∘ map-equiv-Fin-one-ℕ) ~ id
+isretr-inv-map-equiv-Fin-one-ℕ (inr star) = refl
+
+is-equiv-map-equiv-Fin-one-ℕ : is-equiv map-equiv-Fin-one-ℕ
+is-equiv-map-equiv-Fin-one-ℕ =
+  is-equiv-has-inverse
+    inv-map-equiv-Fin-one-ℕ
+    issec-inv-map-equiv-Fin-one-ℕ
+    isretr-inv-map-equiv-Fin-one-ℕ
+
+equiv-Fin-one-ℕ : Fin one-ℕ ≃ unit
+equiv-Fin-one-ℕ = pair map-equiv-Fin-one-ℕ is-equiv-map-equiv-Fin-one-ℕ
+
+is-contr-Fin-one-ℕ : is-contr (Fin one-ℕ)
+is-contr-Fin-one-ℕ = is-contr-equiv unit equiv-Fin-one-ℕ is-contr-unit
+
 -- Exercise 6.4
 
 -- In this exercise we will show that if the base type in a Σ-type is contractible, then the Σ-type is equivalent to the fiber at the center of contraction. This can be seen as a left unit law for Σ-types. We will derive a right unit law for Σ-types in Lecture 7 (not because it is unduable here, but it is useful to have some knowledge of fiberwise equivalences).
