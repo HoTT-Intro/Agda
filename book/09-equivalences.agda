@@ -811,6 +811,36 @@ inv-left-unit-law-prod A =
       ( isretr-inv-map-left-unit-law-prod A)
       ( issec-inv-map-left-unit-law-prod A))
 
+map-right-unit-law-prod :
+  {l1 : Level} {A : UU l1} → A × unit → A
+map-right-unit-law-prod = pr1
+
+map-inv-right-unit-law-prod :
+  {l1 : Level} {A : UU l1} → A → A × unit
+map-inv-right-unit-law-prod a = pair a star
+
+issec-map-inv-right-unit-law-prod :
+  {l1 : Level} {A : UU l1} →
+  (map-right-unit-law-prod {A = A} ∘ map-inv-right-unit-law-prod {A = A}) ~ id
+issec-map-inv-right-unit-law-prod a = refl
+
+isretr-map-inv-right-unit-law-prod :
+  {l1 : Level} {A : UU l1} →
+  (map-inv-right-unit-law-prod {A = A} ∘ map-right-unit-law-prod {A = A}) ~ id
+isretr-map-inv-right-unit-law-prod (pair a star) = refl
+
+is-equiv-map-right-unit-law-prod :
+  {l1 : Level} {A : UU l1} → is-equiv (map-right-unit-law-prod {A = A})
+is-equiv-map-right-unit-law-prod =
+  is-equiv-has-inverse
+    map-inv-right-unit-law-prod
+    issec-map-inv-right-unit-law-prod
+    isretr-map-inv-right-unit-law-prod
+
+right-unit-law-prod : {l1 : Level} {A : UU l1} → (A × unit) ≃ A
+right-unit-law-prod =
+  pair map-right-unit-law-prod is-equiv-map-right-unit-law-prod
+
 -- Associativity of Σ-types
 
 triple :

@@ -1794,61 +1794,38 @@ is-left : {l1 l2 : Level} {X : UU l1} {Y : UU l2} → coprod X Y → UU lzero
 is-left (inl x) = unit
 is-left (inr x) = empty
 
-left-is-left :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {x : coprod X Y} → is-left x → X
-left-is-left {l1} {l2} {X} {Y} {inl x} z = x
+equiv-left :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → (Σ (coprod X Y) is-left) ≃ X
+equiv-left {l1} {l2} {X} {Y} =
+  ( ( right-unit-law-coprod X) ∘e
+    ( equiv-coprod right-unit-law-prod (right-absorption-prod Y))) ∘e
+  ( right-distributive-Σ-coprod X Y is-left)
+
+count-is-left :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (t : coprod X Y) → count (is-left t)
+count-is-left (inl x) = count-unit
+count-is-left (inr x) = count-empty
+
+count-left :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → count (coprod X Y) → count X
+count-left e = count-equiv equiv-left (count-Σ e count-is-left)
 
 is-right : {l1 l2 : Level} {X : UU l1} {Y : UU l2} → coprod X Y → UU lzero
 is-right (inl x) = empty
 is-right (inr x) = unit
 
-right-is-right :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {x : coprod X Y} → is-right x → Y
-right-is-right {l1} {l2} {X} {Y} {inr y} z = y
+equiv-right :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → (Σ (coprod X Y) is-right) ≃ Y
+equiv-right {l1} {l2} {X} {Y} =
+  ( ( left-unit-law-coprod Y) ∘e
+    ( equiv-coprod (right-absorption-prod X) right-unit-law-prod)) ∘e
+    ( right-distributive-Σ-coprod X Y is-right)
 
-type-left-count-left-summand-count-coprod :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {k : ℕ} →
-  (e : Fin (succ-ℕ k) ≃ coprod X Y) → UU l1
-type-left-count-left-summand-count-coprod {l1} {l2} {X} {Y} {k} e =
-  Σ X (λ x → is-left (map-inv-equiv e (inl x)))
+count-is-right :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (t : coprod X Y) → count (is-right t)
+count-is-right (inl x) = count-empty
+count-is-right (inr x) = count-unit
 
-map-equiv-left-is-left-count-left-summand-count-coprod :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {k : ℕ} →
-  (e : Fin (succ-ℕ k) ≃ coprod X Y) →
-  is-left (map-equiv e (inr star)) →
-  Maybe (type-left-count-left-summand-count-coprod e) → X
-map-equiv-left-is-left-count-left-summand-count-coprod e H (inl (pair x y)) = x
-map-equiv-left-is-left-count-left-summand-count-coprod e H (inr star) =
-  left-is-left H
-
-{-
-inv-map-equiv-left-is-left-count-left-summand-count-coprod :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {k : ℕ} →
-  (e : Fin (succ-ℕ k) ≃ coprod X Y) →
-  is-left (map-equiv e (inr star)) →
-  X → Maybe (type-left-count-left-summand-count-coprod e)
-inv-map-equiv-left-is-left-count-left-summand-count-coprod e H x = {!!}
-
-equiv-left-is-left-count-left-summand-count-coprod :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {k : ℕ} →
-  (e : Fin (succ-ℕ k) ≃ coprod X Y) →
-  is-left (map-equiv e (inr star)) →
-  Maybe (type-left-count-left-summand-count-coprod e) ≃ X
-equiv-left-is-left-count-left-summand-count-coprod e H = {!!}
--}
-
-{-
-count-left-summand-count-coprod' :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {k : ℕ}
-  (e : Fin (succ-ℕ k) ≃ (coprod X Y))
-  (u : coprod X Y) (p : Id (map-equiv e (inr star)) u) → count X
-count-left-summand-count-coprod' e (inl x) p = {!!}
-count-left-summand-count-coprod' e (inr x) p = {!!}
-
-count-left-summand-count-coprod :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → count (coprod X Y) → count X
-count-left-summand-count-coprod (pair zero-ℕ e) =
-  count-is-empty
-    ( λ x → is-empty-is-zero-number-of-elements (pair zero-ℕ e) refl (inl x))
-count-left-summand-count-coprod (pair (succ-ℕ k) e) = {!!}
--}
+count-right :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → count (coprod X Y) → count Y
+count-right e = count-equiv equiv-right (count-Σ e count-is-right)
