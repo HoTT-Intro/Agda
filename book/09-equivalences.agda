@@ -404,20 +404,20 @@ map-left-unit-law-coprod :
 map-left-unit-law-coprod B =
   coprod-elim-right empty B id
 
-inv-map-left-unit-law-coprod :
+map-inv-left-unit-law-coprod :
   {l : Level} (B : UU l) → B → coprod empty B
-inv-map-left-unit-law-coprod A = inr
+map-inv-left-unit-law-coprod A = inr
 
-issec-inv-map-left-unit-law-coprod :
+issec-map-inv-left-unit-law-coprod :
   {l : Level} (B : UU l) →
-  ( map-left-unit-law-coprod B ∘ inv-map-left-unit-law-coprod B) ~ id
-issec-inv-map-left-unit-law-coprod B =
+  ( map-left-unit-law-coprod B ∘ map-inv-left-unit-law-coprod B) ~ id
+issec-map-inv-left-unit-law-coprod B =
   issec-inv-coprod-elim-right empty B id
 
-isretr-inv-map-left-unit-law-coprod :
+isretr-map-inv-left-unit-law-coprod :
   {l : Level} (B : UU l) →
-  ( inv-map-left-unit-law-coprod B ∘ map-left-unit-law-coprod B) ~ id
-isretr-inv-map-left-unit-law-coprod B =
+  ( map-inv-left-unit-law-coprod B ∘ map-left-unit-law-coprod B) ~ id
+isretr-map-inv-left-unit-law-coprod B =
   isretr-inv-coprod-elim-right empty B id
 
 is-equiv-map-left-unit-law-coprod :
@@ -491,20 +491,20 @@ map-right-unit-law-coprod :
   {l1 : Level} (A : UU l1) → coprod A empty → A
 map-right-unit-law-coprod A = coprod-elim-left A empty id
 
-inv-map-right-unit-law-coprod :
+map-inv-right-unit-law-coprod :
   {l1 : Level} (A : UU l1) → A → coprod A empty
-inv-map-right-unit-law-coprod A = inl
+map-inv-right-unit-law-coprod A = inl
 
-issec-inv-map-right-unit-law-coprod :
+issec-map-inv-right-unit-law-coprod :
   {l1 : Level} (A : UU l1) →
-  ( map-right-unit-law-coprod A ∘ inv-map-right-unit-law-coprod A) ~ id
-issec-inv-map-right-unit-law-coprod A =
+  ( map-right-unit-law-coprod A ∘ map-inv-right-unit-law-coprod A) ~ id
+issec-map-inv-right-unit-law-coprod A =
   issec-inv-coprod-elim-left A empty id
 
-isretr-inv-map-right-unit-law-coprod :
+isretr-map-inv-right-unit-law-coprod :
   {l1 : Level} (A : UU l1) →
-  ( inv-map-right-unit-law-coprod A ∘ map-right-unit-law-coprod A) ~ id
-isretr-inv-map-right-unit-law-coprod A =
+  ( map-inv-right-unit-law-coprod A ∘ map-right-unit-law-coprod A) ~ id
+isretr-map-inv-right-unit-law-coprod A =
   isretr-inv-coprod-elim-left A empty id
 
 is-equiv-map-right-unit-law-coprod :
@@ -529,29 +529,29 @@ map-commutative-coprod :
 map-commutative-coprod A B (inl a) = inr a
 map-commutative-coprod A B (inr b) = inl b
 
-inv-map-commutative-coprod :
+map-inv-commutative-coprod :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) → coprod B A → coprod A B
-inv-map-commutative-coprod A B = map-commutative-coprod B A
+map-inv-commutative-coprod A B = map-commutative-coprod B A
 
-issec-map-commutative-coprod :
+issec-map-inv-commutative-coprod :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) →
   ( map-commutative-coprod A B ∘ map-commutative-coprod B A) ~ id
-issec-map-commutative-coprod A B (inl b) = refl
-issec-map-commutative-coprod A B (inr a) = refl
+issec-map-inv-commutative-coprod A B (inl b) = refl
+issec-map-inv-commutative-coprod A B (inr a) = refl
 
-isretr-map-commutative-coprod :
+isretr-map-inv-commutative-coprod :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) →
   ( map-commutative-coprod B A ∘ map-commutative-coprod A B) ~ id
-isretr-map-commutative-coprod A B = issec-map-commutative-coprod B A
+isretr-map-inv-commutative-coprod A B = issec-map-inv-commutative-coprod B A
 
 is-equiv-map-commutative-coprod :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) →
   is-equiv (map-commutative-coprod A B)
 is-equiv-map-commutative-coprod A B =
   is-equiv-has-inverse
-    ( inv-map-commutative-coprod A B)
-    ( issec-map-commutative-coprod A B)
-    ( isretr-map-commutative-coprod A B)
+    ( map-inv-commutative-coprod A B)
+    ( issec-map-inv-commutative-coprod A B)
+    ( isretr-map-inv-commutative-coprod A B)
 
 -- Associativity of coproducts
 
@@ -562,44 +562,44 @@ map-assoc-coprod (inl (inl x)) = inl x
 map-assoc-coprod (inl (inr x)) = inr (inl x)
 map-assoc-coprod (inr x) = inr (inr x)
 
-inv-map-assoc-coprod :
+map-inv-assoc-coprod :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
   coprod A (coprod B C) → coprod (coprod A B) C
-inv-map-assoc-coprod (inl x) = inl (inl x)
-inv-map-assoc-coprod (inr (inl x)) = inl (inr x)
-inv-map-assoc-coprod (inr (inr x)) = inr x
+map-inv-assoc-coprod (inl x) = inl (inl x)
+map-inv-assoc-coprod (inr (inl x)) = inl (inr x)
+map-inv-assoc-coprod (inr (inr x)) = inr x
 
-issec-inv-map-assoc-coprod :
+issec-map-inv-assoc-coprod :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
-  ( map-assoc-coprod {A = A} {B} {C} ∘ inv-map-assoc-coprod) ~ id
-issec-inv-map-assoc-coprod (inl x) = refl
-issec-inv-map-assoc-coprod (inr (inl x)) = refl
-issec-inv-map-assoc-coprod (inr (inr x)) = refl
+  ( map-assoc-coprod {A = A} {B} {C} ∘ map-inv-assoc-coprod) ~ id
+issec-map-inv-assoc-coprod (inl x) = refl
+issec-map-inv-assoc-coprod (inr (inl x)) = refl
+issec-map-inv-assoc-coprod (inr (inr x)) = refl
 
-isretr-inv-map-assoc-coprod :
+isretr-map-inv-assoc-coprod :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
-  ( inv-map-assoc-coprod ∘ map-assoc-coprod {A = A} {B} {C}) ~ id
-isretr-inv-map-assoc-coprod (inl (inl x)) = refl
-isretr-inv-map-assoc-coprod (inl (inr x)) = refl
-isretr-inv-map-assoc-coprod (inr x) = refl
+  ( map-inv-assoc-coprod ∘ map-assoc-coprod {A = A} {B} {C}) ~ id
+isretr-map-inv-assoc-coprod (inl (inl x)) = refl
+isretr-map-inv-assoc-coprod (inl (inr x)) = refl
+isretr-map-inv-assoc-coprod (inr x) = refl
 
 is-equiv-map-assoc-coprod :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
   is-equiv (map-assoc-coprod {A = A} {B} {C})
 is-equiv-map-assoc-coprod =
   is-equiv-has-inverse
-    inv-map-assoc-coprod
-    issec-inv-map-assoc-coprod
-    isretr-inv-map-assoc-coprod
+    map-inv-assoc-coprod
+    issec-map-inv-assoc-coprod
+    isretr-map-inv-assoc-coprod
 
-is-equiv-inv-map-assoc-coprod :
+is-equiv-map-inv-assoc-coprod :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
-  is-equiv (inv-map-assoc-coprod {A = A} {B} {C})
-is-equiv-inv-map-assoc-coprod =
+  is-equiv (map-inv-assoc-coprod {A = A} {B} {C})
+is-equiv-map-inv-assoc-coprod =
   is-equiv-has-inverse
     map-assoc-coprod
-    isretr-inv-map-assoc-coprod
-    issec-inv-map-assoc-coprod
+    isretr-map-inv-assoc-coprod
+    issec-map-inv-assoc-coprod
 
 assoc-coprod :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
@@ -609,7 +609,7 @@ assoc-coprod = pair map-assoc-coprod is-equiv-map-assoc-coprod
 inv-assoc-coprod :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
   coprod A (coprod B C) ≃ coprod (coprod A B) C
-inv-assoc-coprod = pair inv-map-assoc-coprod is-equiv-inv-map-assoc-coprod
+inv-assoc-coprod = pair map-inv-assoc-coprod is-equiv-map-inv-assoc-coprod
 
 {- We prove a left zero law for cartesian products. -}
 
@@ -740,27 +740,27 @@ map-left-unit-law-Σ :
   {l : Level} (A : unit → UU l) → Σ unit A → A star
 map-left-unit-law-Σ A (pair star a) = a
 
-inv-map-left-unit-law-Σ :
+map-inv-left-unit-law-Σ :
   {l : Level} (A : unit → UU l) → A star → Σ unit A
-inv-map-left-unit-law-Σ A a = (pair star a)
+map-inv-left-unit-law-Σ A a = (pair star a)
 
-issec-inv-map-left-unit-law-Σ :
+issec-map-inv-left-unit-law-Σ :
   {l : Level} (A : unit → UU l) →
-  ( map-left-unit-law-Σ A ∘ inv-map-left-unit-law-Σ A) ~ id
-issec-inv-map-left-unit-law-Σ A a = refl
+  ( map-left-unit-law-Σ A ∘ map-inv-left-unit-law-Σ A) ~ id
+issec-map-inv-left-unit-law-Σ A a = refl
 
-isretr-inv-map-left-unit-law-Σ :
+isretr-map-inv-left-unit-law-Σ :
   {l : Level} (A : unit → UU l) →
-  ( inv-map-left-unit-law-Σ A ∘ map-left-unit-law-Σ A) ~ id
-isretr-inv-map-left-unit-law-Σ A (pair star a) = refl
+  ( map-inv-left-unit-law-Σ A ∘ map-left-unit-law-Σ A) ~ id
+isretr-map-inv-left-unit-law-Σ A (pair star a) = refl
 
 is-equiv-map-left-unit-law-Σ :
   {l : Level} (A : unit → UU l) → is-equiv (map-left-unit-law-Σ A)
 is-equiv-map-left-unit-law-Σ A =
   is-equiv-has-inverse
-    ( inv-map-left-unit-law-Σ A)
-    ( issec-inv-map-left-unit-law-Σ A)
-    ( isretr-inv-map-left-unit-law-Σ A)
+    ( map-inv-left-unit-law-Σ A)
+    ( issec-map-inv-left-unit-law-Σ A)
+    ( isretr-map-inv-left-unit-law-Σ A)
 
 left-unit-law-Σ :
   {l : Level} (A : unit → UU l) → Σ unit A ≃ A star
@@ -771,28 +771,28 @@ map-left-unit-law-prod :
   {l : Level} (A : UU l) → unit × A → A
 map-left-unit-law-prod A = pr2
 
-inv-map-left-unit-law-prod :
+map-inv-left-unit-law-prod :
   {l : Level} (A : UU l) → A → unit × A
-inv-map-left-unit-law-prod A = inv-map-left-unit-law-Σ (λ x → A)
+map-inv-left-unit-law-prod A = map-inv-left-unit-law-Σ (λ x → A)
 
-issec-inv-map-left-unit-law-prod :
+issec-map-inv-left-unit-law-prod :
   {l : Level} (A : UU l) →
-  ( map-left-unit-law-prod A ∘ inv-map-left-unit-law-prod A) ~ id
-issec-inv-map-left-unit-law-prod A =
-  issec-inv-map-left-unit-law-Σ (λ x → A)
+  ( map-left-unit-law-prod A ∘ map-inv-left-unit-law-prod A) ~ id
+issec-map-inv-left-unit-law-prod A =
+  issec-map-inv-left-unit-law-Σ (λ x → A)
 
-isretr-inv-map-left-unit-law-prod :
+isretr-map-inv-left-unit-law-prod :
   {l : Level} (A : UU l) →
-  ( inv-map-left-unit-law-prod A ∘ map-left-unit-law-prod A) ~ id
-isretr-inv-map-left-unit-law-prod A (pair star a) = refl
+  ( map-inv-left-unit-law-prod A ∘ map-left-unit-law-prod A) ~ id
+isretr-map-inv-left-unit-law-prod A (pair star a) = refl
 
 is-equiv-map-left-unit-law-prod :
   {l : Level} (A : UU l) → is-equiv (map-left-unit-law-prod A)
 is-equiv-map-left-unit-law-prod A =
   is-equiv-has-inverse
-    ( inv-map-left-unit-law-prod A)
-    ( issec-inv-map-left-unit-law-prod A)
-    ( isretr-inv-map-left-unit-law-prod A)
+    ( map-inv-left-unit-law-prod A)
+    ( issec-map-inv-left-unit-law-prod A)
+    ( isretr-map-inv-left-unit-law-prod A)
 
 left-unit-law-prod :
   {l : Level} (A : UU l) → (unit × A) ≃ A
@@ -805,11 +805,11 @@ inv-left-unit-law-prod :
   {l : Level} (A : UU l) → A ≃ (unit × A)
 inv-left-unit-law-prod A =
   pair
-    ( inv-map-left-unit-law-prod A)
+    ( map-inv-left-unit-law-prod A)
     ( is-equiv-has-inverse
       ( map-left-unit-law-prod A)
-      ( isretr-inv-map-left-unit-law-prod A)
-      ( issec-inv-map-left-unit-law-prod A))
+      ( isretr-map-inv-left-unit-law-prod A)
+      ( issec-map-inv-left-unit-law-prod A))
 
 map-right-unit-law-prod :
   {l1 : Level} {A : UU l1} → A × unit → A
@@ -858,20 +858,20 @@ map-assoc-Σ :
   Σ (Σ A B) C → Σ A (λ x → Σ (B x) (λ y → C (pair x y)))
 map-assoc-Σ A B C (pair (pair x y) z) = triple x y z
 
-inv-map-assoc-Σ :
+map-inv-assoc-Σ :
   {i j k : Level} (A : UU i) (B : A → UU j) (C : (Σ A B) → UU k) →
   Σ A (λ x → Σ (B x) (λ y → C (pair x y))) → Σ (Σ A B) C
-inv-map-assoc-Σ A B C t = triple' (pr1 t) (pr1 (pr2 t)) (pr2 (pr2 t))
+map-inv-assoc-Σ A B C t = triple' (pr1 t) (pr1 (pr2 t)) (pr2 (pr2 t))
 
-isretr-inv-map-assoc-Σ :
+isretr-map-inv-assoc-Σ :
   {i j k : Level} (A : UU i) (B : A → UU j)
-  (C : (Σ A B) → UU k) → ((inv-map-assoc-Σ  A B C) ∘ (map-assoc-Σ A B C)) ~ id
-isretr-inv-map-assoc-Σ A B C (pair (pair x y) z) = refl
+  (C : (Σ A B) → UU k) → ((map-inv-assoc-Σ  A B C) ∘ (map-assoc-Σ A B C)) ~ id
+isretr-map-inv-assoc-Σ A B C (pair (pair x y) z) = refl
 
-issec-inv-map-assoc-Σ :
+issec-map-inv-assoc-Σ :
   {i j k : Level} (A : UU i) (B : A → UU j)
-  (C : (Σ A B) → UU k) → ((map-assoc-Σ A B C) ∘ (inv-map-assoc-Σ A B C)) ~ id
-issec-inv-map-assoc-Σ A B C (pair x (pair y z)) = refl
+  (C : (Σ A B) → UU k) → ((map-assoc-Σ A B C) ∘ (map-inv-assoc-Σ A B C)) ~ id
+issec-map-inv-assoc-Σ A B C (pair x (pair y z)) = refl
 
 abstract
   is-equiv-map-assoc-Σ :
@@ -879,9 +879,9 @@ abstract
     (C : (Σ A B) → UU k) → is-equiv (map-assoc-Σ A B C)
   is-equiv-map-assoc-Σ A B C =
     is-equiv-has-inverse
-      ( inv-map-assoc-Σ A B C)
-      ( issec-inv-map-assoc-Σ A B C)
-      ( isretr-inv-map-assoc-Σ A B C)
+      ( map-inv-assoc-Σ A B C)
+      ( issec-map-inv-assoc-Σ A B C)
+      ( isretr-map-inv-assoc-Σ A B C)
 
 assoc-Σ :
   {i j k : Level} (A : UU i) (B : A → UU j) (C : (Σ A B) → UU k) →
@@ -894,11 +894,11 @@ inv-assoc-Σ :
   Σ A (λ x → Σ (B x) (λ y → C (pair x y))) ≃ Σ (Σ A B) C
 inv-assoc-Σ A B C =
   pair
-    ( inv-map-assoc-Σ A B C)
+    ( map-inv-assoc-Σ A B C)
     ( is-equiv-has-inverse
       ( map-assoc-Σ A B C)
-      ( isretr-inv-map-assoc-Σ A B C)
-      ( issec-inv-map-assoc-Σ A B C))
+      ( isretr-map-inv-assoc-Σ A B C)
+      ( issec-map-inv-assoc-Σ A B C))
 
 -- Another way to phrase associativity of Σ-types.
 
@@ -907,29 +907,29 @@ map-assoc-Σ' :
   Σ (Σ A B) (λ w → C (pr1 w) (pr2 w)) → Σ A (λ x → Σ (B x) (C x))
 map-assoc-Σ' A B C (pair (pair x y) z) = triple x y z
 
-inv-map-assoc-Σ' :
+map-inv-assoc-Σ' :
   {l1 l2 l3 : Level} (A : UU l1) (B : A → UU l2) (C : (x : A) → B x → UU l3) →
   Σ A (λ x → Σ (B x) (C x)) → Σ (Σ A B) (λ w → C (pr1 w) (pr2 w))
-inv-map-assoc-Σ' A B C (pair x (pair y z)) = triple' x y z
+map-inv-assoc-Σ' A B C (pair x (pair y z)) = triple' x y z
 
-issec-inv-map-assoc-Σ' :
+issec-map-inv-assoc-Σ' :
   {l1 l2 l3 : Level} (A : UU l1) (B : A → UU l2) (C : (x : A) → B x → UU l3) →
-  ( map-assoc-Σ' A B C ∘ inv-map-assoc-Σ' A B C) ~ id
-issec-inv-map-assoc-Σ' A B C (pair x (pair y z)) = refl
+  ( map-assoc-Σ' A B C ∘ map-inv-assoc-Σ' A B C) ~ id
+issec-map-inv-assoc-Σ' A B C (pair x (pair y z)) = refl
 
-isretr-inv-map-assoc-Σ' :
+isretr-map-inv-assoc-Σ' :
   {l1 l2 l3 : Level} (A : UU l1) (B : A → UU l2) (C : (x : A) → B x → UU l3) →
-  ( inv-map-assoc-Σ' A B C ∘ map-assoc-Σ' A B C) ~ id
-isretr-inv-map-assoc-Σ' A B C (pair (pair x y) z) = refl
+  ( map-inv-assoc-Σ' A B C ∘ map-assoc-Σ' A B C) ~ id
+isretr-map-inv-assoc-Σ' A B C (pair (pair x y) z) = refl
 
 is-equiv-map-assoc-Σ' :
   {l1 l2 l3 : Level} (A : UU l1) (B : A → UU l2) (C : (x : A) → B x → UU l3) →
   is-equiv (map-assoc-Σ' A B C)
 is-equiv-map-assoc-Σ' A B C =
   is-equiv-has-inverse
-    ( inv-map-assoc-Σ' A B C)
-    ( issec-inv-map-assoc-Σ' A B C)
-    ( isretr-inv-map-assoc-Σ' A B C)
+    ( map-inv-assoc-Σ' A B C)
+    ( issec-map-inv-assoc-Σ' A B C)
+    ( isretr-map-inv-assoc-Σ' A B C)
 
 assoc-Σ' :
   {l1 l2 l3 : Level} (A : UU l1) (B : A → UU l2) (C : (x : A) → B x → UU l3) →
@@ -941,11 +941,11 @@ inv-assoc-Σ' :
   Σ A (λ x → Σ (B x) (C x)) ≃ Σ (Σ A B) (λ w → C (pr1 w) (pr2 w))
 inv-assoc-Σ' A B C =
   pair
-    ( inv-map-assoc-Σ' A B C)
+    ( map-inv-assoc-Σ' A B C)
     ( is-equiv-has-inverse
       ( map-assoc-Σ' A B C)
-      ( isretr-inv-map-assoc-Σ' A B C)
-      ( issec-inv-map-assoc-Σ' A B C))
+      ( isretr-map-inv-assoc-Σ' A B C)
+      ( issec-map-inv-assoc-Σ' A B C))
 
 -- Associativity of cartesian products
 
@@ -954,20 +954,20 @@ map-assoc-prod :
   (A × B) × C → A × (B × C)
 map-assoc-prod A B C = map-assoc-Σ A (λ x → B) (λ w → C)
 
-inv-map-assoc-prod :
+map-inv-assoc-prod :
   {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : UU l3) →
   A × (B × C) → (A × B) × C
-inv-map-assoc-prod A B C = inv-map-assoc-Σ A (λ x → B) (λ w → C)
+map-inv-assoc-prod A B C = map-inv-assoc-Σ A (λ x → B) (λ w → C)
 
-issec-inv-map-assoc-prod :
+issec-map-inv-assoc-prod :
   {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : UU l3) →
-  ( map-assoc-prod A B C ∘ inv-map-assoc-prod A B C) ~ id
-issec-inv-map-assoc-prod A B C = issec-inv-map-assoc-Σ A (λ x → B) (λ w → C)
+  ( map-assoc-prod A B C ∘ map-inv-assoc-prod A B C) ~ id
+issec-map-inv-assoc-prod A B C = issec-map-inv-assoc-Σ A (λ x → B) (λ w → C)
 
-isretr-inv-map-assoc-prod :
+isretr-map-inv-assoc-prod :
   {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : UU l3) →
-  ( inv-map-assoc-prod A B C ∘ map-assoc-prod A B C) ~ id
-isretr-inv-map-assoc-prod A B C = isretr-inv-map-assoc-Σ A (λ x → B) (λ w → C)
+  ( map-inv-assoc-prod A B C ∘ map-assoc-prod A B C) ~ id
+isretr-map-inv-assoc-prod A B C = isretr-map-inv-assoc-Σ A (λ x → B) (λ w → C)
 
 is-equiv-map-assoc-prod :
   {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : UU l3) →
@@ -988,26 +988,26 @@ map-right-distributive-Σ-coprod :
 map-right-distributive-Σ-coprod A B C (pair (inl x) z) = inl (pair x z)
 map-right-distributive-Σ-coprod A B C (pair (inr y) z) = inr (pair y z)
 
-inv-map-right-distributive-Σ-coprod :
+map-inv-right-distributive-Σ-coprod :
   {l1 l2 l3 : Level} (A : UU l1) (B : UU l2)
   (C : coprod A B → UU l3) →
   coprod (Σ A (λ x → C (inl x))) (Σ B (λ y → C (inr y))) → Σ (coprod A B) C
-inv-map-right-distributive-Σ-coprod A B C (inl (pair x z)) = pair (inl x) z
-inv-map-right-distributive-Σ-coprod A B C (inr (pair y z)) = pair (inr y) z
+map-inv-right-distributive-Σ-coprod A B C (inl (pair x z)) = pair (inl x) z
+map-inv-right-distributive-Σ-coprod A B C (inr (pair y z)) = pair (inr y) z
 
-issec-inv-map-right-distributive-Σ-coprod :
+issec-map-inv-right-distributive-Σ-coprod :
   {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : coprod A B → UU l3) →
   ( (map-right-distributive-Σ-coprod A B C) ∘
-    (inv-map-right-distributive-Σ-coprod A B C)) ~ id
-issec-inv-map-right-distributive-Σ-coprod A B C (inl (pair x z)) = refl
-issec-inv-map-right-distributive-Σ-coprod A B C (inr (pair y z)) = refl
+    (map-inv-right-distributive-Σ-coprod A B C)) ~ id
+issec-map-inv-right-distributive-Σ-coprod A B C (inl (pair x z)) = refl
+issec-map-inv-right-distributive-Σ-coprod A B C (inr (pair y z)) = refl
 
-isretr-inv-map-right-distributive-Σ-coprod :
+isretr-map-inv-right-distributive-Σ-coprod :
   {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : coprod A B → UU l3) →
-  ( (inv-map-right-distributive-Σ-coprod A B C) ∘
+  ( (map-inv-right-distributive-Σ-coprod A B C) ∘
     (map-right-distributive-Σ-coprod A B C)) ~ id
-isretr-inv-map-right-distributive-Σ-coprod A B C (pair (inl x) z) = refl
-isretr-inv-map-right-distributive-Σ-coprod A B C (pair (inr y) z) = refl
+isretr-map-inv-right-distributive-Σ-coprod A B C (pair (inl x) z) = refl
+isretr-map-inv-right-distributive-Σ-coprod A B C (pair (inr y) z) = refl
 
 abstract
   is-equiv-map-right-distributive-Σ-coprod :
@@ -1015,9 +1015,9 @@ abstract
     is-equiv (map-right-distributive-Σ-coprod A B C)
   is-equiv-map-right-distributive-Σ-coprod A B C =
     is-equiv-has-inverse
-      ( inv-map-right-distributive-Σ-coprod A B C)
-      ( issec-inv-map-right-distributive-Σ-coprod A B C)
-      ( isretr-inv-map-right-distributive-Σ-coprod A B C)
+      ( map-inv-right-distributive-Σ-coprod A B C)
+      ( issec-map-inv-right-distributive-Σ-coprod A B C)
+      ( isretr-map-inv-right-distributive-Σ-coprod A B C)
 
 right-distributive-Σ-coprod :
   {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : coprod A B → UU l3) →
@@ -1034,34 +1034,34 @@ map-left-distributive-Σ-coprod :
 map-left-distributive-Σ-coprod A B C (pair x (inl y)) = inl (pair x y)
 map-left-distributive-Σ-coprod A B C (pair x (inr z)) = inr (pair x z)
 
-inv-map-left-distributive-Σ-coprod :
+map-inv-left-distributive-Σ-coprod :
   {l1 l2 l3 : Level} (A : UU l1) (B : A → UU l2) (C : A → UU l3) →
   coprod (Σ A B) (Σ A C) → Σ A (λ x → coprod (B x) (C x))
-inv-map-left-distributive-Σ-coprod A B C (inl (pair x y)) = pair x (inl y)
-inv-map-left-distributive-Σ-coprod A B C (inr (pair x z)) = pair x (inr z)
+map-inv-left-distributive-Σ-coprod A B C (inl (pair x y)) = pair x (inl y)
+map-inv-left-distributive-Σ-coprod A B C (inr (pair x z)) = pair x (inr z)
 
-issec-inv-map-left-distributive-Σ-coprod :
+issec-map-inv-left-distributive-Σ-coprod :
   {l1 l2 l3 : Level} (A : UU l1) (B : A → UU l2) (C : A → UU l3) →
   ( ( map-left-distributive-Σ-coprod A B C) ∘
-    ( inv-map-left-distributive-Σ-coprod A B C)) ~ id
-issec-inv-map-left-distributive-Σ-coprod A B C (inl (pair x y)) = refl
-issec-inv-map-left-distributive-Σ-coprod A B C (inr (pair x z)) = refl
+    ( map-inv-left-distributive-Σ-coprod A B C)) ~ id
+issec-map-inv-left-distributive-Σ-coprod A B C (inl (pair x y)) = refl
+issec-map-inv-left-distributive-Σ-coprod A B C (inr (pair x z)) = refl
 
-isretr-inv-map-left-distributive-Σ-coprod :
+isretr-map-inv-left-distributive-Σ-coprod :
   {l1 l2 l3 : Level} (A : UU l1) (B : A → UU l2) (C : A → UU l3) →
-  ( ( inv-map-left-distributive-Σ-coprod A B C) ∘
+  ( ( map-inv-left-distributive-Σ-coprod A B C) ∘
     ( map-left-distributive-Σ-coprod A B C)) ~ id
-isretr-inv-map-left-distributive-Σ-coprod A B C (pair x (inl y)) = refl
-isretr-inv-map-left-distributive-Σ-coprod A B C (pair x (inr z)) = refl
+isretr-map-inv-left-distributive-Σ-coprod A B C (pair x (inl y)) = refl
+isretr-map-inv-left-distributive-Σ-coprod A B C (pair x (inr z)) = refl
 
 is-equiv-map-left-distributive-Σ-coprod :
   {l1 l2 l3 : Level} (A : UU l1) (B : A → UU l2) (C : A → UU l3) →
   is-equiv (map-left-distributive-Σ-coprod A B C)
 is-equiv-map-left-distributive-Σ-coprod A B C =
   is-equiv-has-inverse
-    ( inv-map-left-distributive-Σ-coprod A B C)
-    ( issec-inv-map-left-distributive-Σ-coprod A B C)
-    ( isretr-inv-map-left-distributive-Σ-coprod A B C)
+    ( map-inv-left-distributive-Σ-coprod A B C)
+    ( issec-map-inv-left-distributive-Σ-coprod A B C)
+    ( isretr-map-inv-left-distributive-Σ-coprod A B C)
 
 left-distributive-Σ-coprod :
   {l1 l2 l3 : Level} (A : UU l1) (B : A → UU l2) (C : A → UU l3) →
@@ -1078,25 +1078,25 @@ map-right-distributive-prod-coprod :
 map-right-distributive-prod-coprod A B C =
   map-right-distributive-Σ-coprod A B (λ x → C)
 
-inv-map-right-distributive-prod-coprod :
+map-inv-right-distributive-prod-coprod :
   {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : UU l3) →
   coprod (A × C) (B × C) → (coprod A B) × C
-inv-map-right-distributive-prod-coprod A B C =
-  inv-map-right-distributive-Σ-coprod A B (λ x → C)
+map-inv-right-distributive-prod-coprod A B C =
+  map-inv-right-distributive-Σ-coprod A B (λ x → C)
 
-issec-inv-map-right-distributive-prod-coprod :
+issec-map-inv-right-distributive-prod-coprod :
   {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : UU l3) →
   ( (map-right-distributive-prod-coprod A B C) ∘
-    (inv-map-right-distributive-prod-coprod A B C)) ~ id
-issec-inv-map-right-distributive-prod-coprod A B C =
-  issec-inv-map-right-distributive-Σ-coprod A B (λ x → C)
+    (map-inv-right-distributive-prod-coprod A B C)) ~ id
+issec-map-inv-right-distributive-prod-coprod A B C =
+  issec-map-inv-right-distributive-Σ-coprod A B (λ x → C)
 
-isretr-inv-map-right-distributive-prod-coprod :
+isretr-map-inv-right-distributive-prod-coprod :
   {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : UU l3) →
-  ( (inv-map-right-distributive-prod-coprod A B C) ∘
+  ( (map-inv-right-distributive-prod-coprod A B C) ∘
     (map-right-distributive-prod-coprod A B C)) ~ id
-isretr-inv-map-right-distributive-prod-coprod A B C =
-  isretr-inv-map-right-distributive-Σ-coprod A B (λ x → C)
+isretr-map-inv-right-distributive-prod-coprod A B C =
+  isretr-map-inv-right-distributive-Σ-coprod A B (λ x → C)
 
 abstract
   is-equiv-map-right-distributive-prod-coprod :
@@ -1119,25 +1119,25 @@ map-left-distributive-prod-coprod :
 map-left-distributive-prod-coprod A B C =
   map-left-distributive-Σ-coprod A (λ x → B) (λ x → C)
 
-inv-map-left-distributive-prod-coprod :
+map-inv-left-distributive-prod-coprod :
   {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : UU l3) →
   coprod (A × B) (A × C) → A × (coprod B C)
-inv-map-left-distributive-prod-coprod A B C =
-  inv-map-left-distributive-Σ-coprod A (λ x → B) (λ x → C)
+map-inv-left-distributive-prod-coprod A B C =
+  map-inv-left-distributive-Σ-coprod A (λ x → B) (λ x → C)
 
-issec-inv-map-left-distributive-prod-coprod :
+issec-map-inv-left-distributive-prod-coprod :
   {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : UU l3) →
   ( ( map-left-distributive-prod-coprod A B C) ∘
-    ( inv-map-left-distributive-prod-coprod A B C)) ~ id
-issec-inv-map-left-distributive-prod-coprod A B C =
-  issec-inv-map-left-distributive-Σ-coprod A (λ x → B) (λ x → C)
+    ( map-inv-left-distributive-prod-coprod A B C)) ~ id
+issec-map-inv-left-distributive-prod-coprod A B C =
+  issec-map-inv-left-distributive-Σ-coprod A (λ x → B) (λ x → C)
 
-isretr-inv-map-left-distributive-prod-coprod :
+isretr-map-inv-left-distributive-prod-coprod :
   {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : UU l3) →
-  ( ( inv-map-left-distributive-prod-coprod A B C) ∘
+  ( ( map-inv-left-distributive-prod-coprod A B C) ∘
     ( map-left-distributive-prod-coprod A B C)) ~ id
-isretr-inv-map-left-distributive-prod-coprod A B C =
-  isretr-inv-map-left-distributive-Σ-coprod A (λ x → B) (λ x → C)
+isretr-map-inv-left-distributive-prod-coprod A B C =
+  isretr-map-inv-left-distributive-Σ-coprod A (λ x → B) (λ x → C)
 
 is-equiv-map-left-distributive-prod-coprod :
   {l1 l2 l3 : Level} (A : UU l1) (B : UU l2) (C : UU l3) →
@@ -1626,22 +1626,22 @@ abstract
     
 -- Exercise 9.5
 
-inv-map-is-cyclic-map :
+map-inv-is-cyclic-map :
   {l : Level} {X : UU l} (f : X → X) (H : is-cyclic-map f) → X → X
-inv-map-is-cyclic-map f H x =
+map-inv-is-cyclic-map f H x =
   iterate (length-path-is-cyclic-map H (f x) x) f x
 
-issec-inv-map-is-cyclic-map :
+issec-map-inv-is-cyclic-map :
   {l : Level} {X : UU l} (f : X → X) (H : is-cyclic-map f) →
-  (f ∘ inv-map-is-cyclic-map f H) ~ id
-issec-inv-map-is-cyclic-map f H x =
+  (f ∘ map-inv-is-cyclic-map f H) ~ id
+issec-map-inv-is-cyclic-map f H x =
   ( iterate-succ-ℕ (length-path-is-cyclic-map H (f x) x) f x) ∙
   ( eq-is-cyclic-map H (f x) x)
 
-isretr-inv-map-is-cyclic-map :
+isretr-map-inv-is-cyclic-map :
   {l : Level} {X : UU l} (f : X → X) (H : is-cyclic-map f) →
-  (inv-map-is-cyclic-map f H ∘ f) ~ id
-isretr-inv-map-is-cyclic-map f H x =
+  (map-inv-is-cyclic-map f H ∘ f) ~ id
+isretr-map-inv-is-cyclic-map f H x =
   ( ap ( iterate (length-path-is-cyclic-map H (f (f x)) (f x)) f ∘ f)
        ( inv (eq-is-cyclic-map H (f x) x))) ∙
   ( ( ap ( iterate (length-path-is-cyclic-map H (f (f x)) (f x)) f)
@@ -1657,9 +1657,9 @@ is-equiv-is-cyclic-map :
   {l : Level} {X : UU l} (f : X → X) → is-cyclic-map f → is-equiv f
 is-equiv-is-cyclic-map f H =
   is-equiv-has-inverse
-    ( inv-map-is-cyclic-map f H)
-    ( issec-inv-map-is-cyclic-map f H)
-    ( isretr-inv-map-is-cyclic-map f H)
+    ( map-inv-is-cyclic-map f H)
+    ( issec-map-inv-is-cyclic-map f H)
+    ( isretr-map-inv-is-cyclic-map f H)
 
 -- Exercise 9.6
 
