@@ -332,28 +332,28 @@ is-equiv-inv-is-equiv {i} {j} {A} {B} {f} is-equiv-f =
     ( isretr-inv-is-equiv is-equiv-f)
     ( issec-inv-is-equiv is-equiv-f)
 
-inv-map-equiv :
+map-inv-equiv :
   {i j : Level} {A : UU i} {B : UU j} → (A ≃ B) → (B → A)
-inv-map-equiv e = inv-is-equiv (is-equiv-map-equiv e)
+map-inv-equiv e = inv-is-equiv (is-equiv-map-equiv e)
 
-issec-inv-map-equiv :
+issec-map-inv-equiv :
   {i j : Level} {A : UU i} {B : UU j} (e : A ≃ B) →
-  ((map-equiv e) ∘ (inv-map-equiv e)) ~ id
-issec-inv-map-equiv e = issec-inv-is-equiv (is-equiv-map-equiv e)
+  ((map-equiv e) ∘ (map-inv-equiv e)) ~ id
+issec-map-inv-equiv e = issec-inv-is-equiv (is-equiv-map-equiv e)
 
-isretr-inv-map-equiv :
+isretr-map-inv-equiv :
   {i j : Level} {A : UU i} {B : UU j} (e : A ≃ B) →
-  ((inv-map-equiv e) ∘ (map-equiv e)) ~ id
-isretr-inv-map-equiv e = isretr-inv-is-equiv (is-equiv-map-equiv e)
+  ((map-inv-equiv e) ∘ (map-equiv e)) ~ id
+isretr-map-inv-equiv e = isretr-inv-is-equiv (is-equiv-map-equiv e)
 
-is-equiv-inv-map-equiv :
-  {i j : Level} {A : UU i} {B : UU j} (e : A ≃ B) → is-equiv (inv-map-equiv e)
-is-equiv-inv-map-equiv e =
+is-equiv-map-inv-equiv :
+  {i j : Level} {A : UU i} {B : UU j} (e : A ≃ B) → is-equiv (map-inv-equiv e)
+is-equiv-map-inv-equiv e =
   is-equiv-inv-is-equiv (is-equiv-map-equiv e)
 
 inv-equiv :
   {i j : Level} {A : UU i} {B : UU j} → (A ≃ B) → (B ≃ A)
-inv-equiv e = pair (inv-map-equiv e) (is-equiv-inv-map-equiv e)
+inv-equiv e = pair (map-inv-equiv e) (is-equiv-map-inv-equiv e)
 
 -- Remarks
 
@@ -813,15 +813,25 @@ inv-left-unit-law-prod A =
 
 -- Associativity of Σ-types
 
+triple :
+  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {C : (x : A) → B x → UU l3} →
+  (a : A) (b : B a) → C a b → Σ A (λ x → Σ (B x) (C x))
+triple a b c = pair a (pair b c)
+
+triple' :
+  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {C : Σ A B → UU l3} →
+  (a : A) (b : B a) → C (pair a b) → Σ (Σ A B) C
+triple' a b c = pair (pair a b) c
+
 map-assoc-Σ :
   {i j k : Level} (A : UU i) (B : A → UU j) (C : (Σ A B) → UU k) →
   Σ (Σ A B) C → Σ A (λ x → Σ (B x) (λ y → C (pair x y)))
-map-assoc-Σ A B C (pair (pair x y) z) = pair x (pair y z)
+map-assoc-Σ A B C (pair (pair x y) z) = triple x y z
 
 inv-map-assoc-Σ :
   {i j k : Level} (A : UU i) (B : A → UU j) (C : (Σ A B) → UU k) →
   Σ A (λ x → Σ (B x) (λ y → C (pair x y))) → Σ (Σ A B) C
-inv-map-assoc-Σ A B C t = pair (pair (pr1 t) (pr1 (pr2 t))) (pr2 (pr2 t))
+inv-map-assoc-Σ A B C t = triple' (pr1 t) (pr1 (pr2 t)) (pr2 (pr2 t))
 
 isretr-inv-map-assoc-Σ :
   {i j k : Level} (A : UU i) (B : A → UU j)
@@ -865,12 +875,12 @@ inv-assoc-Σ A B C =
 map-assoc-Σ' :
   {l1 l2 l3 : Level} (A : UU l1) (B : A → UU l2) (C : (x : A) → B x → UU l3) →
   Σ (Σ A B) (λ w → C (pr1 w) (pr2 w)) → Σ A (λ x → Σ (B x) (C x))
-map-assoc-Σ' A B C (pair (pair x y) z) = pair x (pair y z)
+map-assoc-Σ' A B C (pair (pair x y) z) = triple x y z
 
 inv-map-assoc-Σ' :
   {l1 l2 l3 : Level} (A : UU l1) (B : A → UU l2) (C : (x : A) → B x → UU l3) →
   Σ A (λ x → Σ (B x) (C x)) → Σ (Σ A B) (λ w → C (pr1 w) (pr2 w))
-inv-map-assoc-Σ' A B C (pair x (pair y z)) = pair (pair x y) z
+inv-map-assoc-Σ' A B C (pair x (pair y z)) = triple' x y z
 
 issec-inv-map-assoc-Σ' :
   {l1 l2 l3 : Level} (A : UU l1) (B : A → UU l2) (C : (x : A) → B x → UU l3) →
@@ -1736,56 +1746,56 @@ abstract
 
 {- We construct the functoriality of coproducts. -}
 
-htpy-functor-coprod :
+htpy-map-coprod :
   {l1 l2 l1' l2' : Level} {A : UU l1} {B : UU l2} {A' : UU l1'} {B' : UU l2'}
   {f f' : A → A'} (H : f ~ f') {g g' : B → B'} (K : g ~ g') →
-  (functor-coprod f g) ~ (functor-coprod f' g')
-htpy-functor-coprod H K (inl x) = ap inl (H x)
-htpy-functor-coprod H K (inr y) = ap inr (K y)
+  (map-coprod f g) ~ (map-coprod f' g')
+htpy-map-coprod H K (inl x) = ap inl (H x)
+htpy-map-coprod H K (inr y) = ap inr (K y)
 
-id-functor-coprod :
+id-map-coprod :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) →
-  (functor-coprod (id {A = A}) (id {A = B})) ~ id
-id-functor-coprod A B (inl x) = refl
-id-functor-coprod A B (inr x) = refl
+  (map-coprod (id {A = A}) (id {A = B})) ~ id
+id-map-coprod A B (inl x) = refl
+id-map-coprod A B (inr x) = refl
 
-compose-functor-coprod :
+compose-map-coprod :
   {l1 l2 l1' l2' l1'' l2'' : Level}
   {A : UU l1} {B : UU l2} {A' : UU l1'} {B' : UU l2'}
   {A'' : UU l1''} {B'' : UU l2''}
   (f : A → A') (f' : A' → A'') (g : B → B') (g' : B' → B'') →
-  (functor-coprod (f' ∘ f) (g' ∘ g)) ~
-  ((functor-coprod f' g') ∘ (functor-coprod f g))
-compose-functor-coprod f f' g g' (inl x) = refl
-compose-functor-coprod f f' g g' (inr y) = refl
+  (map-coprod (f' ∘ f) (g' ∘ g)) ~
+  ((map-coprod f' g') ∘ (map-coprod f g))
+compose-map-coprod f f' g g' (inl x) = refl
+compose-map-coprod f f' g g' (inr y) = refl
 
 abstract
-  is-equiv-functor-coprod :
+  is-equiv-map-coprod :
     {l1 l2 l1' l2' : Level} {A : UU l1} {B : UU l2} {A' : UU l1'} {B' : UU l2'}
     {f : A → A'} {g : B → B'} →
-    is-equiv f → is-equiv g → is-equiv (functor-coprod f g)
-  is-equiv-functor-coprod {A = A} {B = B} {A' = A'} {B' = B'} {f = f} {g = g}
+    is-equiv f → is-equiv g → is-equiv (map-coprod f g)
+  is-equiv-map-coprod {A = A} {B = B} {A' = A'} {B' = B'} {f = f} {g = g}
     (pair (pair sf issec-sf) (pair rf isretr-rf))
     (pair (pair sg issec-sg) (pair rg isretr-rg)) =
     pair
       ( pair
-        ( functor-coprod sf sg)
-        ( ( ( inv-htpy (compose-functor-coprod sf f sg g)) ∙h
-            ( htpy-functor-coprod issec-sf issec-sg)) ∙h
-          ( id-functor-coprod A' B')))
+        ( map-coprod sf sg)
+        ( ( ( inv-htpy (compose-map-coprod sf f sg g)) ∙h
+            ( htpy-map-coprod issec-sf issec-sg)) ∙h
+          ( id-map-coprod A' B')))
       ( pair
-        ( functor-coprod rf rg)
-        ( ( ( inv-htpy (compose-functor-coprod f rf g rg)) ∙h
-            ( htpy-functor-coprod isretr-rf isretr-rg)) ∙h
-          ( id-functor-coprod A B)))
+        ( map-coprod rf rg)
+        ( ( ( inv-htpy (compose-map-coprod f rf g rg)) ∙h
+            ( htpy-map-coprod isretr-rf isretr-rg)) ∙h
+          ( id-map-coprod A B)))
   
-equiv-functor-coprod :
+equiv-coprod :
   {l1 l2 l1' l2' : Level} {A : UU l1} {B : UU l2} {A' : UU l1'} {B' : UU l2'} →
   (A ≃ A') → (B ≃ B') → ((coprod A B) ≃ (coprod A' B'))
-equiv-functor-coprod (pair e is-equiv-e) (pair f is-equiv-f) =
+equiv-coprod (pair e is-equiv-e) (pair f is-equiv-f) =
   pair
-    ( functor-coprod e f)
-    ( is-equiv-functor-coprod is-equiv-e is-equiv-f)
+    ( map-coprod e f)
+    ( is-equiv-map-coprod is-equiv-e is-equiv-f)
 
 --------------------------------------------------------------------------------
 
@@ -1876,75 +1886,75 @@ coprod-Fin :
   (k l : ℕ) → coprod (Fin k) (Fin l) ≃ Fin (add-ℕ k l)
 coprod-Fin k zero-ℕ = right-unit-law-coprod (Fin k)
 coprod-Fin k (succ-ℕ l) =
-  (equiv-functor-coprod (coprod-Fin k l) (equiv-id unit)) ∘e inv-assoc-coprod
+  (equiv-coprod (coprod-Fin k l) (equiv-id unit)) ∘e inv-assoc-coprod
 
 {- We construct the functoriality of cartesian products. -}
 
-functor-prod :
+map-prod :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {D : UU l4}
   (f : A → C) (g : B → D) → (A × B) → (C × D)
-functor-prod f g (pair a b) = pair (f a) (g b)
+map-prod f g (pair a b) = pair (f a) (g b)
 
-functor-prod-pr1 :
+map-prod-pr1 :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {D : UU l4}
-  (f : A → C) (g : B → D) → (pr1 ∘ (functor-prod f g)) ~ (f ∘ pr1)
-functor-prod-pr1 f g (pair a b) = refl
+  (f : A → C) (g : B → D) → (pr1 ∘ (map-prod f g)) ~ (f ∘ pr1)
+map-prod-pr1 f g (pair a b) = refl
 
-functor-prod-pr2 :
+map-prod-pr2 :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {D : UU l4}
-  (f : A → C) (g : B → D) → (pr2 ∘ (functor-prod f g)) ~ (g ∘ pr2)
-functor-prod-pr2 f g (pair a b) = refl
+  (f : A → C) (g : B → D) → (pr2 ∘ (map-prod f g)) ~ (g ∘ pr2)
+map-prod-pr2 f g (pair a b) = refl
 
 {- For our convenience we show that the functorial action of cartesian products
    preserves identity maps, compositions, homotopies, and equivalences. -}
 
-functor-prod-id :
+map-prod-id :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-  (functor-prod (id {A = A}) (id {A = B})) ~ id
-functor-prod-id (pair a b) = refl
+  (map-prod (id {A = A}) (id {A = B})) ~ id
+map-prod-id (pair a b) = refl
 
-functor-prod-comp :
+map-prod-comp :
   {l1 l2 l3 l4 l5 l6 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {D : UU l4}
   {E : UU l5} {F : UU l6} (f : A → C) (g : B → D) (h : C → E) (k : D → F) →
-  functor-prod (h ∘ f) (k ∘ g) ~ ((functor-prod h k) ∘ (functor-prod f g))
-functor-prod-comp f g h k (pair a b) = refl
+  map-prod (h ∘ f) (k ∘ g) ~ ((map-prod h k) ∘ (map-prod f g))
+map-prod-comp f g h k (pair a b) = refl
 
-functor-prod-htpy :
+htpy-map-prod :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {D : UU l4}
   {f f' : A → C} (H : f ~ f') {g g' : B → D} (K : g ~ g') →
-  functor-prod f g ~ functor-prod f' g'
-functor-prod-htpy {f = f} {f'} H {g} {g'} K (pair a b) =
+  map-prod f g ~ map-prod f' g'
+htpy-map-prod {f = f} {f'} H {g} {g'} K (pair a b) =
   eq-pair-triv (pair (H a) (K b))
 
 abstract
-  is-equiv-functor-prod :
+  is-equiv-map-prod :
     {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {D : UU l4}
     (f : A → C) (g : B → D) →
-    is-equiv f → is-equiv g → is-equiv (functor-prod f g)
-  is-equiv-functor-prod f g
+    is-equiv f → is-equiv g → is-equiv (map-prod f g)
+  is-equiv-map-prod f g
     ( pair (pair sf issec-sf) (pair rf isretr-rf))
     ( pair (pair sg issec-sg) (pair rg isretr-rg)) =
     pair
       ( pair
-        ( functor-prod sf sg)
-        ( ( inv-htpy (functor-prod-comp sf sg f g)) ∙h
-          ( (functor-prod-htpy issec-sf issec-sg) ∙h functor-prod-id)))
+        ( map-prod sf sg)
+        ( ( inv-htpy (map-prod-comp sf sg f g)) ∙h
+          ( (htpy-map-prod issec-sf issec-sg) ∙h map-prod-id)))
       ( pair
-        ( functor-prod rf rg)
-        ( ( inv-htpy (functor-prod-comp f g rf rg)) ∙h
-          ( (functor-prod-htpy isretr-rf isretr-rg) ∙h functor-prod-id)))
+        ( map-prod rf rg)
+        ( ( inv-htpy (map-prod-comp f g rf rg)) ∙h
+          ( (htpy-map-prod isretr-rf isretr-rg) ∙h map-prod-id)))
 
-equiv-functor-prod :
+equiv-prod :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {D : UU l4}
   (f : A ≃ C) (g : B ≃ D) → (A × B) ≃ (C × D)
-equiv-functor-prod (pair f is-equiv-f) (pair g is-equiv-g) =
-  pair (functor-prod f g) (is-equiv-functor-prod f g is-equiv-f is-equiv-g)
+equiv-prod (pair f is-equiv-f) (pair g is-equiv-g) =
+  pair (map-prod f g) (is-equiv-map-prod f g is-equiv-f is-equiv-g)
 
 prod-Fin : (k l : ℕ) → ((Fin k) × (Fin l)) ≃ Fin (mul-ℕ k l)
 prod-Fin zero-ℕ l = left-absorption-prod (Fin l)
 prod-Fin (succ-ℕ k) l =
   ( ( coprod-Fin (mul-ℕ k l) l) ∘e
-    ( equiv-functor-coprod (prod-Fin k l) (left-unit-law-prod (Fin l)))) ∘e
+    ( equiv-coprod (prod-Fin k l) (left-unit-law-prod (Fin l)))) ∘e
   ( right-distributive-prod-coprod (Fin k) unit (Fin l))
 
 --------------------------------------------------------------------------------

@@ -93,7 +93,7 @@ is-decidable-iff :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} →
   (A → B) → (B → A) → is-decidable A → is-decidable B
 is-decidable-iff f g =
-  functor-coprod f (functor-neg g)
+  map-coprod f (functor-neg g)
 
 {- Proposition 8.1.7 -}
 
@@ -135,7 +135,7 @@ is-decidable-Eq-Fin (succ-ℕ k) (inr x) (inr y) = inl star
 has-decidable-equality-Fin :
   (k : ℕ) (x y : Fin k) → is-decidable (Id x y)
 has-decidable-equality-Fin k x y =
-  functor-coprod eq-Eq-Fin (functor-neg Eq-Fin-eq) (is-decidable-Eq-Fin k x y)
+  map-coprod eq-Eq-Fin (functor-neg Eq-Fin-eq) (is-decidable-Eq-Fin k x y)
 
 is-decidable-is-zero-Fin :
   {k : ℕ} (x : Fin k) → is-decidable (is-zero-Fin x)

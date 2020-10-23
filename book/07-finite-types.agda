@@ -173,13 +173,13 @@ order-three-elements-ℕ zero-ℕ zero-ℕ zero-ℕ = inl (inl (pair star star))
 order-three-elements-ℕ zero-ℕ zero-ℕ (succ-ℕ z) = inl (inl (pair star star))
 order-three-elements-ℕ zero-ℕ (succ-ℕ y) zero-ℕ = inl (inr (pair star star))
 order-three-elements-ℕ zero-ℕ (succ-ℕ y) (succ-ℕ z) =
-  inl (functor-coprod (pair star) (pair star) (decide-leq-ℕ y z))
+  inl (map-coprod (pair star) (pair star) (decide-leq-ℕ y z))
 order-three-elements-ℕ (succ-ℕ x) zero-ℕ zero-ℕ =
   inr (inl (inl (pair star star)))
 order-three-elements-ℕ (succ-ℕ x) zero-ℕ (succ-ℕ z) =
-  inr (inl (functor-coprod (pair star) (pair star) (decide-leq-ℕ z x)))
+  inr (inl (map-coprod (pair star) (pair star) (decide-leq-ℕ z x)))
 order-three-elements-ℕ (succ-ℕ x) (succ-ℕ y) zero-ℕ =
-  inr (inr (functor-coprod (pair star) (pair star) (decide-leq-ℕ x y)))
+  inr (inr (map-coprod (pair star) (pair star) (decide-leq-ℕ x y)))
 order-three-elements-ℕ (succ-ℕ x) (succ-ℕ y) (succ-ℕ z) =
   order-three-elements-ℕ x y z
 
@@ -1471,7 +1471,7 @@ swap-Fin {succ-ℕ zero-ℕ} x y z = z
 swap-Fin {succ-ℕ (succ-ℕ k)} (inl x) (inl y) (inl z) = inl (swap-Fin x y z)
 swap-Fin {succ-ℕ (succ-ℕ k)} (inl x) (inl y) (inr star) = inr star
 swap-Fin {succ-ℕ (succ-ℕ k)} (inl x) (inr star) (inl z) =
-  functor-coprod
+  map-coprod
     ( swap-Fin x (inr star))
     ( id)
     ( swap-neg-two-neg-one-Fin
@@ -1479,7 +1479,7 @@ swap-Fin {succ-ℕ (succ-ℕ k)} (inl x) (inr star) (inl z) =
         ( swap-Fin x (inr star) z)))
 swap-Fin {succ-ℕ (succ-ℕ k)} (inl x) (inr star) (inr star) = inl x
 swap-Fin {succ-ℕ (succ-ℕ k)} (inr star) (inl y) (inl z) =
-  functor-coprod
+  map-coprod
     ( swap-Fin (inr star) y)
     ( id)
     ( swap-neg-two-neg-one-Fin
@@ -1499,7 +1499,7 @@ is-neg-one-swap-Fin :
   {k : ℕ} (x : Fin (succ-ℕ k)) → is-neg-one-Fin (swap-Fin x neg-one-Fin x)
 is-neg-one-swap-Fin {zero-ℕ} (inr star) = refl
 is-neg-one-swap-Fin {succ-ℕ k} (inl x) =
-  ap ( functor-coprod (swap-Fin x neg-one-Fin) id)
+  ap ( map-coprod (swap-Fin x neg-one-Fin) id)
      ( ap ( swap-neg-two-neg-one-Fin ∘ inl-Fin (succ-ℕ k))
           ( is-neg-one-swap-Fin x))
 is-neg-one-swap-Fin {succ-ℕ k} (inr star) = refl

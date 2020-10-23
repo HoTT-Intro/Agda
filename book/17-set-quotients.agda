@@ -195,7 +195,7 @@ equiv-subtype-equiv :
   ((x : A) → (C x) ⇔ (D (map-equiv e x))) →
   total-subtype C ≃ total-subtype D
 equiv-subtype-equiv e C D H =
-  equiv-toto (λ y → type-Prop (D y)) e
+  equiv-Σ (λ y → type-Prop (D y)) e
     ( λ x → equiv-iff (C x) (D (map-equiv e x)) (H x))
 
 equiv-comp-equiv' :

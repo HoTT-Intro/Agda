@@ -965,7 +965,7 @@ cases-leq-succ-ℕ {zero-ℕ} {n} star = inl star
 cases-leq-succ-ℕ {succ-ℕ m} {zero-ℕ} p =
   inr (ap succ-ℕ (anti-symmetric-leq-ℕ m zero-ℕ p star))
 cases-leq-succ-ℕ {succ-ℕ m} {succ-ℕ n} p =
-  functor-coprod id (ap succ-ℕ) (cases-leq-succ-ℕ p)
+  map-coprod id (ap succ-ℕ) (cases-leq-succ-ℕ p)
    
 cases-succ-strong-ind-ℕ :
   { l : Level} (P : ℕ → UU l) →
@@ -1087,7 +1087,7 @@ cases-leq-succ-reflexive-leq-ℕ :
   {n : ℕ} → Id (cases-leq-succ-ℕ {succ-ℕ n} {n} (reflexive-leq-ℕ n)) (inr refl)
 cases-leq-succ-reflexive-leq-ℕ {zero-ℕ} = refl
 cases-leq-succ-reflexive-leq-ℕ {succ-ℕ n} =
-  ap (functor-coprod id (ap succ-ℕ)) cases-leq-succ-reflexive-leq-ℕ
+  ap (map-coprod id (ap succ-ℕ)) cases-leq-succ-reflexive-leq-ℕ
   
 cases-eq-comp-succ-strong-ind-ℕ :
   { l : Level} (P : ℕ → UU l) (p0 : P zero-ℕ) →

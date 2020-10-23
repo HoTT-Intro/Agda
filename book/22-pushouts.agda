@@ -371,11 +371,11 @@ comparison-suspension-cocone :
   {l1 l2 : Level} (X : UU l1) (Z : UU l2) →
   suspension-cocone' X Z ≃ suspension-cocone X Z
 comparison-suspension-cocone X Z =
-  equiv-toto
+  equiv-Σ
     ( λ z1 → Σ Z (λ z2 → (x : X) → Id z1 z2))
     ( equiv-ev-star' Z)
     ( λ z1 →
-      equiv-toto
+      equiv-Σ
         ( λ z2 → (x : X) → Id (z1 star) z2)
         ( equiv-ev-star' Z)
         ( λ z2 → equiv-id ((x : X) → Id (z1 star) (z2 star))))

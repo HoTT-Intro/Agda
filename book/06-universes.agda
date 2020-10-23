@@ -299,7 +299,7 @@ decide-leq-succ-ℕ zero-ℕ (succ-ℕ n) l = inl star
 decide-leq-succ-ℕ (succ-ℕ m) zero-ℕ l =
   inr (ap succ-ℕ (is-zero-leq-zero-ℕ m l))
 decide-leq-succ-ℕ (succ-ℕ m) (succ-ℕ n) l =
-  functor-coprod id (ap succ-ℕ) (decide-leq-succ-ℕ m n l)
+  map-coprod id (ap succ-ℕ) (decide-leq-succ-ℕ m n l)
 
 -- Exercise 6.3 (a)
 
@@ -1146,7 +1146,7 @@ map-coprod-Fin :
   (m n : ℕ) → Fin (add-ℕ m n) → coprod (Fin m) (Fin n)
 map-coprod-Fin m zero-ℕ = inl
 map-coprod-Fin m (succ-ℕ n) =
-  map-assoc-coprod ∘ (functor-coprod (map-coprod-Fin m n) (id {A = unit}))
+  map-assoc-coprod ∘ (map-coprod (map-coprod-Fin m n) (id {A = unit}))
 
 add-Fin-Tree : Fin-Tree → Fin-Tree → Fin-Tree
 add-Fin-Tree (constr n x) (constr m y) =

@@ -238,8 +238,7 @@ is-finite-coprod X Y is-finite-X is-finite-Y =
           unit-trunc-Prop _
             ( pair
               ( add-ℕ n m)
-              ( equiv-functor-coprod e f ∘e
-                inv-equiv (coprod-Fin n m))))
+              ( ( equiv-coprod e f) ∘e (inv-equiv (coprod-Fin n m)))))
         is-finite-Y)
     ( is-finite-X)
 

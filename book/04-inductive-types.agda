@@ -107,11 +107,11 @@ ind-coprod C f g (inr x) = g x
 
 -- Remark 4.5.2
 
-functor-coprod :
+map-coprod :
   {l1 l2 l1' l2' : Level} {A : UU l1} {B : UU l2} {A' : UU l1'} {B' : UU l2'} →
   (A → A') → (B → B') → coprod A B → coprod A' B'
-functor-coprod f g (inl x) = inl (f x)
-functor-coprod f g (inr y) = inr (g y)
+map-coprod f g (inl x) = inl (f x)
+map-coprod f g (inr y) = inr (g y)
 
 -- Proposition 4.5.3
 

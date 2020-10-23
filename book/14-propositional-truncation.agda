@@ -308,7 +308,7 @@ abstract
     ( {l : Level} → dependent-universal-property-propositional-truncation l P f)
   dependent-universal-property-is-propositional-truncation
     {l1} {l2} {A} P f is-ptr-f Q =
-    is-fiberwise-equiv-is-equiv-toto-is-equiv-base-map
+    is-fiberwise-equiv-is-equiv-map-Σ
       ( λ (g : A → type-Prop P) → (x : A) → type-Prop (Q (g x)))
       ( precomp f (type-Prop P))
       ( λ h → precomp-Π f (λ p → type-Prop (Q (h p))))
@@ -318,7 +318,7 @@ abstract
           { C = λ (x : type-Prop P) (p : type-Prop P) → type-Prop (Q p)})
         ( inv-choice-∞
           { C = λ (x : A) (p : type-Prop P) → type-Prop (Q p)})
-        ( toto
+        ( map-Σ
           ( λ (g : A → type-Prop P) → (x : A) → type-Prop (Q (g x)))
           ( precomp f (type-Prop P))
           ( λ h → precomp-Π f (λ p → type-Prop (Q (h p)))))
