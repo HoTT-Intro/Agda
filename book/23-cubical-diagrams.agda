@@ -831,11 +831,11 @@ cone-family {C = C} PX f' g' c PC =
   (x : C) →
   cone ((tr PX (pr2 (pr2 c) x)) ∘ (f' (pr1 c x))) (g' (pr1 (pr2 c) x)) (PC x)
 
-htpy-toto :
+htpy-map-Σ :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {P : A → UU l3} (Q : B → UU l4)
   {f f' : A → B} (H : f ~ f') (g : (x : A) → P x → Q (f x)) {g' : (x : A) → P x → Q (f' x)} (K : (x : A) → ((tr Q (H x)) ∘ (g x)) ~ (g' x)) →
-  (toto Q f g) ~ (toto Q f' g')
-htpy-toto Q H g K t = eq-pair (H (pr1 t)) (K (pr1 t) (pr2 t))
+  (map-Σ Q f g) ~ (map-Σ Q f' g')
+htpy-map-Σ Q H g K t = eq-pair (H (pr1 t)) (K (pr1 t) (pr2 t))
 
 tot-cone-cone-family :
   {l1 l2 l3 l4 l5 l6 l7 l8 : Level}
@@ -844,13 +844,13 @@ tot-cone-cone-family :
   {f : A → X} {g : B → X} →
   (f' : (a : A) → PA a → PX (f a)) (g' : (b : B) → PB b → PX (g b)) →
   (c : cone f g C) → cone-family PX f' g' c PC →
-  cone (toto PX f f') (toto PX g g') (Σ C PC)
+  cone (map-Σ PX f f') (map-Σ PX g g') (Σ C PC)
 tot-cone-cone-family PX f' g' c c' =
   pair
-    ( toto _ (pr1 c) (λ x → pr1 (c' x)))
+    ( map-Σ _ (pr1 c) (λ x → pr1 (c' x)))
     ( pair
-      ( toto _ (pr1 (pr2 c)) (λ x → (pr1 (pr2 (c' x)))))
-      ( htpy-toto PX
+      ( map-Σ _ (pr1 (pr2 c)) (λ x → (pr1 (pr2 (c' x)))))
+      ( htpy-map-Σ PX
         ( pr2 (pr2 c))
         ( λ z → (f' (pr1 c z)) ∘ (pr1 (c' z)))
         ( λ z → pr2 (pr2 (c' z)))))
@@ -909,7 +909,7 @@ map-canonical-pullback-tot-cone-cone-family :
   (c : cone f g C) (c' : cone-family PX f' g' c PC) →
   Σ ( canonical-pullback f g)
     ( λ t → canonical-pullback ((tr PX (π₃ t)) ∘ (f' (π₁ t))) (g' (π₂ t))) →
-  canonical-pullback (toto PX f f') (toto PX g g')
+  canonical-pullback (map-Σ PX f f') (map-Σ PX g g')
 map-canonical-pullback-tot-cone-cone-family
   {X = X} {A} {B} {C} PX {PA} {PB} {PC} {f} {g} f' g' c c' =
   ( tot (λ aa' →
@@ -957,9 +957,9 @@ triangle-canonical-pullback-tot-cone-cone-family :
   {f : A → X} {g : B → X} →
   (f' : (a : A) → PA a → PX (f a)) (g' : (b : B) → PB b → PX (g b)) →
   (c : cone f g C) (c' : cone-family PX f' g' c PC) →
-  ( gap (toto PX f f') (toto PX g g') (tot-cone-cone-family PX f' g' c c')) ~
+  ( gap (map-Σ PX f f') (map-Σ PX g g') (tot-cone-cone-family PX f' g' c c')) ~
   ( ( map-canonical-pullback-tot-cone-cone-family PX f' g' c c') ∘
-    ( toto _
+    ( map-Σ _
       ( gap f g c)
       ( λ x → gap
         ( (tr PX (pr2 (pr2 c) x)) ∘ (f' (pr1 c x)))
@@ -977,7 +977,7 @@ is-pullback-family-is-pullback-tot :
   (c : cone f g C) (c' : cone-family PX f' g' c PC) →
   is-pullback f g c →
   is-pullback
-    (toto PX f f') (toto PX g g') (tot-cone-cone-family PX f' g' c c') →
+    (map-Σ PX f f') (map-Σ PX g g') (tot-cone-cone-family PX f' g' c c') →
   (x : C) →
   is-pullback
     ( (tr PX (pr2 (pr2 c) x)) ∘ (f' (pr1 c x)))
@@ -985,7 +985,7 @@ is-pullback-family-is-pullback-tot :
     ( c' x)
 is-pullback-family-is-pullback-tot
   PX {PA} {PB} {PC} {f} {g} f' g' c c' is-pb-c is-pb-tot =
-  is-fiberwise-equiv-is-equiv-toto-is-equiv-base-map _
+  is-fiberwise-equiv-is-equiv-map-Σ _
     ( gap f g c)
     ( λ x → gap
       ( (tr PX (pr2 (pr2 c) x)) ∘ (f' (pr1 c x)))
@@ -993,9 +993,9 @@ is-pullback-family-is-pullback-tot
       ( c' x))
     ( is-pb-c)
     ( is-equiv-right-factor
-      ( gap (toto PX f f') (toto PX g g') (tot-cone-cone-family PX f' g' c c'))
+      ( gap (map-Σ PX f f') (map-Σ PX g g') (tot-cone-cone-family PX f' g' c c'))
       ( map-canonical-pullback-tot-cone-cone-family PX f' g' c c')
-      ( toto _
+      ( map-Σ _
         ( gap f g c)
         ( λ x → gap
           ( (tr PX (pr2 (pr2 c) x)) ∘ (f' (pr1 c x)))
@@ -1019,20 +1019,20 @@ is-pullback-tot-is-pullback-family :
       ( g' (pr1 (pr2 c) x))
       ( c' x)) →
   is-pullback
-    (toto PX f f') (toto PX g g') (tot-cone-cone-family PX f' g' c c')
+    (map-Σ PX f f') (map-Σ PX g g') (tot-cone-cone-family PX f' g' c c')
 is-pullback-tot-is-pullback-family
   PX {PA} {PB} {PC} {f} {g} f' g' c c' is-pb-c is-pb-c' =
   is-equiv-comp
-    ( gap (toto PX f f') (toto PX g g') (tot-cone-cone-family PX f' g' c c'))
+    ( gap (map-Σ PX f f') (map-Σ PX g g') (tot-cone-cone-family PX f' g' c c'))
     ( map-canonical-pullback-tot-cone-cone-family PX f' g' c c')
-    ( toto _
+    ( map-Σ _
       ( gap f g c)
       ( λ x → gap
         ( (tr PX (pr2 (pr2 c) x)) ∘ (f' (pr1 c x)))
         ( g' (pr1 (pr2 c) x))
         ( c' x)))
     ( triangle-canonical-pullback-tot-cone-cone-family PX f' g' c c')
-    ( is-equiv-toto-is-fiberwise-equiv-is-equiv-base-map _
+    ( is-equiv-map-Σ _
       ( gap f g c)
       ( λ x → gap
         ( (tr PX (pr2 (pr2 c) x)) ∘ (f' (pr1 c x)))
@@ -1121,8 +1121,8 @@ is-pullback-cone-ap f g (pair p (pair q H)) is-pb-c c1 c2 =
       ( cone-ap' f g (pair p (pair q H)) c1)
       ( is-pb-c)
       ( is-pullback-is-equiv
-        ( toto _ f (λ a α → ap f α))
-        ( toto _ g (λ b β → (H c1) ∙ (ap g β)))
+        ( map-Σ _ f (λ a α → ap f α))
+        ( map-Σ _ g (λ b β → (H c1) ∙ (ap g β)))
         ( tot-cone-cone-family
           ( Id (f (p c1)))
           ( λ a → ap f)

@@ -1295,9 +1295,9 @@ abstract
     {P : A → UU l3} {Q : B → UU l4}
     (is-subtype-P : is-subtype P) (is-subtype-Q : is-subtype Q)
     (f : A → B) (g : (x : A) → P x → Q (f x)) →
-    is-equiv f → ((x : A) → (Q (f x)) → P x) → is-equiv (toto Q f g)
+    is-equiv f → ((x : A) → (Q (f x)) → P x) → is-equiv (map-Σ Q f g)
   is-equiv-subtype-is-equiv {Q = Q} is-subtype-P is-subtype-Q f g is-equiv-f h =
-    is-equiv-toto-is-fiberwise-equiv-is-equiv-base-map Q f g is-equiv-f
+    is-equiv-map-Σ Q f g is-equiv-f
       ( λ x → is-equiv-is-prop (is-subtype-P x) (is-subtype-Q (f x)) (h x))
 
 abstract
@@ -1308,10 +1308,10 @@ abstract
     (f : A → B) (g : (x : A) → P x → Q (f x)) →
     (is-equiv-f : is-equiv f) →
     ((y : B) → (Q y) → P (inv-is-equiv is-equiv-f y)) →
-    is-equiv (toto Q f g)
+    is-equiv (map-Σ Q f g)
   is-equiv-subtype-is-equiv' {P = P} {Q}
     is-subtype-P is-subtype-Q f g is-equiv-f h =
-    is-equiv-toto-is-fiberwise-equiv-is-equiv-base-map Q f g is-equiv-f
+    is-equiv-map-Σ Q f g is-equiv-f
       ( λ x → is-equiv-is-prop (is-subtype-P x) (is-subtype-Q (f x))
         ( (tr P (isretr-inv-is-equiv is-equiv-f x)) ∘ (h (f x))))
 
@@ -1330,7 +1330,7 @@ left-factor-fiberwise-equiv-equiv-slice :
   Σ (hom-slice f g) (λ hH → is-equiv (pr1 hH)) →
   Σ ((x : X) → (fib f x) → (fib g x)) is-fiberwise-equiv
 left-factor-fiberwise-equiv-equiv-slice f g =
-  toto
+  map-Σ
     ( is-fiberwise-equiv)
     ( fiberwise-hom-hom-slice f g)
     ( is-fiberwise-equiv-fiberwise-equiv-equiv-slice f g)

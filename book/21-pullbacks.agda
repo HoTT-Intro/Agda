@@ -774,12 +774,12 @@ abstract
     is-pullback f g (cone-span f g i j k)
   is-pullback-cone-span-is-equiv {B = B} f g i j k
     is-equiv-i is-equiv-j is-equiv-k =
-    is-equiv-toto-is-fiberwise-equiv-is-equiv-base-map
+    is-equiv-map-Σ
       ( λ x → Σ B (λ y → Id (f x) (g y)))
       ( i)
-      ( λ x' → toto (λ y → Id (f (i x')) (g y)) j (k x'))
+      ( λ x' → map-Σ (λ y → Id (f (i x')) (g y)) j (k x'))
       ( is-equiv-i)
-      ( λ x' → is-equiv-toto-is-fiberwise-equiv-is-equiv-base-map
+      ( λ x' → is-equiv-map-Σ
         ( λ y → Id (f (i x')) (g y))
         ( j)
         ( k x')
@@ -878,7 +878,7 @@ cone-subst :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (f : A → B) (Q : B → UU l3) →
   cone f (pr1 {B = Q}) (Σ A (λ x → Q (f x)))
 cone-subst f Q =
-  pair pr1 (pair (Σ-map-base-map f Q) (λ t → refl))
+  pair pr1 (pair (map-Σ-map-base f Q) (λ t → refl))
 
 inv-gap-cone-subst :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (f : A → B) (Q : B → UU l3) →
@@ -912,7 +912,7 @@ cone-toto :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {P : A → UU l3}
   (Q : B → UU l4) (f : A → B) (g : (x : A) → (P x) → (Q (f x))) →
   cone f (pr1 {B = Q}) (Σ A P)
-cone-toto Q f g = pair pr1 (pair (toto Q f g) (λ t → refl))
+cone-toto Q f g = pair pr1 (pair (map-Σ Q f g) (λ t → refl))
 
 abstract
   is-pullback-is-fiberwise-equiv :
@@ -1178,7 +1178,7 @@ fib-square-comp-vertical :
   ( ( fib-square f (g ∘ h) (cone-comp-vertical f g h c d) x) ∘
     ( inv-map-fib-comp (pr1 c) (pr1 d) x)) ~
   ( ( inv-map-fib-comp g h (f x)) ∘
-    ( toto
+    ( map-Σ
       ( λ t → fib h (pr1 t))
       ( fib-square f g c x)
       ( λ t → fib-square (pr1 (pr2 c)) h d (pr1 t))))
@@ -1250,7 +1250,7 @@ abstract
     is-pullback (pr1 (pr2 c)) h d
   is-pullback-top-is-pullback-rectangle f g h c d is-pb-c is-pb-dc =
     is-pullback-is-fiberwise-equiv-fib-square (pr1 (pr2 c)) h d
-      ( λ x → is-fiberwise-equiv-is-equiv-toto-is-equiv-base-map
+      ( λ x → is-fiberwise-equiv-is-equiv-map-Σ
         ( λ t → fib h (pr1 t))
         ( fib-square f g c ((pr1 c) x))
         ( λ t → fib-square (pr1 (pr2 c)) h d (pr1 t))
@@ -1258,7 +1258,7 @@ abstract
         ( is-equiv-top-is-equiv-bottom-square
           ( inv-map-fib-comp (pr1 c) (pr1 d) ((pr1 c) x))
           ( inv-map-fib-comp g h (f ((pr1 c) x)))
-          ( toto
+          ( map-Σ
             ( λ t → fib h (pr1 t))
             ( fib-square f g c ((pr1 c) x))
             ( λ t → fib-square (pr1 (pr2 c)) h d (pr1 t)))
@@ -1285,7 +1285,7 @@ abstract
       ( λ x → is-equiv-bottom-is-equiv-top-square
         ( inv-map-fib-comp (pr1 c) (pr1 d) x)
         ( inv-map-fib-comp g h (f x))
-        ( toto
+        ( map-Σ
           ( λ t → fib h (pr1 t))
           ( fib-square f g c x)
           ( λ t → fib-square (pr1 (pr2 c)) h d (pr1 t)))
@@ -1293,7 +1293,7 @@ abstract
         ( fib-square-comp-vertical f g h c d x)
         ( is-equiv-inv-map-fib-comp (pr1 c) (pr1 d) x)
         ( is-equiv-inv-map-fib-comp g h (f x))
-        ( is-equiv-toto-is-fiberwise-equiv-is-equiv-base-map
+        ( is-equiv-map-Σ
           ( λ t → fib h (pr1 t))
           ( fib-square f g c x)
           ( λ t → fib-square (pr1 (pr2 c)) h d (pr1 t))

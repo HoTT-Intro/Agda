@@ -163,7 +163,7 @@ functor-dependent-free-loops :
   { P : X → UU l2} {Q : X → UU l3} (f : (x : X) → P x → Q x) →
   dependent-free-loops l P → dependent-free-loops l Q
 functor-dependent-free-loops l {P} {Q} f =
-  toto
+  map-Σ
     ( λ q₀ → Id (tr Q (loop-free-loop l) q₀) q₀)
     ( f (base-free-loop l))
     ( λ p₀ α →
@@ -200,7 +200,7 @@ abstract
     is-equiv (functor-dependent-free-loops l f)
   is-equiv-functor-dependent-free-loops-is-fiberwise-equiv
     (pair x l) {P} {Q} {f} is-equiv-f =
-    is-equiv-toto-is-fiberwise-equiv-is-equiv-base-map
+    is-equiv-map-Σ
       ( λ q₀ → Id (tr Q l q₀) q₀)
       ( _)
       ( _)
@@ -404,18 +404,18 @@ map-path-over-contraction-total-space' :
     ( h' : contraction-total-space' c x' e') →
     ( path-over-contraction-total-space' c p f e e' H h h') →
     ( path-over (contraction-total-space c) p
-      ( inv-map-equiv (equiv-contraction-total-space c x e) h)
-      ( inv-map-equiv (equiv-contraction-total-space c x' e') h'))
+      ( map-inv-equiv (equiv-contraction-total-space c x e) h)
+      ( map-inv-equiv (equiv-contraction-total-space c x' e') h'))
 map-path-over-contraction-total-space' c {x} {.x} refl f e e' H h h' α =
-  inv-map-equiv
+  map-inv-equiv
     ( equiv-ap
       ( ( equiv-tr-contraction-total-space' c refl f e e' H) ∘e
         ( equiv-contraction-total-space c x e'))
-      ( inv-map-equiv (equiv-contraction-total-space c x e) h)
-      ( inv-map-equiv (equiv-contraction-total-space c x e') h'))
+      ( map-inv-equiv (equiv-contraction-total-space c x e) h)
+      ( map-inv-equiv (equiv-contraction-total-space c x e') h'))
     ( ( ( eq-htpy
           ( square-tr-contraction-total-space c refl f e e' H
-            ( inv-map-equiv (equiv-contraction-total-space c x e) h))) ∙
+            ( map-inv-equiv (equiv-contraction-total-space c x e) h))) ∙
         ( issec-inv-is-equiv
           ( is-equiv-map-equiv (equiv-contraction-total-space c x e))
           ( h))) ∙ 
@@ -443,8 +443,8 @@ equiv-path-over-contraction-total-space' :
   ( h : contraction-total-space' c x e) →
   ( h' : contraction-total-space' c x' e') →
   ( path-over (contraction-total-space c) p
-    ( inv-map-equiv (equiv-contraction-total-space c x e) h)
-    ( inv-map-equiv (equiv-contraction-total-space c x' e') h')) ≃
+    ( map-inv-equiv (equiv-contraction-total-space c x e) h)
+    ( map-inv-equiv (equiv-contraction-total-space c x' e') h')) ≃
   ( path-over-contraction-total-space' c p f e e' H h h')
 equiv-path-over-contraction-total-space' c {x} {.x} refl f e e' H h h' =
   ( inv-equiv
@@ -466,7 +466,7 @@ equiv-path-over-contraction-total-space' c {x} {.x} refl f e e' H h h' =
           ( inv
             ( ( eq-htpy
                 ( square-tr-contraction-total-space c refl f e e' H
-                  ( inv-map-equiv (equiv-contraction-total-space c x e) h))) ∙
+                  ( map-inv-equiv (equiv-contraction-total-space c x e) h))) ∙
               ( issec-inv-is-equiv
                 ( is-equiv-map-equiv (equiv-contraction-total-space c x e))
                 ( h))))
@@ -478,8 +478,8 @@ equiv-path-over-contraction-total-space' c {x} {.x} refl f e e' H h h' =
         ( equiv-ap
           ( ( equiv-tr-contraction-total-space' c refl f e e' H) ∘e
             ( equiv-contraction-total-space c x e'))
-          ( inv-map-equiv (equiv-contraction-total-space c x e) h)
-          ( inv-map-equiv (equiv-contraction-total-space c x e') h')))))
+          ( map-inv-equiv (equiv-contraction-total-space c x e) h)
+          ( map-inv-equiv (equiv-contraction-total-space c x e') h')))))
 
 {- We use the above construction to provide sufficient conditions for the total
    space of the fundamental cover to be contractible. -}
@@ -514,13 +514,13 @@ path-over-loop-contraction-total-fundamental-cover-circle :
     ( contraction-total-space
       ( center-total-fundamental-cover-circle l dup-circle))
     ( pr2 l)
-    ( inv-map-equiv
+    ( map-inv-equiv
       ( equiv-contraction-total-space
         ( center-total-fundamental-cover-circle l dup-circle)
         ( base-free-loop l)
         ( comp-fiber-fundamental-cover-circle l dup-circle))
       ( h))
-    ( inv-map-equiv
+    ( map-inv-equiv
       ( equiv-contraction-total-space
         ( center-total-fundamental-cover-circle l dup-circle)
         ( base-free-loop l)
@@ -564,7 +564,7 @@ contraction-total-fundamental-cover-circle-data
       ( contraction-total-space
         ( center-total-fundamental-cover-circle l dup-circle)))
     ( pair
-      ( inv-map-equiv
+      ( map-inv-equiv
         ( equiv-contraction-total-space
           ( center-total-fundamental-cover-circle l dup-circle)
           ( base-free-loop l)

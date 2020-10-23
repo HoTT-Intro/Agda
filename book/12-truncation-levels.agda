@@ -1103,7 +1103,7 @@ is-decidable-is-equiv {f = f} (pair (pair g G) (pair h H)) =
 is-decidable-equiv :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
   is-decidable B → is-decidable A
-is-decidable-equiv e = is-decidable-iff (inv-map-equiv e) (map-equiv e)
+is-decidable-equiv e = is-decidable-iff (map-inv-equiv e) (map-equiv e)
 
 is-decidable-equiv' :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
@@ -1131,14 +1131,14 @@ has-decidable-equality-Σ dA dB (pair x y) (pair x' y') with dA x x'
 {- We show that if f : A → B is an embedding, then the induced map
    Σ A (C ∘ f) → Σ A C is also an embedding. -}
 
-is-emb-Σ-map-base-map :
+is-emb-map-Σ-map-base :
   { l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (f : A → B) (C : B → UU l3) →
-  is-emb f → is-emb (Σ-map-base-map f C)
-is-emb-Σ-map-base-map f C is-emb-f =
+  is-emb f → is-emb (map-Σ-map-base f C)
+is-emb-map-Σ-map-base f C is-emb-f =
   is-emb-is-prop-map
-    ( Σ-map-base-map f C)
+    ( map-Σ-map-base f C)
     ( λ x →
       is-prop-equiv'
         ( fib f (pr1 x))
-        ( equiv-fib-Σ-map-base-map-fib f C x)
+        ( equiv-fib-map-Σ-map-base-fib f C x)
         ( is-prop-map-is-emb f is-emb-f (pr1 x)))

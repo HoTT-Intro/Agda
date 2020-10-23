@@ -111,137 +111,143 @@ equiv-tot e =
 {- In the second part of this section we show that any equivalence f on base 
    types also induces an equivalence on total spaces. -}
 
-Σ-map-base-map :
+map-Σ-map-base :
   { l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (f : A → B) (C : B → UU l3) →
   Σ A (λ x → C (f x)) → Σ B C
-Σ-map-base-map f C s = pair (f (pr1 s)) (pr2 s)
+map-Σ-map-base f C s = pair (f (pr1 s)) (pr2 s)
 
 {- The proof is similar to the previous part: we show that the fibers of f
    and Σ-kap-base-map f C are equivalent. -}
 
-fib-Σ-map-base-map-fib :
+fib-map-Σ-map-base-fib :
   { l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (f : A → B) (C : B → UU l3) →
-  ( t : Σ B C) → fib f (pr1 t) → fib (Σ-map-base-map f C) t
-fib-Σ-map-base-map-fib f C (pair .(f x) z) (pair x refl) =
+  ( t : Σ B C) → fib f (pr1 t) → fib (map-Σ-map-base f C) t
+fib-map-Σ-map-base-fib f C (pair .(f x) z) (pair x refl) =
   pair (pair x z) refl
 
-fib-fib-Σ-map-base-map :
+fib-fib-map-Σ-map-base :
   { l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (f : A → B) (C : B → UU l3) →
-  ( t : Σ B C) → fib (Σ-map-base-map f C) t → fib f (pr1 t)
-fib-fib-Σ-map-base-map f C .(pair (f x) z) (pair (pair x z) refl) =
+  ( t : Σ B C) → fib (map-Σ-map-base f C) t → fib f (pr1 t)
+fib-fib-map-Σ-map-base f C .(pair (f x) z) (pair (pair x z) refl) =
   pair x refl
 
-issec-fib-fib-Σ-map-base-map :
+issec-fib-fib-map-Σ-map-base :
   { l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (f : A → B) (C : B → UU l3) →
   ( t : Σ B C) →
-  ( (fib-Σ-map-base-map-fib f C t) ∘ (fib-fib-Σ-map-base-map f C t)) ~ id
-issec-fib-fib-Σ-map-base-map f C .(pair (f x) z) (pair (pair x z) refl) =
+  ( (fib-map-Σ-map-base-fib f C t) ∘ (fib-fib-map-Σ-map-base f C t)) ~ id
+issec-fib-fib-map-Σ-map-base f C .(pair (f x) z) (pair (pair x z) refl) =
   refl
 
-isretr-fib-fib-Σ-map-base-map :
+isretr-fib-fib-map-Σ-map-base :
   { l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (f : A → B) (C : B → UU l3) →
   ( t : Σ B C) →
-  ( (fib-fib-Σ-map-base-map f C t) ∘ (fib-Σ-map-base-map-fib f C t)) ~ id
-isretr-fib-fib-Σ-map-base-map f C (pair .(f x) z) (pair x refl) = refl
+  ( (fib-fib-map-Σ-map-base f C t) ∘ (fib-map-Σ-map-base-fib f C t)) ~ id
+isretr-fib-fib-map-Σ-map-base f C (pair .(f x) z) (pair x refl) = refl
 
 abstract
-  is-equiv-fib-Σ-map-base-map-fib :
+  is-equiv-fib-map-Σ-map-base-fib :
     { l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (f : A → B) (C : B → UU l3) →
-    ( t : Σ B C) → is-equiv (fib-Σ-map-base-map-fib f C t)
-  is-equiv-fib-Σ-map-base-map-fib f C t =
+    ( t : Σ B C) → is-equiv (fib-map-Σ-map-base-fib f C t)
+  is-equiv-fib-map-Σ-map-base-fib f C t =
     is-equiv-has-inverse
-      ( fib-fib-Σ-map-base-map f C t)
-      ( issec-fib-fib-Σ-map-base-map f C t)
-      ( isretr-fib-fib-Σ-map-base-map f C t)
+      ( fib-fib-map-Σ-map-base f C t)
+      ( issec-fib-fib-map-Σ-map-base f C t)
+      ( isretr-fib-fib-map-Σ-map-base f C t)
 
-equiv-fib-Σ-map-base-map-fib :
+equiv-fib-map-Σ-map-base-fib :
   { l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (f : A → B) (C : B → UU l3) →
-  ( t : Σ B C) → (fib f (pr1 t)) ≃ (fib (Σ-map-base-map f C) t)
-equiv-fib-Σ-map-base-map-fib f C t =
-  pair ( fib-Σ-map-base-map-fib f C t)
-       ( is-equiv-fib-Σ-map-base-map-fib f C t)
+  ( t : Σ B C) → (fib f (pr1 t)) ≃ (fib (map-Σ-map-base f C) t)
+equiv-fib-map-Σ-map-base-fib f C t =
+  pair ( fib-map-Σ-map-base-fib f C t)
+       ( is-equiv-fib-map-Σ-map-base-fib f C t)
 
 abstract
-  is-contr-map-Σ-map-base-map :
+  is-contr-map-map-Σ-map-base :
     {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (C : B → UU l3) (f : A → B) →
-    is-contr-map f → is-contr-map (Σ-map-base-map f C)
-  is-contr-map-Σ-map-base-map C f is-contr-f (pair y z) =
+    is-contr-map f → is-contr-map (map-Σ-map-base f C)
+  is-contr-map-map-Σ-map-base C f is-contr-f (pair y z) =
     is-contr-is-equiv'
       ( fib f y)
-      ( fib-Σ-map-base-map-fib f C (pair y z))
-      ( is-equiv-fib-Σ-map-base-map-fib f C (pair y z))
+      ( fib-map-Σ-map-base-fib f C (pair y z))
+      ( is-equiv-fib-map-Σ-map-base-fib f C (pair y z))
       ( is-contr-f y)
 
 abstract
-  is-equiv-Σ-map-base-map :
+  is-equiv-map-Σ-map-base :
     {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (C : B → UU l3) (f : A → B) →
-    is-equiv f → is-equiv (Σ-map-base-map f C)
-  is-equiv-Σ-map-base-map C f is-equiv-f =
+    is-equiv f → is-equiv (map-Σ-map-base f C)
+  is-equiv-map-Σ-map-base C f is-equiv-f =
     is-equiv-is-contr-map
-      ( is-contr-map-Σ-map-base-map C f (is-contr-map-is-equiv is-equiv-f))
+      ( is-contr-map-map-Σ-map-base C f (is-contr-map-is-equiv is-equiv-f))
+
+equiv-Σ-base-equiv :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (C : B → UU l3) (e : A ≃ B) →
+  Σ A (C ∘ (map-equiv e)) ≃ Σ B C
+equiv-Σ-base-equiv C (pair f is-equiv-f) =
+  pair (map-Σ-map-base f C) (is-equiv-map-Σ-map-base C f is-equiv-f)
 
 {- Now we combine the two parts of this section. -}
 
-toto :
+map-Σ :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : A → UU l3}
   (D : B → UU l4) (f : A → B) (g : (x : A) → C x → D (f x)) →
   Σ A C → Σ B D
-toto D f g t = pair (f (pr1 t)) (g (pr1 t) (pr2 t))
+map-Σ D f g t = pair (f (pr1 t)) (g (pr1 t) (pr2 t))
 
 {- A special case of toto is the functoriality of the cartesian product. -}
 
 {- triangle -}
 
-triangle-toto :
+triangle-map-Σ :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : A → UU l3}
   (D : B → UU l4) (f : A → B) (g : (x : A) → C x → D (f x)) →
-  (toto D f g) ~ ((Σ-map-base-map f D) ∘ (tot g))
-triangle-toto D f g t = refl
+  (map-Σ D f g) ~ ((map-Σ-map-base f D) ∘ (tot g))
+triangle-map-Σ D f g t = refl
 
 abstract
-  is-equiv-toto-is-fiberwise-equiv-is-equiv-base-map :
+  is-equiv-map-Σ :
     {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : A → UU l3}
     (D : B → UU l4) (f : A → B) (g : (x : A) → C x → D (f x)) →
     is-equiv f → (is-fiberwise-equiv g) →
-    is-equiv (toto D f g)
-  is-equiv-toto-is-fiberwise-equiv-is-equiv-base-map
+    is-equiv (map-Σ D f g)
+  is-equiv-map-Σ
     D f g is-equiv-f is-fiberwise-equiv-g =
     is-equiv-comp
-      ( toto D f g)
-      ( Σ-map-base-map f D)
+      ( map-Σ D f g)
+      ( map-Σ-map-base f D)
       ( tot g)
-      ( triangle-toto D f g)
+      ( triangle-map-Σ D f g)
       ( is-equiv-tot-is-fiberwise-equiv is-fiberwise-equiv-g)
-      ( is-equiv-Σ-map-base-map D f is-equiv-f)
+      ( is-equiv-map-Σ-map-base D f is-equiv-f)
 
-equiv-toto :
+equiv-Σ :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : A → UU l3}
   (D : B → UU l4) (e : A ≃ B) (g : (x : A) → C x ≃ D (map-equiv e x)) →
   Σ A C ≃ Σ B D
-equiv-toto D e g =
+equiv-Σ D e g =
   pair
-    ( toto D (map-equiv e) (λ x → map-equiv (g x)))
-    ( is-equiv-toto-is-fiberwise-equiv-is-equiv-base-map D
+    ( map-Σ D (map-equiv e) (λ x → map-equiv (g x)))
+    ( is-equiv-map-Σ D
       ( map-equiv e)
       ( λ x → map-equiv (g x))
       ( is-equiv-map-equiv e)
       ( λ x → is-equiv-map-equiv (g x)))
 
 abstract
-  is-fiberwise-equiv-is-equiv-toto-is-equiv-base-map :
+  is-fiberwise-equiv-is-equiv-map-Σ :
     {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : A → UU l3}
     (D : B → UU l4) (f : A → B) (g : (x : A) → C x → D (f x)) →
-    is-equiv f → is-equiv (toto D f g) → is-fiberwise-equiv g
-  is-fiberwise-equiv-is-equiv-toto-is-equiv-base-map
-    D f g is-equiv-f is-equiv-toto-fg =
+    is-equiv f → is-equiv (map-Σ D f g) → is-fiberwise-equiv g
+  is-fiberwise-equiv-is-equiv-map-Σ
+    D f g is-equiv-f is-equiv-map-Σ-fg =
     is-fiberwise-equiv-is-equiv-tot g
       ( is-equiv-right-factor
-        ( toto D f g)
-        ( Σ-map-base-map f D)
+        ( map-Σ D f g)
+        ( map-Σ-map-base f D)
         ( tot g)
-        ( triangle-toto D f g)
-        ( is-equiv-Σ-map-base-map D f is-equiv-f)
-        ( is-equiv-toto-fg))
+        ( triangle-map-Σ D f g)
+        ( is-equiv-map-Σ-map-base D f is-equiv-f)
+        ( is-equiv-map-Σ-fg))
 
 --------------------------------------------------------------------------------
 
@@ -339,8 +345,7 @@ is-emb-map-emb :
 is-emb-map-emb f = pr2 f
 
 eq-emb :
-  {i j : Level} {A : UU i} {B : UU j} (f : A ↪ B) →
-  {x y : A} → Id (map-emb f x) (map-emb f y) → Id x y
+  {i j : Level} {A : UU i} {B : UU j} (f : A ↪ B) → is-injective (map-emb f)
 eq-emb f {x} {y} = inv-is-equiv (is-emb-map-emb f x y)
 
 abstract
@@ -859,72 +864,72 @@ abstract
 
 eq-transpose-equiv :
   {i j : Level} {A : UU i} {B : UU j} (e : A ≃ B) (x : A) (y : B) →
-  (Id (map-equiv e x) y) ≃ (Id x (inv-map-equiv e y))
+  (Id (map-equiv e x) y) ≃ (Id x (map-inv-equiv e y))
 eq-transpose-equiv e x y =
-  ( inv-equiv (equiv-ap e x (inv-map-equiv e y))) ∘e
+  ( inv-equiv (equiv-ap e x (map-inv-equiv e y))) ∘e
   ( equiv-concat'
     ( map-equiv e x)
-    ( inv (issec-inv-map-equiv e y)))
+    ( inv (issec-map-inv-equiv e y)))
 
 map-eq-transpose-equiv :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) {x : A} {y : B} →
-  Id (map-equiv e x) y → Id x (inv-map-equiv e y)
+  Id (map-equiv e x) y → Id x (map-inv-equiv e y)
 map-eq-transpose-equiv e {x} {y} = map-equiv (eq-transpose-equiv e x y)
 
 inv-map-eq-transpose-equiv :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) {x : A} {y : B} →
-  Id x (inv-map-equiv e y) → Id (map-equiv e x) y
-inv-map-eq-transpose-equiv e {x} {y} = inv-map-equiv (eq-transpose-equiv e x y)
+  Id x (map-inv-equiv e y) → Id (map-equiv e x) y
+inv-map-eq-transpose-equiv e {x} {y} = map-inv-equiv (eq-transpose-equiv e x y)
 
 triangle-eq-transpose-equiv :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) {x : A} {y : B}
   (p : Id (map-equiv e x) y) →
   Id ( ( ap (map-equiv e) (map-eq-transpose-equiv e p)) ∙
-       ( issec-inv-map-equiv e y))
+       ( issec-map-inv-equiv e y))
      ( p)
 triangle-eq-transpose-equiv e {x} {y} p =
-  ( ap ( concat' (map-equiv e x) (issec-inv-map-equiv e y))
-       ( issec-inv-map-equiv
-         ( equiv-ap e x (inv-map-equiv e y))
-         ( p ∙ inv (issec-inv-map-equiv e y)))) ∙
-  ( ( assoc p (inv (issec-inv-map-equiv e y)) (issec-inv-map-equiv e y)) ∙
-    ( ( ap (concat p y) (left-inv (issec-inv-map-equiv e y))) ∙ right-unit))
+  ( ap ( concat' (map-equiv e x) (issec-map-inv-equiv e y))
+       ( issec-map-inv-equiv
+         ( equiv-ap e x (map-inv-equiv e y))
+         ( p ∙ inv (issec-map-inv-equiv e y)))) ∙
+  ( ( assoc p (inv (issec-map-inv-equiv e y)) (issec-map-inv-equiv e y)) ∙
+    ( ( ap (concat p y) (left-inv (issec-map-inv-equiv e y))) ∙ right-unit))
 
 map-eq-transpose-equiv' :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) {a : A} {b : B} →
-  Id b (map-equiv e a) → Id (inv-map-equiv e b) a
+  Id b (map-equiv e a) → Id (map-inv-equiv e b) a
 map-eq-transpose-equiv' e p = inv (map-eq-transpose-equiv e (inv p))
 
 inv-map-eq-transpose-equiv' :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) {a : A} {b : B} →
-  Id (inv-map-equiv e b) a → Id b (map-equiv e a)
+  Id (map-inv-equiv e b) a → Id b (map-equiv e a)
 inv-map-eq-transpose-equiv' e p =
   inv (inv-map-eq-transpose-equiv e (inv p))
 
 triangle-eq-transpose-equiv' :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) {x : A} {y : B} →
   (p : Id y (map-equiv e x)) →
-  Id ( (issec-inv-map-equiv e y) ∙ p)
+  Id ( (issec-map-inv-equiv e y) ∙ p)
      ( ap (map-equiv e) (map-eq-transpose-equiv' e p))
 triangle-eq-transpose-equiv' e {x} {y} p =
-  inv-map-equiv
+  map-inv-equiv
     ( equiv-ap
-      ( equiv-inv (map-equiv e (inv-map-equiv e y)) (map-equiv e x))
-      ( (issec-inv-map-equiv e y) ∙ p)
+      ( equiv-inv (map-equiv e (map-inv-equiv e y)) (map-equiv e x))
+      ( (issec-map-inv-equiv e y) ∙ p)
       ( ap (map-equiv e) (map-eq-transpose-equiv' e p)))
-    ( ( distributive-inv-concat (issec-inv-map-equiv e y) p) ∙
+    ( ( distributive-inv-concat (issec-map-inv-equiv e y) p) ∙
       ( ( inv
           ( con-inv
             ( ap (map-equiv e) (inv (map-eq-transpose-equiv' e p)))
-            ( issec-inv-map-equiv e y)
+            ( issec-map-inv-equiv e y)
             ( inv p)
-            ( ( ap ( concat' (map-equiv e x) (issec-inv-map-equiv e y))
+            ( ( ap ( concat' (map-equiv e x) (issec-map-inv-equiv e y))
                    ( ap ( ap (map-equiv e))
                         ( inv-inv
-                          ( inv-map-equiv
-                            ( equiv-ap e x (inv-map-equiv e y))
+                          ( map-inv-equiv
+                            ( equiv-ap e x (map-inv-equiv e y))
                             ( ( inv p) ∙
-                              ( inv (issec-inv-map-equiv e y))))))) ∙
+                              ( inv (issec-map-inv-equiv e y))))))) ∙
               ( triangle-eq-transpose-equiv e (inv p))))) ∙
         ( ap-inv (map-equiv e) (map-eq-transpose-equiv' e p))))
 
@@ -1504,126 +1509,126 @@ comp-map-equiv-equiv-is-not-exception-Maybe e x =
   comp-map-equiv-equiv-is-not-exception-Maybe' e x (map-equiv e (inl x)) refl
 
 -- An equivalence e : Maybe X ≃ Maybe Y induces a map Y → X
-inv-map-equiv-equiv-Maybe :
+map-inv-equiv-equiv-Maybe :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) → Y → X
-inv-map-equiv-equiv-Maybe e =
+map-inv-equiv-equiv-Maybe e =
   map-equiv-equiv-Maybe (inv-equiv e)
 
-comp-inv-map-equiv-equiv-is-exception-Maybe :
+comp-map-inv-equiv-equiv-is-exception-Maybe :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (y : Y) →
-  is-exception-Maybe (inv-map-equiv e (inl y)) →
-  Id (inl (inv-map-equiv-equiv-Maybe e y)) (inv-map-equiv e exception-Maybe)
-comp-inv-map-equiv-equiv-is-exception-Maybe e =
+  is-exception-Maybe (map-inv-equiv e (inl y)) →
+  Id (inl (map-inv-equiv-equiv-Maybe e y)) (map-inv-equiv e exception-Maybe)
+comp-map-inv-equiv-equiv-is-exception-Maybe e =
   comp-map-equiv-equiv-is-exception-Maybe (inv-equiv e)
 
-comp-inv-map-equiv-equiv-is-not-exception-Maybe :
+comp-map-inv-equiv-equiv-is-not-exception-Maybe :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (y : Y) →
-  ( f : is-not-exception-Maybe (inv-map-equiv e (inl y))) →
-  Id (inl (inv-map-equiv-equiv-Maybe e y)) (inv-map-equiv e (inl y))
-comp-inv-map-equiv-equiv-is-not-exception-Maybe e =
+  ( f : is-not-exception-Maybe (map-inv-equiv e (inl y))) →
+  Id (inl (map-inv-equiv-equiv-Maybe e y)) (map-inv-equiv e (inl y))
+comp-map-inv-equiv-equiv-is-not-exception-Maybe e =
   comp-map-equiv-equiv-is-not-exception-Maybe (inv-equiv e)
     
--- inv-map-equiv-equiv-Maybe e is a section of map-equiv-equiv-Maybe e.
-issec-inv-map-equiv-equiv-Maybe :
+-- map-inv-equiv-equiv-Maybe e is a section of map-equiv-equiv-Maybe e.
+issec-map-inv-equiv-equiv-Maybe :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) →
-  (map-equiv-equiv-Maybe e ∘ inv-map-equiv-equiv-Maybe e) ~ id
-issec-inv-map-equiv-equiv-Maybe e y with
-  is-decidable-is-exception-Maybe (inv-map-equiv e (inl y))
+  (map-equiv-equiv-Maybe e ∘ map-inv-equiv-equiv-Maybe e) ~ id
+issec-map-inv-equiv-equiv-Maybe e y with
+  is-decidable-is-exception-Maybe (map-inv-equiv e (inl y))
 ... | inl p =
   is-injective-unit-Maybe
     ( ( comp-map-equiv-equiv-is-exception-Maybe e
-        ( inv-map-equiv-equiv-Maybe e y)
+        ( map-inv-equiv-equiv-Maybe e y)
         ( ( ap
             ( map-equiv e)
-            ( comp-inv-map-equiv-equiv-is-exception-Maybe e y p)) ∙
-          ( issec-inv-map-equiv e exception-Maybe))) ∙
+            ( comp-map-inv-equiv-equiv-is-exception-Maybe e y p)) ∙
+          ( issec-map-inv-equiv e exception-Maybe))) ∙
       ( ( ap (map-equiv e) (inv p)) ∙
-        ( issec-inv-map-equiv e (inl y))))
+        ( issec-map-inv-equiv e (inl y))))
 ... | inr f =
   is-injective-unit-Maybe
     ( ( comp-map-equiv-equiv-is-not-exception-Maybe e
-        ( inv-map-equiv-equiv-Maybe e y)
+        ( map-inv-equiv-equiv-Maybe e y)
         ( is-not-exception-is-value-Maybe
-          ( map-equiv e (inl (inv-map-equiv-equiv-Maybe e y)))
+          ( map-equiv e (inl (map-inv-equiv-equiv-Maybe e y)))
           ( pair y
             ( inv
               ( ( ap
                   ( map-equiv e)
-                  ( comp-inv-map-equiv-equiv-is-not-exception-Maybe e y f)) ∙
-                ( issec-inv-map-equiv e (inl y))))))) ∙
+                  ( comp-map-inv-equiv-equiv-is-not-exception-Maybe e y f)) ∙
+                ( issec-map-inv-equiv e (inl y))))))) ∙
       ( ( ap
           ( map-equiv e)
-          ( comp-inv-map-equiv-equiv-is-not-exception-Maybe e y f)) ∙
-        ( issec-inv-map-equiv e (inl y))))
+          ( comp-map-inv-equiv-equiv-is-not-exception-Maybe e y f)) ∙
+        ( issec-map-inv-equiv e (inl y))))
 
 {-
 -- Alternatively, we can proceed in the spirit of the definition, but that leads
 -- to cases where we have to reason by contradiction, that are avoided otherwise
-issec-inv-map-equiv-equiv-Maybe' :
+issec-map-inv-equiv-equiv-Maybe' :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (y : Y) →
-  (u : Maybe X) (p : Id (inv-map-equiv e (inl y)) u) (v : Maybe Y)
+  (u : Maybe X) (p : Id (map-inv-equiv e (inl y)) u) (v : Maybe Y)
   (q : Id (map-equiv e (inl (map-equiv-equiv-Maybe' (inv-equiv e) y u p))) v) →
   Id ( map-equiv-equiv-Maybe' e
        ( map-equiv-equiv-Maybe' (inv-equiv e) y u p) v q)
      ( y)
-issec-inv-map-equiv-equiv-Maybe' e y (inl x) p (inl y') q =
+issec-map-inv-equiv-equiv-Maybe' e y (inl x) p (inl y') q =
   is-injective-unit-Maybe (inv (inv-map-eq-transpose-equiv' e p ∙ q))
-issec-inv-map-equiv-equiv-Maybe' e y (inl x) p (inr star) q =
+issec-map-inv-equiv-equiv-Maybe' e y (inl x) p (inr star) q =
   ex-falso (is-not-exception-unit-Maybe y (inv-map-eq-transpose-equiv' e p ∙ q))
-issec-inv-map-equiv-equiv-Maybe' e y (inr star) p (inl y') q =
+issec-map-inv-equiv-equiv-Maybe' e y (inr star) p (inl y') q =
   ex-falso
     ( is-not-exception-unit-Maybe y'
       ( ( ( inv q) ∙
           ( ap
             ( map-equiv e)
             ( comp-map-equiv-exception-Maybe (inv-equiv e) y p))) ∙
-        ( issec-inv-map-equiv e exception-Maybe))) 
-issec-inv-map-equiv-equiv-Maybe' e y (inr star) p (inr star) q =
+        ( issec-map-inv-equiv e exception-Maybe))) 
+issec-map-inv-equiv-equiv-Maybe' e y (inr star) p (inr star) q =
   is-injective-unit-Maybe
     ( ( comp-map-equiv-exception-Maybe e
         ( map-equiv-equiv-Maybe' (inv-equiv e) y (inr star) p)
         ( q)) ∙
       ( ( ap (map-equiv e) (inv p)) ∙
-        ( issec-inv-map-equiv e (inl y))))
+        ( issec-map-inv-equiv e (inl y))))
 
-issec-inv-map-equiv-equiv-Maybe :
+issec-map-inv-equiv-equiv-Maybe :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) →
-  (map-equiv-equiv-Maybe e ∘ inv-map-equiv-equiv-Maybe e) ~ id
-issec-inv-map-equiv-equiv-Maybe e y =
-  issec-inv-map-equiv-equiv-Maybe' e y
-    ( inv-map-equiv e (inl y)) refl
-    ( map-equiv e (inl (inv-map-equiv-equiv-Maybe e y))) refl
+  (map-equiv-equiv-Maybe e ∘ map-inv-equiv-equiv-Maybe e) ~ id
+issec-map-inv-equiv-equiv-Maybe e y =
+  issec-map-inv-equiv-equiv-Maybe' e y
+    ( map-inv-equiv e (inl y)) refl
+    ( map-equiv e (inl (map-inv-equiv-equiv-Maybe e y))) refl
 -}
 
--- The map inv-map-equiv-equiv e is a retraction of the map map-equiv-equiv
-isretr-inv-map-equiv-equiv-Maybe :
+-- The map map-inv-equiv-equiv e is a retraction of the map map-equiv-equiv
+isretr-map-inv-equiv-equiv-Maybe :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) →
-  (inv-map-equiv-equiv-Maybe e ∘ map-equiv-equiv-Maybe e) ~ id
-isretr-inv-map-equiv-equiv-Maybe e x with
+  (map-inv-equiv-equiv-Maybe e ∘ map-equiv-equiv-Maybe e) ~ id
+isretr-map-inv-equiv-equiv-Maybe e x with
   is-decidable-is-exception-Maybe (map-equiv e (inl x))
 ... | inl p =
   is-injective-unit-Maybe
-    ( ( comp-inv-map-equiv-equiv-is-exception-Maybe e
+    ( ( comp-map-inv-equiv-equiv-is-exception-Maybe e
         ( map-equiv-equiv-Maybe e x)
-        ( ( ap ( inv-map-equiv e)
+        ( ( ap ( map-inv-equiv e)
                ( comp-map-equiv-equiv-is-exception-Maybe e x p)) ∙
-          ( isretr-inv-map-equiv e exception-Maybe))) ∙
-      ( ( ap (inv-map-equiv e) (inv p)) ∙
-        ( isretr-inv-map-equiv e (inl x))))
+          ( isretr-map-inv-equiv e exception-Maybe))) ∙
+      ( ( ap (map-inv-equiv e) (inv p)) ∙
+        ( isretr-map-inv-equiv e (inl x))))
 ... | inr f =
   is-injective-unit-Maybe
-    ( ( comp-inv-map-equiv-equiv-is-not-exception-Maybe e
+    ( ( comp-map-inv-equiv-equiv-is-not-exception-Maybe e
         ( map-equiv-equiv-Maybe e x)
         ( is-not-exception-is-value-Maybe
-          ( inv-map-equiv e (inl (map-equiv-equiv-Maybe e x)))
+          ( map-inv-equiv e (inl (map-equiv-equiv-Maybe e x)))
           ( pair x
             ( inv
-              ( ( ap (inv-map-equiv e)
+              ( ( ap (map-inv-equiv e)
                      ( comp-map-equiv-equiv-is-not-exception-Maybe e x f)) ∙
-                ( isretr-inv-map-equiv e (inl x))))))) ∙
-      ( ( ap ( inv-map-equiv e)
+                ( isretr-map-inv-equiv e (inl x))))))) ∙
+      ( ( ap ( map-inv-equiv e)
              ( comp-map-equiv-equiv-is-not-exception-Maybe e x f)) ∙
-        ( isretr-inv-map-equiv e (inl x))))
+        ( isretr-map-inv-equiv e (inl x))))
 
 -- The function map-equiv-equiv-Maybe is an equivalence
 
@@ -1632,9 +1637,9 @@ is-equiv-map-equiv-equiv-Maybe :
   is-equiv (map-equiv-equiv-Maybe e)
 is-equiv-map-equiv-equiv-Maybe e =
   is-equiv-has-inverse
-    ( inv-map-equiv-equiv-Maybe e)
-    ( issec-inv-map-equiv-equiv-Maybe e)
-    ( isretr-inv-map-equiv-equiv-Maybe e)
+    ( map-inv-equiv-equiv-Maybe e)
+    ( issec-map-inv-equiv-equiv-Maybe e)
+    ( isretr-map-inv-equiv-equiv-Maybe e)
 
 equiv-equiv-Maybe :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → (Maybe X ≃ Maybe Y) → (X ≃ Y)
@@ -1643,7 +1648,7 @@ equiv-equiv-Maybe e =
 
 is-injective-Fin : {k l : ℕ} → (Fin k ≃ Fin l) → Id k l
 is-injective-Fin {zero-ℕ} {zero-ℕ} e = refl
-is-injective-Fin {zero-ℕ} {succ-ℕ l} e = ex-falso (inv-map-equiv e zero-Fin)
+is-injective-Fin {zero-ℕ} {succ-ℕ l} e = ex-falso (map-inv-equiv e zero-Fin)
 is-injective-Fin {succ-ℕ k} {zero-ℕ} e = ex-falso (map-equiv e zero-Fin)
 is-injective-Fin {succ-ℕ k} {succ-ℕ l} e =
   ap succ-ℕ (is-injective-Fin (equiv-equiv-Maybe e))
@@ -1679,7 +1684,7 @@ is-empty-is-zero-number-of-elements :
   {l : Level} {X : UU l} (e : count X) →
   is-zero-ℕ (number-of-elements e) → is-empty X
 is-empty-is-zero-number-of-elements (pair .zero-ℕ e) refl x =
-  inv-map-equiv e x
+  map-inv-equiv e x
 
 is-zero-number-of-elements-is-empty :
   {l : Level} {X : UU l} (e : count X) →
@@ -1761,6 +1766,7 @@ is-right : {l1 l2 : Level} {X : UU l1} {Y : UU l2} → coprod X Y → UU lzero
 is-right (inl x) = empty
 is-right (inr x) = unit
 
+{-
 count-left-summand-count-coprod' :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} {k : ℕ}
   (e : Fin (succ-ℕ k) ≃ (coprod X Y))
@@ -1774,3 +1780,4 @@ count-left-summand-count-coprod (pair zero-ℕ e) =
   count-is-empty
     ( λ x → is-empty-is-zero-number-of-elements (pair zero-ℕ e) refl (inl x))
 count-left-summand-count-coprod (pair (succ-ℕ k) e) = {!!}
+-}

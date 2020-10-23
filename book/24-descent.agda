@@ -629,7 +629,7 @@ precompose-total-lifts :
   (P : X → UU l4) → (A → B) →
   total-lifts B P → total-lifts A P
 precompose-total-lifts {A = A} P f =
-  toto
+  map-Σ
     ( λ h → (a : A) → P (h a))
     ( λ h → h ∘ f)
     ( precompose-lifts P f)
@@ -659,7 +659,7 @@ htpy-precompose-total-lifts :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {X : UU l3} (P : X → UU l4)
   {f g : A → B} (H : f ~ g) → HTPY-PRECOMPOSE-TOTAL-LIFTS P H
 htpy-precompose-total-lifts {A = A} {B} P {f} {g} H =
-  htpy-toto
+  htpy-map-Σ
     { P = fam-lifts B P}
     ( fam-lifts A P)
     ( λ h → eq-htpy (h ·l H))
@@ -679,7 +679,7 @@ compute-htpy-precompose-total-lifts :
   { l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {X : UU l3} (P : X → UU l4)
   ( f : A → B) →
   ( htpy-precompose-total-lifts P (refl-htpy' f)) ~
-  ( refl-htpy' (toto (fam-lifts A P) (λ h → h ∘ f) (precompose-lifts P f)))
+  ( refl-htpy' (map-Σ (fam-lifts A P) (λ h → h ∘ f) (precompose-lifts P f)))
 compute-htpy-precompose-total-lifts {A = A} P f (pair h h') =
   let α = λ (t : Id (h ∘ f) (h ∘ f)) → tr (fam-lifts A P) t (λ a → h' (f a))
   in
@@ -773,10 +773,10 @@ is-pullback-cone-family-dependent-pullback-property {S = S} {A} {B} {X}
       ( precomp j (Σ X P))
       ( precomp f (Σ X P))
       ( precomp g (Σ X P))
-      ( toto (fam-lifts A P) (precomp i X) (precompose-lifts P i))
-      ( toto (fam-lifts B P) (precomp j X) (precompose-lifts P j))
-      ( toto (fam-lifts S P) (precomp f X) (precompose-lifts P f))
-      ( toto (fam-lifts S P) (precomp g X) (precompose-lifts P g))
+      ( map-Σ (fam-lifts A P) (precomp i X) (precompose-lifts P i))
+      ( map-Σ (fam-lifts B P) (precomp j X) (precompose-lifts P j))
+      ( map-Σ (fam-lifts S P) (precomp f X) (precompose-lifts P f))
+      ( map-Σ (fam-lifts S P) (precomp g X) (precompose-lifts P g))
       ( inv-choice-∞) 
       ( inv-choice-∞)
       ( inv-choice-∞)
@@ -1108,19 +1108,19 @@ cocone-flattening-pushout :
   ( Q : X → UU l5)
   ( e : equiv-Fam-pushout P (desc-fam f g c Q)) →
   cocone
-    ( toto (pr1 P) f (λ s → id))
-    ( toto (pr1 (pr2 P)) g (λ s → map-equiv (pr2 (pr2 P) s)))
+    ( map-Σ (pr1 P) f (λ s → id))
+    ( map-Σ (pr1 (pr2 P)) g (λ s → map-equiv (pr2 (pr2 P) s)))
     ( Σ X Q)
 cocone-flattening-pushout f g c P Q e =
   pair
-    ( toto Q
+    ( map-Σ Q
       ( pr1 c)
       ( λ a → map-equiv (pr1 e a)))
     ( pair
-      ( toto Q
+      ( map-Σ Q
         ( pr1 (pr2 c))
         ( λ b → map-equiv (pr1 (pr2 e) b)))
-      ( htpy-toto Q
+      ( htpy-map-Σ Q
         ( pr2 (pr2 c))
         ( λ s → map-equiv (pr1 e (f s)))
         ( λ s → inv-htpy (pr2 (pr2 e) s))))
@@ -1157,7 +1157,7 @@ coherence-cube-flattening-lemma :
        ( λ a → eq-htpy
          ( coherence-bottom-flattening-lemma H K (ev-pair h) a)))
      ( ap ev-pair
-       ( htpy-precomp (htpy-toto Q H g K) T h))
+       ( htpy-precomp (htpy-map-Σ Q H g K) T h))
 coherence-cube-flattening-lemma {A = A} {B} {P} {Q} {T} {f = f} {f'} H {g} {g'} K = ind-htpy f
     ( λ f' H' →
       (g : (a : A) → P a → Q (f a)) (g' : (a : A) → P a → Q (f' a))
@@ -1166,13 +1166,13 @@ coherence-cube-flattening-lemma {A = A} {B} {P} {Q} {T} {f = f} {f'} H {g} {g'} 
            ( λ a → eq-htpy
              ( coherence-bottom-flattening-lemma H' K (ev-pair h) a)))
          ( ap ev-pair
-           ( htpy-precomp (htpy-toto Q H' g K) T h)))
+           ( htpy-precomp (htpy-map-Σ Q H' g K) T h)))
     ( λ g g' K h → {!ind-htpy g (λ g' K' → (h : Σ B Q → T) →
       Id ( eq-htpy
            ( λ a → eq-htpy
              ( coherence-bottom-flattening-lemma refl-htpy (λ a → htpy-eq (K' a)) (ev-pair h) a)))
          ( ap ev-pair
-           ( htpy-precomp (htpy-toto Q refl-htpy g (λ a → htpy-eq (K' a))) T h))) ? (λ a → eq-htpy (K a)) h!})
+           ( htpy-precomp (htpy-map-Σ Q refl-htpy g (λ a → htpy-eq (K' a))) T h))) ? (λ a → eq-htpy (K a)) h!})
     H g g' K
   
   
@@ -1184,8 +1184,8 @@ flattening-pushout' :
   ( e : equiv-Fam-pushout P (desc-fam f g c Q)) →
   (l : Level) →
   pullback-property-pushout l
-    ( toto (pr1 P) f (λ s → id))
-    ( toto (pr1 (pr2 P)) g (λ s → map-equiv (pr2 (pr2 P) s)))
+    ( map-Σ (pr1 P) f (λ s → id))
+    ( map-Σ (pr1 (pr2 P)) g (λ s → map-equiv (pr2 (pr2 P) s)))
     ( cocone-flattening-pushout f g c P Q e)
 flattening-pushout' f g c P Q e l T =
   is-pullback-top-is-pullback-bottom-cube-is-equiv
@@ -1196,16 +1196,16 @@ flattening-pushout' f g c P Q e l T =
     ( precomp-Π f (λ a → (pr1 P a) → T))
     ( ( postcomp-Π (λ s → precomp (map-equiv (pr2 (pr2 P) s)) T)) ∘
       ( precomp-Π g (λ b → (pr1 (pr2 P) b) → T)))
-    ( precomp (toto Q (pr1 c) (λ a → map-equiv (pr1 e a))) T)
-    ( precomp (toto Q (pr1 (pr2 c)) (λ b → map-equiv (pr1 (pr2 e) b))) T)
-    ( precomp (toto (pr1 P) f (λ s → id)) T)
-    ( precomp (toto (pr1 (pr2 P)) g (λ s → map-equiv (pr2 (pr2 P) s))) T)
+    ( precomp (map-Σ Q (pr1 c) (λ a → map-equiv (pr1 e a))) T)
+    ( precomp (map-Σ Q (pr1 (pr2 c)) (λ b → map-equiv (pr1 (pr2 e) b))) T)
+    ( precomp (map-Σ (pr1 P) f (λ s → id)) T)
+    ( precomp (map-Σ (pr1 (pr2 P)) g (λ s → map-equiv (pr2 (pr2 P) s))) T)
     ev-pair
     ev-pair
     ev-pair
     ev-pair
     ( htpy-precomp
-      ( htpy-toto Q
+      ( htpy-map-Σ Q
         ( pr2 (pr2 c))
         ( λ s → map-equiv (pr1 e (f s)))
         ( λ s → inv-htpy (pr2 (pr2 e) s)))
@@ -1235,13 +1235,13 @@ flattening-pushout :
   ( e : equiv-Fam-pushout P (desc-fam f g c Q)) →
   (l : Level) →
   universal-property-pushout l
-    ( toto (pr1 P) f (λ s → id))
-    ( toto (pr1 (pr2 P)) g (λ s → map-equiv (pr2 (pr2 P) s)))
+    ( map-Σ (pr1 P) f (λ s → id))
+    ( map-Σ (pr1 (pr2 P)) g (λ s → map-equiv (pr2 (pr2 P) s)))
     ( cocone-flattening-pushout f g c P Q e)
 flattening-pushout f g c P Q e l =
   universal-property-pushout-pullback-property-pushout l
-    ( toto (pr1 P) f (λ s → id))
-    ( toto (pr1 (pr2 P)) g (λ s → map-equiv (pr2 (pr2 P) s)))
+    ( map-Σ (pr1 P) f (λ s → id))
+    ( map-Σ (pr1 (pr2 P)) g (λ s → map-equiv (pr2 (pr2 P) s)))
     ( cocone-flattening-pushout f g c P Q e)
     ( flattening-pushout' f g c P Q e l)
 -}

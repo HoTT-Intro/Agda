@@ -300,7 +300,7 @@ is-universal-id-Fam-pushout :
   ( up-X : (l' : Level) → universal-property-pushout l' f g c) (a : A) →
   is-universal-Fam-pushout l (desc-fam c (Id (pr1 c a))) a refl
 is-universal-id-Fam-pushout l {S = S} {A} {B} {X} {f} {g} c up-X a Q =
-  inv-map-equiv
+  map-inv-equiv
     ( precomp-Π-equiv
       ( equiv-desc-fam c up-X)
       ( λ (Q : Fam-pushout l f g) →

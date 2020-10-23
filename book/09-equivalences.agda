@@ -332,28 +332,28 @@ is-equiv-inv-is-equiv {i} {j} {A} {B} {f} is-equiv-f =
     ( isretr-inv-is-equiv is-equiv-f)
     ( issec-inv-is-equiv is-equiv-f)
 
-inv-map-equiv :
+map-inv-equiv :
   {i j : Level} {A : UU i} {B : UU j} → (A ≃ B) → (B → A)
-inv-map-equiv e = inv-is-equiv (is-equiv-map-equiv e)
+map-inv-equiv e = inv-is-equiv (is-equiv-map-equiv e)
 
-issec-inv-map-equiv :
+issec-map-inv-equiv :
   {i j : Level} {A : UU i} {B : UU j} (e : A ≃ B) →
-  ((map-equiv e) ∘ (inv-map-equiv e)) ~ id
-issec-inv-map-equiv e = issec-inv-is-equiv (is-equiv-map-equiv e)
+  ((map-equiv e) ∘ (map-inv-equiv e)) ~ id
+issec-map-inv-equiv e = issec-inv-is-equiv (is-equiv-map-equiv e)
 
-isretr-inv-map-equiv :
+isretr-map-inv-equiv :
   {i j : Level} {A : UU i} {B : UU j} (e : A ≃ B) →
-  ((inv-map-equiv e) ∘ (map-equiv e)) ~ id
-isretr-inv-map-equiv e = isretr-inv-is-equiv (is-equiv-map-equiv e)
+  ((map-inv-equiv e) ∘ (map-equiv e)) ~ id
+isretr-map-inv-equiv e = isretr-inv-is-equiv (is-equiv-map-equiv e)
 
-is-equiv-inv-map-equiv :
-  {i j : Level} {A : UU i} {B : UU j} (e : A ≃ B) → is-equiv (inv-map-equiv e)
-is-equiv-inv-map-equiv e =
+is-equiv-map-inv-equiv :
+  {i j : Level} {A : UU i} {B : UU j} (e : A ≃ B) → is-equiv (map-inv-equiv e)
+is-equiv-map-inv-equiv e =
   is-equiv-inv-is-equiv (is-equiv-map-equiv e)
 
 inv-equiv :
   {i j : Level} {A : UU i} {B : UU j} → (A ≃ B) → (B ≃ A)
-inv-equiv e = pair (inv-map-equiv e) (is-equiv-inv-map-equiv e)
+inv-equiv e = pair (map-inv-equiv e) (is-equiv-map-inv-equiv e)
 
 -- Remarks
 
