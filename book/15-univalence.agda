@@ -3,7 +3,9 @@
 module book.15-univalence where
 
 import book.14-propositional-truncation-solutions
+import book.counting
 open book.14-propositional-truncation-solutions public
+open book.counting public
 
 --------------------------------------------------------------------------------
 

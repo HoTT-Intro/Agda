@@ -355,75 +355,96 @@ inv-equiv :
   {i j : Level} {A : UU i} {B : UU j} → (A ≃ B) → (B ≃ A)
 inv-equiv e = pair (map-inv-equiv e) (is-equiv-map-inv-equiv e)
 
+-- Equivalences are injective
+
+is-injective-is-equiv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
+  is-equiv f → is-injective f
+is-injective-is-equiv {l1} {l2} {A} {B} {f} H {x} {y} p =
+  ( inv (isretr-inv-is-equiv H x)) ∙
+  ( ( ap (inv-is-equiv H) p) ∙
+    ( isretr-inv-is-equiv H y))
+
+is-injective-map-equiv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  (e : A ≃ B) → is-injective (map-equiv e)
+is-injective-map-equiv (pair f H) = is-injective-is-equiv H
+
+is-equiv-is-injective :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
+  sec f → is-injective f → is-equiv f
+is-equiv-is-injective {f = f} (pair g G) H =
+  is-equiv-has-inverse g G (λ x → H (G (f x)))
+
 -- Remarks
 
--- Left tnit law of coproducts
+-- Left unit law of coproducts
 
-inv-coprod-elim-right :
+map-inv-left-unit-law-coprod-is-empty :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) → is-empty A → B → coprod A B
-inv-coprod-elim-right A B H = inr
+map-inv-left-unit-law-coprod-is-empty A B H = inr
 
-issec-inv-coprod-elim-right :
+issec-map-inv-left-unit-law-coprod-is-empty :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) (H : is-empty A) →
-  ( coprod-elim-right A B H ∘ inv-coprod-elim-right A B H) ~ id
-issec-inv-coprod-elim-right A B H a = refl
+  ( map-left-unit-law-coprod-is-empty A B H ∘ map-inv-left-unit-law-coprod-is-empty A B H) ~ id
+issec-map-inv-left-unit-law-coprod-is-empty A B H a = refl
 
-isretr-inv-coprod-elim-right :
+isretr-map-inv-left-unit-law-coprod-is-empty :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) (H : is-empty A) →
-  ( inv-coprod-elim-right A B H ∘ coprod-elim-right A B H) ~ id
-isretr-inv-coprod-elim-right A B H (inl a) = ex-falso (H a)
-isretr-inv-coprod-elim-right A B H (inr b) = refl
+  ( map-inv-left-unit-law-coprod-is-empty A B H ∘ map-left-unit-law-coprod-is-empty A B H) ~ id
+isretr-map-inv-left-unit-law-coprod-is-empty A B H (inl a) = ex-falso (H a)
+isretr-map-inv-left-unit-law-coprod-is-empty A B H (inr b) = refl
 
-is-equiv-coprod-elim-right :
+is-equiv-map-left-unit-law-coprod-is-empty :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) (H : is-empty A) →
-  is-equiv (coprod-elim-right A B H)
-is-equiv-coprod-elim-right A B H =
+  is-equiv (map-left-unit-law-coprod-is-empty A B H)
+is-equiv-map-left-unit-law-coprod-is-empty A B H =
   is-equiv-has-inverse
-    ( inv-coprod-elim-right A B H)
-    ( issec-inv-coprod-elim-right A B H)
-    ( isretr-inv-coprod-elim-right A B H)
+    ( map-inv-left-unit-law-coprod-is-empty A B H)
+    ( issec-map-inv-left-unit-law-coprod-is-empty A B H)
+    ( isretr-map-inv-left-unit-law-coprod-is-empty A B H)
 
 left-unit-law-coprod-is-empty :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) (H : is-empty A) →
   coprod A B ≃ B
 left-unit-law-coprod-is-empty A B H =
-  pair (coprod-elim-right A B H) (is-equiv-coprod-elim-right A B H)
+  pair (map-left-unit-law-coprod-is-empty A B H) (is-equiv-map-left-unit-law-coprod-is-empty A B H)
 
 inv-left-unit-law-coprod-is-empty :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) (H : is-empty A) →
   B ≃ coprod A B
 inv-left-unit-law-coprod-is-empty A B H =
-  pair ( inv-coprod-elim-right A B H)
+  pair ( map-inv-left-unit-law-coprod-is-empty A B H)
        ( is-equiv-has-inverse
-         ( coprod-elim-right A B H)
-         ( isretr-inv-coprod-elim-right A B H)
-         ( issec-inv-coprod-elim-right A B H))
+         ( map-left-unit-law-coprod-is-empty A B H)
+         ( isretr-map-inv-left-unit-law-coprod-is-empty A B H)
+         ( issec-map-inv-left-unit-law-coprod-is-empty A B H))
 
 map-left-unit-law-coprod :
   {l : Level} (B : UU l) → coprod empty B → B
 map-left-unit-law-coprod B =
-  coprod-elim-right empty B id
+  map-left-unit-law-coprod-is-empty empty B id
 
 map-inv-left-unit-law-coprod :
   {l : Level} (B : UU l) → B → coprod empty B
-map-inv-left-unit-law-coprod A = inr
+map-inv-left-unit-law-coprod B = inr
 
 issec-map-inv-left-unit-law-coprod :
   {l : Level} (B : UU l) →
   ( map-left-unit-law-coprod B ∘ map-inv-left-unit-law-coprod B) ~ id
 issec-map-inv-left-unit-law-coprod B =
-  issec-inv-coprod-elim-right empty B id
+  issec-map-inv-left-unit-law-coprod-is-empty empty B id
 
 isretr-map-inv-left-unit-law-coprod :
   {l : Level} (B : UU l) →
   ( map-inv-left-unit-law-coprod B ∘ map-left-unit-law-coprod B) ~ id
 isretr-map-inv-left-unit-law-coprod B =
-  isretr-inv-coprod-elim-right empty B id
+  isretr-map-inv-left-unit-law-coprod-is-empty empty B id
 
 is-equiv-map-left-unit-law-coprod :
   {l : Level} (B : UU l) → is-equiv (map-left-unit-law-coprod B)
 is-equiv-map-left-unit-law-coprod B =
-  is-equiv-coprod-elim-right empty B id
+  is-equiv-map-left-unit-law-coprod-is-empty empty B id
 
 left-unit-law-coprod :
   {l : Level} (B : UU l) → coprod empty B ≃ B
@@ -437,45 +458,45 @@ inv-left-unit-law-coprod B =
 
 -- The right unit law for coproducts
 
-inv-coprod-elim-left :
+map-inv-right-unit-law-coprod-is-empty :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) → is-empty B → A → coprod A B
-inv-coprod-elim-left A B is-empty-B = inl
+map-inv-right-unit-law-coprod-is-empty A B is-empty-B = inl
 
-issec-inv-coprod-elim-left :
+issec-map-inv-right-unit-law-coprod-is-empty :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) (H : is-empty B) →
-  ( coprod-elim-left A B H ∘ inv-coprod-elim-left A B H) ~ id
-issec-inv-coprod-elim-left A B H a = refl
+  ( map-right-unit-law-coprod-is-empty A B H ∘ map-inv-right-unit-law-coprod-is-empty A B H) ~ id
+issec-map-inv-right-unit-law-coprod-is-empty A B H a = refl
 
-isretr-inv-coprod-elim-left :
+isretr-map-inv-right-unit-law-coprod-is-empty :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) (H : is-empty B) →
-  ( inv-coprod-elim-left A B H ∘ coprod-elim-left A B H) ~ id
-isretr-inv-coprod-elim-left A B H (inl a) = refl
-isretr-inv-coprod-elim-left A B H (inr b) = ex-falso (H b)
+  ( map-inv-right-unit-law-coprod-is-empty A B H ∘ map-right-unit-law-coprod-is-empty A B H) ~ id
+isretr-map-inv-right-unit-law-coprod-is-empty A B H (inl a) = refl
+isretr-map-inv-right-unit-law-coprod-is-empty A B H (inr b) = ex-falso (H b)
 
-is-equiv-coprod-elim-left :
+is-equiv-map-right-unit-law-coprod-is-empty :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) (H : is-empty B) →
-  is-equiv (coprod-elim-left A B H)
-is-equiv-coprod-elim-left A B H =
+  is-equiv (map-right-unit-law-coprod-is-empty A B H)
+is-equiv-map-right-unit-law-coprod-is-empty A B H =
   is-equiv-has-inverse
-    ( inv-coprod-elim-left A B H)
-    ( issec-inv-coprod-elim-left A B H)
-    ( isretr-inv-coprod-elim-left A B H)
+    ( map-inv-right-unit-law-coprod-is-empty A B H)
+    ( issec-map-inv-right-unit-law-coprod-is-empty A B H)
+    ( isretr-map-inv-right-unit-law-coprod-is-empty A B H)
 
 is-equiv-inl-is-empty :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) →
   is-empty B → is-equiv (inl {l1} {l2} {A} {B})
 is-equiv-inl-is-empty A B H =
   is-equiv-has-inverse
-    ( coprod-elim-left A B H)
-    ( isretr-inv-coprod-elim-left A B H)
-    ( issec-inv-coprod-elim-left A B H)
+    ( map-right-unit-law-coprod-is-empty A B H)
+    ( isretr-map-inv-right-unit-law-coprod-is-empty A B H)
+    ( issec-map-inv-right-unit-law-coprod-is-empty A B H)
 
 right-unit-law-coprod-is-empty :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) → is-empty B →
   (coprod A B) ≃ A
 right-unit-law-coprod-is-empty A B H =
-  pair ( coprod-elim-left A B H)
-       ( is-equiv-coprod-elim-left A B H)
+  pair ( map-right-unit-law-coprod-is-empty A B H)
+       ( is-equiv-map-right-unit-law-coprod-is-empty A B H)
 
 inv-right-unit-law-coprod-is-empty :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) → is-empty B →
@@ -483,13 +504,13 @@ inv-right-unit-law-coprod-is-empty :
 inv-right-unit-law-coprod-is-empty A B H =
   pair ( inl)
        ( is-equiv-has-inverse
-         ( coprod-elim-left A B H)
-         ( isretr-inv-coprod-elim-left A B H)
-         ( issec-inv-coprod-elim-left A B H))
+         ( map-right-unit-law-coprod-is-empty A B H)
+         ( isretr-map-inv-right-unit-law-coprod-is-empty A B H)
+         ( issec-map-inv-right-unit-law-coprod-is-empty A B H))
 
 map-right-unit-law-coprod :
   {l1 : Level} (A : UU l1) → coprod A empty → A
-map-right-unit-law-coprod A = coprod-elim-left A empty id
+map-right-unit-law-coprod A = map-right-unit-law-coprod-is-empty A empty id
 
 map-inv-right-unit-law-coprod :
   {l1 : Level} (A : UU l1) → A → coprod A empty
@@ -499,18 +520,18 @@ issec-map-inv-right-unit-law-coprod :
   {l1 : Level} (A : UU l1) →
   ( map-right-unit-law-coprod A ∘ map-inv-right-unit-law-coprod A) ~ id
 issec-map-inv-right-unit-law-coprod A =
-  issec-inv-coprod-elim-left A empty id
+  issec-map-inv-right-unit-law-coprod-is-empty A empty id
 
 isretr-map-inv-right-unit-law-coprod :
   {l1 : Level} (A : UU l1) →
   ( map-inv-right-unit-law-coprod A ∘ map-right-unit-law-coprod A) ~ id
 isretr-map-inv-right-unit-law-coprod A =
-  isretr-inv-coprod-elim-left A empty id
+  isretr-map-inv-right-unit-law-coprod-is-empty A empty id
 
 is-equiv-map-right-unit-law-coprod :
   {l1 : Level} (A : UU l1) → is-equiv (map-right-unit-law-coprod A)
 is-equiv-map-right-unit-law-coprod A =
-  is-equiv-coprod-elim-left A empty id
+  is-equiv-map-right-unit-law-coprod-is-empty A empty id
 
 right-unit-law-coprod :
   {l1 : Level} (A : UU l1) → coprod A empty ≃ A
@@ -947,6 +968,39 @@ inv-assoc-Σ' A B C =
       ( isretr-map-inv-assoc-Σ' A B C)
       ( issec-map-inv-assoc-Σ' A B C))
 
+-- Commutativity of cartesian products
+
+map-commutative-prod :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) → A × B → B × A
+map-commutative-prod A B (pair a b) = pair b a
+
+map-inv-commutative-prod :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) → B × A → A × B
+map-inv-commutative-prod A B = map-commutative-prod B A
+
+issec-map-inv-commutative-prod :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) →
+  (map-commutative-prod A B ∘ map-inv-commutative-prod A B) ~ id
+issec-map-inv-commutative-prod A B (pair b a) = refl
+
+isretr-map-inv-commutative-prod :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) →
+  (map-inv-commutative-prod A B ∘ map-commutative-prod A B) ~ id
+isretr-map-inv-commutative-prod A B (pair a b) = refl
+
+is-equiv-map-commutative-prod :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) → is-equiv (map-commutative-prod A B)
+is-equiv-map-commutative-prod A B =
+  is-equiv-has-inverse
+    ( map-inv-commutative-prod A B)
+    ( issec-map-inv-commutative-prod A B)
+    ( isretr-map-inv-commutative-prod A B)
+
+commutative-prod :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} → (A × B) ≃ (B × A)
+commutative-prod {l1} {l2} {A} {B} =
+  pair (map-commutative-prod A B) (is-equiv-map-commutative-prod A B)
+
 -- Associativity of cartesian products
 
 map-assoc-prod :
@@ -1304,6 +1358,341 @@ abstract
       ( pair-eq-triv' s t)
       ( issec-pair-eq-triv' s t)
       ( isretr-pair-eq-triv' s t)
+      
+--------------------------------------------------------------------------------
+
+-- The Maybe modality
+Maybe : {l : Level} → UU l → UU l
+Maybe X = coprod X unit
+
+unit-Maybe : {l : Level} {X : UU l} → X → Maybe X
+unit-Maybe = inl
+
+is-injective-inl :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → is-injective (inl {A = X} {B = Y})
+is-injective-inl {l1} {l2} {X} {Y} {x} {y} p =
+  map-inv-raise (Eq-coprod-eq X Y (inl x) (inl y) p)
+
+is-injective-inr :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → is-injective (inr {A = X} {B = Y})
+is-injective-inr {l1} {l2} {X} {Y} {x} {y} p =
+  map-inv-raise (Eq-coprod-eq X Y (inr x) (inr y) p)
+
+is-injective-unit-Maybe :
+  {l : Level} {X : UU l} → is-injective (unit-Maybe {X = X})
+is-injective-unit-Maybe = is-injective-inl
+
+-- The exception
+exception-Maybe : {l : Level} {X : UU l} → Maybe X
+exception-Maybe {l} {X} = inr star
+
+-- The is-exception predicate
+is-exception-Maybe : {l : Level} {X : UU l} → Maybe X → UU l
+is-exception-Maybe {l} {X} x = Id x exception-Maybe
+
+-- The is-exception predicate is decidable
+is-decidable-is-exception-Maybe :
+  {l : Level} {X : UU l} (x : Maybe X) → is-decidable (is-exception-Maybe x)
+is-decidable-is-exception-Maybe {l} {X} (inl x) =
+  inr
+    (λ p → ex-falso (map-inv-raise (Eq-coprod-eq X unit (inl x) (inr star) p)))
+is-decidable-is-exception-Maybe (inr star) = inl refl
+
+-- The is-not-exception predicate
+is-not-exception-Maybe : {l : Level} {X : UU l} → Maybe X → UU l
+is-not-exception-Maybe x = ¬ (is-exception-Maybe x)
+
+is-not-exception-unit-Maybe :
+  {l : Level} {X : UU l} (x : X) → is-not-exception-Maybe (unit-Maybe x)
+is-not-exception-unit-Maybe {l} {X} x = neq-inl-inr x star
+
+-- The is-not-exception predicate is decidable
+is-decidable-is-not-exception-Maybe :
+  {l : Level} {X : UU l} (x : Maybe X) → is-decidable (is-not-exception-Maybe x)
+is-decidable-is-not-exception-Maybe x =
+  is-decidable-neg (is-decidable-is-exception-Maybe x)
+
+-- The is-value predicate
+is-value-Maybe : {l : Level} {X : UU l} → Maybe X → UU l
+is-value-Maybe {l} {X} x = Σ X (λ y → Id (inl y) x)
+
+value-is-value-Maybe :
+  {l : Level} {X : UU l} (x : Maybe X) → is-value-Maybe x → X
+value-is-value-Maybe x = pr1
+
+eq-is-value-Maybe :
+  {l : Level} {X : UU l} (x : Maybe X) (H : is-value-Maybe x) →
+  Id (inl (value-is-value-Maybe x H)) x
+eq-is-value-Maybe x H = pr2 H
+
+-- The decision procedure whether something is a value or an exception
+decide-Maybe :
+  {l : Level} {X : UU l} (x : Maybe X) →
+  coprod (is-value-Maybe x) (is-exception-Maybe x)
+decide-Maybe (inl x) = inl (pair x refl)
+decide-Maybe (inr star) = inr refl
+
+-- If a point is not an exception, then it is a value
+is-value-is-not-exception-Maybe :
+  {l1 : Level} {X : UU l1} (x : Maybe X) →
+  is-not-exception-Maybe x → is-value-Maybe x
+is-value-is-not-exception-Maybe x H =
+  map-right-unit-law-coprod-is-empty (is-value-Maybe x) (is-exception-Maybe x) H (decide-Maybe x)
+
+value-is-not-exception-Maybe :
+  {l1 : Level} {X : UU l1} (x : Maybe X) → is-not-exception-Maybe x → X
+value-is-not-exception-Maybe x H =
+  value-is-value-Maybe x (is-value-is-not-exception-Maybe x H)
+
+eq-is-not-exception-Maybe :
+  {l1 : Level} {X : UU l1} (x : Maybe X) (H : is-not-exception-Maybe x) →
+  Id (inl (value-is-not-exception-Maybe x H)) x
+eq-is-not-exception-Maybe x H =
+  eq-is-value-Maybe x (is-value-is-not-exception-Maybe x H)
+
+-- If a point is a value, then it is not an exception
+is-not-exception-is-value-Maybe :
+  {l1 : Level} {X : UU l1} (x : Maybe X) →
+  is-value-Maybe x → is-not-exception-Maybe x
+is-not-exception-is-value-Maybe {l1} {X} .(inl x) (pair x refl) =
+  is-not-exception-unit-Maybe x
+
+-- If e is an equivalence and e (inl x) is an exception, then e exception is
+-- not an exception. In the proof we see that we only need a section-retraction
+-- pair, not a full equivalence.
+is-not-exception-map-equiv-exception-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (x : X) →
+  is-exception-Maybe (map-equiv e (inl x)) →
+  is-not-exception-Maybe (map-equiv e exception-Maybe)
+is-not-exception-map-equiv-exception-Maybe {l1} {l2} {X} {Y} e x p q =
+  is-not-exception-unit-Maybe x (is-injective-map-equiv e (p ∙ inv q))
+
+-- If e (inl x) is an exception, then e exception is a value
+is-value-map-equiv-exception-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (x : X) →
+  is-exception-Maybe (map-equiv e (inl x)) →
+  is-value-Maybe (map-equiv e exception-Maybe)
+is-value-map-equiv-exception-Maybe e x H =
+  is-value-is-not-exception-Maybe
+    ( map-equiv e exception-Maybe)
+    ( is-not-exception-map-equiv-exception-Maybe e x H)
+
+value-map-equiv-exception-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (x : X) →
+  is-exception-Maybe (map-equiv e (inl x)) → Y
+value-map-equiv-exception-Maybe e x H =
+  value-is-value-Maybe
+    ( map-equiv e exception-Maybe)
+    ( is-value-map-equiv-exception-Maybe e x H)
+
+comp-map-equiv-exception-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (x : X) →
+  (H : is-exception-Maybe (map-equiv e (inl x))) →
+  Id ( inl (value-map-equiv-exception-Maybe e x H))
+     ( map-equiv e exception-Maybe)
+comp-map-equiv-exception-Maybe e x H =
+  eq-is-value-Maybe
+    ( map-equiv e exception-Maybe)
+    ( is-value-map-equiv-exception-Maybe e x H)
+
+-- An equivalence e : Maybe X ≃ Maybe Y induces a map X → Y. We don't use
+-- with-abstraction to keep full control over the definitional equalities, so
+-- we give the definition in two steps. After the definition is complete, we
+-- also prove two computation rules. Since we will prove computation rules, we
+-- make the definition abstract.
+
+map-equiv-equiv-Maybe' :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y)
+  (x : X) (u : Maybe Y) (p : Id (map-equiv e (inl x)) u) → Y
+map-equiv-equiv-Maybe' e x (inl y) p = y
+map-equiv-equiv-Maybe' e x (inr star) p =
+  value-map-equiv-exception-Maybe e x p
+
+map-equiv-equiv-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) → X → Y
+map-equiv-equiv-Maybe e x =
+  map-equiv-equiv-Maybe' e x (map-equiv e (inl x)) refl
+
+comp-map-equiv-equiv-is-exception-Maybe' :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (x : X) →
+  (u : Maybe Y) (p : Id (map-equiv e (inl x)) u) →
+  is-exception-Maybe (map-equiv e (inl x)) →
+  Id (inl (map-equiv-equiv-Maybe' e x u p)) (map-equiv e exception-Maybe)
+comp-map-equiv-equiv-is-exception-Maybe' e x (inl y) p q =
+  ex-falso (is-not-exception-unit-Maybe y (inv p ∙ q))
+comp-map-equiv-equiv-is-exception-Maybe' e x (inr star) p q =
+  comp-map-equiv-exception-Maybe e x p
+
+comp-map-equiv-equiv-is-exception-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (x : X) →
+  is-exception-Maybe (map-equiv e (inl x)) →
+  Id (inl (map-equiv-equiv-Maybe e x)) (map-equiv e exception-Maybe)
+comp-map-equiv-equiv-is-exception-Maybe e x =
+  comp-map-equiv-equiv-is-exception-Maybe' e x (map-equiv e (inl x)) refl
+
+comp-map-equiv-equiv-is-not-exception-Maybe' :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (x : X) →
+  (u : Maybe Y) (p : Id (map-equiv e (inl x)) u) →
+  is-not-exception-Maybe (map-equiv e (inl x)) →
+  Id (inl (map-equiv-equiv-Maybe' e x u p)) (map-equiv e (inl x))
+comp-map-equiv-equiv-is-not-exception-Maybe' e x (inl y) p H =
+  inv p
+comp-map-equiv-equiv-is-not-exception-Maybe' e x (inr star) p H =
+  ex-falso (H p)
+
+comp-map-equiv-equiv-is-not-exception-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (x : X) →
+  is-not-exception-Maybe (map-equiv e (inl x)) →
+  Id (inl (map-equiv-equiv-Maybe e x)) (map-equiv e (inl x))
+comp-map-equiv-equiv-is-not-exception-Maybe e x =
+  comp-map-equiv-equiv-is-not-exception-Maybe' e x (map-equiv e (inl x)) refl
+
+-- An equivalence e : Maybe X ≃ Maybe Y induces a map Y → X
+map-inv-equiv-equiv-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) → Y → X
+map-inv-equiv-equiv-Maybe e =
+  map-equiv-equiv-Maybe (inv-equiv e)
+
+comp-map-inv-equiv-equiv-is-exception-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (y : Y) →
+  is-exception-Maybe (map-inv-equiv e (inl y)) →
+  Id (inl (map-inv-equiv-equiv-Maybe e y)) (map-inv-equiv e exception-Maybe)
+comp-map-inv-equiv-equiv-is-exception-Maybe e =
+  comp-map-equiv-equiv-is-exception-Maybe (inv-equiv e)
+
+comp-map-inv-equiv-equiv-is-not-exception-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (y : Y) →
+  ( f : is-not-exception-Maybe (map-inv-equiv e (inl y))) →
+  Id (inl (map-inv-equiv-equiv-Maybe e y)) (map-inv-equiv e (inl y))
+comp-map-inv-equiv-equiv-is-not-exception-Maybe e =
+  comp-map-equiv-equiv-is-not-exception-Maybe (inv-equiv e)
+    
+-- map-inv-equiv-equiv-Maybe e is a section of map-equiv-equiv-Maybe e.
+issec-map-inv-equiv-equiv-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) →
+  (map-equiv-equiv-Maybe e ∘ map-inv-equiv-equiv-Maybe e) ~ id
+issec-map-inv-equiv-equiv-Maybe e y with
+  is-decidable-is-exception-Maybe (map-inv-equiv e (inl y))
+... | inl p =
+  is-injective-unit-Maybe
+    ( ( comp-map-equiv-equiv-is-exception-Maybe e
+        ( map-inv-equiv-equiv-Maybe e y)
+        ( ( ap
+            ( map-equiv e)
+            ( comp-map-inv-equiv-equiv-is-exception-Maybe e y p)) ∙
+          ( issec-map-inv-equiv e exception-Maybe))) ∙
+      ( ( ap (map-equiv e) (inv p)) ∙
+        ( issec-map-inv-equiv e (inl y))))
+... | inr f =
+  is-injective-unit-Maybe
+    ( ( comp-map-equiv-equiv-is-not-exception-Maybe e
+        ( map-inv-equiv-equiv-Maybe e y)
+        ( is-not-exception-is-value-Maybe
+          ( map-equiv e (inl (map-inv-equiv-equiv-Maybe e y)))
+          ( pair y
+            ( inv
+              ( ( ap
+                  ( map-equiv e)
+                  ( comp-map-inv-equiv-equiv-is-not-exception-Maybe e y f)) ∙
+                ( issec-map-inv-equiv e (inl y))))))) ∙
+      ( ( ap
+          ( map-equiv e)
+          ( comp-map-inv-equiv-equiv-is-not-exception-Maybe e y f)) ∙
+        ( issec-map-inv-equiv e (inl y))))
+
+{-
+-- Alternatively, we can proceed in the spirit of the definition, but that leads
+-- to cases where we have to reason by contradiction, that are avoided otherwise
+issec-map-inv-equiv-equiv-Maybe' :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (y : Y) →
+  (u : Maybe X) (p : Id (map-inv-equiv e (inl y)) u) (v : Maybe Y)
+  (q : Id (map-equiv e (inl (map-equiv-equiv-Maybe' (inv-equiv e) y u p))) v) →
+  Id ( map-equiv-equiv-Maybe' e
+       ( map-equiv-equiv-Maybe' (inv-equiv e) y u p) v q)
+     ( y)
+issec-map-inv-equiv-equiv-Maybe' e y (inl x) p (inl y') q =
+  is-injective-unit-Maybe (inv (map-inv-eq-transpose-equiv' e p ∙ q))
+issec-map-inv-equiv-equiv-Maybe' e y (inl x) p (inr star) q =
+  ex-falso (is-not-exception-unit-Maybe y (map-inv-eq-transpose-equiv' e p ∙ q))
+issec-map-inv-equiv-equiv-Maybe' e y (inr star) p (inl y') q =
+  ex-falso
+    ( is-not-exception-unit-Maybe y'
+      ( ( ( inv q) ∙
+          ( ap
+            ( map-equiv e)
+            ( comp-map-equiv-exception-Maybe (inv-equiv e) y p))) ∙
+        ( issec-map-inv-equiv e exception-Maybe))) 
+issec-map-inv-equiv-equiv-Maybe' e y (inr star) p (inr star) q =
+  is-injective-unit-Maybe
+    ( ( comp-map-equiv-exception-Maybe e
+        ( map-equiv-equiv-Maybe' (inv-equiv e) y (inr star) p)
+        ( q)) ∙
+      ( ( ap (map-equiv e) (inv p)) ∙
+        ( issec-map-inv-equiv e (inl y))))
+
+issec-map-inv-equiv-equiv-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) →
+  (map-equiv-equiv-Maybe e ∘ map-inv-equiv-equiv-Maybe e) ~ id
+issec-map-inv-equiv-equiv-Maybe e y =
+  issec-map-inv-equiv-equiv-Maybe' e y
+    ( map-inv-equiv e (inl y)) refl
+    ( map-equiv e (inl (map-inv-equiv-equiv-Maybe e y))) refl
+-}
+
+-- The map map-inv-equiv-equiv e is a retraction of the map map-equiv-equiv
+isretr-map-inv-equiv-equiv-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) →
+  (map-inv-equiv-equiv-Maybe e ∘ map-equiv-equiv-Maybe e) ~ id
+isretr-map-inv-equiv-equiv-Maybe e x with
+  is-decidable-is-exception-Maybe (map-equiv e (inl x))
+... | inl p =
+  is-injective-unit-Maybe
+    ( ( comp-map-inv-equiv-equiv-is-exception-Maybe e
+        ( map-equiv-equiv-Maybe e x)
+        ( ( ap ( map-inv-equiv e)
+               ( comp-map-equiv-equiv-is-exception-Maybe e x p)) ∙
+          ( isretr-map-inv-equiv e exception-Maybe))) ∙
+      ( ( ap (map-inv-equiv e) (inv p)) ∙
+        ( isretr-map-inv-equiv e (inl x))))
+... | inr f =
+  is-injective-unit-Maybe
+    ( ( comp-map-inv-equiv-equiv-is-not-exception-Maybe e
+        ( map-equiv-equiv-Maybe e x)
+        ( is-not-exception-is-value-Maybe
+          ( map-inv-equiv e (inl (map-equiv-equiv-Maybe e x)))
+          ( pair x
+            ( inv
+              ( ( ap (map-inv-equiv e)
+                     ( comp-map-equiv-equiv-is-not-exception-Maybe e x f)) ∙
+                ( isretr-map-inv-equiv e (inl x))))))) ∙
+      ( ( ap ( map-inv-equiv e)
+             ( comp-map-equiv-equiv-is-not-exception-Maybe e x f)) ∙
+        ( isretr-map-inv-equiv e (inl x))))
+
+-- The function map-equiv-equiv-Maybe is an equivalence
+
+is-equiv-map-equiv-equiv-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) →
+  is-equiv (map-equiv-equiv-Maybe e)
+is-equiv-map-equiv-equiv-Maybe e =
+  is-equiv-has-inverse
+    ( map-inv-equiv-equiv-Maybe e)
+    ( issec-map-inv-equiv-equiv-Maybe e)
+    ( isretr-map-inv-equiv-equiv-Maybe e)
+
+equiv-equiv-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → (Maybe X ≃ Maybe Y) → (X ≃ Y)
+equiv-equiv-Maybe e =
+  pair (map-equiv-equiv-Maybe e) (is-equiv-map-equiv-equiv-Maybe e)
+
+is-injective-Fin : {k l : ℕ} → (Fin k ≃ Fin l) → Id k l
+is-injective-Fin {zero-ℕ} {zero-ℕ} e = refl
+is-injective-Fin {zero-ℕ} {succ-ℕ l} e = ex-falso (map-inv-equiv e zero-Fin)
+is-injective-Fin {succ-ℕ k} {zero-ℕ} e = ex-falso (map-equiv e zero-Fin)
+is-injective-Fin {succ-ℕ k} {succ-ℕ l} e =
+  ap succ-ℕ (is-injective-Fin (equiv-equiv-Maybe e))
+
+--------------------------------------------------------------------------------
 
 -- Exercises
 

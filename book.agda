@@ -8,7 +8,7 @@ open import book.03-natural-numbers public
 open import book.04-inductive-types public
 open import book.05-identity-types public
 open import book.06-universes public
-open import book.07-finite-types public
+open import book.07-modular-arithmetic public
 open import book.08-decidability-in-number-theory public
 open import book.09-equivalences public
 open import book.10-contractible-types public

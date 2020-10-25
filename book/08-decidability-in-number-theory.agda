@@ -2,8 +2,8 @@
 
 module book.08-decidability-in-number-theory where
 
-import book.07-finite-types
-open book.07-finite-types public
+import book.07-modular-arithmetic
+open book.07-modular-arithmetic public
 
 --------------------------------------------------------------------------------
 
@@ -991,16 +991,16 @@ Eq-coprod-eq A B s .s refl = reflexive-Eq-coprod A B s
 eq-Eq-coprod :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) (s t : coprod A B) →
   Eq-coprod A B s t → Id s t
-eq-Eq-coprod A B (inl x) (inl x') = ap inl ∘ inv-map-raise
-eq-Eq-coprod A B (inl x) (inr y') = ex-falso ∘ inv-map-raise
-eq-Eq-coprod A B (inr y) (inl x') = ex-falso ∘ inv-map-raise
-eq-Eq-coprod A B (inr y) (inr y') = ap inr ∘ inv-map-raise
+eq-Eq-coprod A B (inl x) (inl x') = ap inl ∘ map-inv-raise
+eq-Eq-coprod A B (inl x) (inr y') = ex-falso ∘ map-inv-raise
+eq-Eq-coprod A B (inr y) (inl x') = ex-falso ∘ map-inv-raise
+eq-Eq-coprod A B (inr y) (inr y') = ap inr ∘ map-inv-raise
 
 neq-inl-inr :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (x : A) (y : B) →
   ¬ (Id (inl x) (inr y))
 neq-inl-inr {l1} {l2} {A} {B} x y =
-  inv-map-raise ∘ Eq-coprod-eq A B (inl x) (inr y)
+  map-inv-raise ∘ Eq-coprod-eq A B (inl x) (inr y)
 
 -- Exercise 8.4 (b)
 
@@ -1011,16 +1011,16 @@ has-decidable-equality-coprod :
 has-decidable-equality-coprod {l1} {l2} {A} {B} d e (inl x) (inl x') =
   is-decidable-iff
     ( eq-Eq-coprod A B (inl x) (inl x') ∘ map-raise)
-    ( inv-map-raise ∘ Eq-coprod-eq A B (inl x) (inl x'))
+    ( map-inv-raise ∘ Eq-coprod-eq A B (inl x) (inl x'))
     ( d x x')
 has-decidable-equality-coprod {l1} {l2} {A} {B} d e (inl x) (inr y') =
-  inr (inv-map-raise ∘ (Eq-coprod-eq A B (inl x) (inr y')))
+  inr (map-inv-raise ∘ (Eq-coprod-eq A B (inl x) (inr y')))
 has-decidable-equality-coprod {l1} {l2} {A} {B} d e (inr y) (inl x') =
-  inr (inv-map-raise ∘ (Eq-coprod-eq A B (inr y) (inl x')))
+  inr (map-inv-raise ∘ (Eq-coprod-eq A B (inr y) (inl x')))
 has-decidable-equality-coprod {l1} {l2} {A} {B} d e (inr y) (inr y') =
   is-decidable-iff
     ( eq-Eq-coprod A B (inr y) (inr y') ∘ map-raise)
-    ( inv-map-raise ∘ Eq-coprod-eq A B (inr y) (inr y'))
+    ( map-inv-raise ∘ Eq-coprod-eq A B (inr y) (inr y'))
     ( e y y')
 
 has-decidable-equality-left-summand :
@@ -1028,7 +1028,7 @@ has-decidable-equality-left-summand :
   has-decidable-equality (coprod A B) → has-decidable-equality A
 has-decidable-equality-left-summand {l1} {l2} {A} {B} d x y =
   is-decidable-iff
-    ( inv-map-raise ∘ Eq-coprod-eq A B (inl x) (inl y))
+    ( map-inv-raise ∘ Eq-coprod-eq A B (inl x) (inl y))
     ( eq-Eq-coprod A B (inl x) (inl y) ∘ map-raise)
     ( d (inl x) (inl y))
 
@@ -1037,7 +1037,7 @@ has-decidable-equality-right-summand :
   has-decidable-equality (coprod A B) → has-decidable-equality B
 has-decidable-equality-right-summand {l1} {l2} {A} {B} d x y =
   is-decidable-iff
-    ( inv-map-raise ∘ Eq-coprod-eq A B (inr x) (inr y))
+    ( map-inv-raise ∘ Eq-coprod-eq A B (inr x) (inr y))
     ( eq-Eq-coprod A B (inr x) (inr y) ∘ map-raise)
     ( d (inr x) (inr y))
 
@@ -1076,9 +1076,9 @@ has-decidable-equality-list :
   has-decidable-equality A → has-decidable-equality (list A)
 has-decidable-equality-list d nil nil = inl refl
 has-decidable-equality-list d nil (cons x l) =
-  inr (inv-map-raise ∘ Eq-list-eq nil (cons x l))
+  inr (map-inv-raise ∘ Eq-list-eq nil (cons x l))
 has-decidable-equality-list d (cons x l) nil =
-  inr (inv-map-raise ∘ Eq-list-eq (cons x l) nil)
+  inr (map-inv-raise ∘ Eq-list-eq (cons x l) nil)
 has-decidable-equality-list d (cons x l) (cons x' l') =
   is-decidable-iff
     ( eq-Eq-list (cons x l) (cons x' l'))

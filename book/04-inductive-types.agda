@@ -115,15 +115,15 @@ map-coprod f g (inr y) = inr (g y)
 
 -- Proposition 4.5.3
 
-coprod-elim-left :
+map-right-unit-law-coprod-is-empty :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) → is-empty B → coprod A B → A
-coprod-elim-left A B nb (inl a) = a
-coprod-elim-left A B nb (inr b) = ex-falso (nb b)
+map-right-unit-law-coprod-is-empty A B nb (inl a) = a
+map-right-unit-law-coprod-is-empty A B nb (inr b) = ex-falso (nb b)
 
-coprod-elim-right :
+map-left-unit-law-coprod-is-empty :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) → is-empty A → coprod A B → B
-coprod-elim-right A B na (inl a) = ex-falso (na a)
-coprod-elim-right A B na (inr b) = b
+map-left-unit-law-coprod-is-empty A B na (inl a) = ex-falso (na a)
+map-left-unit-law-coprod-is-empty A B na (inr b) = b
 
 --------------------------------------------------------------------------------
 

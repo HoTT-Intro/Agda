@@ -280,38 +280,60 @@ abstract
    this relation, we first define a type family over ((x = y) + ¬(x = y)) that 
    returns unit on the left and empty on the right. -}
    
-splitting-decidable-equality : {l : Level} (A : UU l) (x y : A) →
-  is-decidable (Id x y) → UU lzero
-splitting-decidable-equality A x y (inl p) = unit
-splitting-decidable-equality A x y (inr f) = empty
+Eq-has-decidable-equality' :
+  {l : Level} {A : UU l} (x y : A) → is-decidable (Id x y) → UU lzero
+Eq-has-decidable-equality' x y (inl p) = unit
+Eq-has-decidable-equality' x y (inr f) = empty
 
-is-prop-splitting-decidable-equality : {l : Level} (A : UU l) (x y : A) →
-  (t : is-decidable (Id x y)) →
-  is-prop (splitting-decidable-equality A x y t)
-is-prop-splitting-decidable-equality A x y (inl p) = is-prop-unit
-is-prop-splitting-decidable-equality A x y (inr f) = is-prop-empty
+Eq-has-decidable-equality :
+  {l : Level} {A : UU l} (d : has-decidable-equality A) → A → A → UU lzero
+Eq-has-decidable-equality d x y = Eq-has-decidable-equality' x y (d x y)
 
-reflexive-splitting-decidable-equality : {l : Level} (A : UU l) (x : A) →
-  (t : is-decidable (Id x x)) → splitting-decidable-equality A x x t
-reflexive-splitting-decidable-equality A x (inl p) = star
-reflexive-splitting-decidable-equality A x (inr f) =
-  ind-empty {P = λ t → splitting-decidable-equality A x x (inr f)} (f refl)
+is-prop-Eq-has-decidable-equality' :
+  {l : Level} {A : UU l} (x y : A) (t : is-decidable (Id x y)) →
+  is-prop (Eq-has-decidable-equality' x y t)
+is-prop-Eq-has-decidable-equality' x y (inl p) = is-prop-unit
+is-prop-Eq-has-decidable-equality' x y (inr f) = is-prop-empty
 
-eq-splitting-decidable-equality : {l : Level} (A : UU l) (x y : A) →
-  (t : is-decidable (Id x y)) →
-  splitting-decidable-equality A x y t → Id x y
-eq-splitting-decidable-equality A x y (inl p) t = p
-eq-splitting-decidable-equality A x y (inr f) t =
-  ind-empty {P = λ s → Id x y} t 
+is-prop-Eq-has-decidable-equality :
+  {l : Level} {A : UU l} (d : has-decidable-equality A)
+  {x y : A} → is-prop (Eq-has-decidable-equality d x y)
+is-prop-Eq-has-decidable-equality d {x} {y} =
+  is-prop-Eq-has-decidable-equality' x y (d x y)
 
-is-set-has-decidable-equality : {l : Level} (A : UU l) →
-  has-decidable-equality A → is-set A
-is-set-has-decidable-equality A d =
+reflexive-Eq-has-decidable-equality :
+  {l : Level} {A : UU l} (d : has-decidable-equality A) (x : A) →
+  Eq-has-decidable-equality d x x 
+reflexive-Eq-has-decidable-equality d x with d x x
+... | inl α = star
+... | inr f = f refl
+
+Eq-has-decidable-equality-eq :
+  {l : Level} {A : UU l} (d : has-decidable-equality A) {x y : A} →
+  Id x y → Eq-has-decidable-equality d x y
+Eq-has-decidable-equality-eq {l} {A} d {x} {.x} refl =
+  reflexive-Eq-has-decidable-equality d x
+
+eq-Eq-has-decidable-equality' :
+  {l : Level} {A : UU l} (x y : A) (t : is-decidable (Id x y)) →
+  Eq-has-decidable-equality' x y t → Id x y
+eq-Eq-has-decidable-equality' x y (inl p) t = p
+eq-Eq-has-decidable-equality' x y (inr f) t = ex-falso t
+
+eq-Eq-has-decidable-equality :
+  {l : Level} {A : UU l} (d : has-decidable-equality A) {x y : A} →
+  Eq-has-decidable-equality d x y → Id x y
+eq-Eq-has-decidable-equality d {x} {y} =
+  eq-Eq-has-decidable-equality' x y (d x y)
+
+is-set-has-decidable-equality :
+  {l : Level} {A : UU l} → has-decidable-equality A → is-set A
+is-set-has-decidable-equality d =
   is-set-prop-in-id
-    ( λ x y → splitting-decidable-equality A x y (d x y))
-    ( λ x y → is-prop-splitting-decidable-equality A x y (d x y))
-    ( λ x → reflexive-splitting-decidable-equality A x (d x x))
-    ( λ x y → eq-splitting-decidable-equality A x y (d x y))
+    ( λ x y → Eq-has-decidable-equality d x y)
+    ( λ x y → is-prop-Eq-has-decidable-equality d)
+    ( λ x → reflexive-Eq-has-decidable-equality d x)
+    ( λ x y → eq-Eq-has-decidable-equality d)
 
 -- Section 8.3 General truncation levels
 
@@ -810,10 +832,10 @@ abstract
     ap inl (is-prop-P p p')
   is-prop'-coprod
     {P = P} {Q = Q} f is-prop-P is-prop-Q (inl p) (inr q') =
-    ind-empty (f p q')
+    ex-falso (f p q')
   is-prop'-coprod
     {P = P} {Q = Q} f is-prop-P is-prop-Q (inr q) (inl p') =
-    ind-empty (f p' q)
+    ex-falso (f p' q)
   is-prop'-coprod
     {P = P} {Q = Q} f is-prop-P is-prop-Q (inr q) (inr q') =
     ap inr (is-prop-Q q q')
@@ -1122,7 +1144,7 @@ has-decidable-equality-Σ dA dB (pair x y) (pair x' y') with dA x x'
       ( left-unit-law-Σ-is-contr-gen
         ( λ α → Id (tr _ α y) y')
         ( is-contr-is-prop-inh
-          ( is-set-has-decidable-equality _ dA x x') p)
+          ( is-set-has-decidable-equality dA x x') p)
         ( p))
       ( dB x' (tr _ p y) y'))
 

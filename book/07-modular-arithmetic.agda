@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --exact-split --safe #-}
 
-module book.07-finite-types where
+module book.07-modular-arithmetic where
 
 import book.06-universes
 open book.06-universes public
