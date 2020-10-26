@@ -25,7 +25,7 @@ Eq-Fam-circle P Q =
 reflexive-Eq-Fam-circle :
   { l1 : Level} (P : Fam-circle l1) → Eq-Fam-circle P P
 reflexive-Eq-Fam-circle (pair X e) =
-  pair (equiv-id X) refl-htpy
+  pair equiv-id refl-htpy
 
 Eq-Fam-circle-eq :
   { l1 : Level} (P Q : Fam-circle l1) → Id P Q → Eq-Fam-circle P Q
@@ -40,7 +40,7 @@ abstract
       ( λ Y f h →
         ((map-equiv h) ∘ (map-equiv e)) ~ ((map-equiv f) ∘ (map-equiv h)))
       ( is-contr-total-equiv X)
-      ( pair X (equiv-id X))
+      ( pair X equiv-id)
     ( is-contr-total-htpy-equiv e)
 
 abstract
@@ -54,7 +54,7 @@ abstract
 
 eq-Eq-Fam-circle :
   { l1 : Level} (P Q : Fam-circle l1) → Eq-Fam-circle P Q → Id P Q
-eq-Eq-Fam-circle P Q = inv-is-equiv (is-equiv-Eq-Fam-circle-eq P Q)
+eq-Eq-Fam-circle P Q = map-inv-is-equiv (is-equiv-Eq-Fam-circle-eq P Q)
 
 ev-fam-circle :
   { l1 l2 : Level} {X : UU l1} (l : free-loops X) →
@@ -81,7 +81,7 @@ triangle-comparison-fam-circle l P =
   eq-Eq-Fam-circle
     ( ev-fam-circle l P)
     ( comparison-fam-circle _ (ev-free-loop l (UU _) P))
-    ( pair (equiv-id _) (inv-htpy (tr-equiv-eq-ap (pr2 l))))
+    ( pair equiv-id (inv-htpy (tr-equiv-eq-ap (pr2 l))))
 
 abstract
   is-equiv-ev-fam-circle-universal-property-circle :
@@ -131,7 +131,7 @@ fam-circle :
   ( dependent-universal-property-circle (lsuc l2) l) →
   Fam-circle l2 → X → UU l2
 fam-circle {l1} {l2} l dup-circle =
-  inv-is-equiv
+  map-inv-is-equiv
     ( is-equiv-ev-fam-circle-universal-property-circle l
       ( universal-property-dependent-universal-property-circle l dup-circle))
 
@@ -142,7 +142,7 @@ section-fam-circle :
   ( e : Eq-Fam-circle P (ev-fam-circle l Q)) →
   Section-Fam-circle l P → (x : X) → Q x
 section-fam-circle l dup-circle Q P (pair e H) (pair p α) =
-  inv-is-equiv
+  map-inv-is-equiv
     ( dup-circle Q)
     ( pair (map-equiv e p) ((inv (H p)) ∙ (ap (map-equiv e) α)))
 
@@ -416,7 +416,7 @@ map-path-over-contraction-total-space' c {x} {.x} refl f e e' H h h' α =
     ( ( ( eq-htpy
           ( square-tr-contraction-total-space c refl f e e' H
             ( map-inv-equiv (equiv-contraction-total-space c x e) h))) ∙
-        ( issec-inv-is-equiv
+        ( issec-map-inv-is-equiv
           ( is-equiv-map-equiv (equiv-contraction-total-space c x e))
           ( h))) ∙ 
       ( ( eq-htpy
@@ -430,7 +430,7 @@ map-path-over-contraction-total-space' c {x} {.x} refl f e e' H h h' α =
         ( inv
           ( ap
             ( map-equiv (equiv-tr-contraction-total-space' c refl f e e' H))
-            ( issec-inv-is-equiv
+            ( issec-map-inv-is-equiv
               ( is-equiv-map-equiv
                 ( precomp-Π-equiv e' (λ y' → Id c (pair x y'))))
               ( h'))))))
@@ -458,7 +458,7 @@ equiv-path-over-contraction-total-space' c {x} {.x} refl f e e' H h h' =
     ( ( equiv-concat' h
         ( ap
           ( map-equiv (equiv-tr-contraction-total-space' c refl f e e' H))
-          ( issec-inv-is-equiv
+          ( issec-map-inv-is-equiv
             ( is-equiv-map-equiv
               ( precomp-Π-equiv e' (λ y' → Id c (pair x y'))))
             ( h')))) ∘e
@@ -467,7 +467,7 @@ equiv-path-over-contraction-total-space' c {x} {.x} refl f e e' H h h' =
             ( ( eq-htpy
                 ( square-tr-contraction-total-space c refl f e e' H
                   ( map-inv-equiv (equiv-contraction-total-space c x e) h))) ∙
-              ( issec-inv-is-equiv
+              ( issec-map-inv-is-equiv
                 ( is-equiv-map-equiv (equiv-contraction-total-space c x e))
                 ( h))))
           ( map-equiv
@@ -558,7 +558,7 @@ contraction-total-fundamental-cover-circle-data :
   Id (center-total-fundamental-cover-circle l dup-circle) t
 contraction-total-fundamental-cover-circle-data
   {l1} l dup-circle h p (pair x y) =
-  inv-is-equiv
+  map-inv-is-equiv
     ( lower-dependent-universal-property-circle
       { l2 = lsuc lzero} l1 l dup-circle
       ( contraction-total-space
@@ -604,9 +604,9 @@ abstract
     ( p0 : P zero-ℤ) (pS : (k : ℤ) → (P k) ≃ (P (succ-ℤ k))) →
     ( k : ℤ) → P k
   elim-ℤ P p0 pS (inl zero-ℕ) =
-    inv-is-equiv (is-equiv-map-equiv (pS neg-one-ℤ)) p0
+    map-inv-is-equiv (is-equiv-map-equiv (pS neg-one-ℤ)) p0
   elim-ℤ P p0 pS (inl (succ-ℕ x)) =
-    inv-is-equiv
+    map-inv-is-equiv
       ( is-equiv-map-equiv (pS (inl (succ-ℕ x))))
       ( elim-ℤ P p0 pS (inl x))
   elim-ℤ P p0 pS (inr (inl star)) = p0
@@ -629,12 +629,12 @@ abstract
       ( elim-ℤ P p0 pS k))
   comp-succ-elim-ℤ P p0 pS (inl zero-ℕ) =
     inv
-      ( issec-inv-is-equiv
+      ( issec-map-inv-is-equiv
         ( is-equiv-map-equiv (pS (inl zero-ℕ)))
         ( elim-ℤ P p0 pS (succ-ℤ (inl zero-ℕ))))
   comp-succ-elim-ℤ P p0 pS (inl (succ-ℕ x)) =
     inv
-      ( issec-inv-is-equiv
+      ( issec-map-inv-is-equiv
         ( is-equiv-map-equiv (pS (inl (succ-ℕ x))))
         ( elim-ℤ P p0 pS (succ-ℤ (inl (succ-ℕ x)))))
   comp-succ-elim-ℤ P p0 pS (inr (inl star)) = refl
@@ -773,7 +773,7 @@ eq-Eq-ELIM-ℤ :
   { l1 : Level} (P : ℤ → UU l1) →
   ( p0 : P zero-ℤ) (pS : (k : ℤ) → (P k) ≃ (P (succ-ℤ k))) →
   ( s t : ELIM-ℤ P p0 pS) → Eq-ELIM-ℤ P p0 pS s t → Id s t
-eq-Eq-ELIM-ℤ P p0 pS s t = inv-is-equiv (is-equiv-Eq-ELIM-ℤ-eq P p0 pS s t)
+eq-Eq-ELIM-ℤ P p0 pS s t = map-inv-is-equiv (is-equiv-Eq-ELIM-ℤ-eq P p0 pS s t)
 
 abstract
   is-prop-ELIM-ℤ :

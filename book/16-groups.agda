@@ -427,34 +427,34 @@ aut-Semi-Group X =
 
 left-unit-law-equiv :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ≃ Y) →
-  Id ((equiv-id Y) ∘e e) e
+  Id (equiv-id ∘e e) e
 left-unit-law-equiv e = eq-htpy-equiv refl-htpy
 
 right-unit-law-equiv :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ≃ Y) →
-  Id (e ∘e (equiv-id X)) e
+  Id (e ∘e equiv-id) e
 right-unit-law-equiv e = eq-htpy-equiv refl-htpy
 
 is-unital-aut-Semi-Group :
   {l : Level} (X : UU-Set l) → is-unital (aut-Semi-Group X)
 is-unital-aut-Semi-Group X =
   pair
-    ( equiv-id (type-Set X))
+    ( equiv-id)
     ( pair
       ( right-unit-law-equiv)
       ( left-unit-law-equiv))
 
 left-inverse-law-equiv :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ≃ Y) →
-  Id ((inv-equiv e) ∘e e) (equiv-id X)
+  Id ((inv-equiv e) ∘e e) equiv-id
 left-inverse-law-equiv e =
-  eq-htpy-equiv (isretr-inv-is-equiv (is-equiv-map-equiv e))
+  eq-htpy-equiv (isretr-map-inv-is-equiv (is-equiv-map-equiv e))
 
 right-inverse-law-equiv :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ≃ Y) →
-  Id (e ∘e (inv-equiv e)) (equiv-id Y)
+  Id (e ∘e (inv-equiv e)) equiv-id
 right-inverse-law-equiv e =
-  eq-htpy-equiv (issec-inv-is-equiv (is-equiv-map-equiv e))
+  eq-htpy-equiv (issec-map-inv-is-equiv (is-equiv-map-equiv e))
 
 is-group-aut-Semi-Group' :
   {l : Level} (X : UU-Set l) →
@@ -562,7 +562,7 @@ eq-htpy-hom-Semi-Group :
   { l1 l2 : Level} (G : Semi-Group l1) (H : Semi-Group l2) →
   { f g : hom-Semi-Group G H} → htpy-hom-Semi-Group G H f g → Id f g
 eq-htpy-hom-Semi-Group G H {f} {g} =
-  inv-is-equiv (is-equiv-htpy-hom-Semi-Group-eq G H f g)
+  map-inv-is-equiv (is-equiv-htpy-hom-Semi-Group-eq G H f g)
 
 --------------------------------------------------------------------------------
 
@@ -857,25 +857,25 @@ abstract
     is-prop-is-prop' (is-prop-is-iso-hom-Semi-Group' G H f)
 
 abstract
-  preserves-mul-inv-is-equiv-Semi-Group :
+  preserves-mul-map-inv-is-equiv-Semi-Group :
     { l1 l2 : Level} (G : Semi-Group l1) (H : Semi-Group l2) →
     ( f : hom-Semi-Group G H)
     ( is-equiv-f : is-equiv (map-hom-Semi-Group G H f)) →
-    preserves-mul H G (inv-is-equiv is-equiv-f)
-  preserves-mul-inv-is-equiv-Semi-Group
+    preserves-mul H G (map-inv-is-equiv is-equiv-f)
+  preserves-mul-map-inv-is-equiv-Semi-Group
     ( pair (pair G is-set-G) (pair μ-G assoc-G))
     ( pair (pair H is-set-H) (pair μ-H assoc-H))
     ( pair f μ-f) is-equiv-f x y =
-    inv-is-equiv
+    map-inv-is-equiv
       ( is-emb-is-equiv f is-equiv-f
-        ( inv-is-equiv is-equiv-f (μ-H x y))
-        ( μ-G (inv-is-equiv is-equiv-f x) (inv-is-equiv is-equiv-f y)))
-      ( ( ( issec-inv-is-equiv is-equiv-f (μ-H x y)) ∙
-          ( ( ap (λ t → μ-H t y) (inv (issec-inv-is-equiv is-equiv-f x))) ∙
+        ( map-inv-is-equiv is-equiv-f (μ-H x y))
+        ( μ-G (map-inv-is-equiv is-equiv-f x) (map-inv-is-equiv is-equiv-f y)))
+      ( ( ( issec-map-inv-is-equiv is-equiv-f (μ-H x y)) ∙
+          ( ( ap (λ t → μ-H t y) (inv (issec-map-inv-is-equiv is-equiv-f x))) ∙
             ( ap
-              ( μ-H (f (inv-is-equiv is-equiv-f x)))
-              ( inv (issec-inv-is-equiv is-equiv-f y))))) ∙
-        ( inv (μ-f (inv-is-equiv is-equiv-f x) (inv-is-equiv is-equiv-f y))))
+              ( μ-H (f (map-inv-is-equiv is-equiv-f x)))
+              ( inv (issec-map-inv-is-equiv is-equiv-f y))))) ∙
+        ( inv (μ-f (map-inv-is-equiv is-equiv-f x) (map-inv-is-equiv is-equiv-f y))))
 
 abstract
   is-iso-is-equiv-hom-Semi-Group :
@@ -888,8 +888,8 @@ abstract
     ( pair f μ-f) is-equiv-f =
     pair
       ( pair
-        ( inv-is-equiv is-equiv-f)
-        ( preserves-mul-inv-is-equiv-Semi-Group
+        ( map-inv-is-equiv is-equiv-f)
+        ( preserves-mul-map-inv-is-equiv-Semi-Group
           ( pair (pair G is-set-G) (pair μ-G assoc-G))
           ( pair (pair H is-set-H) (pair μ-H assoc-H))
           ( pair f μ-f) is-equiv-f))
@@ -897,11 +897,11 @@ abstract
         ( eq-htpy-hom-Semi-Group
           ( pair (pair H is-set-H) (pair μ-H assoc-H))
           ( pair (pair H is-set-H) (pair μ-H assoc-H))
-          ( issec-inv-is-equiv is-equiv-f))
+          ( issec-map-inv-is-equiv is-equiv-f))
         ( eq-htpy-hom-Semi-Group
           ( pair (pair G is-set-G) (pair μ-G assoc-G))
           ( pair (pair G is-set-G) (pair μ-G assoc-G))
-          ( isretr-inv-is-equiv is-equiv-f)))
+          ( isretr-map-inv-is-equiv is-equiv-f)))
 
 abstract
   is-equiv-hom-is-iso-hom-Semi-Group :
@@ -1007,9 +1007,9 @@ is-contr-total-equiv-Semi-Group {l1} G =
       ( is-contr-total-equiv (type-Semi-Group G))
       ( is-prop-is-set)
       ( type-Semi-Group G)
-      ( equiv-id (type-Semi-Group G))
+      ( equiv-id)
       ( is-set-type-Semi-Group G))
-    ( pair (pr1 G) (equiv-id (type-Semi-Group G)))
+    ( pair (pr1 G) equiv-id)
     ( is-contr-total-preserves-mul-id G)
 
 is-contr-total-iso-Semi-Group :
@@ -1051,7 +1051,7 @@ equiv-iso-eq-Semi-Group G H =
 
 eq-iso-Semi-Group :
   { l1 : Level} (G H : Semi-Group l1) → iso-Semi-Group G H → Id G H
-eq-iso-Semi-Group G H = inv-is-equiv (is-equiv-iso-eq-Semi-Group G H)
+eq-iso-Semi-Group G H = map-inv-is-equiv (is-equiv-iso-eq-Semi-Group G H)
 
 --------------------------------------------------------------------------------
 
@@ -1131,7 +1131,7 @@ is-equiv-iso-eq-Group G =
 
 eq-iso-Group :
   { l1 : Level} (G H : Group l1) → iso-Group G H → Id G H
-eq-iso-Group G H = inv-is-equiv (is-equiv-iso-eq-Group G H)
+eq-iso-Group G H = map-inv-is-equiv (is-equiv-iso-eq-Group G H)
 
 --------------------------------------------------------------------------------
 

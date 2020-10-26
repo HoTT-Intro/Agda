@@ -18,7 +18,7 @@ open book.counting public
 -- Definition 15.1.1
 
 equiv-eq : {i : Level} {A : UU i} {B : UU i} → Id A B → A ≃ B
-equiv-eq {A = A} refl = equiv-id A
+equiv-eq refl = equiv-id
 
 UNIVALENCE : {i : Level} (A B : UU i) → UU (lsuc i)
 UNIVALENCE A B = is-equiv (equiv-eq {A = A} {B = B})
@@ -28,29 +28,23 @@ UNIVALENCE A B = is-equiv (equiv-eq {A = A} {B = B})
 is-contr-total-equiv-UNIVALENCE : {i : Level} (A : UU i) →
   ((B : UU i) → UNIVALENCE A B) → is-contr (Σ (UU i) (λ X → A ≃ X))
 is-contr-total-equiv-UNIVALENCE A UA =
-  fundamental-theorem-id' A
-    ( equiv-id A)
-    ( λ B → equiv-eq {B = B})
-    ( UA)
+  fundamental-theorem-id' A equiv-id (λ B → equiv-eq) UA
 
 UNIVALENCE-is-contr-total-equiv : {i : Level} (A : UU i) →
   is-contr (Σ (UU i) (λ X → A ≃ X)) → (B : UU i) → UNIVALENCE A B
 UNIVALENCE-is-contr-total-equiv A c =
-  fundamental-theorem-id A
-    ( equiv-id A)
-    ( c)
-    ( λ B → equiv-eq {B = B})
+  fundamental-theorem-id A equiv-id c (λ B → equiv-eq)
 
 ev-id : {i j : Level} {A : UU i} (P : (B : UU i) → (A ≃ B) → UU j) →
-  ((B : UU i) (e : A ≃ B) → P B e) → P A (equiv-id A)
-ev-id {A = A} P f = f A (equiv-id A)
+  ((B : UU i) (e : A ≃ B) → P B e) → P A equiv-id
+ev-id {A = A} P f = f A equiv-id
 
 IND-EQUIV : {i j : Level} {A : UU i} → ((B : UU i) (e : A ≃ B) → UU j) → UU _
 IND-EQUIV P = sec (ev-id P)
 
 triangle-ev-id : {i j : Level} {A : UU i}
   (P : (Σ (UU i) (λ X → A ≃ X)) → UU j) →
-  (ev-pt (Σ (UU i) (λ X → A ≃ X)) (pair A (equiv-id A)) P)
+  (ev-pt (pair A equiv-id) P)
   ~ ((ev-id (λ X e → P (pair X e))) ∘ (ev-pair {A = UU i} {B = λ X → A ≃ X} {C = P}))
 triangle-ev-id P f = refl
 
@@ -60,19 +54,18 @@ abstract
     (P : (Σ (UU i) (λ X → A ≃ X)) → UU j) → IND-EQUIV (λ B e → P (pair B e))
   IND-EQUIV-is-contr-total-equiv {i} {j} A c P =
     section-comp
-      ( ev-pt (Σ (UU i) (λ X → A ≃ X)) (pair A (equiv-id A)) P)
+      ( ev-pt (pair A equiv-id) P)
       ( ev-id (λ X e → P (pair X e)))
-      ( ev-pair {A = UU i} {B = λ X → A ≃ X} {C = P})
+      ( ev-pair)
       ( triangle-ev-id P)
       ( pair ind-Σ refl-htpy)
-      ( is-sing-is-contr (Σ (UU i) (λ X → A ≃ X))
+      ( is-singleton-is-contr
+        ( pair A equiv-id)
         ( pair
-          ( pair A (equiv-id A))
-          ( λ t → 
-            ( inv (contraction c (pair A (equiv-id A)))) ∙
-            ( contraction c t)))
-        ( P)
-        ( pair A (equiv-id A)))
+          ( pair A equiv-id)
+          ( λ t →  ( inv (contraction c (pair A equiv-id))) ∙
+                   ( contraction c t)))
+        ( P))
 
 abstract
   is-contr-total-equiv-IND-EQUIV : {i : Level} (A : UU i) →
@@ -80,11 +73,11 @@ abstract
       IND-EQUIV (λ B e → P (pair B e))) →
     is-contr (Σ (UU i) (λ X → A ≃ X))
   is-contr-total-equiv-IND-EQUIV {i} A ind =
-    is-contr-is-sing
+    is-contr-is-singleton
       ( Σ (UU i) (λ X → A ≃ X))
-      ( pair A (equiv-id A))
+      ( pair A equiv-id)
       ( λ P → section-comp'
-        ( ev-pt (Σ (UU i) (λ X → A ≃ X)) (pair A (equiv-id A)) P)
+        ( ev-pt (pair A equiv-id) P)
         ( ev-id (λ X e → P (pair X e)))
         ( ev-pair {A = UU i} {B = λ X → A ≃ X} {C = P})
         ( triangle-ev-id P)
@@ -96,7 +89,7 @@ abstract
 postulate univalence : {i : Level} (A B : UU i) → UNIVALENCE A B
 
 eq-equiv : {i : Level} (A B : UU i) → (A ≃ B) → Id A B
-eq-equiv A B = inv-is-equiv (univalence A B)
+eq-equiv A B = map-inv-is-equiv (univalence A B)
 
 abstract
   is-contr-total-equiv : {i : Level} (A : UU i) →
@@ -137,7 +130,7 @@ abstract
     ( λ t → P (pr1 t) (pr2 t))
 
 ind-equiv : {i j : Level} (A : UU i) (P : (B : UU i) (e : A ≃ B) → UU j) →
-  P A (equiv-id A) → {B : UU i} (e : A ≃ B) → P B e
+  P A equiv-id → {B : UU i} (e : A ≃ B) → P B e
 ind-equiv A P p {B} = pr1 (Ind-equiv A P) p B
 
 --------------------------------------------------------------------------------
@@ -150,9 +143,7 @@ is-equiv-postcomp-univalence :
   {l1 l2 : Level} {X Y : UU l1} (A : UU l2) (e : X ≃ Y) →
   is-equiv (postcomp A (map-equiv e))
 is-equiv-postcomp-univalence {X = X} A =
-  ind-equiv X
-    ( λ Y e → is-equiv (postcomp A (map-equiv e)))
-    ( is-equiv-id (A → X))
+  ind-equiv X (λ Y e → is-equiv (postcomp A (map-equiv e))) is-equiv-id
 
 -- Theorem 15.2.2
 
@@ -200,7 +191,7 @@ is-finite-empty : is-finite empty
 is-finite-empty =
   unit-trunc-Prop
     ( Σ ℕ (λ n → Fin n ≃ empty))
-    ( pair zero-ℕ (equiv-id empty))
+    ( pair zero-ℕ equiv-id)
 
 𝔽 : UU (lsuc lzero)
 𝔽 = Σ (UU lzero) is-finite
@@ -289,7 +280,7 @@ Eq-total-subuniverse (pair P H) (pair X p) t = X ≃ (pr1 t)
 Eq-total-subuniverse-eq :
   {l1 l2 : Level} (P : subuniverse l1 l2) →
   (s t : total-subuniverse P) → Id s t → Eq-total-subuniverse P s t
-Eq-total-subuniverse-eq (pair P H) (pair X p) .(pair X p) refl = equiv-id X
+Eq-total-subuniverse-eq (pair P H) (pair X p) .(pair X p) refl = equiv-id
 
 abstract
   is-contr-total-Eq-total-subuniverse :
@@ -297,7 +288,7 @@ abstract
     (s : total-subuniverse P) →
     is-contr (Σ (total-subuniverse P) (λ t → Eq-total-subuniverse P s t))
   is-contr-total-Eq-total-subuniverse (pair P H) (pair X p) =
-    is-contr-total-Eq-substructure (is-contr-total-equiv X) H X (equiv-id X) p
+    is-contr-total-Eq-substructure (is-contr-total-equiv X) H X equiv-id p
 
 abstract
   is-equiv-Eq-total-subuniverse-eq :
@@ -306,7 +297,7 @@ abstract
   is-equiv-Eq-total-subuniverse-eq (pair P H) (pair X p) =
     fundamental-theorem-id
       ( pair X p)
-      ( equiv-id X)
+      ( equiv-id)
       ( is-contr-total-Eq-total-subuniverse (pair P H) (pair X p))
       ( Eq-total-subuniverse-eq (pair P H) (pair X p))
 
@@ -314,7 +305,7 @@ eq-Eq-total-subuniverse :
   {l1 l2 : Level} (P : subuniverse l1 l2) →
   {s t : total-subuniverse P} → Eq-total-subuniverse P s t → Id s t
 eq-Eq-total-subuniverse P {s} {t} =
-  inv-is-equiv (is-equiv-Eq-total-subuniverse-eq P s t)
+  map-inv-is-equiv (is-equiv-Eq-total-subuniverse-eq P s t)
 
 --------------------------------------------------------------------------------
 
@@ -560,7 +551,7 @@ triangle-ev-true A = refl-htpy
 
 aut-bool-bool :
   bool → (bool ≃ bool)
-aut-bool-bool true = equiv-id bool
+aut-bool-bool true = equiv-id
 aut-bool-bool false = equiv-neg-𝟚
 
 bool-aut-bool :

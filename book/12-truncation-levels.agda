@@ -164,7 +164,7 @@ eq-subtype :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (is-subtype-B : is-subtype B) →
   {p p' : Σ A B} → Eq-total-subtype is-subtype-B p p' → Id p p'
 eq-subtype is-subtype-B {p} {p'} =
-  inv-is-equiv (is-equiv-Eq-total-subtype-eq is-subtype-B p p')
+  map-inv-is-equiv (is-equiv-Eq-total-subtype-eq is-subtype-B p p')
 
 -- Section 8.2 Sets
 
@@ -235,7 +235,7 @@ abstract
     {i j : Level} (A : UU i) {B : UU j} (f : A → B) (E : is-equiv f) →
     is-prop A → is-prop B
   is-prop-is-equiv' A f E H =
-    is-prop-is-equiv _ (inv-is-equiv E) (is-equiv-inv-is-equiv E) H
+    is-prop-is-equiv _ (map-inv-is-equiv E) (is-equiv-map-inv-is-equiv E) H
 
 is-prop-equiv' :
   {i j : Level} (A : UU i) {B : UU j} (e : A ≃ B) → is-prop A → is-prop B
@@ -477,8 +477,8 @@ abstract
     is-equiv f → is-trunc k A → is-trunc k B
   is-trunc-is-equiv' k A  f is-equiv-f is-trunc-A =
     is-trunc-is-equiv k A
-      ( inv-is-equiv is-equiv-f)
-      ( is-equiv-inv-is-equiv is-equiv-f)
+      ( map-inv-is-equiv is-equiv-f)
+      ( is-equiv-map-inv-is-equiv is-equiv-f)
       ( is-trunc-A)
 
 abstract
@@ -655,7 +655,7 @@ abstract
     is-equiv (diagonal A) → is-prop A
   is-prop-is-equiv-diagonal A is-equiv-d =
     is-prop-is-prop' ( λ x y →
-      let α = issec-inv-is-equiv is-equiv-d (pair x y) in
+      let α = issec-map-inv-is-equiv is-equiv-d (pair x y) in
       ( inv (ap pr1 α)) ∙ (ap pr2 α))
 
 eq-fib-diagonal : {l : Level} (A : UU l) (t : A × A) →
@@ -1068,7 +1068,7 @@ abstract
     is-trunc-is-equiv k
       ( Σ A (λ z → Id (g z) b))
       ( fib-triangle f g id H b)
-      ( is-fiberwise-equiv-is-equiv-triangle f g id H (is-equiv-id _) b)
+      ( is-fiberwise-equiv-is-equiv-triangle f g id H is-equiv-id b)
       ( is-trunc-g b)
 
 abstract

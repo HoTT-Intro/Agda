@@ -53,7 +53,7 @@ reflexive-equiv-Seq :
   { l1 : Level} (A : Sequence l1) → equiv-Seq A A
 reflexive-equiv-Seq A =
   pair
-    ( λ n → equiv-id (type-seq A n))
+    ( λ n → equiv-id)
     ( λ n → refl-htpy)
 
 equiv-eq-Seq :
@@ -71,7 +71,7 @@ is-contr-total-equiv-Seq A =
       ( λ n X → type-seq A n ≃ X)
       ( λ n → is-contr-total-equiv (type-seq A n))
       ( type-seq A))
-    ( pair (type-seq A) (λ n → equiv-id (type-seq A n)))
+    ( pair (type-seq A) (λ n → equiv-id))
     ( is-contr-total-Eq-Π
       ( λ n h → h ~ (map-seq A n))
       ( λ n → is-contr-total-htpy' (map-seq A n))
@@ -88,7 +88,7 @@ is-equiv-equiv-eq-Seq A =
 eq-equiv-Seq :
   { l1 : Level} {A B : Sequence l1} → equiv-Seq A B → Id A B
 eq-equiv-Seq {A = A} {B} =
-  inv-is-equiv (is-equiv-equiv-eq-Seq A B)
+  map-inv-is-equiv (is-equiv-equiv-eq-Seq A B)
 
 {- We characterize the identity type of Sequence' l. -}
 
@@ -104,7 +104,7 @@ reflexive-equiv-Seq' :
   { l1 : Level} (A : Sequence' l1) → equiv-Seq' A A
 reflexive-equiv-Seq' A =
   pair
-    ( λ n → equiv-id (type-seq' A n))
+    ( λ n → equiv-id)
     ( λ n → refl-htpy)
 
 equiv-eq-Seq' :
@@ -123,7 +123,7 @@ is-contr-total-equiv-Seq' A =
       ( λ n B → (type-seq' A n) ≃ B)
       ( λ n → is-contr-total-equiv (type-seq' A n))
       ( type-seq' A))
-    ( pair (type-seq' A) (λ n → equiv-id (type-seq' A n)))
+    ( pair (type-seq' A) (λ n → equiv-id))
     ( is-contr-total-Eq-Π
       ( λ n g → g ~ (map-seq' A n))
       ( λ n → is-contr-total-htpy' (map-seq' A n))
@@ -139,7 +139,7 @@ is-equiv-equiv-eq-Seq' A =
 
 eq-equiv-Seq' :
   { l1 : Level} (A B : Sequence' l1) → equiv-Seq' A B → Id A B
-eq-equiv-Seq' A B = inv-is-equiv (is-equiv-equiv-eq-Seq' A B)
+eq-equiv-Seq' A B = map-inv-is-equiv (is-equiv-equiv-eq-Seq' A B)
 
 {- We introduce cones on a type sequence. -}
 
@@ -221,7 +221,7 @@ eq-htpy-cone-sequence :
   { l1 l2 : Level} (A : Sequence' l1) {X : UU l2} (c c' : cone-sequence A X) →
   htpy-cone-sequence A c c' → Id c c'
 eq-htpy-cone-sequence A {X} c c' =
-  inv-is-equiv (is-equiv-htpy-cone-sequence-eq A c c')
+  map-inv-is-equiv (is-equiv-htpy-cone-sequence-eq A c c')
 
 equiv-htpy-cone-sequence-eq :
   { l1 l2 : Level} (A : Sequence' l1) {X : UU l2} (c c' : cone-sequence A X) →
@@ -308,7 +308,7 @@ eq-Eq-canonical-sequential-limit :
   { l1 : Level} (A : Sequence' l1) {x y : canonical-sequential-limit A} →
   Eq-canonical-sequential-limit A x y → Id x y
 eq-Eq-canonical-sequential-limit A {x} {y} =
-  inv-is-equiv (is-equiv-Eq-canonical-sequential-limit A x y)
+  map-inv-is-equiv (is-equiv-Eq-canonical-sequential-limit A x y)
 
 {- We equip the canonical sequential limit with the structure of a cone. -}
 

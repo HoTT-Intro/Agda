@@ -111,8 +111,7 @@ is-propositional-truncation-const-star A a =
 is-propositional-truncation-id :
   { l1 : Level} (P : UU-Prop l1) →
   ( l : Level) → is-propositional-truncation l P id
-is-propositional-truncation-id P l Q =
-  is-equiv-id (type-hom-Prop P Q)
+is-propositional-truncation-id P l Q = is-equiv-id
 
 -- Proposition 13.1.5
 
@@ -726,7 +725,7 @@ is-equiv-up-image-up-image :
   ({l : Level} → universal-property-image l f i' q') →
   is-equiv (map-hom-slice (map-emb i) (map-emb i') h)
 is-equiv-up-image-up-image f i q i' q' h p up-i up-i' =
-  is-equiv-hom-slice-emb i i' h (inv-is-equiv (up-i' _ i) q)
+  is-equiv-hom-slice-emb i i' h (map-inv-is-equiv (up-i' _ i) q)
 
 up-image-up-image-is-equiv :
   {l1 l2 l3 l4 : Level} {X : UU l1} {A : UU l2} (f : A → X)
@@ -744,16 +743,16 @@ up-image-up-image-is-equiv f i q i' q' h p is-equiv-h up-i {l} =
         ( map-emb i')
         ( map-emb i)
         ( map-emb j)
-        ( inv-is-equiv (up-i C j) r)
+        ( map-inv-is-equiv (up-i C j) r)
         ( pair
-          ( inv-is-equiv is-equiv-h)
+          ( map-inv-is-equiv is-equiv-h)
           ( triangle-section
             ( map-emb i)
             ( map-emb i')
             ( map-hom-slice (map-emb i) (map-emb i') h)
             ( triangle-hom-slice (map-emb i) (map-emb i') h)
-            ( pair ( inv-is-equiv is-equiv-h)
-                   ( issec-inv-is-equiv is-equiv-h)))))
+            ( pair ( map-inv-is-equiv is-equiv-h)
+                   ( issec-map-inv-is-equiv is-equiv-h)))))
 
 up-image-is-equiv-up-image :
   {l1 l2 l3 l4 : Level} {X : UU l1} {A : UU l2} (f : A → X)
@@ -771,7 +770,7 @@ up-image-is-equiv-up-image f i q i' q' h p up-i' is-equiv-h {l} =
         ( map-emb i)
         ( map-emb i')
         ( map-emb j)
-        ( inv-is-equiv (up-i' C j) r)
+        ( map-inv-is-equiv (up-i' C j) r)
         ( h))
 
 --------------------------------------------------------------------------------
@@ -800,7 +799,7 @@ is-surjective-dependent-universal-property-surj :
   ({l : Level} → dependent-universal-property-surj l f) →
   is-surjective f
 is-surjective-dependent-universal-property-surj f dup-surj-f =
-  inv-is-equiv
+  map-inv-is-equiv
     ( dup-surj-f (λ b → trunc-Prop (fib f b)))
     ( λ x → unit-trunc-Prop (fib f (f x)) (pair x refl))
 

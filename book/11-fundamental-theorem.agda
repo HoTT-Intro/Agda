@@ -345,12 +345,12 @@ is-emb-map-emb f = pr2 f
 
 eq-emb :
   {i j : Level} {A : UU i} {B : UU j} (f : A ↪ B) → is-injective (map-emb f)
-eq-emb f {x} {y} = inv-is-equiv (is-emb-map-emb f x y)
+eq-emb f {x} {y} = map-inv-is-equiv (is-emb-map-emb f x y)
 
 abstract
   is-injective-is-emb : {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
     is-emb f → is-injective f
-  is-injective-is-emb is-emb-f {x} {y} = inv-is-equiv (is-emb-f x y)
+  is-injective-is-emb is-emb-f {x} {y} = map-inv-is-equiv (is-emb-f x y)
 
 abstract
   is-emb-is-equiv :
@@ -370,7 +370,7 @@ emb-equiv e =
 
 emb-id :
   {i : Level} {A : UU i} → (A ↪ A)
-emb-id {i} {A} = emb-equiv (equiv-id A)
+emb-id {i} {A} = emb-equiv equiv-id
 
 equiv-ap :
   {i j : Level} {A : UU i} {B : UU j} (e : A ≃ B) (x y : A) →
@@ -509,9 +509,7 @@ abstract
           ( equiv-tot (λ y → equiv-raise _ empty)))
         ( is-contr-equiv
           ( coprod (Σ A (Id x)) empty)
-          ( equiv-coprod
-            ( equiv-id (Σ A (Id x)))
-            ( right-absorption-Σ B))
+          ( equiv-coprod equiv-id (right-absorption-Σ B))
           ( is-contr-equiv'
             ( Σ A (Id x))
             ( inv-right-unit-law-coprod (Σ A (Id x)))
@@ -534,9 +532,7 @@ abstract
           ( equiv-tot (λ y → equiv-raise _ (Id x y))))
         ( is-contr-equiv
           ( coprod empty (Σ B (Id x)))
-          ( equiv-coprod
-            ( right-absorption-Σ A)
-            ( equiv-id (Σ B (Id x))))
+          ( equiv-coprod (right-absorption-Σ A) equiv-id)
           ( is-contr-equiv'
             ( Σ B (Id x))
             ( inv-left-unit-law-coprod (Σ B (Id x)))
@@ -575,7 +571,7 @@ map-compute-eq-coprod-inl-inl :
   {l1 l2 : Level} {A : UU l1} {B : UU l2}
   (x x' : A) → Id (inl {B = B} x) (inl {B = B} x') → Id x x'
 map-compute-eq-coprod-inl-inl x x' =
-  ( inv-is-equiv (is-equiv-map-raise _ (Id x x'))) ∘
+  ( map-inv-is-equiv (is-equiv-map-raise _ (Id x x'))) ∘
     ( Eq-coprod-eq _ _ (inl x) (inl x')) 
 
 abstract
@@ -585,11 +581,11 @@ abstract
   is-equiv-map-compute-eq-coprod-inl-inl x x' =
     is-equiv-comp
       ( map-compute-eq-coprod-inl-inl x x')
-      ( inv-is-equiv (is-equiv-map-raise _ (Id x x')))
+      ( map-inv-is-equiv (is-equiv-map-raise _ (Id x x')))
       ( Eq-coprod-eq _ _ (inl x) (inl x'))
       ( refl-htpy)
       ( is-equiv-Eq-coprod-eq _ _ (inl x) (inl x'))
-      ( is-equiv-inv-is-equiv (is-equiv-map-raise _ (Id x x')))
+      ( is-equiv-map-inv-is-equiv (is-equiv-map-raise _ (Id x x')))
 
 compute-eq-coprod-inl-inl :
   {l1 l2 : Level} {A : UU l1} {B : UU l2}
@@ -603,7 +599,7 @@ map-compute-eq-coprod-inl-inr :
   {l1 l2 : Level} {A : UU l1} {B : UU l2}
   (x : A) (y' : B) → Id (inl x) (inr y') → empty
 map-compute-eq-coprod-inl-inr x y' =
-  ( inv-is-equiv (is-equiv-map-raise _ empty)) ∘
+  ( map-inv-is-equiv (is-equiv-map-raise _ empty)) ∘
     ( Eq-coprod-eq _ _ (inl x) (inr y'))
 
 abstract
@@ -613,11 +609,11 @@ abstract
   is-equiv-map-compute-eq-coprod-inl-inr x y' =
     is-equiv-comp
       ( map-compute-eq-coprod-inl-inr x y')
-      ( inv-is-equiv (is-equiv-map-raise _ empty))
+      ( map-inv-is-equiv (is-equiv-map-raise _ empty))
       ( Eq-coprod-eq _ _ (inl x) (inr y'))
       ( refl-htpy)
       ( is-equiv-Eq-coprod-eq _ _ (inl x) (inr y'))
-      ( is-equiv-inv-is-equiv (is-equiv-map-raise _ empty))
+      ( is-equiv-map-inv-is-equiv (is-equiv-map-raise _ empty))
   
 compute-eq-coprod-inl-inr :
   {l1 l2 : Level} {A : UU l1} {B : UU l2}
@@ -631,7 +627,7 @@ map-compute-eq-coprod-inr-inl :
   {l1 l2 : Level} {A : UU l1} {B : UU l2}
   (y : B) (x' : A) → (Id (inr {A = A} y) (inl x')) → empty
 map-compute-eq-coprod-inr-inl y x' =
-   ( inv-is-equiv (is-equiv-map-raise _ empty)) ∘
+   ( map-inv-is-equiv (is-equiv-map-raise _ empty)) ∘
      ( Eq-coprod-eq _ _ (inr y) (inl x'))
 
 abstract
@@ -641,11 +637,11 @@ abstract
   is-equiv-map-compute-eq-coprod-inr-inl y x' =
     is-equiv-comp
       ( map-compute-eq-coprod-inr-inl y x')
-      ( inv-is-equiv (is-equiv-map-raise _ empty))
+      ( map-inv-is-equiv (is-equiv-map-raise _ empty))
       ( Eq-coprod-eq _ _ (inr y) (inl x'))
       ( refl-htpy)
       ( is-equiv-Eq-coprod-eq _ _ (inr y) (inl x'))
-      ( is-equiv-inv-is-equiv (is-equiv-map-raise _ empty))
+      ( is-equiv-map-inv-is-equiv (is-equiv-map-raise _ empty))
 
 compute-eq-coprod-inr-inl :
   {l1 l2 : Level} {A : UU l1} {B : UU l2}
@@ -659,7 +655,7 @@ map-compute-eq-coprod-inr-inr :
   {l1 l2 : Level} {A : UU l1} {B : UU l2}
   (y y' : B) → (Id (inr {A = A} y) (inr y')) → Id y y'
 map-compute-eq-coprod-inr-inr y y' =
-  ( inv-is-equiv (is-equiv-map-raise _ (Id y y'))) ∘
+  ( map-inv-is-equiv (is-equiv-map-raise _ (Id y y'))) ∘
     ( Eq-coprod-eq _ _ (inr y) (inr y'))
 
 abstract
@@ -669,11 +665,11 @@ abstract
   is-equiv-map-compute-eq-coprod-inr-inr y y' =
     is-equiv-comp
       ( map-compute-eq-coprod-inr-inr y y')
-      ( inv-is-equiv (is-equiv-map-raise _ (Id y y')))
+      ( map-inv-is-equiv (is-equiv-map-raise _ (Id y y')))
       ( Eq-coprod-eq _ _ (inr y) (inr y'))
       ( refl-htpy)
       ( is-equiv-Eq-coprod-eq _ _ (inr y) (inr y'))
-      ( is-equiv-inv-is-equiv (is-equiv-map-raise _ (Id y y')))
+      ( is-equiv-map-inv-is-equiv (is-equiv-map-raise _ (Id y y')))
 
 compute-eq-coprod-inr-inr :
   {l1 l2 : Level} {A : UU l1} {B : UU l2}
@@ -1003,12 +999,12 @@ abstract
     is-equiv e → is-emb f → is-emb g
   is-emb-triangle-is-equiv' f g e H is-equiv-e is-emb-f =
     is-emb-triangle-is-equiv g f
-      ( inv-is-equiv is-equiv-e)
+      ( map-inv-is-equiv is-equiv-e)
       ( triangle-section f g e H
         ( pair
-          ( inv-is-equiv is-equiv-e)
-          ( issec-inv-is-equiv is-equiv-e)))
-      ( is-equiv-inv-is-equiv is-equiv-e)
+          ( map-inv-is-equiv is-equiv-e)
+          ( issec-map-inv-is-equiv is-equiv-e)))
+      ( is-equiv-map-inv-is-equiv is-equiv-e)
       ( is-emb-f)
 
 -- Exercise 11.5
@@ -1093,12 +1089,12 @@ abstract
     is-equiv (pr1 sec-f) → is-equiv f
   is-equiv-sec-is-equiv {A = A} {B = B} f (pair g issec-g) is-equiv-sec-f =
     let h : A → B
-        h = inv-is-equiv is-equiv-sec-f
+        h = map-inv-is-equiv is-equiv-sec-f
     in
     is-equiv-htpy h
-      ( ( htpy-left-whisk f (inv-htpy (issec-inv-is-equiv is-equiv-sec-f))) ∙h
+      ( ( htpy-left-whisk f (inv-htpy (issec-map-inv-is-equiv is-equiv-sec-f))) ∙h
         ( htpy-right-whisk issec-g h))
-      ( is-equiv-inv-is-equiv is-equiv-sec-f)
+      ( is-equiv-map-inv-is-equiv is-equiv-sec-f)
 
 abstract
   fundamental-theorem-id-sec :

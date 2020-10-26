@@ -84,7 +84,7 @@ eq-htpy-cocone :
   {l1 l2 l3 l4 : Level} {S : UU l1} {A : UU l2} {B : UU l3}
   (f : S → A) (g : S → B) {X : UU l4} (c c' : cocone f g X) →
   htpy-cocone f g c c' → Id c c'
-eq-htpy-cocone f g c c' = inv-is-equiv (is-equiv-htpy-cocone-eq f g c c')
+eq-htpy-cocone f g c c' = map-inv-is-equiv (is-equiv-htpy-cocone-eq f g c c')
 
 {- Given a cocone c on a span S with vertex X, and a type Y, the function 
    cocone-map sends a function X → Y to a new cocone with vertex Y. -}
@@ -127,7 +127,7 @@ map-universal-property-pushout :
   (f : S → A) (g : S → B) {X : UU l4} (c : cocone f g X) →
   ( up-c : {l : Level} → universal-property-pushout l f g c)
   {Y : UU l5} → cocone f g Y → (X → Y)
-map-universal-property-pushout f g c up-c {Y} = inv-is-equiv (up-c Y)
+map-universal-property-pushout f g c up-c {Y} = map-inv-is-equiv (up-c Y)
 
 htpy-cocone-map-universal-property-pushout :
   { l1 l2 l3 l4 l5 : Level} {S : UU l1} {A : UU l2} {B : UU l3}
@@ -142,7 +142,7 @@ htpy-cocone-map-universal-property-pushout f g c up-c {Y} d =
   htpy-cocone-eq f g
     ( cocone-map f g c (map-universal-property-pushout f g c up-c d))
     ( d)
-    ( issec-inv-is-equiv (up-c Y) d)
+    ( issec-map-inv-is-equiv (up-c Y) d)
 
 uniqueness-map-universal-property-pushout :
   { l1 l2 l3 l4 l5 : Level} {S : UU l1} {A : UU l2} {B : UU l3}
@@ -378,7 +378,7 @@ comparison-suspension-cocone X Z =
       equiv-Σ
         ( λ z2 → (x : X) → Id (z1 star) z2)
         ( equiv-ev-star' Z)
-        ( λ z2 → equiv-id ((x : X) → Id (z1 star) (z2 star))))
+        ( λ z2 → equiv-id))
 
 map-comparison-suspension-cocone :
   {l1 l2 : Level} (X : UU l1) (Z : UU l2) →
@@ -509,7 +509,7 @@ is-equiv-pointed-htpy-eq X P f =
 eq-pointed-htpy :
   {l1 l2 : Level} (X : UU-pt l1) (P : pointed-fam l2 X) →
   (f g : pointed-Π X P) → (pointed-htpy X P f g) → Id f g
-eq-pointed-htpy X P f g = inv-is-equiv (is-equiv-pointed-htpy-eq X P f g)
+eq-pointed-htpy X P f g = map-inv-is-equiv (is-equiv-pointed-htpy-eq X P f g)
 
 -- Section 14.3 Duality of pushouts and pullbacks
   
@@ -725,7 +725,7 @@ wedge-inclusion :
   {l1 l2 : Level} (A : UU-pt l1) (B : UU-pt l2) →
   pr1 (A ∨ B) → (pr1 A) × (pr1 B)
 wedge-inclusion {l1} {l2} (pair A a) (pair B b) =
-  inv-is-equiv
+  map-inv-is-equiv
     ( up-pushout
       ( const unit A a)
       ( const unit B b)

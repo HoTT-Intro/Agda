@@ -57,7 +57,7 @@ has-decidable-equality-count (pair k e) =
 {- Fin k has a count -}
 
 count-Fin : (k : ℕ) → count (Fin k)
-count-Fin k = pair k (equiv-id (Fin k))
+count-Fin k = pair k equiv-id
 
 {- A type as 0 elements if and only if it is empty -}
 
@@ -154,11 +154,11 @@ count-Σ' {l1} {l2} {A} {B} (succ-ℕ k) e f =
       ( ( inv-equiv
           ( right-distributive-Σ-coprod (Fin k) unit (B ∘ map-equiv e))) ∘e
         ( equiv-coprod
-          ( equiv-id (Σ (Fin k) (B ∘ (map-equiv e ∘ inl))))
+          ( equiv-id)
           ( inv-equiv
             ( left-unit-law-Σ (B ∘ (map-equiv e ∘ inr)))))))
     ( count-coprod
-      ( count-Σ' k (equiv-id (Fin k)) (λ x → f (map-equiv e (inl x))))
+      ( count-Σ' k equiv-id (λ x → f (map-equiv e (inl x))))
       ( f (map-equiv e (inr star))))
 
 abstract
@@ -275,3 +275,34 @@ count-right-factor :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → count (X × Y) → X → count Y
 count-right-factor e x =
   count-left-factor (count-equiv commutative-prod e) x
+
+count-decidable-Prop :
+  {l1 : Level} (P : UU-Prop l1) →
+  is-decidable (type-Prop P) → count (type-Prop P)
+count-decidable-Prop P (inl p) =
+  count-is-contr (is-contr-is-prop-inh (is-prop-type-Prop P) p)
+count-decidable-Prop P (inr f) = count-is-empty f
+
+count-decidable-subset :
+  {l1 l2 : Level} {X : UU l1} (P : X → UU-Prop l2) →
+  ((x : X) → is-decidable (type-Prop (P x))) →
+  count X → count (Σ X (λ x → type-Prop (P x)))
+count-decidable-subset P d e =
+  count-Σ e (λ x → count-decidable-Prop (P x) (d x))
+
+is-decidable-count :
+  {l : Level} {X : UU l} → count X → is-decidable X
+is-decidable-count (pair zero-ℕ e) =
+  inr (is-empty-is-zero-number-of-elements (pair zero-ℕ e) refl)
+is-decidable-count (pair (succ-ℕ k) e) =
+  inl (map-equiv e zero-Fin)
+
+count-fiber-count-Σ :
+  {l1 l2 : Level} {X : UU l1} {P : X → UU l2} →
+  count X → count (Σ X P) → (x : X) → count (P x)
+count-fiber-count-Σ e f x = {!!}
+
+is-decidable-count-Σ :
+  {l1 l2 : Level} {X : UU l1} {P : X → UU l2} →
+  count X → count (Σ X P) → (x : X) → is-decidable (P x)
+is-decidable-count-Σ e f x = {!is-decidable-count!}

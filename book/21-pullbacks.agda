@@ -85,7 +85,7 @@ map-universal-property-pullback :
   universal-property-pullback l5 f g c →
   {C' : UU l5} (c' : cone f g C') → C' → C
 map-universal-property-pullback f g c up-c {C'} c' =
-  inv-is-equiv (up-c C') c'
+  map-inv-is-equiv (up-c C') c'
 
 eq-map-universal-property-pullback :
   {l1 l2 l3 l4 l5 : Level} {A : UU l1} {B : UU l2}
@@ -94,7 +94,7 @@ eq-map-universal-property-pullback :
   {C' : UU l5} (c' : cone f g C') →
   Id (cone-map f g c (map-universal-property-pullback f g c up-c c')) c'
 eq-map-universal-property-pullback f g c up-c {C'} c' =
-  issec-inv-is-equiv (up-c C') c'
+  issec-map-inv-is-equiv (up-c C') c'
 
 {- Next we characterize the identity type of the type of cones with a given
    vertex C. Note that in the definition of htpy-cone we do not use pattern 
@@ -184,7 +184,7 @@ eq-htpy-cone :
   {f : A → X} {g : B → X} {C : UU l4} (c c' : cone f g C) →
   htpy-cone f g c c' → Id c c'
 eq-htpy-cone {f = f} {g = g} c c' =
-  inv-is-equiv (is-fiberwise-equiv-htpy-cone-eq f g c c')
+  map-inv-is-equiv (is-fiberwise-equiv-htpy-cone-eq f g c c')
 
 {- This completes our characterization of the identity type of the type of
    cones with a fixed vertex C. -}
@@ -329,7 +329,7 @@ reflexive-equiv-pullback :
   (f : A → X) (g : B → X) (P : UU-pullback l4 f g) →
   equiv-pullback f g P P
 reflexive-equiv-pullback f g (pair C (pair c is-pb-C)) =
-  pair (equiv-id C) (reflexive-htpy-cone f g c)
+  pair equiv-id (reflexive-htpy-cone f g c)
 
 equiv-pullback-eq :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
@@ -345,7 +345,7 @@ is-contr-total-equiv-pullback f g (pair C (pair c is-pb-C)) =
   is-contr-total-Eq-structure
     ( λ C' t e → htpy-cone f g (cone-map f g c (map-equiv e)) (pr1 t))
     ( is-contr-total-equiv' C)
-    ( pair C (equiv-id C))
+    ( pair C equiv-id)
     ( is-contr-total-Eq-substructure
       ( is-contr-total-htpy-cone f g c)
       ( is-prop-universal-property-pullback _ f g)
@@ -540,7 +540,7 @@ eq-Eq-canonical-pullback :
   ( α : Id (pr1 t) (pr1 t')) (β : Id (pr1 (pr2 t)) (pr1 (pr2 t'))) →
   ( Id ((ap f α) ∙ (pr2 (pr2 t'))) ((pr2 (pr2 t)) ∙ (ap g β))) → Id t t'
 eq-Eq-canonical-pullback f g {pair a (pair b p)} {pair a' (pair b' p')} α β γ =
-  inv-is-equiv
+  map-inv-is-equiv
     ( is-equiv-Eq-canonical-pullback-eq f g (triple a b p) (triple a' b' p'))
     ( triple α β γ)
 
@@ -2020,7 +2020,7 @@ eq-htpy-square :
   in
   htpy-square Hf Hg c c' → Id tr-tr-c c'
 eq-htpy-square Hf Hg c c' =
-  inv-is-equiv
+  map-inv-is-equiv
     { f = htpy-square-eq Hf Hg c c'}
     ( is-fiberwise-equiv-htpy-square-eq Hf Hg c c')
 
@@ -2607,8 +2607,7 @@ abstract
     (f : A → X) (g : B → X) (f' : A' → X') (g' : B' → X') →
     (t : A × A') (s : B × B') →
     is-equiv (map-cone-pair' f g f' g' t s)
-  is-equiv-map-cone-pair' f g f' g' (pair a a') (pair b b') =
-    is-equiv-id _
+  is-equiv-map-cone-pair' f g f' g' (pair a a') (pair b b') = is-equiv-id
 
 map-cone-pair :
   {l1 l2 l3 l1' l2' l3' : Level}

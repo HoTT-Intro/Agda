@@ -34,7 +34,7 @@ abstract
   is-equiv-concat-htpy {A = A} {B = B} {f} =
     ind-htpy f
       ( λ g H → (h : (x : A) → B x) → is-equiv (concat-htpy H h))
-      ( λ h → is-equiv-id (f ~ h))
+      ( λ h → is-equiv-id)
 
 equiv-concat-htpy :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
@@ -126,7 +126,7 @@ eq-htpy-successor-preserving-map-ℕ :
   {f g : successor-preserving-map-ℕ} →
   htpy-successor-preserving-map-ℕ f g → Id f g
 eq-htpy-successor-preserving-map-ℕ {f} {g} =
-  inv-is-equiv (is-equiv-htpy-successor-preserving-map-ℕ-eq f g)
+  map-inv-is-equiv (is-equiv-htpy-successor-preserving-map-ℕ-eq f g)
 
 -- We solve the exercise now
 
@@ -268,9 +268,9 @@ abstract
     ({l3 : Level} (A : UU l3) → is-equiv (postcomp A f))
   is-equiv-postcomp-is-equiv {X = X} {Y = Y} f is-equiv-f A =
     is-equiv-has-inverse 
-      ( postcomp A (inv-is-equiv is-equiv-f))
-      ( λ g → eq-htpy (htpy-right-whisk (issec-inv-is-equiv is-equiv-f) g))
-      ( λ h → eq-htpy (htpy-right-whisk (isretr-inv-is-equiv is-equiv-f) h))
+      ( postcomp A (map-inv-is-equiv is-equiv-f))
+      ( λ g → eq-htpy (htpy-right-whisk (issec-map-inv-is-equiv is-equiv-f) g))
+      ( λ h → eq-htpy (htpy-right-whisk (isretr-map-inv-is-equiv is-equiv-f) h))
 
 equiv-postcomp :
   {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (A : UU l3) →
@@ -373,7 +373,7 @@ abstract
 eq-htpy-equiv :
   { l1 l2 : Level} {A : UU l1} {B : UU l2} {e e' : A ≃ B} →
   ( htpy-equiv e e') → Id e e'
-eq-htpy-equiv {e = e} {e'} = inv-is-equiv (is-equiv-htpy-equiv-eq e e')
+eq-htpy-equiv {e = e} {e'} = map-inv-is-equiv (is-equiv-htpy-equiv-eq e e')
 
 abstract
   Ind-htpy-equiv :
@@ -471,7 +471,7 @@ equiv-iff P Q t = pair (pr1 t) (is-equiv-is-prop (pr2 P) (pr2 Q) (pr2 t))
 iff-equiv :
   {l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) →
   (pr1 P ≃ pr1 Q) → (P ⇔ Q)
-iff-equiv P Q equiv-PQ = pair (pr1 equiv-PQ) (inv-is-equiv (pr2 equiv-PQ))
+iff-equiv P Q equiv-PQ = pair (pr1 equiv-PQ) (map-inv-is-equiv (pr2 equiv-PQ))
 
 abstract
   is-prop-iff :
@@ -592,7 +592,7 @@ triangle-is-invertible-id-htpy-id-id :
     ( ( map-assoc-Σ (A → A) (λ g → (id ∘ g) ~ id) (λ s → ((pr1 s) ∘ id) ~ id)) ∘
       ( map-left-unit-law-Σ-is-contr-gen
         ( λ s → ((pr1 s) ∘ id) ~ id)
-        ( is-contr-sec-is-equiv (is-equiv-id A)) (pair id refl-htpy)))
+        ( is-contr-sec-is-equiv (is-equiv-id {_} {A})) (pair id refl-htpy)))
 triangle-is-invertible-id-htpy-id-id A H = refl
 
 abstract
@@ -604,12 +604,12 @@ abstract
       ( map-assoc-Σ (A → A) (λ g → (id ∘ g) ~ id) (λ s → ((pr1 s) ∘ id) ~ id))
       ( map-left-unit-law-Σ-is-contr-gen
         ( λ s → ((pr1 s) ∘ id) ~ id)
-        ( is-contr-sec-is-equiv (is-equiv-id A))
+        ( is-contr-sec-is-equiv is-equiv-id)
         ( pair id refl-htpy))
       ( triangle-is-invertible-id-htpy-id-id A)
       ( is-equiv-map-left-unit-law-Σ-is-contr-gen
         ( λ s → ((pr1 s) ∘ id) ~ id)
-        ( is-contr-sec-is-equiv (is-equiv-id A))
+        ( is-contr-sec-is-equiv is-equiv-id)
         ( pair id refl-htpy))
       ( is-equiv-map-assoc-Σ _ _ _)
 
@@ -864,7 +864,7 @@ abstract
     {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
     {sec-f sec-f' : sec f} → Eq-sec f sec-f sec-f' → Id sec-f sec-f'
   eq-Eq-sec f {sec-f} {sec-f'} =
-    inv-is-equiv (is-equiv-Eq-sec-eq f sec-f sec-f')
+    map-inv-is-equiv (is-equiv-Eq-sec-eq f sec-f sec-f')
 
 isretr-section-comp :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
@@ -938,7 +938,7 @@ abstract
     {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
     {retr-f retr-f' : retr f} → Eq-retr f retr-f retr-f' → Id retr-f retr-f'
   eq-Eq-retr f {retr-f} {retr-f'} =
-    inv-is-equiv (is-equiv-Eq-retr-eq f retr-f retr-f')
+    map-inv-is-equiv (is-equiv-Eq-retr-eq f retr-f retr-f')
 
 isretr-retraction-comp :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
@@ -991,9 +991,9 @@ abstract
     is-equiv (postcomp-Π e)
   is-equiv-postcomp-Π e is-equiv-e =
     is-equiv-has-inverse
-      ( λ g i → inv-is-equiv (is-equiv-e i) (g i))
-      ( λ g → eq-htpy (λ i → issec-inv-is-equiv (is-equiv-e i) (g i)))
-      ( λ f → eq-htpy (λ i → isretr-inv-is-equiv (is-equiv-e i) (f i)))
+      ( λ g i → map-inv-is-equiv (is-equiv-e i) (g i))
+      ( λ g → eq-htpy (λ i → issec-map-inv-is-equiv (is-equiv-e i) (g i)))
+      ( λ f → eq-htpy (λ i → isretr-map-inv-is-equiv (is-equiv-e i) (f i)))
 
 equiv-postcomp-Π :
   {l1 l2 l3 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
@@ -1012,13 +1012,13 @@ map-equiv-Π :
   ( (a' : A') → B' a') → ( (a : A) → B a)
 map-equiv-Π {B' = B'} B e f =
   ( postcomp-Π (λ a →
-    ( tr B (issec-inv-is-equiv (is-equiv-map-equiv e) a)) ∘
-    ( map-equiv (f (inv-is-equiv (is-equiv-map-equiv e) a))))) ∘
-  ( precomp-Π (inv-is-equiv (is-equiv-map-equiv e)) B')
+    ( tr B (issec-map-inv-is-equiv (is-equiv-map-equiv e) a)) ∘
+    ( map-equiv (f (map-inv-is-equiv (is-equiv-map-equiv e) a))))) ∘
+  ( precomp-Π (map-inv-is-equiv (is-equiv-map-equiv e)) B')
 
 id-map-equiv-Π :
   { l1 l2 : Level} {A : UU l1} (B : A → UU l2) →
-  ( map-equiv-Π B (equiv-id A) (λ a → equiv-id (B a))) ~ id
+  ( map-equiv-Π B (equiv-id {A = A}) (λ a → equiv-id {A = B a})) ~ id
 id-map-equiv-Π B = refl-htpy
 
 abstract
@@ -1030,19 +1030,19 @@ abstract
   is-equiv-map-equiv-Π {B' = B'} B e f =
     is-equiv-comp'
       ( postcomp-Π (λ a →
-        ( tr B (issec-inv-is-equiv (is-equiv-map-equiv e) a)) ∘
-        ( map-equiv (f (inv-is-equiv (is-equiv-map-equiv e) a)))))
-      ( precomp-Π (inv-is-equiv (is-equiv-map-equiv e)) B')
+        ( tr B (issec-map-inv-is-equiv (is-equiv-map-equiv e) a)) ∘
+        ( map-equiv (f (map-inv-is-equiv (is-equiv-map-equiv e) a)))))
+      ( precomp-Π (map-inv-is-equiv (is-equiv-map-equiv e)) B')
       ( is-equiv-precomp-Π-is-equiv
-        ( inv-is-equiv (is-equiv-map-equiv e))
-        ( is-equiv-inv-is-equiv (is-equiv-map-equiv e))
+        ( map-inv-is-equiv (is-equiv-map-equiv e))
+        ( is-equiv-map-inv-is-equiv (is-equiv-map-equiv e))
         ( B'))
       ( is-equiv-postcomp-Π _
         ( λ a → is-equiv-comp'
-          ( tr B (issec-inv-is-equiv (is-equiv-map-equiv e) a))
-          ( map-equiv (f (inv-is-equiv (is-equiv-map-equiv e) a)))
-          ( is-equiv-map-equiv (f (inv-is-equiv (is-equiv-map-equiv e) a)))
-          ( is-equiv-tr B (issec-inv-is-equiv (is-equiv-map-equiv e) a))))
+          ( tr B (issec-map-inv-is-equiv (is-equiv-map-equiv e) a))
+          ( map-equiv (f (map-inv-is-equiv (is-equiv-map-equiv e) a)))
+          ( is-equiv-map-equiv (f (map-inv-is-equiv (is-equiv-map-equiv e) a)))
+          ( is-equiv-tr B (issec-map-inv-is-equiv (is-equiv-map-equiv e) a))))
 
 equiv-Π :
   { l1 l2 l3 l4 : Level}
@@ -1213,7 +1213,7 @@ eq-htpy-hom-slice :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
   (f : A → X) (g : B → X) (h h' : hom-slice f g) →
   htpy-hom-slice f g h h' → Id h h'
-eq-htpy-hom-slice f g h h' = inv-is-equiv (is-equiv-htpy-hom-slice-eq f g h h')
+eq-htpy-hom-slice f g h h' = map-inv-is-equiv (is-equiv-htpy-hom-slice-eq f g h h')
 
 {- Now we relate morphisms in the slice category to fiberwise morphisms -}
   
@@ -1307,13 +1307,13 @@ abstract
     (is-subtype-P : is-subtype P) (is-subtype-Q : is-subtype Q)
     (f : A → B) (g : (x : A) → P x → Q (f x)) →
     (is-equiv-f : is-equiv f) →
-    ((y : B) → (Q y) → P (inv-is-equiv is-equiv-f y)) →
+    ((y : B) → (Q y) → P (map-inv-is-equiv is-equiv-f y)) →
     is-equiv (map-Σ Q f g)
   is-equiv-subtype-is-equiv' {P = P} {Q}
     is-subtype-P is-subtype-Q f g is-equiv-f h =
     is-equiv-map-Σ Q f g is-equiv-f
       ( λ x → is-equiv-is-prop (is-subtype-P x) (is-subtype-Q (f x))
-        ( (tr P (isretr-inv-is-equiv is-equiv-f x)) ∘ (h (f x))))
+        ( (tr P (isretr-map-inv-is-equiv is-equiv-f x)) ∘ (h (f x))))
 
 abstract
   is-fiberwise-equiv-fiberwise-equiv-equiv-slice :
@@ -1587,9 +1587,9 @@ htpy-map-equiv-Π-refl-htpy :
 htpy-map-equiv-Π-refl-htpy {B' = B'} B e f f' K =
   ( htpy-postcomp-Π
     ( λ a →
-      ( tr B (issec-inv-is-equiv (is-equiv-map-equiv e) a)) ·l
-      ( K (inv-is-equiv (is-equiv-map-equiv e) a)))) ·r
-  ( precomp-Π (inv-is-equiv (is-equiv-map-equiv e)) B')
+      ( tr B (issec-map-inv-is-equiv (is-equiv-map-equiv e) a)) ·l
+      ( K (map-inv-is-equiv (is-equiv-map-equiv e) a)))) ·r
+  ( precomp-Π (map-inv-is-equiv (is-equiv-map-equiv e)) B')
 
 abstract
   htpy-map-equiv-Π :
@@ -1619,7 +1619,7 @@ map-automorphism-Π :
   ( e : A ≃ A) (f : (a : A) → B a ≃ B (map-equiv e a)) →
   ( (a : A) → B a) → ((a : A) → B a)
 map-automorphism-Π {B = B} e f =
-  ( postcomp-Π (λ a → (inv-is-equiv (is-equiv-map-equiv (f a))))) ∘
+  ( postcomp-Π (λ a → (map-inv-is-equiv (is-equiv-map-equiv (f a))))) ∘
   ( precomp-Π (map-equiv e) B)
 
 abstract
@@ -1631,7 +1631,7 @@ abstract
     is-equiv-comp' _ _
       ( is-equiv-precomp-Π-is-equiv _ (is-equiv-map-equiv e) B)
       ( is-equiv-postcomp-Π _
-        ( λ a → is-equiv-inv-is-equiv (is-equiv-map-equiv (f a))))
+        ( λ a → is-equiv-map-inv-is-equiv (is-equiv-map-equiv (f a))))
 
 automorphism-Π :
   { l1 l2 : Level} {A : UU l1} {B : A → UU l2}

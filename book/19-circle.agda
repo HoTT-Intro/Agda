@@ -124,7 +124,7 @@ eq-Eq-dependent-free-loops :
   ( p p' : dependent-free-loops l P) →
   Eq-dependent-free-loops l P p p' → Id p p'
 eq-Eq-dependent-free-loops l P p p' =
-  inv-is-equiv (is-equiv-Eq-dependent-free-loops-eq l P p p')
+  map-inv-is-equiv (is-equiv-Eq-dependent-free-loops-eq l P p p')
 
 {- We now define the induction principle of the circle. -}
 
@@ -367,6 +367,6 @@ abstract
     ( P : X → UU l2) (is-prop-P : (x : X) → is-prop (P x)) →
     P (base-free-loop l) → (x : X) → P x
   is-connected-circle' l dup-circle P is-prop-P p =
-    inv-is-equiv
+    map-inv-is-equiv
       ( dup-circle P)
       ( pair p (center (is-prop-P _ (tr P (pr2 l) p) p)))

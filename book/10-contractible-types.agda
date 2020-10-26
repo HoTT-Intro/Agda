@@ -5,105 +5,133 @@ module book.10-contractible-types where
 import book.09-equivalences
 open book.09-equivalences public
 
--- Section 6.1 Contractible types
+--------------------------------------------------------------------------------
+
+-- Section 10 Contractible types
+
+--------------------------------------------------------------------------------
+
+-- Section 10.1 Contractible types
+
+{- Definition 10.1.1 -}
 
 is-contr :
-  {i : Level} → UU i → UU i
+  {l : Level} → UU l → UU l
 is-contr A = Σ A (λ a → (x : A) → Id a x)
 
 abstract
   center :
-    {i : Level} {A : UU i} → is-contr A → A
+    {l : Level} {A : UU l} → is-contr A → A
   center (pair c is-contr-A) = c
   
 -- We make sure that the contraction is coherent in a straightforward way
 eq-is-contr :
-  {i : Level} {A : UU i} → is-contr A → (x y : A) → Id x y
+  {l : Level} {A : UU l} → is-contr A → (x y : A) → Id x y
 eq-is-contr (pair c C) x y = (inv (C x)) ∙ (C y)
 
 abstract
   contraction :
-    {i : Level} {A : UU i} (is-contr-A : is-contr A) →
+    {l : Level} {A : UU l} (is-contr-A : is-contr A) →
     (const A A (center is-contr-A) ~ id)
   contraction (pair c C) x = eq-is-contr (pair c C) c x
   
   coh-contraction :
-    {i : Level} {A : UU i} (is-contr-A : is-contr A) →
+    {l : Level} {A : UU l} (is-contr-A : is-contr A) →
     Id (contraction is-contr-A (center is-contr-A)) refl
   coh-contraction (pair c C) = left-inv (C c)
 
+{- Remark 10.1.2 -}
+
+{- Remark 10.1.3 -}
+
+{- Theorem 10.1.4 -}
+
+--------------------------------------------------------------------------------
+
+-- Section 10.2 Singleton induction
+
 -- We show that contractible types satisfy an induction principle akin to the induction principle of the unit type: singleton induction. This can be helpful to give short proofs of many facts.
 
+{- Definition 10.2.1 -}
+
 ev-pt :
-  {i j : Level} (A : UU i) (a : A) (B : A → UU j) → ((x : A) → B x) → B a
-ev-pt A a B f = f a
+  {l1 l2 : Level} {A : UU l1} (a : A) (B : A → UU l2) → ((x : A) → B x) → B a
+ev-pt a B f = f a
+
+is-singleton :
+  (l : Level) {i : Level} (A : UU i) → A → UU (lsuc l ⊔ i)
+is-singleton l A a = (B : A → UU l) → sec (ev-pt a B)
+
+ind-is-singleton :
+  {l1 l2 : Level} {A : UU l1} (a : A) →
+  ({l : Level} → is-singleton l A a) → (B : A → UU l2) →
+  B a → (x : A) → B x
+ind-is-singleton a is-sing-A B = pr1 (is-sing-A B)
+
+comp-is-singleton :
+  {l1 l2 : Level} {A : UU l1} (a : A) (H : {l : Level} → is-singleton l A a) →
+  (B : A → UU l2) → (ev-pt a B ∘ ind-is-singleton a H B) ~ id
+comp-is-singleton a H B = pr2 (H B)
+
+{- Theorem 10.2.3 -}
 
 abstract
-  sing-ind-is-contr :
-    {i j : Level} (A : UU i) (is-contr-A : is-contr A) (B : A → UU j) →
-    (a : A) → B a → (x : A) → B x
-  sing-ind-is-contr A is-contr-A B a b x =
+  ind-singleton-is-contr :
+    {i j : Level} {A : UU i} (a : A) (is-contr-A : is-contr A) (B : A → UU j) →
+    B a → (x : A) → B x
+  ind-singleton-is-contr a is-contr-A B b x =
     tr B ((inv (contraction is-contr-A a)) ∙ (contraction is-contr-A x)) b
   
-  sing-comp-is-contr :
-    {i j : Level} (A : UU i) (is-contr-A : is-contr A) (B : A → UU j) (a : A) →
-    ((ev-pt A a B) ∘ (sing-ind-is-contr A is-contr-A B a)) ~ id
-  sing-comp-is-contr A is-contr-A B a b =
+  comp-singleton-is-contr :
+    {i j : Level} {A : UU i} (a : A) (is-contr-A : is-contr A) (B : A → UU j) →
+    ((ev-pt a B) ∘ (ind-singleton-is-contr a is-contr-A B)) ~ id
+  comp-singleton-is-contr a is-contr-A B b =
     ap (λ ω → tr B ω b) (left-inv (contraction is-contr-A a))
 
-  sec-ev-pt-is-contr :
-    {i j : Level} (A : UU i) (is-contr-A : is-contr A) (B : A → UU j) (a : A) →
-    sec (ev-pt A a B)
-  sec-ev-pt-is-contr A is-contr-A B a =
-    pair
-      ( sing-ind-is-contr A is-contr-A B a)
-      ( sing-comp-is-contr A is-contr-A B a)
+is-singleton-is-contr :
+  {l1 l2 : Level} {A : UU l1} (a : A) → is-contr A → is-singleton l2 A a
+is-singleton-is-contr a is-contr-A B =
+  pair
+    ( ind-singleton-is-contr a is-contr-A B)
+    ( comp-singleton-is-contr a is-contr-A B)
 
 abstract
-  is-sing-is-contr :
-    {i j : Level} (A : UU i) (is-contr-A : is-contr A) (B : A → UU j) →
-    ( a : A) → sec (ev-pt A a B)
-  is-sing-is-contr A is-contr-A B a =
-    pair
-      ( sing-ind-is-contr A is-contr-A B a)
-      ( sing-comp-is-contr A is-contr-A B a)
-
-is-sing :
-  {i : Level} (A : UU i) → A → UU (lsuc i)
-is-sing {i} A a = (B : A → UU i) → sec (ev-pt A a B)
-
-abstract
-  is-contr-sing-ind :
+  is-contr-ind-singleton :
     {i : Level} (A : UU i) (a : A) →
-    ((P : A → UU i) → P a → (x : A) → P x) → is-contr A
-  is-contr-sing-ind A a S = pair a (S (λ x → Id a x) refl)
+    ({l : Level} (P : A → UU l) → P a → (x : A) → P x) → is-contr A
+  is-contr-ind-singleton A a S = pair a (S (λ x → Id a x) refl)
 
 abstract
-  is-contr-is-sing :
-    {i : Level} (A : UU i) (a : A) → is-sing A a → is-contr A
-  is-contr-is-sing A a S = is-contr-sing-ind A a (λ P → pr1 (S P))
+  is-contr-is-singleton :
+    {i : Level} (A : UU i) (a : A) →
+    ({l : Level} → is-singleton l A a) → is-contr A
+  is-contr-is-singleton A a S = is-contr-ind-singleton A a (λ P → pr1 (S P))
 
 abstract
-  is-sing-unit : is-sing unit star
-  is-sing-unit B = pair ind-unit (λ b → refl)
+  is-singleton-unit : {l : Level} → is-singleton l unit star
+  is-singleton-unit B = pair ind-unit (λ b → refl)
 
 is-contr-unit : is-contr unit
-is-contr-unit = is-contr-is-sing unit star (is-sing-unit)
+is-contr-unit = is-contr-is-singleton unit star (is-singleton-unit)
 
 abstract
-  is-sing-total-path :
-    {i : Level} (A : UU i) (a : A) →
-    is-sing (Σ A (λ x → Id a x)) (pair a refl)
-  is-sing-total-path A a B = pair (ind-Σ ∘ (ind-Id a _)) (λ b → refl)
+  is-singleton-total-path :
+    {i l : Level} (A : UU i) (a : A) →
+    is-singleton l (Σ A (λ x → Id a x)) (pair a refl)
+  is-singleton-total-path A a B = pair (ind-Σ ∘ (ind-Id a _)) (λ b → refl)
 
 abstract
   is-contr-total-path :
     {i : Level} {A : UU i} (a : A) → is-contr (Σ A (λ x → Id a x))
-  is-contr-total-path {A = A} a = is-contr-is-sing _ _ (is-sing-total-path A a)
+  is-contr-total-path {A = A} a =
+    is-contr-is-singleton _ _ (is-singleton-total-path A a)
 
--- Section 6.2 Contractible maps
+--------------------------------------------------------------------------------
 
--- We first introduce the notion of a fiber of a map.
+-- Section 10.3 Contractible maps
+
+{- Definition 10.3.1 -}
+
 fib :
   {i j : Level} {A : UU i} {B : UU j} (f : A → B) (b : B) → UU (i ⊔ j)
 fib f b = Σ _ (λ x → Id (f x) b)
@@ -112,61 +140,15 @@ fib' :
   {i j : Level} {A : UU i} {B : UU j} (f : A → B) (b : B) → UU (i ⊔ j)
 fib' f b = Σ _ (λ x → Id b (f x))
 
--- A map is said to be contractible if its fibers are contractible in the usual sense.
-is-contr-map :
-  {i j : Level} {A : UU i} {B : UU j} (f : A → B) → UU (i ⊔ j)
-is-contr-map f = (y : _) → is-contr (fib f y)
-
--- Our goal is to show that contractible maps are equivalences.
--- First we construct the inverse of a contractible map.
-inv-is-contr-map :
-  {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
-  is-contr-map f → B → A
-inv-is-contr-map is-contr-f y = pr1 (center (is-contr-f y))
-
--- Then we show that the inverse is a section.
-issec-is-contr-map :
-  {i j : Level} {A : UU i} {B : UU j} {f : A → B}
-  (is-contr-f : is-contr-map f) → (f ∘ (inv-is-contr-map is-contr-f)) ~ id
-issec-is-contr-map is-contr-f y = pr2 (center (is-contr-f y))
-
--- Then we show that the inverse is also a retraction.
-isretr-is-contr-map :
-  {i j : Level} {A : UU i} {B : UU j} {f : A → B}
-  (is-contr-f : is-contr-map f) → ((inv-is-contr-map is-contr-f) ∘ f) ~ id
-isretr-is-contr-map {_} {_} {A} {B} {f} is-contr-f x =
-  ap ( pr1 {B = λ z → Id (f z) (f x)})
-     ( ( inv
-         ( contraction
-           ( is-contr-f (f x))
-           ( pair
-             ( inv-is-contr-map is-contr-f (f x))
-             ( issec-is-contr-map is-contr-f (f x))))) ∙
-       ( contraction (is-contr-f (f x)) (pair x refl)))
-
--- Finally we put it all together to show that contractible maps are equivalences.
-
-abstract
-  is-equiv-is-contr-map :
-    {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
-    is-contr-map f → is-equiv f
-  is-equiv-is-contr-map is-contr-f =
-    is-equiv-has-inverse
-      ( inv-is-contr-map is-contr-f)
-      ( issec-is-contr-map is-contr-f)
-      ( isretr-is-contr-map is-contr-f)
-
--- Section 6.3 Equivalences are contractible maps
-
--- The goal in this section is to show that all equivalences are contractible maps. This theorem is much harder than anything we've seen so far, but many future results will depend on it.
-
--- We characterize the identity types of fibers
+{- Definition 10.3.2 -}
 
 Eq-fib :
   {i j : Level} {A : UU i} {B : UU j} (f : A → B) (y : B) →
   fib f y → fib f y → UU (i ⊔ j)
 Eq-fib f y s t =
   Σ (Id (pr1 s) (pr1 t)) (λ α → Id ((ap f α) ∙ (pr2 t)) (pr2 s))
+
+{- Proposition 10.3.3 -}
 
 reflexive-Eq-fib :
   {i j : Level} {A : UU i} {B : UU j} (f : A → B) (y : B) →
@@ -203,6 +185,11 @@ abstract
       ( issec-eq-Eq-fib f y)
       ( isretr-eq-Eq-fib f y)
 
+equiv-Eq-fib-eq :
+  {i j : Level} {A : UU i} {B : UU j} (f : A → B) (y : B) →
+  {s t : fib f y} → Id s t ≃ Eq-fib f y s t
+equiv-Eq-fib-eq f y {s} {t} = pair (Eq-fib-eq f y) (is-equiv-Eq-fib-eq f y)
+
 abstract
   is-equiv-eq-Eq-fib :
     {i j : Level} {A : UU i} {B : UU j} (f : A → B) (y : B) →
@@ -213,35 +200,84 @@ abstract
       ( isretr-eq-Eq-fib f y)
       ( issec-eq-Eq-fib f y)
 
--- Next, we improve the homotopy G : f ∘ g ~ id if f comes equipped with the
--- structure has-inverse f.
+equiv-eq-Eq-fib :
+  {i j : Level} {A : UU i} {B : UU j} (f : A → B) (y : B) →
+  {s t : fib f y} → Eq-fib f y s t ≃ Id s t
+equiv-eq-Eq-fib f y {s} {t} = pair (eq-Eq-fib f y) (is-equiv-eq-Eq-fib f y)
 
-inv-has-inverse :
+{- Definition 10.3.4 -}
+
+is-contr-map :
+  {i j : Level} {A : UU i} {B : UU j} (f : A → B) → UU (i ⊔ j)
+is-contr-map f = (y : _) → is-contr (fib f y)
+
+{- Theorem 10.3.5 -}
+
+-- Our goal is to show that contractible maps are equivalences.
+-- First we construct the inverse of a contractible map.
+map-inv-is-contr-map :
   {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
-  has-inverse f → B → A
-inv-has-inverse inv-f = pr1 inv-f
+  is-contr-map f → B → A
+map-inv-is-contr-map is-contr-f y = pr1 (center (is-contr-f y))
 
-issec-inv-has-inverse :
-  {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
-  (inv-f : has-inverse f) → (f ∘ (inv-has-inverse inv-f)) ~ id
-issec-inv-has-inverse {f = f} (pair g (pair G H)) y =
-  (inv (G (f (g y)))) ∙ (ap f (H (g y)) ∙ (G y))
+-- Then we show that the inverse is a section.
+issec-map-inv-is-contr-map :
+  {i j : Level} {A : UU i} {B : UU j} {f : A → B}
+  (is-contr-f : is-contr-map f) → (f ∘ (map-inv-is-contr-map is-contr-f)) ~ id
+issec-map-inv-is-contr-map is-contr-f y = pr2 (center (is-contr-f y))
 
-isretr-inv-has-inverse :
-  {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
-  (inv-f : has-inverse f) → ((inv-has-inverse inv-f) ∘ f) ~ id
-isretr-inv-has-inverse inv-f = pr2 (pr2 inv-f)
+-- Then we show that the inverse is also a retraction.
+isretr-map-inv-is-contr-map :
+  {i j : Level} {A : UU i} {B : UU j} {f : A → B}
+  (is-contr-f : is-contr-map f) → ((map-inv-is-contr-map is-contr-f) ∘ f) ~ id
+isretr-map-inv-is-contr-map {_} {_} {A} {B} {f} is-contr-f x =
+  ap ( pr1 {B = λ z → Id (f z) (f x)})
+     ( ( inv
+         ( contraction
+           ( is-contr-f (f x))
+           ( pair
+             ( map-inv-is-contr-map is-contr-f (f x))
+             ( issec-map-inv-is-contr-map is-contr-f (f x))))) ∙
+       ( contraction (is-contr-f (f x)) (pair x refl)))
 
--- Before we start we will develop some of the ingredients of the construction.
+-- Finally we put it all together to show that contractible maps are equivalences.
 
--- We will need the naturality of homotopies.
+abstract
+  is-equiv-is-contr-map :
+    {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
+    is-contr-map f → is-equiv f
+  is-equiv-is-contr-map is-contr-f =
+    is-equiv-has-inverse
+      ( map-inv-is-contr-map is-contr-f)
+      ( issec-map-inv-is-contr-map is-contr-f)
+      ( isretr-map-inv-is-contr-map is-contr-f)
+
+--------------------------------------------------------------------------------
+
+-- Section 10.4 Equivalences are contractible maps
+
+{- Definition 10.4.1 -}
+
+is-coherently-invertible :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) → UU (l1 ⊔ l2)
+is-coherently-invertible {l1} {l2} {A} {B} f =
+  Σ ( B → A)
+    ( λ g → Σ ((f ∘ g) ~ id)
+      ( λ G → Σ ((g ∘ f) ~ id)
+        (λ H → ((f ·l H) ~ (G ·r f)))))
+
+{- Proposition 10.4.2 -}
+
+{- Definition 10.4.3 -}
+
+{- Definition 10.4.4 -}
+
 htpy-nat :
   {i j : Level} {A : UU i} {B : UU j} {f g : A → B} (H : f ~ g)
   {x y : A} (p : Id x y) →
   Id ((H x) ∙ (ap g p)) ((ap f p) ∙ (H y))
 htpy-nat H refl = right-unit
 
--- We will also need to undo concatenation on the left and right. One might notice that, in the terminology of Lecture 9, we almost show here that concat p and concat' q are embeddings.
 left-unwhisk :
   {i : Level} {A : UU i} {x y z : A} (p : Id x y) {q r : Id y z} →
   Id (p ∙ q) (p ∙ r) → Id q r
@@ -252,7 +288,6 @@ right-unwhisk :
   (r : Id y z) → Id (p ∙ r) (q ∙ r) → Id p q
 right-unwhisk refl s = (inv right-unit) ∙ (s ∙ right-unit)
 
--- We will also need to compute with homotopies to the identity function. 
 htpy-red :
   {i : Level} {A : UU i} {f : A → A} (H : f ~ id) →
   (x : A) → Id (H (f x)) (ap f (H x))
@@ -279,6 +314,24 @@ sq-top-whisk :
   square p1 q1 p2 q2 → square p1 q1 p2' q2
 sq-top-whisk p1 q1 p2 refl q2 sq = sq
 
+{- Lemma 10.4.5 -}
+
+inv-has-inverse :
+  {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
+  has-inverse f → B → A
+inv-has-inverse inv-f = pr1 inv-f
+
+issec-inv-has-inverse :
+  {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
+  (inv-f : has-inverse f) → (f ∘ (inv-has-inverse inv-f)) ~ id
+issec-inv-has-inverse {f = f} (pair g (pair G H)) y =
+  (inv (G (f (g y)))) ∙ (ap f (H (g y)) ∙ (G y))
+
+isretr-inv-has-inverse :
+  {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
+  (inv-f : has-inverse f) → ((inv-has-inverse inv-f) ∘ f) ~ id
+isretr-inv-has-inverse inv-f = pr2 (pr2 inv-f)
+
 coherence-inv-has-inverse :
   {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
   (inv-f : has-inverse f) →
@@ -295,6 +348,20 @@ coherence-inv-has-inverse {f = f} (pair g (pair G H)) x =
       ( (ap-comp f (g ∘ f) (H x)) ∙ (inv (ap (ap f) (htpy-red H x))))
       ( G (f x))
       ( htpy-nat (htpy-right-whisk G f) (H x)))
+
+is-coherently-invertible-has-inverse :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
+  has-inverse f → is-coherently-invertible f
+is-coherently-invertible-has-inverse H =
+  pair
+    ( inv-has-inverse H)
+    ( pair
+      ( issec-inv-has-inverse H)
+      ( pair
+        ( isretr-inv-has-inverse H)
+        ( coherence-inv-has-inverse H)))
+
+{- Theorem 10.4.6 -}
 
 -- Now the proof that equivalences are contractible maps really begins. Note that we have already shown that any equivalence has an inverse. Our strategy is therefore to first show that maps with inverses are contractible, and then deduce the claim about equivalences.
 
@@ -329,14 +396,18 @@ abstract
     is-equiv f → is-contr-map f
   is-contr-map-is-equiv = is-contr-map-has-inverse ∘ has-inverse-is-equiv
 
+{- Corollary 10.4.7 -}
+
 abstract
   is-contr-total-path' :
     {i : Level} {A : UU i} (a : A) → is-contr (Σ A (λ x → Id x a))
-  is-contr-total-path' a = is-contr-map-is-equiv (is-equiv-id _) a
+  is-contr-total-path' a = is-contr-map-is-equiv is-equiv-id a
+
+--------------------------------------------------------------------------------
 
 -- Exercises
 
--- Exercise 6.1
+-- Exercise 10.1
 
 -- In this exercise we are asked to show that the identity types of a contractible type are again contractible. In the terminology of Lecture 8: we are showing that contractible types are propositions.
 
@@ -353,7 +424,7 @@ abstract
       ( eq-is-contr is-contr-A x y)
       ( contraction-is-prop-is-contr is-contr-A)
 
--- Exercise 6.2
+-- Exercise 10.2
 
 -- In this exercise we are showing that contractible types are closed under retracts.
 
@@ -365,7 +436,7 @@ abstract
       ( r (center is-contr-B))
       ( λ x → (ap r (contraction is-contr-B (i x))) ∙ (isretr x))
 
--- Exercise 6.3
+-- Exercise 10.3
 
 -- In this exercise we are showing that a type is contractible if and only if the constant map to the unit type is an equivalence. This can be used to derive a '3-for-2 property' for contractible types, which may come in handy sometimes.
 
@@ -407,8 +478,8 @@ abstract
     is-equiv f → is-contr A → is-contr B
   is-contr-is-equiv' A f is-equiv-f is-contr-A =
     is-contr-is-equiv A
-      ( inv-is-equiv is-equiv-f)
-      ( is-equiv-inv-is-equiv is-equiv-f)
+      ( map-inv-is-equiv is-equiv-f)
+      ( is-equiv-map-inv-is-equiv is-equiv-f)
       ( is-contr-A)
 
 abstract
@@ -424,7 +495,7 @@ abstract
   is-equiv-is-contr {i} {j} {A} {B} f is-contr-A is-contr-B =
     is-equiv-has-inverse
       ( const B A (center is-contr-A))
-      ( sing-ind-is-contr B is-contr-B _ _
+      ( ind-singleton-is-contr _ is-contr-B _
         ( inv (contraction is-contr-B (f (center is-contr-A)))))
       ( contraction is-contr-A)
 
@@ -463,7 +534,7 @@ equiv-Fin-one-ℕ = pair map-equiv-Fin-one-ℕ is-equiv-map-equiv-Fin-one-ℕ
 is-contr-Fin-one-ℕ : is-contr (Fin one-ℕ)
 is-contr-Fin-one-ℕ = is-contr-equiv unit equiv-Fin-one-ℕ is-contr-unit
 
--- Exercise 6.4
+-- Exercise 10.4
 
 -- In this exercise we will show that if the base type in a Σ-type is contractible, then the Σ-type is equivalent to the fiber at the center of contraction. This can be seen as a left unit law for Σ-types. We will derive a right unit law for Σ-types in Lecture 7 (not because it is unduable here, but it is useful to have some knowledge of fiberwise equivalences).
 
@@ -477,9 +548,8 @@ inv-map-left-unit-law-Σ-is-contr :
   (is-contr-C : is-contr C) → Σ C B → B (center is-contr-C)
 inv-map-left-unit-law-Σ-is-contr B is-contr-C =
   ind-Σ
-    ( sing-ind-is-contr _ is-contr-C
+    ( ind-singleton-is-contr (center is-contr-C) is-contr-C
       ( λ x → B x → B (center is-contr-C))
-      ( center is-contr-C)
       ( id))
 
 isretr-inv-map-left-unit-law-Σ-is-contr :
@@ -489,9 +559,8 @@ isretr-inv-map-left-unit-law-Σ-is-contr :
 isretr-inv-map-left-unit-law-Σ-is-contr B is-contr-C y =
   ap
     ( λ (f : B (center is-contr-C) → B (center is-contr-C)) → f y)
-    ( sing-comp-is-contr _ is-contr-C
+    ( comp-singleton-is-contr (center is-contr-C) is-contr-C
       ( λ x → B x → B (center is-contr-C))
-      ( center is-contr-C)
       ( id))
 
 issec-inv-map-left-unit-law-Σ-is-contr :
@@ -500,18 +569,18 @@ issec-inv-map-left-unit-law-Σ-is-contr :
     ( inv-map-left-unit-law-Σ-is-contr B is-contr-C)) ~ id
 issec-inv-map-left-unit-law-Σ-is-contr B is-contr-C =
   ind-Σ
-    ( sing-ind-is-contr _ is-contr-C
+    ( ind-singleton-is-contr (center is-contr-C) is-contr-C
       ( λ x → (y : B x) →
         Id ( ( ( map-left-unit-law-Σ-is-contr B is-contr-C) ∘
                ( inv-map-left-unit-law-Σ-is-contr B is-contr-C))
              ( pair x y))
-           ( id (pair x y))) (center is-contr-C)
+           ( id (pair x y)))
       ( λ y → ap
         ( map-left-unit-law-Σ-is-contr B is-contr-C)
         ( ap
           ( λ f → f y)
-          ( sing-comp-is-contr _ is-contr-C
-            ( λ x → B x → B (center is-contr-C)) (center is-contr-C) id))))
+          ( comp-singleton-is-contr (center is-contr-C) is-contr-C
+            ( λ x → B x → B (center is-contr-C)) id))))
 
 abstract
   is-equiv-map-left-unit-law-Σ-is-contr :
@@ -568,7 +637,7 @@ left-unit-law-Σ-is-contr-gen B is-contr-A x =
     ( map-left-unit-law-Σ-is-contr-gen B is-contr-A x)
     ( is-equiv-map-left-unit-law-Σ-is-contr-gen B is-contr-A x)
 
--- Exercise 6.6
+-- Exercise 10.6
 
 -- In this exercise we show that the domain of a map is equivalent to the total space of its fibers.
 
@@ -610,7 +679,7 @@ equiv-Σ-fib-to-domain :
 equiv-Σ-fib-to-domain f =
   pair (Σ-fib-to-domain f) (is-equiv-Σ-fib-to-domain f)
 
--- Exercise 6.7
+-- Exercise 10.7
 
 -- In this exercise we show that if a cartesian product is contractible, then so are its factors. We make use of the fact that contractible types are closed under retracts, just because that is a useful property to practice with. Other proofs are possible too.
 
@@ -644,7 +713,7 @@ abstract
       ( left-unit-law-Σ-is-contr (λ x → B) is-contr-A)
       ( is-contr-B)
 
--- Exercise 6.8
+-- Exercise 10.8
 
 -- Given any family B over A, there is a map from the fiber of the projection map (pr1 : Σ A B → A) to the type (B a), i.e. the fiber of B at a. In this exercise we define this map, and show that it is an equivalence, for every a : A.
 

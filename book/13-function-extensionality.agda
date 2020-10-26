@@ -85,7 +85,7 @@ abstract
     let pi-center = (λ x → center (is-contr-B x)) in
     pair
       ( pi-center)
-      ( λ f → inv-is-equiv (funext A B pi-center f)
+      ( λ f → map-inv-is-equiv (funext A B pi-center f)
         ( λ x → contraction (is-contr-B x) (f x)))
 
 abstract
@@ -119,22 +119,22 @@ abstract
   eq-htpy :
     {i j : Level} {A : UU i} {B : A → UU j} {f g : (x : A) → B x} →
     (f ~ g) → Id f g
-  eq-htpy = inv-is-equiv (funext _ _)
+  eq-htpy = map-inv-is-equiv (funext _ _)
   
   issec-eq-htpy :
     {i j : Level} {A : UU i} {B : A → UU j} {f g : (x : A) → B x} →
     ((htpy-eq {f = f} {g = g}) ∘ (eq-htpy {f = f} {g = g})) ~ id
-  issec-eq-htpy = issec-inv-is-equiv (funext _ _)
+  issec-eq-htpy = issec-map-inv-is-equiv (funext _ _)
   
   isretr-eq-htpy :
     {i j : Level} {A : UU i} {B : A → UU j} {f g : (x : A) → B x} →
     ((eq-htpy {f = f} {g = g}) ∘ (htpy-eq {f = f} {g = g})) ~ id
-  isretr-eq-htpy = isretr-inv-is-equiv (funext _ _)
+  isretr-eq-htpy = isretr-map-inv-is-equiv (funext _ _)
 
   is-equiv-eq-htpy :
     {i j : Level} {A : UU i} {B : A → UU j}
     (f g : (x : A) → B x) → is-equiv (eq-htpy {f = f} {g = g})
-  is-equiv-eq-htpy f g = is-equiv-inv-is-equiv (funext _ _)
+  is-equiv-eq-htpy f g = is-equiv-map-inv-is-equiv (funext _ _)
 
   eq-htpy-refl-htpy :
     {i j : Level} {A : UU i} {B : A → UU j}
@@ -577,7 +577,7 @@ abstract
     {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} (C : (x : A) → B x → UU l3)
     {t t' : type-choice-∞ C} → Eq-type-choice-∞ C t t' → Id t t'
   eq-Eq-type-choice-∞ C {t} {t'} =
-    inv-is-equiv (is-equiv-Eq-type-choice-∞-eq C t t')
+    map-inv-is-equiv (is-equiv-Eq-type-choice-∞-eq C t t')
 
 -- We define the map choice-∞, which is not given its own definition environment
 
@@ -702,7 +702,7 @@ is-equiv-Eq-Π-total-fam-eq C t =
 eq-Eq-Π-total-fam :
   {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} (C : (x : A) → B x → UU l3)
   (t t' : (a : A) → Σ (B a) (C a)) → Eq-Π-total-fam C t t' → Id t t'
-eq-Eq-Π-total-fam C t t' = inv-is-equiv (is-equiv-Eq-Π-total-fam-eq C t t')
+eq-Eq-Π-total-fam C t t' = map-inv-is-equiv (is-equiv-Eq-Π-total-fam-eq C t t')
 
 -- Corollary 12.2.3
 
@@ -823,14 +823,14 @@ abstract
     (C : B → UU l3) (f : A → B) (is-equiv-f : is-equiv f) →
     ((x : A) → C (f x)) → ((y : B) → C y)
   ind-is-equiv C f is-equiv-f =
-    inv-is-equiv (is-equiv-precomp-Π-is-equiv f is-equiv-f C)
+    map-inv-is-equiv (is-equiv-precomp-Π-is-equiv f is-equiv-f C)
   
   comp-is-equiv :
     {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (C : B → UU l3)
     (f : A → B) (is-equiv-f : is-equiv f) (h : (x : A) → C (f x)) →
     Id (λ x → (ind-is-equiv C f is-equiv-f h) (f x)) h
   comp-is-equiv C f is-equiv-f h =
-    issec-inv-is-equiv (is-equiv-precomp-Π-is-equiv f is-equiv-f C) h
+    issec-map-inv-is-equiv (is-equiv-precomp-Π-is-equiv f is-equiv-f C) h
   
   htpy-comp-is-equiv :
     {l1 l2 l3 : Level} {A : UU l1} {B : UU l2}

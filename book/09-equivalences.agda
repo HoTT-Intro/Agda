@@ -172,12 +172,12 @@ is-equiv-map-equiv e = pr2 e
 -- Example 9.2.3
 
 is-equiv-id :
-  {i : Level} (A : UU i) → is-equiv (id {i} {A})
-is-equiv-id A = pair (pair id refl-htpy) (pair id refl-htpy)
+  {i : Level} {A : UU i} → is-equiv (id {i} {A})
+is-equiv-id = pair (pair id refl-htpy) (pair id refl-htpy)
 
 equiv-id :
-  {i : Level} (A : UU i) → A ≃ A
-equiv-id A = pair id (is-equiv-id A)
+  {i : Level} {A : UU i} → A ≃ A
+equiv-id = pair id is-equiv-id
 
 -- Example 9.2.4
 
@@ -310,46 +310,46 @@ has-inverse-is-equiv {i} {j} {A} {B} {f} (pair (pair g G) (pair h H)) =
   let is-equiv-f = pair (pair g G) (pair h H) in
   pair g (pair G (((htpy-section-retraction is-equiv-f) ·r f) ∙h H))
 
-inv-is-equiv :
+map-inv-is-equiv :
   {i j : Level} {A : UU i} {B : UU j} {f : A → B} → is-equiv f → B → A
-inv-is-equiv is-equiv-f = pr1 (has-inverse-is-equiv is-equiv-f)
+map-inv-is-equiv is-equiv-f = pr1 (has-inverse-is-equiv is-equiv-f)
 
-issec-inv-is-equiv :
+issec-map-inv-is-equiv :
   {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
-  (is-equiv-f : is-equiv f) → (f ∘ (inv-is-equiv is-equiv-f)) ~ id
-issec-inv-is-equiv is-equiv-f = pr1 (pr2 (has-inverse-is-equiv is-equiv-f))
+  (is-equiv-f : is-equiv f) → (f ∘ (map-inv-is-equiv is-equiv-f)) ~ id
+issec-map-inv-is-equiv is-equiv-f = pr1 (pr2 (has-inverse-is-equiv is-equiv-f))
 
-isretr-inv-is-equiv :
+isretr-map-inv-is-equiv :
   {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
-  (is-equiv-f : is-equiv f) → ((inv-is-equiv is-equiv-f) ∘ f) ~ id
-isretr-inv-is-equiv is-equiv-f = pr2 (pr2 (has-inverse-is-equiv is-equiv-f))
+  (is-equiv-f : is-equiv f) → ((map-inv-is-equiv is-equiv-f) ∘ f) ~ id
+isretr-map-inv-is-equiv is-equiv-f = pr2 (pr2 (has-inverse-is-equiv is-equiv-f))
 
-is-equiv-inv-is-equiv :
+is-equiv-map-inv-is-equiv :
   {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
-  (is-equiv-f : is-equiv f) → is-equiv (inv-is-equiv is-equiv-f)
-is-equiv-inv-is-equiv {i} {j} {A} {B} {f} is-equiv-f =
+  (is-equiv-f : is-equiv f) → is-equiv (map-inv-is-equiv is-equiv-f)
+is-equiv-map-inv-is-equiv {i} {j} {A} {B} {f} is-equiv-f =
   is-equiv-has-inverse f
-    ( isretr-inv-is-equiv is-equiv-f)
-    ( issec-inv-is-equiv is-equiv-f)
+    ( isretr-map-inv-is-equiv is-equiv-f)
+    ( issec-map-inv-is-equiv is-equiv-f)
 
 map-inv-equiv :
   {i j : Level} {A : UU i} {B : UU j} → (A ≃ B) → (B → A)
-map-inv-equiv e = inv-is-equiv (is-equiv-map-equiv e)
+map-inv-equiv e = map-inv-is-equiv (is-equiv-map-equiv e)
 
 issec-map-inv-equiv :
   {i j : Level} {A : UU i} {B : UU j} (e : A ≃ B) →
   ((map-equiv e) ∘ (map-inv-equiv e)) ~ id
-issec-map-inv-equiv e = issec-inv-is-equiv (is-equiv-map-equiv e)
+issec-map-inv-equiv e = issec-map-inv-is-equiv (is-equiv-map-equiv e)
 
 isretr-map-inv-equiv :
   {i j : Level} {A : UU i} {B : UU j} (e : A ≃ B) →
   ((map-inv-equiv e) ∘ (map-equiv e)) ~ id
-isretr-map-inv-equiv e = isretr-inv-is-equiv (is-equiv-map-equiv e)
+isretr-map-inv-equiv e = isretr-map-inv-is-equiv (is-equiv-map-equiv e)
 
 is-equiv-map-inv-equiv :
   {i j : Level} {A : UU i} {B : UU j} (e : A ≃ B) → is-equiv (map-inv-equiv e)
 is-equiv-map-inv-equiv e =
-  is-equiv-inv-is-equiv (is-equiv-map-equiv e)
+  is-equiv-map-inv-is-equiv (is-equiv-map-equiv e)
 
 inv-equiv :
   {i j : Level} {A : UU i} {B : UU j} → (A ≃ B) → (B ≃ A)
@@ -361,9 +361,9 @@ is-injective-is-equiv :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
   is-equiv f → is-injective f
 is-injective-is-equiv {l1} {l2} {A} {B} {f} H {x} {y} p =
-  ( inv (isretr-inv-is-equiv H x)) ∙
-  ( ( ap (inv-is-equiv H) p) ∙
-    ( isretr-inv-is-equiv H y))
+  ( inv (isretr-map-inv-is-equiv H x)) ∙
+  ( ( ap (map-inv-is-equiv H) p) ∙
+    ( isretr-map-inv-is-equiv H y))
 
 is-injective-map-equiv :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} →
@@ -1850,12 +1850,12 @@ abstract
 inv-htpy-is-equiv :
   {i j : Level} {A : UU i} {B : UU j} {f f' : A → B} (H : f ~ f') →
   (is-equiv-f : is-equiv f) (is-equiv-f' : is-equiv f') →
-  (inv-is-equiv is-equiv-f) ~ (inv-is-equiv is-equiv-f')
+  (map-inv-is-equiv is-equiv-f) ~ (map-inv-is-equiv is-equiv-f')
 inv-htpy-is-equiv H is-equiv-f is-equiv-f' b =
-  ( inv (isretr-inv-is-equiv is-equiv-f' (inv-is-equiv is-equiv-f b))) ∙
-  ( ap (inv-is-equiv is-equiv-f')
-    ( ( inv (H (inv-is-equiv is-equiv-f b))) ∙
-      ( issec-inv-is-equiv is-equiv-f b)))
+  ( inv (isretr-map-inv-is-equiv is-equiv-f' (map-inv-is-equiv is-equiv-f b))) ∙
+  ( ap (map-inv-is-equiv is-equiv-f')
+    ( ( inv (H (map-inv-is-equiv is-equiv-f b))) ∙
+      ( issec-map-inv-is-equiv is-equiv-f b)))
 
 -- Exercise 9.4
 
@@ -2004,14 +2004,14 @@ abstract
     {i j : Level} {A : UU i} {B : UU j} {f : A → B} {g : B → A} →
     is-equiv f → (f ∘ g) ~ id → is-equiv g
   is-equiv-is-section-is-equiv {B = B} {f = f} {g = g} is-equiv-f H =
-    is-equiv-right-factor id f g (inv-htpy H) is-equiv-f (is-equiv-id B)
+    is-equiv-right-factor id f g (inv-htpy H) is-equiv-f is-equiv-id
 
 abstract
   is-equiv-is-retraction-is-equiv :
     {i j : Level} {A : UU i} {B : UU j} {f : A → B} {g : B → A} →
     is-equiv f  → (g ∘ f) ~ id → is-equiv g
   is-equiv-is-retraction-is-equiv {A = A} {f = f} {g = g} is-equiv-f H =
-    is-equiv-left-factor id g f (inv-htpy H) (is-equiv-id A) is-equiv-f
+    is-equiv-left-factor id g f (inv-htpy H) is-equiv-id is-equiv-f
     
 -- Exercise 9.5
 
@@ -2224,7 +2224,7 @@ abstract
   is-equiv-inv-con :
     {i : Level} {A : UU i} {x y z : A} (p : Id x y)
     (q : Id y z) (r : Id x z) → is-equiv (inv-con p q r)
-  is-equiv-inv-con refl q r = is-equiv-id (Id q r)
+  is-equiv-inv-con refl q r = is-equiv-id
 
 equiv-inv-con :
   {i : Level} {A : UU i} {x y z : A} (p : Id x y) (q : Id y z) (r : Id x z) →
@@ -2305,7 +2305,7 @@ coprod-Fin :
   (k l : ℕ) → coprod (Fin k) (Fin l) ≃ Fin (add-ℕ k l)
 coprod-Fin k zero-ℕ = right-unit-law-coprod (Fin k)
 coprod-Fin k (succ-ℕ l) =
-  (equiv-coprod (coprod-Fin k l) (equiv-id unit)) ∘e inv-assoc-coprod
+  (equiv-coprod (coprod-Fin k l) equiv-id) ∘e inv-assoc-coprod
 
 {- We construct the functoriality of cartesian products. -}
 

@@ -105,7 +105,7 @@ module hom-Fam-pushout
   eq-htpy-hom-Fam-pushout :
     ( h k : hom-Fam-pushout) → htpy-hom-Fam-pushout h k → Id h k
   eq-htpy-hom-Fam-pushout h k =
-    inv-is-equiv (is-equiv-htpy-hom-Fam-pushout-eq h k)
+    map-inv-is-equiv (is-equiv-htpy-hom-Fam-pushout-eq h k)
   
 open hom-Fam-pushout public
 
