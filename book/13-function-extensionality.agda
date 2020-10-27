@@ -786,11 +786,11 @@ tr-precompose-fam :
 tr-precompose-fam C f refl = refl-htpy
 
 abstract
-  is-equiv-precomp-Π-is-half-adjoint-equivalence :
+  is-equiv-precomp-Π-is-coherently-invertible :
     {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-    is-half-adjoint-equivalence f →
+    is-coherently-invertible f →
     (C : B → UU l3) → is-equiv (precomp-Π f C)
-  is-equiv-precomp-Π-is-half-adjoint-equivalence f
+  is-equiv-precomp-Π-is-coherently-invertible f
     ( pair g (pair issec-g (pair isretr-g coh))) C = 
     is-equiv-has-inverse
       (λ s y → tr C (issec-g y) (s (g y)))
@@ -805,8 +805,8 @@ abstract
     {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (f : A → B) → is-equiv f →
     (C : B → UU l3) → is-equiv (precomp-Π f C)
   is-equiv-precomp-Π-is-equiv f is-equiv-f =
-    is-equiv-precomp-Π-is-half-adjoint-equivalence f
-      ( is-half-adjoint-equivalence-is-path-split f
+    is-equiv-precomp-Π-is-coherently-invertible f
+      ( is-coherently-invertible-is-path-split f
         ( is-path-split-is-equiv f is-equiv-f))
 
 precomp-Π-equiv :

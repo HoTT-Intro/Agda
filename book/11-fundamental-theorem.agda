@@ -1121,19 +1121,6 @@ abstract
 
 -- Exercise 11.10
 
-coherence-is-half-adjoint-equivalence :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) (g : B → A)
-  (G : (f ∘ g) ~ id) (H : (g ∘ f) ~ id) → UU (l1 ⊔ l2)
-coherence-is-half-adjoint-equivalence f g G H =
-  ( htpy-right-whisk G f) ~ (htpy-left-whisk f H)
-
-is-half-adjoint-equivalence :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} → (A → B) → UU (l1 ⊔ l2)
-is-half-adjoint-equivalence {A = A} {B = B} f =
-  Σ (B → A)
-    ( λ g → Σ ((f ∘ g) ~ id)
-      ( λ G → Σ ((g ∘ f) ~ id) (coherence-is-half-adjoint-equivalence f g G)))
-
 is-path-split :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} → (A → B) → UU (l1 ⊔ l2)
 is-path-split {A = A} {B = B} f =
@@ -1147,10 +1134,10 @@ abstract
     pair (pr1 is-equiv-f) (λ x y → pr1 (is-emb-is-equiv f is-equiv-f x y))
 
 abstract
-  is-half-adjoint-equivalence-is-path-split :
+  is-coherently-invertible-is-path-split :
     {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-    is-path-split f → is-half-adjoint-equivalence f
-  is-half-adjoint-equivalence-is-path-split {A = A} {B = B} f
+    is-path-split f → is-coherently-invertible f
+  is-coherently-invertible-is-path-split {A = A} {B = B} f
     ( pair (pair g issec-g) sec-ap-f) =
     let φ : ((x : A) → fib (ap f) (issec-g (f x))) →
                 Σ ((g ∘ f) ~ id)
@@ -1165,10 +1152,10 @@ abstract
           ( pr2 (sec-ap-f (g (f x)) x) (issec-g (f x))))))
 
 abstract
-  is-equiv-is-half-adjoint-equivalence :
+  is-equiv-is-coherently-invertible :
     { l1 l2 : Level} {A : UU l1} {B : UU l2}
-    (f : A → B) → is-half-adjoint-equivalence f → is-equiv f
-  is-equiv-is-half-adjoint-equivalence f (pair g (pair G (pair H K))) =
+    (f : A → B) → is-coherently-invertible f → is-equiv f
+  is-equiv-is-coherently-invertible f (pair g (pair G (pair H K))) =
     is-equiv-has-inverse g G H
 
 abstract
@@ -1176,15 +1163,15 @@ abstract
     {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
     is-path-split f → is-equiv f
   is-equiv-is-path-split f =
-    ( is-equiv-is-half-adjoint-equivalence f) ∘
-    ( is-half-adjoint-equivalence-is-path-split f)
+    ( is-equiv-is-coherently-invertible f) ∘
+    ( is-coherently-invertible-is-path-split f)
 
 abstract
-  is-half-adjoint-equivalence-is-equiv :
+  is-coherently-invertible-is-equiv :
     {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-    is-equiv f → is-half-adjoint-equivalence f
-  is-half-adjoint-equivalence-is-equiv f =
-    ( is-half-adjoint-equivalence-is-path-split f) ∘ (is-path-split-is-equiv f)
+    is-equiv f → is-coherently-invertible f
+  is-coherently-invertible-is-equiv f =
+    ( is-coherently-invertible-is-path-split f) ∘ (is-path-split-is-equiv f)
 
 -- Exercise 11.11
 

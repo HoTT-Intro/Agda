@@ -540,12 +540,12 @@ abstract
       ( is-equiv-is-path-split f)
 
 abstract
-  is-prop-is-half-adjoint-equivalence :
+  is-prop-is-coherently-invertible :
     {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-    is-prop (is-half-adjoint-equivalence f)
-  is-prop-is-half-adjoint-equivalence {l1} {l2} {A} {B} f =
+    is-prop (is-coherently-invertible f)
+  is-prop-is-coherently-invertible {l1} {l2} {A} {B} f =
     is-prop-is-contr-if-inh (λ is-hae-f →
-      let is-equiv-f = is-equiv-is-half-adjoint-equivalence f is-hae-f in
+      let is-equiv-f = is-equiv-is-coherently-invertible f is-hae-f in
       is-contr-equiv'
         ( Σ (sec f)
           ( λ sf → Σ (((pr1 sf) ∘ f) ~ id)
@@ -570,14 +570,14 @@ abstract
                   ( (pr2 sf) (f x))))))))
 
 abstract
-  is-equiv-is-half-adjoint-equivalence-is-equiv :
+  is-equiv-is-coherently-invertible-is-equiv :
     {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-    is-equiv (is-half-adjoint-equivalence-is-equiv f)
-  is-equiv-is-half-adjoint-equivalence-is-equiv f =
+    is-equiv (is-coherently-invertible-is-equiv f)
+  is-equiv-is-coherently-invertible-is-equiv f =
     is-equiv-is-prop
       ( is-subtype-is-equiv f)
-      ( is-prop-is-half-adjoint-equivalence f)
-      ( is-equiv-is-half-adjoint-equivalence f)
+      ( is-prop-is-coherently-invertible f)
+      ( is-equiv-is-coherently-invertible f)
 
 -- Exercise 13.8
 
@@ -1472,29 +1472,29 @@ set-isomorphism :
 set-isomorphism A B =
   Σ ((pr1 A) → (pr1 B)) has-inverse
 
-has-inverse-is-half-adjoint-equivalence :
+has-inverse-is-coherently-invertible :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  is-half-adjoint-equivalence f → has-inverse f
-has-inverse-is-half-adjoint-equivalence f =
+  is-coherently-invertible f → has-inverse f
+has-inverse-is-coherently-invertible f =
   tot (λ g → tot (λ G → pr1))
 
 set-isomorphism-equiv-fiberwise :
   {l1 l2 : Level} (A : UU-Set l1) (B : UU-Set l2) →
   (f : (pr1 A) → (pr1 B)) → is-equiv f → has-inverse f
 set-isomorphism-equiv-fiberwise A B f =
-  ( has-inverse-is-half-adjoint-equivalence f) ∘
-  ( is-half-adjoint-equivalence-is-equiv f)
+  ( has-inverse-is-coherently-invertible f) ∘
+  ( is-coherently-invertible-is-equiv f)
 
 abstract
-  is-equiv-has-inverse-is-half-adjoint-equivalence-is-set :
+  is-equiv-has-inverse-is-coherently-invertible-is-set :
     {l1 l2 : Level} (A : UU-Set l1) (B : UU-Set l2) (f : (pr1 A) → (pr1 B)) →
-    is-equiv (has-inverse-is-half-adjoint-equivalence f)
-  is-equiv-has-inverse-is-half-adjoint-equivalence-is-set
+    is-equiv (has-inverse-is-coherently-invertible f)
+  is-equiv-has-inverse-is-coherently-invertible-is-set
     (pair A is-set-A) (pair B is-set-B) f =
     is-equiv-tot-is-fiberwise-equiv
       ( λ g → is-equiv-tot-is-fiberwise-equiv
         ( λ G → is-equiv-pr1-is-contr
-          ( coherence-is-half-adjoint-equivalence f g G)
+          ( coherence-is-coherently-invertible f g G)
           ( λ H → is-contr-Π
             ( λ x → is-set-B _ _ (G (f x)) (ap f (H x))))))
 
@@ -1505,11 +1505,11 @@ abstract
   is-fiberwise-equiv-set-isomorphism-equiv-fiberwise A B f =
     is-equiv-comp
       ( set-isomorphism-equiv-fiberwise A B f)
-      ( has-inverse-is-half-adjoint-equivalence f)
-      ( is-half-adjoint-equivalence-is-equiv f)
+      ( has-inverse-is-coherently-invertible f)
+      ( is-coherently-invertible-is-equiv f)
       ( refl-htpy)
-      ( is-equiv-is-half-adjoint-equivalence-is-equiv f)
-      ( is-equiv-has-inverse-is-half-adjoint-equivalence-is-set A B f)
+      ( is-equiv-is-coherently-invertible-is-equiv f)
+      ( is-equiv-has-inverse-is-coherently-invertible-is-set A B f)
 
 set-isomorphism-equiv :
   {l1 l2 : Level} (A : UU-Set l1) (B : UU-Set l2) →

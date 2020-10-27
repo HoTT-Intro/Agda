@@ -22,6 +22,13 @@ neg-neg-𝟚 : (neg-𝟚 ∘ neg-𝟚) ~ id
 neg-neg-𝟚 true = refl
 neg-neg-𝟚 false = refl
 
+-- Remark 9.1.4
+
+square :
+  {i : Level} {A : UU i} {x y1 y2 z : A}
+  (p1 : Id x y1) (q1 : Id y1 z) (p2 : Id x y2) (q2 : Id y2 z) → UU i
+square p q p' q' = Id (p ∙ q) (p' ∙ q')
+
 -- Definition 9.1.5
 
 refl-htpy :
@@ -110,6 +117,19 @@ htpy-right-whisk :
 htpy-right-whisk H f x = H (f x)
 
 _·r_ = htpy-right-whisk
+
+sq-left-whisk :
+  {i : Level} {A : UU i} {x y1 y2 z : A} {p1 p1' : Id x y1}
+  (s : Id p1 p1') {q1 : Id y1 z} {p2 : Id x y2} {q2 : Id y2 z} →
+  square p1 q1 p2 q2 → square p1' q1 p2 q2
+sq-left-whisk refl sq = sq
+
+sq-top-whisk :
+  {i : Level} {A : UU i} {x y1 y2 z : A}
+  (p1 : Id x y1) (q1 : Id y1 z)
+  (p2 : Id x y2) {p2' : Id x y2} (s : Id p2 p2') (q2 : Id y2 z) →
+  square p1 q1 p2 q2 → square p1 q1 p2' q2
+sq-top-whisk p1 q1 p2 refl q2 sq = sq
 
 --------------------------------------------------------------------------------
 

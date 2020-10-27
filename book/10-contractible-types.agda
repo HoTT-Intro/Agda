@@ -258,25 +258,82 @@ abstract
 
 {- Definition 10.4.1 -}
 
+coherence-is-coherently-invertible :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) (g : B → A)
+  (G : (f ∘ g) ~ id) (H : (g ∘ f) ~ id) → UU (l1 ⊔ l2)
+coherence-is-coherently-invertible f g G H = (G ·r f) ~ (f ·l H)
+
 is-coherently-invertible :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) → UU (l1 ⊔ l2)
 is-coherently-invertible {l1} {l2} {A} {B} f =
   Σ ( B → A)
     ( λ g → Σ ((f ∘ g) ~ id)
       ( λ G → Σ ((g ∘ f) ~ id)
-        (λ H → ((f ·l H) ~ (G ·r f)))))
+        (λ H → ((G ·r f) ~ (f ·l H)))))
+
+inv-is-coherently-invertible :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
+  is-coherently-invertible f → B → A
+inv-is-coherently-invertible = pr1
+
+issec-inv-is-coherently-invertible :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
+  (H : is-coherently-invertible f) → (f ∘ inv-is-coherently-invertible H) ~ id
+issec-inv-is-coherently-invertible H = pr1 (pr2 H)
+
+isretr-inv-is-coherently-invertible :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
+  (H : is-coherently-invertible f) → (inv-is-coherently-invertible H ∘ f) ~ id
+isretr-inv-is-coherently-invertible H = pr1 (pr2 (pr2 H))
+
+coh-inv-is-coherently-invertible :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
+  (H : is-coherently-invertible f) →
+  coherence-is-coherently-invertible f
+    ( inv-is-coherently-invertible H)
+    ( issec-inv-is-coherently-invertible H)
+    ( isretr-inv-is-coherently-invertible H)
+coh-inv-is-coherently-invertible H = pr2 (pr2 (pr2 H))
 
 {- Proposition 10.4.2 -}
 
-{- Definition 10.4.3 -}
+abstract
+  center-fib-is-coherently-invertible :
+    {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
+    is-coherently-invertible f → (y : B) → fib f y
+  center-fib-is-coherently-invertible {i} {j} {A} {B} {f} H y =
+    pair
+      ( inv-is-coherently-invertible H y)
+      ( issec-inv-is-coherently-invertible H y)
 
-{- Definition 10.4.4 -}
+  contraction-fib-is-coherently-invertible :
+    {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
+    (H : is-coherently-invertible f) → (y : B) → (t : fib f y) →
+    Id (center-fib-is-coherently-invertible H y) t
+  contraction-fib-is-coherently-invertible {f = f} H y (pair x refl) =
+    eq-Eq-fib f y
+      ( pair 
+        ( isretr-inv-is-coherently-invertible H x)
+        ( ( right-unit) ∙
+          ( inv ( coh-inv-is-coherently-invertible H x))))
+
+is-contr-map-is-coherently-invertible : 
+  {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
+  is-coherently-invertible f → is-contr-map f
+is-contr-map-is-coherently-invertible H y =
+  pair
+    ( center-fib-is-coherently-invertible H y)
+    ( contraction-fib-is-coherently-invertible H y)
+      
+{- Definition 10.4.3 -}
 
 htpy-nat :
   {i j : Level} {A : UU i} {B : UU j} {f g : A → B} (H : f ~ g)
   {x y : A} (p : Id x y) →
   Id ((H x) ∙ (ap g p)) ((ap f p) ∙ (H y))
 htpy-nat H refl = right-unit
+
+{- Definition 10.4.4 -}
 
 left-unwhisk :
   {i : Level} {A : UU i} {x y z : A} (p : Id x y) {q r : Id y z} →
@@ -295,24 +352,6 @@ htpy-red {_} {A} {f} H x =
   right-unwhisk (H x)
     ( ( ap (concat (H (f x)) x) (inv (ap-id (H x)))) ∙
       ( htpy-nat H (H x)))
-
-square :
-  {i : Level} {A : UU i} {x y1 y2 z : A}
-  (p1 : Id x y1) (q1 : Id y1 z) (p2 : Id x y2) (q2 : Id y2 z) → UU i
-square p q p' q' = Id (p ∙ q) (p' ∙ q')
-
-sq-left-whisk :
-  {i : Level} {A : UU i} {x y1 y2 z : A} {p1 p1' : Id x y1}
-  (s : Id p1 p1') {q1 : Id y1 z} {p2 : Id x y2} {q2 : Id y2 z} →
-  square p1 q1 p2 q2 → square p1' q1 p2 q2
-sq-left-whisk refl sq = sq
-
-sq-top-whisk :
-  {i : Level} {A : UU i} {x y1 y2 z : A}
-  (p1 : Id x y1) (q1 : Id y1 z)
-  (p2 : Id x y2) {p2' : Id x y2} (s : Id p2 p2') (q2 : Id y2 z) →
-  square p1 q1 p2 q2 → square p1 q1 p2' q2
-sq-top-whisk p1 q1 p2 refl q2 sq = sq
 
 {- Lemma 10.4.5 -}
 
@@ -335,19 +374,20 @@ isretr-inv-has-inverse inv-f = pr2 (pr2 inv-f)
 coherence-inv-has-inverse :
   {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
   (inv-f : has-inverse f) →
-  (f ·l (isretr-inv-has-inverse inv-f)) ~ ((issec-inv-has-inverse inv-f) ·r f)
+  ((issec-inv-has-inverse inv-f) ·r f) ~ (f ·l (isretr-inv-has-inverse inv-f))
 coherence-inv-has-inverse {f = f} (pair g (pair G H)) x =
-  inv-con
-    ( G (f (g (f x))))
-    ( ap f (H x))
-    ( (ap f (H (g (f x)))) ∙ (G (f x)))
-    ( sq-top-whisk
+  inv
+    ( inv-con
       ( G (f (g (f x))))
       ( ap f (H x))
-      ( (ap (f ∘ (g ∘ f)) (H x)))
-      ( (ap-comp f (g ∘ f) (H x)) ∙ (inv (ap (ap f) (htpy-red H x))))
-      ( G (f x))
-      ( htpy-nat (htpy-right-whisk G f) (H x)))
+      ( (ap f (H (g (f x)))) ∙ (G (f x)))
+      ( sq-top-whisk
+        ( G (f (g (f x))))
+        ( ap f (H x))
+        ( (ap (f ∘ (g ∘ f)) (H x)))
+        ( (ap-comp f (g ∘ f) (H x)) ∙ (inv (ap (ap f) (htpy-red H x))))
+        ( G (f x))
+        ( htpy-nat (htpy-right-whisk G f) (H x))))
 
 is-coherently-invertible-has-inverse :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
@@ -363,38 +403,14 @@ is-coherently-invertible-has-inverse H =
 
 {- Theorem 10.4.6 -}
 
--- Now the proof that equivalences are contractible maps really begins. Note that we have already shown that any equivalence has an inverse. Our strategy is therefore to first show that maps with inverses are contractible, and then deduce the claim about equivalences.
-
 abstract
-  center-has-inverse :
+  is-contr-map-is-equiv :
     {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
-    has-inverse f → (y : B) → fib f y
-  center-has-inverse {i} {j} {A} {B} {f} inv-f y =
-    pair
-      ( inv-has-inverse inv-f y)
-      ( issec-inv-has-inverse inv-f y)
-  
-  contraction-has-inverse :
-    {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
-    (I : has-inverse f) → (y : B) → (t : fib f y) →
-    Id (center-has-inverse I y) t
-  contraction-has-inverse {i} {j} {A} {B} {f}
-    ( pair g (pair G H)) y (pair x refl) =
-    eq-Eq-fib f y (pair 
-      ( H x)
-      ( ( right-unit) ∙
-        ( coherence-inv-has-inverse (pair g (pair G H)) x)))
-  
-  is-contr-map-has-inverse : {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
-    has-inverse f → is-contr-map f
-  is-contr-map-has-inverse inv-f y =
-    pair
-      ( center-has-inverse inv-f y)
-      ( contraction-has-inverse inv-f y)
-  
-  is-contr-map-is-equiv : {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
     is-equiv f → is-contr-map f
-  is-contr-map-is-equiv = is-contr-map-has-inverse ∘ has-inverse-is-equiv
+  is-contr-map-is-equiv =
+    is-contr-map-is-coherently-invertible ∘
+      ( is-coherently-invertible-has-inverse ∘
+        has-inverse-is-equiv)
 
 {- Corollary 10.4.7 -}
 
