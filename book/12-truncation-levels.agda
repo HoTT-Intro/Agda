@@ -109,13 +109,11 @@ abstract
       ( Σ (Σ A B) (λ t → P (pr1 t)))
       ( double-structure-swap A P B)
       ( is-equiv-double-structure-swap A P B)
-      ( is-contr-is-equiv'
+      ( is-contr-equiv'
         ( P a)
-        ( map-left-unit-law-Σ-is-contr-gen
-          ( λ t → P (pr1 t))
+        ( left-unit-law-Σ-is-contr
           ( is-contr-AB)
           ( pair a b))
-        ( is-equiv-map-left-unit-law-Σ-is-contr-gen _ is-contr-AB (pair a b))
         ( is-contr-is-prop-inh (is-subtype-P a) p))
 
 Eq-total-subtype :
@@ -527,7 +525,7 @@ abstract
     {i j : Level} (k : 𝕋) {A : UU i} (B : A → UU j) →
     ((x : A) → is-trunc k (B x)) → is-trunc-map k (pr1 {i} {j} {A} {B})
   is-trunc-pr1-is-trunc-fam k B H x =
-    is-trunc-equiv k (B x) (equiv-fib-fam-fib-pr1 B x) (H x)
+    is-trunc-equiv k (B x) (equiv-fib-pr1 B x) (H x)
 
 trunc-pr1 :
   {i j : Level} (k : 𝕋) {A : UU i} (B : A → UU-Truncated-Type k j) →
@@ -539,7 +537,7 @@ abstract
   is-trunc-fam-is-trunc-pr1 : {i j : Level} (k : 𝕋) {A : UU i} (B : A → UU j) →
     is-trunc-map k (pr1 {i} {j} {A} {B}) → ((x : A) → is-trunc k (B x))
   is-trunc-fam-is-trunc-pr1 k B is-trunc-pr1 x =
-    is-trunc-equiv k (fib pr1 x) (equiv-fib-pr1-fib-fam B x) (is-trunc-pr1 x)
+    is-trunc-equiv k (fib pr1 x) (inv-equiv-fib-pr1 B x) (is-trunc-pr1 x)
 
 abstract
   is-trunc-map-is-trunc-ap : {i j : Level} (k : 𝕋) {A : UU i} {B : UU j}
@@ -591,7 +589,7 @@ abstract
     is-subtype B → is-emb (pr1 {B = B})
   is-emb-pr1-is-subtype {B = B} H =
     is-emb-is-prop-map pr1
-      ( λ x → is-trunc-equiv neg-one-𝕋 (B x) (equiv-fib-fam-fib-pr1 _ x) (H x))
+      ( λ x → is-trunc-equiv neg-one-𝕋 (B x) (equiv-fib-pr1 B x) (H x))
 
 equiv-ap-pr1-is-subtype : {i j : Level} {A : UU i} {B : A → UU j} →
   is-subtype B → {s t : Σ A B} → Id s t ≃ Id (pr1 s) (pr1 t)
@@ -604,7 +602,7 @@ abstract
   is-subtype-is-emb-pr1 is-emb-pr1-B x =
     is-trunc-equiv neg-one-𝕋
       ( fib pr1 x)
-      ( equiv-fib-pr1-fib-fam _ x)
+      ( inv-equiv-fib-pr1 _ x)
       ( is-prop-map-is-emb pr1 is-emb-pr1-B x)
 
 abstract
@@ -665,7 +663,7 @@ eq-fib-diagonal A (pair x y) (pair z α) = (inv (ap pr1 α)) ∙ (ap pr2 α)
 fib-diagonal-eq : {l : Level} (A : UU l) (t : A × A) →
   Id (pr1 t) (pr2 t) → fib (diagonal A) t
 fib-diagonal-eq A (pair x y) β =
-  pair x (eq-pair-triv (pair refl β))
+  pair x (eq-Eq-prod (pair refl β))
 
 issec-fib-diagonal-eq : {l : Level} (A : UU l) (t : A × A) →
   ((eq-fib-diagonal A t) ∘ (fib-diagonal-eq A t)) ~ id
@@ -802,7 +800,7 @@ abstract
   is-trunc-fam-is-trunc-Σ k {B = B} is-trunc-A is-trunc-ΣAB x =
     is-trunc-equiv' k
       ( fib pr1 x)
-      ( equiv-fib-fam-fib-pr1 B x)
+      ( equiv-fib-pr1 B x)
       ( is-trunc-map-is-trunc-domain-codomain k is-trunc-ΣAB is-trunc-A x)
 
 -- Exercise 8.3
@@ -1141,8 +1139,7 @@ has-decidable-equality-Σ dA dB (pair x y) (pair x' y') with dA x x'
 ... | inl p =
   is-decidable-iff eq-pair' pair-eq
     ( is-decidable-equiv'
-      ( left-unit-law-Σ-is-contr-gen
-        ( λ α → Id (tr _ α y) y')
+      ( left-unit-law-Σ-is-contr
         ( is-contr-is-prop-inh
           ( is-set-has-decidable-equality dA x x') p)
         ( p))

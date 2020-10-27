@@ -718,7 +718,7 @@ abstract
   is-contr-Σ {A = A} {B = B} is-contr-A is-contr-B =
     is-contr-equiv'
       ( B (center is-contr-A))
-      ( left-unit-law-Σ-is-contr B is-contr-A)
+      ( left-unit-law-Σ-is-contr is-contr-A (center is-contr-A))
       ( is-contr-B (center is-contr-A))
 
 abstract
@@ -726,10 +726,9 @@ abstract
     {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
     is-contr A → (a : A) → is-contr (B a) → is-contr (Σ A B)
   is-contr-Σ' {A = A} {B} is-contr-A a is-contr-B =
-    is-contr-is-equiv'
+    is-contr-equiv'
       ( B a)
-      ( map-left-unit-law-Σ-is-contr-gen B is-contr-A a)
-      ( is-equiv-map-left-unit-law-Σ-is-contr-gen B is-contr-A a)
+      ( left-unit-law-Σ-is-contr is-contr-A a)
       ( is-contr-B)
 
 abstract

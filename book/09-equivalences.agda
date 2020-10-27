@@ -1331,15 +1331,10 @@ Eq-prod s t = (Id (pr1 s) (pr1 t)) × (Id (pr2 s) (pr2 t))
 {- We also define a function eq-pair-triv, which is like eq-pair but simplified 
    for the case where B is just a type. -}
 
-eq-pair-triv' :
-  {i j : Level} {A : UU i} {B : UU j} (s t : prod A B) →
-  Eq-prod s t → Id s t
-eq-pair-triv' (pair x y) (pair .x .y) (pair refl refl) = refl
-
-eq-pair-triv :
+eq-Eq-prod :
   {i j : Level} {A : UU i} {B : UU j} {s t : prod A B} →
   Eq-prod s t → Id s t
-eq-pair-triv {s = s} {t} = eq-pair-triv' s t
+eq-Eq-prod {s = pair x y} {pair .x .y} (pair refl refl) = refl
 
 {- Ideally, we would use the 3-for-2 property of equivalences to show that 
    eq-pair-triv is an equivalence, using that eq-pair is an equivalence. 
@@ -1354,30 +1349,30 @@ eq-pair-triv {s = s} {t} = eq-pair-triv' s t
    Thus it seems that a direct proof showing that eq-pair-triv is an 
    equivalence is quickest for now. -}
 
-pair-eq-triv' :
-  {i j : Level} {A : UU i} {B : UU j} (s t : prod A B) →
+Eq-prod-eq :
+  {i j : Level} {A : UU i} {B : UU j} {s t : prod A B} →
   Id s t → Eq-prod s t
-pair-eq-triv' s t α = pair (ap pr1 α) (ap pr2 α)
+Eq-prod-eq α = pair (ap pr1 α) (ap pr2 α)
 
-isretr-pair-eq-triv' :
-  {i j : Level} {A : UU i} {B : UU j} (s t : prod A B) →
-  ((pair-eq-triv' s t) ∘ (eq-pair-triv' s t)) ~ id
-isretr-pair-eq-triv' (pair x y) (pair .x .y) (pair refl refl) = refl
+isretr-Eq-prod-eq :
+  {i j : Level} {A : UU i} {B : UU j} {s t : prod A B} →
+  ((Eq-prod-eq {s = s} {t}) ∘ (eq-Eq-prod {s = s} {t})) ~ id
+isretr-Eq-prod-eq {s = pair x y} {pair .x .y} (pair refl refl) = refl
 
-issec-pair-eq-triv' :
-  {i j : Level} {A : UU i} {B : UU j} (s t : prod A B) →
-  ((eq-pair-triv' s t) ∘ (pair-eq-triv' s t)) ~ id
-issec-pair-eq-triv' (pair x y) (pair .x .y) refl = refl
+issec-Eq-prod-eq :
+  {i j : Level} {A : UU i} {B : UU j} {s t : prod A B} →
+  ((eq-Eq-prod {s = s} {t}) ∘ (Eq-prod-eq {s = s} {t})) ~ id
+issec-Eq-prod-eq {s = pair x y} {pair .x .y} refl = refl
 
 abstract
-  is-equiv-eq-pair-triv' :
+  is-equiv-eq-Eq-prod :
     {i j : Level} {A : UU i} {B : UU j} (s t : prod A B) →
-    is-equiv (eq-pair-triv' s t)
-  is-equiv-eq-pair-triv' s t =
+    is-equiv (eq-Eq-prod {s = s} {t})
+  is-equiv-eq-Eq-prod s t =
     is-equiv-has-inverse
-      ( pair-eq-triv' s t)
-      ( issec-pair-eq-triv' s t)
-      ( isretr-pair-eq-triv' s t)
+      ( Eq-prod-eq)
+      ( issec-Eq-prod-eq)
+      ( isretr-Eq-prod-eq)
       
 --------------------------------------------------------------------------------
 
@@ -2363,7 +2358,7 @@ htpy-map-prod :
   {f f' : A → C} (H : f ~ f') {g g' : B → D} (K : g ~ g') →
   map-prod f g ~ map-prod f' g'
 htpy-map-prod {f = f} {f'} H {g} {g'} K (pair a b) =
-  eq-pair-triv (pair (H a) (K b))
+  eq-Eq-prod (pair (H a) (K b))
 
 abstract
   is-equiv-map-prod :

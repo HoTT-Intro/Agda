@@ -590,9 +590,10 @@ triangle-is-invertible-id-htpy-id-id :
   {l : Level} (A : UU l) →
   ( is-invertible-id-htpy-id-id A) ~
     ( ( map-assoc-Σ (A → A) (λ g → (id ∘ g) ~ id) (λ s → ((pr1 s) ∘ id) ~ id)) ∘
-      ( map-left-unit-law-Σ-is-contr-gen
-        ( λ s → ((pr1 s) ∘ id) ~ id)
-        ( is-contr-sec-is-equiv (is-equiv-id {_} {A})) (pair id refl-htpy)))
+      ( map-left-unit-law-Σ-is-contr
+        { B = λ s → ((pr1 s) ∘ id) ~ id}
+        ( is-contr-sec-is-equiv (is-equiv-id {_} {A}))
+        ( pair id refl-htpy)))
 triangle-is-invertible-id-htpy-id-id A H = refl
 
 abstract
@@ -602,13 +603,11 @@ abstract
     is-equiv-comp
       ( is-invertible-id-htpy-id-id A)
       ( map-assoc-Σ (A → A) (λ g → (id ∘ g) ~ id) (λ s → ((pr1 s) ∘ id) ~ id))
-      ( map-left-unit-law-Σ-is-contr-gen
-        ( λ s → ((pr1 s) ∘ id) ~ id)
+      ( map-left-unit-law-Σ-is-contr
         ( is-contr-sec-is-equiv is-equiv-id)
         ( pair id refl-htpy))
       ( triangle-is-invertible-id-htpy-id-id A)
-      ( is-equiv-map-left-unit-law-Σ-is-contr-gen
-        ( λ s → ((pr1 s) ∘ id) ~ id)
+      ( is-equiv-map-left-unit-law-Σ-is-contr
         ( is-contr-sec-is-equiv is-equiv-id)
         ( pair id refl-htpy))
       ( is-equiv-map-assoc-Σ _ _ _)
@@ -765,7 +764,7 @@ abstract
   dependent-universal-property-coprod P =
     is-equiv-has-inverse
       ( λ p → ind-coprod P (pr1 p) (pr2 p))
-      ( ind-Σ (λ f g → eq-pair-triv (pair refl refl)))
+      ( ind-Σ (λ f g → eq-Eq-prod (pair refl refl)))
       ( λ s → eq-htpy (ind-coprod _ (λ x → refl) λ y → refl))
 
 equiv-dependent-universal-property-coprod :
@@ -1494,7 +1493,6 @@ abstract
     is-equiv-tot-is-fiberwise-equiv
       ( λ g → is-equiv-tot-is-fiberwise-equiv
         ( λ G → is-equiv-pr1-is-contr
-          ( coherence-is-coherently-invertible f g G)
           ( λ H → is-contr-Π
             ( λ x → is-set-B _ _ (G (f x)) (ap f (H x))))))
 

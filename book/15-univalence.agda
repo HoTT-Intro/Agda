@@ -517,7 +517,7 @@ issec-map-universal-property-bool :
   {l : Level} {A : UU l} →
   ((ev-true-false A) ∘ map-universal-property-bool) ~ id
 issec-map-universal-property-bool (pair x y) =
-  eq-pair-triv (pair refl refl)
+  eq-Eq-prod (pair refl refl)
 
 isretr-map-universal-property-bool' :
   {l : Level} {A : UU l} (f : bool → A) →
