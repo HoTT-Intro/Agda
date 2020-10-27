@@ -174,6 +174,15 @@ count-Σ :
 count-Σ (pair k e) f =
   pair (number-of-elements (count-Σ' k e f)) (equiv-count-Σ' k e f)
 
+count-fiber-count-Σ :
+  {l1 l2 : Level} {X : UU l1} {P : X → UU l2} →
+  count X → count (Σ X P) → (x : X) → count (P x)
+count-fiber-count-Σ {P = P} e f x =
+  count-equiv
+    ( equiv-fib-pr1 P x)
+    ( count-Σ f
+      ( λ z → count-eq (has-decidable-equality-count e))) 
+
 {- A coproduct X + Y has a count if and only if both X and Y have a count -}
 
 is-left : {l1 l2 : Level} {X : UU l1} {Y : UU l2} → coprod X Y → UU lzero
@@ -297,12 +306,8 @@ is-decidable-count (pair zero-ℕ e) =
 is-decidable-count (pair (succ-ℕ k) e) =
   inl (map-equiv e zero-Fin)
 
-count-fiber-count-Σ :
-  {l1 l2 : Level} {X : UU l1} {P : X → UU l2} →
-  count X → count (Σ X P) → (x : X) → count (P x)
-count-fiber-count-Σ e f x = {!!}
-
 is-decidable-count-Σ :
   {l1 l2 : Level} {X : UU l1} {P : X → UU l2} →
   count X → count (Σ X P) → (x : X) → is-decidable (P x)
-is-decidable-count-Σ e f x = {!is-decidable-count!}
+is-decidable-count-Σ e f x =
+  is-decidable-count (count-fiber-count-Σ e f x)
