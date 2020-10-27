@@ -1225,8 +1225,8 @@ fib-triangle f g h H .(f a) (pair a refl) = pair (h a) (inv (H a))
 square-tot-fib-triangle :
   {i j k : Level} {X : UU i} {A : UU j} {B : UU k}
   (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) →
-  (h ∘ (Σ-fib-to-domain f)) ~
-  ((Σ-fib-to-domain g) ∘ (tot (fib-triangle f g h H)))
+  (h ∘ (map-equiv-total-fib f)) ~
+  ((map-equiv-total-fib g) ∘ (tot (fib-triangle f g h H)))
 square-tot-fib-triangle f g h H (pair .(f a) (pair a refl)) = refl
 
 abstract
@@ -1238,13 +1238,13 @@ abstract
     is-fiberwise-equiv-is-equiv-tot
       ( fib-triangle f g h H)
       ( is-equiv-top-is-equiv-bottom-square
-        ( Σ-fib-to-domain f)
-        ( Σ-fib-to-domain g)
+        ( map-equiv-total-fib f)
+        ( map-equiv-total-fib g)
         ( tot (fib-triangle f g h H))
         ( h)
         ( square-tot-fib-triangle f g h H)
-        ( is-equiv-Σ-fib-to-domain f)
-        ( is-equiv-Σ-fib-to-domain g)
+        ( is-equiv-map-equiv-total-fib f)
+        ( is-equiv-map-equiv-total-fib g)
         ( E))
 
 abstract
@@ -1254,13 +1254,13 @@ abstract
     (E : is-fiberwise-equiv (fib-triangle f g h H)) → is-equiv h
   is-equiv-triangle-is-fiberwise-equiv f g h H E =
     is-equiv-bottom-is-equiv-top-square
-      ( Σ-fib-to-domain f)
-      ( Σ-fib-to-domain g)
+      ( map-equiv-total-fib f)
+      ( map-equiv-total-fib g)
       ( tot (fib-triangle f g h H))
       ( h)
       ( square-tot-fib-triangle f g h H)
-      ( is-equiv-Σ-fib-to-domain f)
-      ( is-equiv-Σ-fib-to-domain g)
+      ( is-equiv-map-equiv-total-fib f)
+      ( is-equiv-map-equiv-total-fib g)
       ( is-equiv-tot-is-fiberwise-equiv E)
 
 --------------------------------------------------------------------------------

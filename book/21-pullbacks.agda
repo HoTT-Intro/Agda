@@ -787,8 +787,8 @@ abstract
       ( gap f g (cone-total-prod-fibers f g))
       ( gap f g
         (cone-span f g
-          ( Σ-fib-to-domain f)
-          ( Σ-fib-to-domain g)
+          ( map-equiv-total-fib f)
+          ( map-equiv-total-fib g)
           ( λ s t α → (pr2 (pr2 s)) ∙ (α ∙ (inv (pr2 (pr2 t)))))))
       ( gap
         ( pr1 {B = fib f})
@@ -797,11 +797,11 @@ abstract
       ( λ t → refl)
       ( is-pullback-fiberwise-prod (fib f) (fib g))
       ( is-pullback-cone-span-is-equiv f g
-        ( Σ-fib-to-domain f)
-        ( Σ-fib-to-domain g)
+        ( map-equiv-total-fib f)
+        ( map-equiv-total-fib g)
         ( λ s t α → (pr2 (pr2 s)) ∙ (α ∙ (inv (pr2 (pr2 t)))))
-        ( is-equiv-Σ-fib-to-domain f)
-        ( is-equiv-Σ-fib-to-domain g)
+        ( is-equiv-map-equiv-total-fib f)
+        ( is-equiv-map-equiv-total-fib g)
         ( λ s t → is-equiv-comp _
           ( concat (pr2 (pr2 s)) (g (pr1 (pr2 t))))
           ( concat' (pr1 s) (inv (pr2 (pr2 t))))
@@ -971,7 +971,7 @@ fib-square-id g .(g b) (pair b refl) =
 square-tot-fib-square :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {X : UU l4}
   (f : A → X) (g : B → X) (c : cone f g C) →
-  ( (gap f g c) ∘ (Σ-fib-to-domain (pr1 c))) ~
+  ( (gap f g c) ∘ (map-equiv-total-fib (pr1 c))) ~
   ( (tot (λ a → tot (λ b → inv))) ∘ (tot (fib-square f g c)))
 square-tot-fib-square f g c (pair .((pr1 c) x) (pair x refl)) =
   let p = pr1 c
@@ -995,12 +995,12 @@ abstract
     is-fiberwise-equiv-is-equiv-tot
       ( fib-square f g c)
       ( is-equiv-top-is-equiv-bottom-square
-        ( Σ-fib-to-domain p)
+        ( map-equiv-total-fib p)
         ( tot (λ x → tot (λ y → inv)))
         ( tot (fib-square f g c))
         ( gap f g c)
         ( square-tot-fib-square f g c)
-        ( is-equiv-Σ-fib-to-domain p)
+        ( is-equiv-map-equiv-total-fib p)
         ( is-equiv-tot-is-fiberwise-equiv
           ( λ x → is-equiv-tot-is-fiberwise-equiv
             ( λ y → is-equiv-inv (g y) (f x))))
@@ -1017,12 +1017,12 @@ abstract
         H = pr2 (pr2 c)
     in
     is-equiv-bottom-is-equiv-top-square
-      ( Σ-fib-to-domain p)
+      ( map-equiv-total-fib p)
       ( tot (λ x → tot (λ y → inv)))
       ( tot (fib-square f g c))
       ( gap f g c)
       ( square-tot-fib-square f g c)
-      ( is-equiv-Σ-fib-to-domain p)
+      ( is-equiv-map-equiv-total-fib p)
       ( is-equiv-tot-is-fiberwise-equiv
         ( λ x → is-equiv-tot-is-fiberwise-equiv
           ( λ y → is-equiv-inv (g y) (f x))))

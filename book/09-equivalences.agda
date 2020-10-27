@@ -1374,12 +1374,28 @@ abstract
     {i j : Level} {A : UU i} {B : UU j} (s t : prod A B) →
     is-equiv (eq-pair' {s = s} {t})
   is-equiv-eq-pair s t =
-    is-equiv-has-inverse
-      ( pair-eq)
-      ( issec-pair-eq)
-      ( isretr-pair-eq)
-      
+    is-equiv-has-inverse pair-eq issec-pair-eq isretr-pair-eq
+
+equiv-eq-pair :
+  {i j : Level} {A : UU i} {B : UU j} (s t : prod A B) →
+  Eq-prod s t ≃ Id s t
+equiv-eq-pair s t = pair eq-pair' (is-equiv-eq-pair s t)
+
+abstract
+  is-equiv-pair-eq :
+    {i j : Level} {A : UU i} {B : UU j} (s t : A × B) →
+    is-equiv (pair-eq {s = s} {t})
+  is-equiv-pair-eq s t =
+    is-equiv-has-inverse eq-pair' isretr-pair-eq issec-pair-eq
+
+equiv-pair-eq :
+  {i j : Level} {A : UU i} {B : UU j} (s t : A × B) →
+  Id s t ≃ Eq-prod s t
+equiv-pair-eq s t = pair pair-eq (is-equiv-pair-eq s t)
+
 --------------------------------------------------------------------------------
+
+-- Section 9.4 Counting in type theory
 
 -- The Maybe modality
 Maybe : {l : Level} → UU l → UU l

@@ -808,40 +808,54 @@ is-contr-fam-is-equiv-map-section b H =
 
 -- In this exercise we show that the domain of a map is equivalent to the total space of its fibers.
 
-Σ-fib-to-domain :
-  {i j : Level} {A : UU i} {B : UU j} (f : A → B ) → (Σ B (fib f)) → A
-Σ-fib-to-domain f t = pr1 (pr2 t)
+map-equiv-total-fib :
+  {i j : Level} {A : UU i} {B : UU j} (f : A → B) → (Σ B (fib f)) → A
+map-equiv-total-fib f t = pr1 (pr2 t)
 
-triangle-Σ-fib-to-domain :
-  {i j : Level} {A : UU i} {B : UU j} (f : A → B ) →
-  pr1 ~ (f ∘ (Σ-fib-to-domain f))
-triangle-Σ-fib-to-domain f t = inv (pr2 (pr2 t))
+triangle-map-equiv-total-fib :
+  {i j : Level} {A : UU i} {B : UU j} (f : A → B) →
+  pr1 ~ (f ∘ (map-equiv-total-fib f))
+triangle-map-equiv-total-fib f t = inv (pr2 (pr2 t))
 
-domain-to-Σ-fib :
+map-inv-equiv-total-fib :
   {i j : Level} {A : UU i} {B : UU j} (f : A → B) → A → Σ B (fib f)
-domain-to-Σ-fib f x = pair (f x) (pair x refl)
+map-inv-equiv-total-fib f x = pair (f x) (pair x refl)
 
-left-inverse-domain-to-Σ-fib :
-  {i j : Level} {A : UU i} {B : UU j} (f : A → B ) →
-  ((domain-to-Σ-fib f) ∘ (Σ-fib-to-domain f)) ~ id
-left-inverse-domain-to-Σ-fib f (pair .(f x) (pair x refl)) = refl
+isretr-map-inv-equiv-total-fib :
+  {i j : Level} {A : UU i} {B : UU j} (f : A → B) →
+  ((map-inv-equiv-total-fib f) ∘ (map-equiv-total-fib f)) ~ id
+isretr-map-inv-equiv-total-fib f (pair .(f x) (pair x refl)) = refl
 
-right-inverse-domain-to-Σ-fib :
-  {i j : Level} {A : UU i} {B : UU j} (f : A → B ) →
-  ((Σ-fib-to-domain f) ∘ (domain-to-Σ-fib f)) ~ id
-right-inverse-domain-to-Σ-fib f x = refl
+issec-map-inv-equiv-total-fib :
+  {i j : Level} {A : UU i} {B : UU j} (f : A → B) →
+  ((map-equiv-total-fib f) ∘ (map-inv-equiv-total-fib f)) ~ id
+issec-map-inv-equiv-total-fib f x = refl
 
 abstract
-  is-equiv-Σ-fib-to-domain :
-    {i j : Level} {A : UU i} {B : UU j} (f : A → B ) →
-    is-equiv (Σ-fib-to-domain f)
-  is-equiv-Σ-fib-to-domain f =
+  is-equiv-map-equiv-total-fib :
+    {i j : Level} {A : UU i} {B : UU j} (f : A → B) →
+    is-equiv (map-equiv-total-fib f)
+  is-equiv-map-equiv-total-fib f =
     is-equiv-has-inverse
-      ( domain-to-Σ-fib f)
-      ( right-inverse-domain-to-Σ-fib f)
-      ( left-inverse-domain-to-Σ-fib f)
+      ( map-inv-equiv-total-fib f)
+      ( issec-map-inv-equiv-total-fib f)
+      ( isretr-map-inv-equiv-total-fib f)
 
-equiv-Σ-fib-to-domain :
+  is-equiv-map-inv-equiv-total-fib :
+    {i j : Level} {A : UU i} {B : UU j} (f : A → B) →
+    is-equiv (map-inv-equiv-total-fib f)
+  is-equiv-map-inv-equiv-total-fib f =
+    is-equiv-has-inverse
+      ( map-equiv-total-fib f)
+      ( isretr-map-inv-equiv-total-fib f)
+      ( issec-map-inv-equiv-total-fib f)
+
+equiv-total-fib :
   {i j : Level} {A : UU i} {B : UU j} (f : A → B ) → Σ B (fib f) ≃ A
-equiv-Σ-fib-to-domain f =
-  pair (Σ-fib-to-domain f) (is-equiv-Σ-fib-to-domain f)
+equiv-total-fib f =
+  pair (map-equiv-total-fib f) (is-equiv-map-equiv-total-fib f)
+
+inv-equiv-total-fib :
+  {i j : Level} {A : UU i} {B : UU j} (f : A → B) → A ≃ Σ B (fib f)
+inv-equiv-total-fib f =
+  pair (map-inv-equiv-total-fib f) (is-equiv-map-inv-equiv-total-fib f)
