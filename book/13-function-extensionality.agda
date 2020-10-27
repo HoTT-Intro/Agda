@@ -101,7 +101,7 @@ abstract
         ( pair
           ( λ t x → pair (pr1 t x) (pr2 t x))
           ( pair (λ t → pair (λ x → pr1 (t x)) (λ x → pr2 (t x)))
-          ( λ t → eq-pair refl refl)))
+          ( λ t → eq-pair-Σ refl refl)))
         ( weak-funext A
           ( λ x → Σ (B x) (λ b → Id (f x) b))
           ( λ x → is-contr-total-path (f x))))
@@ -605,7 +605,7 @@ isretr-inv-choice-∞ :
   ( ( inv-choice-∞ {A = A} {B = B} {C = C}) ∘
     ( choice-∞ {A = A} {B = B} {C = C})) ~ id
 isretr-inv-choice-∞ φ =
-  eq-htpy (λ x → eq-pair refl refl)
+  eq-htpy (λ x → eq-pair-Σ refl refl)
 
 abstract
   is-equiv-choice-∞ :

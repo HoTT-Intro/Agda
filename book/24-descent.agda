@@ -355,7 +355,7 @@ triangle-dependent-pullback-property-pushout :
       ( λ (h : (b : B) → P (j b)) → λ s → h (g s))
       ( cone-dependent-pullback-property-pushout f g c P)))
 triangle-dependent-pullback-property-pushout f g (pair i (pair j H)) P h =
-  eq-pair refl (eq-pair refl (inv (issec-eq-htpy (λ x → apd h (H x)))))
+  eq-pair-Σ refl (eq-pair-Σ refl (inv (issec-eq-htpy (λ x → apd h (H x)))))
 
 dependent-pullback-property-dependent-universal-property-pushout :
   {l1 l2 l3 l4 : Level} {S : UU l1} {A : UU l2} {B : UU l3}
@@ -683,8 +683,8 @@ compute-htpy-precompose-total-lifts :
 compute-htpy-precompose-total-lifts {A = A} P f (pair h h') =
   let α = λ (t : Id (h ∘ f) (h ∘ f)) → tr (fam-lifts A P) t (λ a → h' (f a))
   in
-  ap eq-pair'
-    ( eq-pair
+  ap eq-pair-Σ'
+    ( eq-pair-Σ
       ( eq-htpy-refl-htpy (h ∘ f))
       ( ( tr-id-left-subst
           { f = α}

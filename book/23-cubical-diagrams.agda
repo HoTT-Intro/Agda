@@ -835,7 +835,7 @@ htpy-map-Σ :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {P : A → UU l3} (Q : B → UU l4)
   {f f' : A → B} (H : f ~ f') (g : (x : A) → P x → Q (f x)) {g' : (x : A) → P x → Q (f' x)} (K : (x : A) → ((tr Q (H x)) ∘ (g x)) ~ (g' x)) →
   (map-Σ Q f g) ~ (map-Σ Q f' g')
-htpy-map-Σ Q H g K t = eq-pair (H (pr1 t)) (K (pr1 t) (pr2 t))
+htpy-map-Σ Q H g K t = eq-pair-Σ (H (pr1 t)) (K (pr1 t) (pr2 t))
 
 tot-cone-cone-family :
   {l1 l2 l3 l4 l5 l6 l7 l8 : Level}
@@ -913,7 +913,7 @@ map-canonical-pullback-tot-cone-cone-family :
 map-canonical-pullback-tot-cone-cone-family
   {X = X} {A} {B} {C} PX {PA} {PB} {PC} {f} {g} f' g' c c' =
   ( tot (λ aa' →
-    ( tot (λ bb' → eq-pair')) ∘
+    ( tot (λ bb' → eq-pair-Σ')) ∘
     ( map-canpb-tot-cone-cone-fam-left-factor PX f' g' c c' aa'))) ∘
   ( map-canpb-tot-cone-cone-fam-right-factor PX f' g' c c')
   
@@ -930,7 +930,7 @@ is-equiv-map-canonical-pullback-tot-cone-cone-family
   is-equiv-comp
     ( map-canonical-pullback-tot-cone-cone-family PX f' g' c c')
     ( tot (λ aa' →
-      ( tot (λ bb' → eq-pair')) ∘
+      ( tot (λ bb' → eq-pair-Σ')) ∘
       ( map-canpb-tot-cone-cone-fam-left-factor PX f' g' c c' aa')))
     ( map-canpb-tot-cone-cone-fam-right-factor PX f' g' c c')
     ( refl-htpy)
@@ -940,13 +940,13 @@ is-equiv-map-canonical-pullback-tot-cone-cone-family
       ( λ a bα a' → Σ (PB (pr1 bα))
         ( λ b' → Id (tr PX (pr2 bα) (f' a a')) (g' (pr1 bα) b'))))
     ( is-equiv-tot-is-fiberwise-equiv (λ aa' → is-equiv-comp
-      ( ( tot (λ bb' → eq-pair')) ∘
+      ( ( tot (λ bb' → eq-pair-Σ')) ∘
         ( map-canpb-tot-cone-cone-fam-left-factor PX f' g' c c' aa'))
-      ( tot (λ bb' → eq-pair'))
+      ( tot (λ bb' → eq-pair-Σ'))
       ( map-canpb-tot-cone-cone-fam-left-factor PX f' g' c c' aa')
       ( refl-htpy)
       ( is-equiv-swap-total-Eq-structure _ _ _)
-      ( is-equiv-tot-is-fiberwise-equiv (λ bb' → is-equiv-eq-pair
+      ( is-equiv-tot-is-fiberwise-equiv (λ bb' → is-equiv-eq-pair-Σ
         ( pair (f (pr1 aa')) (f' (pr1 aa') (pr2 aa')))
         ( pair (g (pr1 bb')) (g' (pr1 bb') (pr2 bb')))))))
 
@@ -1167,7 +1167,7 @@ square-fib-cube :
 square-fib-cube f g h k f' g' h' k' hA hB hC hD
   top back-left back-right front-left front-right bottom c
   .(hA a') (pair a' refl) =
-  eq-pair
+  eq-pair-Σ
     ( pair
       ( top a')
       ( ( tr-id-left-subst

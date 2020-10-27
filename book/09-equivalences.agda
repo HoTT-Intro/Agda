@@ -1270,57 +1270,57 @@ reflexive-Eq-Σ (pair a b) = pair refl refl
 
 -- Definition 9.3.3
 
-pair-eq :
+pair-eq-Σ :
   {i j : Level} {A : UU i} {B : A → UU j} {s t : Σ A B} →
   (Id s t) → Eq-Σ s t
-pair-eq {s = s} refl = reflexive-Eq-Σ s
+pair-eq-Σ {s = s} refl = reflexive-Eq-Σ s
 
 -- Theorem 9.3.4
 
-eq-pair :
+eq-pair-Σ :
   {i j : Level} {A : UU i} {B : A → UU j} {s t : Σ A B} →
   (α : Id (pr1 s) (pr1 t)) → Id (tr B α (pr2 s)) (pr2 t) → Id s t
-eq-pair {B = B} {pair x y} {pair .x .y} refl refl = refl
+eq-pair-Σ {B = B} {pair x y} {pair .x .y} refl refl = refl
 
-eq-pair' :
+eq-pair-Σ' :
   {i j : Level} {A : UU i} {B : A → UU j} {s t : Σ A B} →
   Eq-Σ s t → Id s t
-eq-pair' (pair α β) = eq-pair α β
+eq-pair-Σ' (pair α β) = eq-pair-Σ α β
 
-isretr-pair-eq :
+isretr-pair-eq-Σ :
   {i j : Level} {A : UU i} {B : A → UU j} (s t : Σ A B) →
-  ((pair-eq {s = s} {t}) ∘ (eq-pair' {s = s} {t})) ~ id {A = Eq-Σ s t}
-isretr-pair-eq (pair x y) (pair .x .y) (pair refl refl) = refl
+  ((pair-eq-Σ {s = s} {t}) ∘ (eq-pair-Σ' {s = s} {t})) ~ id {A = Eq-Σ s t}
+isretr-pair-eq-Σ (pair x y) (pair .x .y) (pair refl refl) = refl
 
-issec-pair-eq :
+issec-pair-eq-Σ :
   {i j : Level} {A : UU i} {B : A → UU j} (s t : Σ A B) →
-  ((eq-pair' {s = s} {t}) ∘ (pair-eq {s = s} {t})) ~ id
-issec-pair-eq (pair x y) .(pair x y) refl = refl
+  ((eq-pair-Σ' {s = s} {t}) ∘ (pair-eq-Σ {s = s} {t})) ~ id
+issec-pair-eq-Σ (pair x y) .(pair x y) refl = refl
 
 abstract
-  is-equiv-eq-pair :
+  is-equiv-eq-pair-Σ :
     {i j : Level} {A : UU i} {B : A → UU j} (s t : Σ A B) →
-    is-equiv (eq-pair' {s = s} {t})
-  is-equiv-eq-pair s t =
+    is-equiv (eq-pair-Σ' {s = s} {t})
+  is-equiv-eq-pair-Σ s t =
     is-equiv-has-inverse
-      ( pair-eq)
-      ( issec-pair-eq s t)
-      ( isretr-pair-eq s t)
+      ( pair-eq-Σ)
+      ( issec-pair-eq-Σ s t)
+      ( isretr-pair-eq-Σ s t)
 
 abstract
-  is-equiv-pair-eq :
+  is-equiv-pair-eq-Σ :
     {i j : Level} {A : UU i} {B : A → UU j} (s t : Σ A B) →
-    is-equiv (pair-eq {s = s} {t})
-  is-equiv-pair-eq s t =
+    is-equiv (pair-eq-Σ {s = s} {t})
+  is-equiv-pair-eq-Σ s t =
     is-equiv-has-inverse
-      ( eq-pair')
-      ( isretr-pair-eq s t)
-      ( issec-pair-eq s t)
+      ( eq-pair-Σ')
+      ( isretr-pair-eq-Σ s t)
+      ( issec-pair-eq-Σ s t)
 
 η-pair :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (t : Σ A B) →
   Id (pair (pr1 t) (pr2 t)) t
-η-pair t = eq-pair refl refl
+η-pair t = eq-pair-Σ refl refl
 
 {- For our convenience, we repeat the above argument for cartesian products. -}
 
@@ -1328,16 +1328,21 @@ Eq-prod :
   {i j : Level} {A : UU i} {B : UU j} (s t : A × B) → UU (i ⊔ j)
 Eq-prod s t = (Id (pr1 s) (pr1 t)) × (Id (pr2 s) (pr2 t))
 
-{- We also define a function eq-pair-triv, which is like eq-pair but simplified 
+{- We also define a function eq-pair-Σ-triv, which is like eq-pair-Σ but simplified 
    for the case where B is just a type. -}
 
-eq-Eq-prod :
+eq-pair' :
   {i j : Level} {A : UU i} {B : UU j} {s t : prod A B} →
   Eq-prod s t → Id s t
-eq-Eq-prod {s = pair x y} {pair .x .y} (pair refl refl) = refl
+eq-pair' {s = pair x y} {pair .x .y} (pair refl refl) = refl
+
+eq-pair :
+  {i j : Level} {A : UU i} {B : UU j} {s t : prod A B} →
+  Id (pr1 s) (pr1 t) → Id (pr2 s) (pr2 t) → Id s t
+eq-pair p q = eq-pair' (pair p q)
 
 {- Ideally, we would use the 3-for-2 property of equivalences to show that 
-   eq-pair-triv is an equivalence, using that eq-pair is an equivalence. 
+   eq-pair-triv is an equivalence, using that eq-pair-Σ is an equivalence. 
    Indeed, there is an equivalence 
    
      (Id x x') × (Id y y') → Σ (Id x x') (λ p → Id (tr (λ x → B) p y) y'). 
@@ -1349,30 +1354,30 @@ eq-Eq-prod {s = pair x y} {pair .x .y} (pair refl refl) = refl
    Thus it seems that a direct proof showing that eq-pair-triv is an 
    equivalence is quickest for now. -}
 
-Eq-prod-eq :
+pair-eq :
   {i j : Level} {A : UU i} {B : UU j} {s t : prod A B} →
   Id s t → Eq-prod s t
-Eq-prod-eq α = pair (ap pr1 α) (ap pr2 α)
+pair-eq α = pair (ap pr1 α) (ap pr2 α)
 
-isretr-Eq-prod-eq :
+isretr-pair-eq :
   {i j : Level} {A : UU i} {B : UU j} {s t : prod A B} →
-  ((Eq-prod-eq {s = s} {t}) ∘ (eq-Eq-prod {s = s} {t})) ~ id
-isretr-Eq-prod-eq {s = pair x y} {pair .x .y} (pair refl refl) = refl
+  ((pair-eq {s = s} {t}) ∘ (eq-pair' {s = s} {t})) ~ id
+isretr-pair-eq {s = pair x y} {pair .x .y} (pair refl refl) = refl
 
-issec-Eq-prod-eq :
+issec-pair-eq :
   {i j : Level} {A : UU i} {B : UU j} {s t : prod A B} →
-  ((eq-Eq-prod {s = s} {t}) ∘ (Eq-prod-eq {s = s} {t})) ~ id
-issec-Eq-prod-eq {s = pair x y} {pair .x .y} refl = refl
+  ((eq-pair' {s = s} {t}) ∘ (pair-eq {s = s} {t})) ~ id
+issec-pair-eq {s = pair x y} {pair .x .y} refl = refl
 
 abstract
-  is-equiv-eq-Eq-prod :
+  is-equiv-eq-pair :
     {i j : Level} {A : UU i} {B : UU j} (s t : prod A B) →
-    is-equiv (eq-Eq-prod {s = s} {t})
-  is-equiv-eq-Eq-prod s t =
+    is-equiv (eq-pair' {s = s} {t})
+  is-equiv-eq-pair s t =
     is-equiv-has-inverse
-      ( Eq-prod-eq)
-      ( issec-Eq-prod-eq)
-      ( isretr-Eq-prod-eq)
+      ( pair-eq)
+      ( issec-pair-eq)
+      ( isretr-pair-eq)
       
 --------------------------------------------------------------------------------
 
@@ -2358,7 +2363,7 @@ htpy-map-prod :
   {f f' : A → C} (H : f ~ f') {g g' : B → D} (K : g ~ g') →
   map-prod f g ~ map-prod f' g'
 htpy-map-prod {f = f} {f'} H {g} {g'} K (pair a b) =
-  eq-Eq-prod (pair (H a) (K b))
+  eq-pair (H a) (K b)
 
 abstract
   is-equiv-map-prod :

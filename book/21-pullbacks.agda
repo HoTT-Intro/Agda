@@ -640,7 +640,7 @@ isretr-inv-gap-prod :
   ( ( inv-gap-prod A B) ∘
     ( gap (const A unit star) (const B unit star) (cone-prod A B))) ~ id
 isretr-inv-gap-prod A B (pair a b) =
-  eq-pair refl refl
+  eq-pair-Σ refl refl
 
 abstract
   is-pullback-prod :
@@ -695,7 +695,7 @@ issec-inv-gap-fiberwise-prod :
   ((gap (pr1 {B = P}) (pr1 {B = Q}) (cone-fiberwise-prod P Q)) ∘
   (inv-gap-fiberwise-prod P Q)) ~ id
 issec-inv-gap-fiberwise-prod P Q (pair (pair x p) (pair (pair .x q) refl)) =
-  eq-pair refl (eq-pair refl refl)
+  eq-pair-Σ refl (eq-pair-Σ refl refl)
 
 isretr-inv-gap-fiberwise-prod :
   {l1 l2 l3 : Level} {X : UU l1} (P : X → UU l2) (Q : X → UU l3) →
@@ -978,8 +978,8 @@ square-tot-fib-square f g c (pair .((pr1 c) x) (pair x refl)) =
       q = pr1 (pr2 c)
       H = pr2 (pr2 c)
   in
-  eq-pair refl
-    ( eq-pair refl
+  eq-pair-Σ refl
+    ( eq-pair-Σ refl
       ( inv ((ap inv right-unit) ∙ (inv-inv (H x)))))
 
 abstract
@@ -1145,7 +1145,7 @@ fib-square-comp-horizontal i j h c d .(pr1 d a) (pair a refl) =
       l = pr1 (pr2 c)
       K = pr2 (pr2 c)
   in
-  eq-pair refl
+  eq-pair-Σ refl
     ( ( ap
         ( concat' (h (l (k a))) refl)
         ( distributive-inv-concat (ap j (H a)) (K (k a)))) ∙
@@ -1170,7 +1170,7 @@ fib-square-comp-vertical :
 fib-square-comp-vertical f g h
   (pair p (pair q H)) (pair p' (pair q' H')) .(p (p' a))
   (pair (pair .(p' a) refl) (pair a refl)) =
-  eq-pair refl
+  eq-pair-Σ refl
     ( ( right-unit) ∙
       ( ( distributive-inv-concat (H (p' a)) (ap g (H' a))) ∙
         ( ( ap
@@ -1312,7 +1312,7 @@ issec-fib-fib-map-coprod-inl : {l1 l2 l1' l2' : Level}
     ( fib-fib-map-coprod-inl f g x)) ~ id
 issec-fib-fib-map-coprod-inl {l1} {l2} {l1'} {l2'}
   f g .(f a') (pair (inl a') refl) =
-  eq-pair refl
+  eq-pair-Σ refl
     ( ap (ap inl)
       ( isretr-map-inv-raise {l = l1'} {A = Id (f a') (f a')} refl))
 issec-fib-fib-map-coprod-inl f g x (pair (inr b') p) =
@@ -1329,7 +1329,7 @@ isretr-fib-fib-map-coprod-inl : {l1 l2 l1' l2' : Level}
   ( (fib-fib-map-coprod-inl f g x) ∘
     ( fib-map-coprod-inl-fib f g x)) ~ id
 isretr-fib-fib-map-coprod-inl {l1} {l2} {l1'} {l2'} f g .(f a') (pair a' refl) =
-  eq-pair refl
+  eq-pair-Σ refl
     ( isretr-map-inv-raise {l = l1'} {A = Id (f a') (f a')} refl)
 
 abstract
@@ -1366,7 +1366,7 @@ issec-fib-fib-map-coprod-inr : {l1 l2 l1' l2' : Level}
   ( (fib-map-coprod-inr-fib f g y) ∘
     ( fib-fib-map-coprod-inr f g y)) ~ id
 issec-fib-fib-map-coprod-inr {l1} {l2} {l1'} {l2'} f g .(g b') (pair (inr b') refl) =
-  eq-pair refl
+  eq-pair-Σ refl
     ( ap (ap inr)
       ( isretr-map-inv-raise {l = l2'} {A = Id (g b') (g b')} refl))
 issec-fib-fib-map-coprod-inr f g y (pair (inl a') p) =
@@ -1383,7 +1383,7 @@ isretr-fib-fib-map-coprod-inr : {l1 l2 l1' l2' : Level}
   ( (fib-fib-map-coprod-inr f g y) ∘
     ( fib-map-coprod-inr-fib f g y)) ~ id
 isretr-fib-fib-map-coprod-inr {l1} {l2} {l1'} {l2'} f g .(g b') (pair b' refl) =
-  eq-pair refl
+  eq-pair-Σ refl
     ( isretr-map-inv-raise {l = l2'} {A = Id (g b') (g b')} refl)
 
 abstract
@@ -1425,7 +1425,7 @@ triangle-descent-square-fib-map-coprod-inl-fib :
     ( fib-map-coprod-inl-fib f g x))
 triangle-descent-square-fib-map-coprod-inl-fib
   {X = X} {X' = X'} f g h αA αB αA' αB' HA HB x (pair a' p) =
-  eq-pair refl
+  eq-pair-Σ refl
     ( ap (concat (inv (HA a')) (αA x))
       ( ap-comp (ind-coprod _ αA αB) inl p))
 
@@ -1446,7 +1446,7 @@ triangle-descent-square-fib-map-coprod-inr-fib :
     ( fib-map-coprod-inr-fib f g y))
 triangle-descent-square-fib-map-coprod-inr-fib
   {X = X} {X' = X'} f g h αA αB αA' αB' HA HB y ( pair b' p) =
-  eq-pair refl
+  eq-pair-Σ refl
     ( ap (concat (inv (HB b')) (αB y))
       ( ap-comp (ind-coprod _ αA αB) inr p))
 
@@ -2069,7 +2069,7 @@ cone-Id' {A = A} (pair x y) =
   triple
     ( const (Id x y) unit star)
     ( const (Id x y) A x)
-    ( λ p → eq-pair refl (inv p))
+    ( λ p → eq-pair-Σ refl (inv p))
 
 inv-gap-cone-Id' :
   {l : Level} {A : UU l} (t : A × A) →
@@ -2207,7 +2207,7 @@ inv-inv-map-canonical-pullback-swap :
   (f : A → X) (g : B → X) →
   (map-canonical-pullback-swap f g ∘ map-canonical-pullback-swap g f) ~ id
 inv-inv-map-canonical-pullback-swap f g (pair b (pair a q)) =
-  eq-pair refl (eq-pair refl (inv-inv q))
+  eq-pair-Σ refl (eq-pair-Σ refl (inv-inv q))
 
 abstract
   is-equiv-map-canonical-pullback-swap :
@@ -2373,7 +2373,7 @@ triangle-map-canonical-pullback-exponent :
       ( cone-exponent T f g c)))
 triangle-map-canonical-pullback-exponent
   {A = A} {B} T f g (pair p (pair q H)) h =
-  eq-pair refl (eq-pair refl (inv (issec-eq-htpy (H ·r h))))
+  eq-pair-Σ refl (eq-pair-Σ refl (inv (issec-eq-htpy (H ·r h))))
 
 abstract
   is-pullback-exponent-is-pullback :
@@ -2423,20 +2423,14 @@ cone-fold :
   (f : A → X) (g : B → X) →
   cone f g C → cone (map-prod f g) (diagonal X) C
 cone-fold f g (pair p (pair q H)) =
-  triple
-    ( λ z → pair (p z) (q z))
-    ( g ∘ q)
-    ( λ z → eq-Eq-prod (pair (H z) refl))
+  triple (λ z → pair (p z) (q z)) (g ∘ q) (λ z → eq-pair (H z) refl)
 
 map-cone-fold :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3} 
   (f : A → X) → (g : B → X) →
   canonical-pullback f g → canonical-pullback (map-prod f g) (diagonal X)
 map-cone-fold f g (pair a (pair b p)) =
-  triple
-    ( pair a b)
-    ( g b)
-    ( eq-Eq-prod (pair p refl))
+  triple (pair a b) (g b) (eq-pair p refl)
 
 inv-map-cone-fold :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3} 
@@ -2447,16 +2441,16 @@ inv-map-cone-fold f g (pair (pair a b) (pair x α)) =
 
 ap-diagonal :
   {l : Level} {A : UU l} {x y : A} (p : Id x y) →
-  Id (ap (diagonal A) p) (eq-Eq-prod (pair p p))
+  Id (ap (diagonal A) p) (eq-pair p p)
 ap-diagonal refl = refl
 
-eq-pair-triv-concat :
+eq-pair-concat :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} {x x' x'' : A} {y y' y'' : B}
   (p : Id x x') (p' : Id x' x'') (q : Id y y') (q' : Id y' y'') →
-  Id ( eq-Eq-prod {s = pair x y} {t = pair x'' y''} (pair (p ∙ p') (q ∙ q')))
-    ( ( eq-Eq-prod {s = pair x y} {t = pair x' y'} (pair p q)) ∙
-      ( eq-Eq-prod (pair p' q')))
-eq-pair-triv-concat refl p' refl q' = refl
+  Id ( eq-pair {s = pair x y} {t = pair x'' y''} (p ∙ p') (q ∙ q'))
+    ( ( eq-pair {s = pair x y} {t = pair x' y'} p q) ∙
+      ( eq-pair p' q'))
+eq-pair-concat refl p' refl q' = refl
 
 issec-inv-map-cone-fold :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
@@ -2468,35 +2462,34 @@ issec-inv-map-cone-fold {A = A} {B} {X} f g (pair (pair a b) (pair x α)) =
     ( diagonal X)
     refl
     ( ap pr2 α)
-    ( ( ( ( inv (issec-Eq-prod-eq α)) ∙
+    ( ( ( ( inv (issec-pair-eq α)) ∙
           ( ap
-            ( λ t → (eq-Eq-prod ( pair t (ap pr2 α))))
+            ( λ t → (eq-pair t (ap pr2 α)))
             ( ( ( inv right-unit) ∙
                 ( inv (ap (concat (ap pr1 α) x) (left-inv (ap pr2 α))))) ∙
               ( inv (assoc (ap pr1 α) (inv (ap pr2 α)) (ap pr2 α)))))) ∙
-        ( eq-pair-triv-concat
+        ( eq-pair-concat
           ( (ap pr1 α) ∙ (inv (ap pr2 α)))
           ( ap pr2 α)
           ( refl)
           ( ap pr2 α))) ∙
       ( ap
         ( concat
-          ( eq-Eq-prod
-            ( pair ((ap pr1 α) ∙ (inv (ap pr2 α))) refl))
+          ( eq-pair ((ap pr1 α) ∙ (inv (ap pr2 α))) refl)
           ( pair x x))
         ( inv (ap-diagonal (ap pr2 α)))))
 
-ap-pr1-eq-pair-triv :
+ap-pr1-eq-pair :
   {l1 l2 : Level} {A : UU l1} {B : UU l2}
   {x x' : A} (p : Id x x') {y y' : B} (q : Id y y') →
-  Id (ap pr1 (eq-Eq-prod {s = pair x y} {pair x' y'} (pair p q))) p
-ap-pr1-eq-pair-triv refl refl = refl
+  Id (ap pr1 (eq-pair {s = pair x y} {pair x' y'} p q)) p
+ap-pr1-eq-pair refl refl = refl
 
-ap-pr2-eq-pair-triv :
+ap-pr2-eq-pair :
   {l1 l2 : Level} {A : UU l1} {B : UU l2}
   {x x' : A} (p : Id x x') {y y' : B} (q : Id y y') →
-  Id (ap pr2 (eq-Eq-prod {s = pair x y} {pair x' y'} (pair p q))) q
-ap-pr2-eq-pair-triv refl refl = refl
+  Id (ap pr2 (eq-pair {s = pair x y} {pair x' y'} p q)) q
+ap-pr2-eq-pair refl refl = refl
 
 isretr-inv-map-cone-fold :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
@@ -2511,12 +2504,13 @@ isretr-inv-map-cone-fold { A = A} { B = B} { X = X} f g (pair a (pair b p)) =
           ( concat' (f a) refl)
           ( ( ( ap
                 ( λ t → t ∙
-                  ( inv (ap pr2 (eq-Eq-prod
+                  ( inv
+                    ( ap pr2 (eq-pair
                     { s = pair (f a) (g b)}
                     { pair (g b) (g b)}
-                    ( pair p refl)))))
-                  ( ap-pr1-eq-pair-triv p refl)) ∙
-              ( ap (λ t → p ∙ (inv t)) (ap-pr2-eq-pair-triv p refl))) ∙
+                    p refl))))
+                  ( ap-pr1-eq-pair p refl)) ∙
+              ( ap (λ t → p ∙ (inv t)) (ap-pr2-eq-pair p refl))) ∙
             ( right-unit))) ∙
         ( right-unit)))
 
@@ -2617,7 +2611,7 @@ map-cone-pair {A' = A'} {B'} f g f' g' =
     ( λ t →
       ( tot
         ( λ s →
-          ( eq-Eq-prod ∘ (map-cone-pair' f g f' g' t s)))) ∘
+          ( eq-pair' ∘ (map-cone-pair' f g f' g' t s)))) ∘
       ( swap-total-Eq-structure
         ( λ y → Id (f (pr1 t)) (g y))
         ( λ y → B')
@@ -2637,7 +2631,7 @@ triangle-map-cone-pair :
   ((map-cone-pair f g f' g') ∘ (map-prod (gap f g c) (gap f' g' c')))
 triangle-map-cone-pair
   f g (pair p (pair q H)) f' g' (pair p' (pair q' H')) (pair z z') =
-  eq-pair refl (eq-pair refl right-unit)
+  eq-pair-Σ refl (eq-pair-Σ refl right-unit)
 
 abstract
   is-equiv-map-cone-pair :
@@ -2652,7 +2646,7 @@ abstract
       ( tot ( λ t →
         ( tot
           ( λ s →
-            ( eq-Eq-prod ∘ (map-cone-pair' f g f' g' t s)))) ∘
+            ( eq-pair' ∘ (map-cone-pair' f g f' g' t s)))) ∘
         ( swap-total-Eq-structure _ _ _)))
       ( swap-total-Eq-structure _ _ _)
       ( refl-htpy)
@@ -2661,14 +2655,14 @@ abstract
         ( λ t → is-equiv-comp
           ( ( tot
               ( λ s →
-                ( eq-Eq-prod ∘ (map-cone-pair' f g f' g' t s)))) ∘
+                ( eq-pair' ∘ (map-cone-pair' f g f' g' t s)))) ∘
             ( swap-total-Eq-structure
               ( λ y → Id (f (pr1 t)) (g y))
               ( λ y → _)
               ( λ y p y' → Id (f' (pr2 t)) (g' y'))))
           ( tot
             ( λ s →
-              ( eq-Eq-prod ∘ (map-cone-pair' f g f' g' t s))))
+              ( eq-pair' ∘ (map-cone-pair' f g f' g' t s))))
           ( swap-total-Eq-structure
             ( λ y → Id (f (pr1 t)) (g y))
             ( λ y → _)
@@ -2677,12 +2671,12 @@ abstract
           ( is-equiv-swap-total-Eq-structure _ _ _)
           ( is-equiv-tot-is-fiberwise-equiv
             ( λ s → is-equiv-comp
-              ( eq-Eq-prod ∘ (map-cone-pair' f g f' g' t s))
-              ( eq-Eq-prod)
+              ( eq-pair' ∘ (map-cone-pair' f g f' g' t s))
+              ( eq-pair')
               ( map-cone-pair' f g f' g' t s)
               ( refl-htpy)
               ( is-equiv-map-cone-pair' f g f' g' t s)
-              ( is-equiv-eq-Eq-prod
+              ( is-equiv-eq-pair
                 ( map-prod f f' t)
                 ( map-prod g g' s))))))
 

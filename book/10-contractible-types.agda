@@ -602,7 +602,7 @@ abstract
     pair (pair a b) α
     where
     α : (z : A × B) → Id (pair a b) z
-    α (pair x y) = eq-Eq-prod (pair (C x) (D y))
+    α (pair x y) = eq-pair (C x) (D y)
 
 -- Exercise 10.6
 

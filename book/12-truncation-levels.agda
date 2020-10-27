@@ -82,7 +82,7 @@ htpy-double-structure-swap :
   {l1 l2 l3 : Level} (A : UU l1) (B : A → UU l2) (C : A → UU l3) →
   ((double-structure-swap A C B) ∘ (double-structure-swap A B C)) ~ id
 htpy-double-structure-swap A B C (pair (pair a b) c) =
-  eq-pair (eq-pair refl refl) refl
+  eq-pair-Σ (eq-pair-Σ refl refl) refl
 
 is-equiv-double-structure-swap :
   {l1 l2 l3 : Level} (A : UU l1) (B : A → UU l2) (C : A → UU l3) →
@@ -663,7 +663,7 @@ eq-fib-diagonal A (pair x y) (pair z α) = (inv (ap pr1 α)) ∙ (ap pr2 α)
 fib-diagonal-eq : {l : Level} (A : UU l) (t : A × A) →
   Id (pr1 t) (pr2 t) → fib (diagonal A) t
 fib-diagonal-eq A (pair x y) β =
-  pair x (eq-Eq-prod (pair refl β))
+  pair x (eq-pair refl β)
 
 issec-fib-diagonal-eq : {l : Level} (A : UU l) (t : A × A) →
   ((eq-fib-diagonal A t) ∘ (fib-diagonal-eq A t)) ~ id
@@ -714,8 +714,8 @@ abstract
   is-trunc-Σ (succ-𝕋 k) {B = B} is-trunc-A is-trunc-B s t =
     is-trunc-is-equiv k
       ( Σ (Id (pr1 s) (pr1 t)) (λ p → Id (tr B p (pr2 s)) (pr2 t)))
-      ( pair-eq)
-      ( is-equiv-pair-eq s t)
+      ( pair-eq-Σ)
+      ( is-equiv-pair-eq-Σ s t)
       ( is-trunc-Σ k
         ( is-trunc-A (pr1 s) (pr1 t))
         ( λ p → is-trunc-B (pr1 t) (tr B p (pr2 s)) (pr2 t)))
@@ -1137,7 +1137,7 @@ has-decidable-equality-Σ :
 has-decidable-equality-Σ dA dB (pair x y) (pair x' y') with dA x x'
 ... | inr np = inr (λ r → np (ap pr1 r))
 ... | inl p =
-  is-decidable-iff eq-pair' pair-eq
+  is-decidable-iff eq-pair-Σ' pair-eq-Σ
     ( is-decidable-equiv'
       ( left-unit-law-Σ-is-contr
         ( is-contr-is-prop-inh

@@ -764,7 +764,7 @@ abstract
   dependent-universal-property-coprod P =
     is-equiv-has-inverse
       ( λ p → ind-coprod P (pr1 p) (pr2 p))
-      ( ind-Σ (λ f g → eq-Eq-prod (pair refl refl)))
+      ( ind-Σ (λ f g → eq-pair refl refl))
       ( λ s → eq-htpy (ind-coprod _ (λ x → refl) λ y → refl))
 
 equiv-dependent-universal-property-coprod :
@@ -1236,7 +1236,7 @@ issec-hom-slice-fiberwise-hom-eq-htpy :
   (f : A → X) (g : B → X) (α : (x : X) → (fib f x) → (fib g x)) (x : X) →
   (fiberwise-hom-hom-slice f g (hom-slice-fiberwise-hom f g α) x) ~ (α x)
 issec-hom-slice-fiberwise-hom-eq-htpy f g α .(f a) (pair a refl) =
-  eq-pair refl (inv-inv (pr2 (α (f a) (pair a refl))))
+  eq-pair-Σ refl (inv-inv (pr2 (α (f a) (pair a refl))))
 
 issec-hom-slice-fiberwise-hom :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
@@ -1250,7 +1250,7 @@ isretr-hom-slice-fiberwise-hom :
   (f : A → X) (g : B → X) →
   ((hom-slice-fiberwise-hom f g) ∘ (fiberwise-hom-hom-slice f g)) ~ id
 isretr-hom-slice-fiberwise-hom f g (pair h H) =
-  eq-pair refl (eq-htpy (λ a → (inv-inv (H a))))
+  eq-pair-Σ refl (eq-htpy (λ a → (inv-inv (H a))))
 
 abstract
   is-equiv-fiberwise-hom-hom-slice :
@@ -1421,7 +1421,7 @@ issec-hom-over-morphism-fiberwise-hom-eq-htpy :
   ( fiberwise-hom-hom-over-morphism i f g
     ( hom-over-morphism-fiberwise-hom i f g α) x) ~ (α x)
 issec-hom-over-morphism-fiberwise-hom-eq-htpy i f g α .(f a) (pair a refl) =
-  eq-pair refl (inv-inv (pr2 (α (f a) (pair a refl))))
+  eq-pair-Σ refl (inv-inv (pr2 (α (f a) (pair a refl))))
 
 issec-hom-over-morphism-fiberwise-hom :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {X : UU l3} {Y : UU l4}
@@ -1440,7 +1440,7 @@ isretr-hom-over-morphism-fiberwise-hom :
   ( ( hom-over-morphism-fiberwise-hom i f g) ∘
     ( fiberwise-hom-hom-over-morphism i f g)) ~ id
 isretr-hom-over-morphism-fiberwise-hom i f g (pair h H) =
-  eq-pair refl (eq-htpy (λ a → (inv-inv (H a))))
+  eq-pair-Σ refl (eq-htpy (λ a → (inv-inv (H a))))
 
 abstract
   is-equiv-fiberwise-hom-hom-over-morphism :
