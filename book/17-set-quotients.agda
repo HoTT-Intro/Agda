@@ -216,7 +216,7 @@ equiv-comp-equiv' e C =
 is-prop-is-small :
   (l : Level) {l1 : Level} (A : UU l1) → is-prop (is-small l A)
 is-prop-is-small l A =
-  is-prop-is-contr-if-inh
+  is-prop-is-proof-irrelevant
     ( λ Xe →
       is-contr-equiv'
         ( Σ (UU l) (λ Y → (pr1 Xe) ≃ Y))

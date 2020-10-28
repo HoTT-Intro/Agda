@@ -380,7 +380,7 @@ is-prop-case-paths-induction-principle-propositional-truncation :
   case-paths-induction-principle-propositional-truncation P α f B →
   ( p : type-Prop P) → is-prop (B p)
 is-prop-case-paths-induction-principle-propositional-truncation P α f B β p =
-  is-prop-is-contr-if-inh (λ x → pair (tr B (α p p) x) (β p p x))
+  is-prop-is-proof-irrelevant (λ x → pair (tr B (α p p) x) (β p p x))
 
 case-paths-induction-principle-propositional-truncation-is-prop :
   { l : Level} {l1 l2 : Level} {A : UU l1}
@@ -692,7 +692,7 @@ is-equiv-hom-slice-emb f g h i =
   is-equiv-has-inverse
     ( map-hom-slice (map-emb g) (map-emb f) i)
     ( λ y →
-      eq-emb g
+      is-injective-emb g
       ( inv
         ( ( triangle-hom-slice
             ( map-emb g)
@@ -705,7 +705,7 @@ is-equiv-hom-slice-emb f g h i =
             ( h)
             ( map-hom-slice (map-emb g) (map-emb f) i y)))))
     ( λ x →
-      eq-emb f
+      is-injective-emb f
       ( inv
         ( ( triangle-hom-slice (map-emb f) (map-emb g) h x) ∙
           ( triangle-hom-slice (map-emb g) (map-emb f) i
@@ -829,7 +829,7 @@ dependent-universal-property-surj-is-surjective f is-surj-f P =
         ( λ y →
           is-equiv-diagonal-is-contr
             ( is-surj-f y)
-            ( is-contr-is-prop-inh
+            ( is-proof-irrelevant-is-prop
               ( is-prop-type-trunc-Prop (fib f y))
               ( is-surj-f y))
             ( type-Prop (P y))))

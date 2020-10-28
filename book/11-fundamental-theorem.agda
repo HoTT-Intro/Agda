@@ -343,14 +343,19 @@ is-emb-map-emb :
   { i j : Level} {A : UU i} {B : UU j} (f : A ↪ B) → is-emb (map-emb f)
 is-emb-map-emb f = pr2 f
 
-eq-emb :
-  {i j : Level} {A : UU i} {B : UU j} (f : A ↪ B) → is-injective (map-emb f)
-eq-emb f {x} {y} = map-inv-is-equiv (is-emb-map-emb f x y)
+equiv-ap-emb :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ↪ B) {x y : A} →
+  Id x y ≃ Id (map-emb e x) (map-emb e y)
+equiv-ap-emb e {x} {y} = pair (ap (map-emb e)) (is-emb-map-emb e x y)
 
 abstract
   is-injective-is-emb : {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
     is-emb f → is-injective f
   is-injective-is-emb is-emb-f {x} {y} = map-inv-is-equiv (is-emb-f x y)
+
+is-injective-emb :
+  {i j : Level} {A : UU i} {B : UU j} (e : A ↪ B) → is-injective (map-emb e)
+is-injective-emb e {x} {y} = map-inv-is-equiv (is-emb-map-emb e x y)
 
 abstract
   is-emb-is-equiv :

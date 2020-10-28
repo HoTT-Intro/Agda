@@ -35,20 +35,6 @@ count-equiv' e = count-equiv (inv-equiv e)
 
 {- Types with a count have decidable equality -}
 
-has-decidable-equality-equiv :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ≃ Y) →
-  has-decidable-equality Y → has-decidable-equality X
-has-decidable-equality-equiv e d x x' =
-  is-decidable-iff
-    ( is-injective-map-equiv e)
-    ( ap (map-equiv e))
-    ( d (map-equiv e x) (map-equiv e x'))
-
-has-decidable-equality-equiv' :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ≃ Y) →
-  has-decidable-equality X → has-decidable-equality Y
-has-decidable-equality-equiv' e = has-decidable-equality-equiv (inv-equiv e)
-
 has-decidable-equality-count :
   {l : Level} {X : UU l} → count X → has-decidable-equality X
 has-decidable-equality-count (pair k e) =
@@ -175,13 +161,38 @@ count-Σ (pair k e) f =
   pair (number-of-elements (count-Σ' k e f)) (equiv-count-Σ' k e f)
 
 count-fiber-count-Σ :
-  {l1 l2 : Level} {X : UU l1} {P : X → UU l2} →
-  count X → count (Σ X P) → (x : X) → count (P x)
-count-fiber-count-Σ {P = P} e f x =
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  count A → count (Σ A B) → (x : A) → count (B x)
+count-fiber-count-Σ {B = B} e f x =
   count-equiv
-    ( equiv-fib-pr1 P x)
+    ( equiv-fib-pr1 x)
     ( count-Σ f
-      ( λ z → count-eq (has-decidable-equality-count e))) 
+      ( λ z → count-eq (has-decidable-equality-count e)))
+
+equiv-section-count-base-count-Σ :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
+  Σ (Σ A B) (fib (map-section b)) ≃ A
+equiv-section-count-base-count-Σ b = equiv-total-fib (map-section b)
+
+is-decidable-fib-map-section :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
+  count (Σ A B) → ((x : A) → count (B x)) →
+  (t : Σ A B) → is-decidable (fib (map-section b) t)
+is-decidable-fib-map-section b e f t = {!!}
+
+count-fib-map-section :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
+  count (Σ A B) → ((x : A) → count (B x)) →
+  (t : Σ A B) → count (fib (map-section b) t)
+count-fib-map-section b t = {!!}
+
+count-base-count-Σ :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
+  count (Σ A B) → ((x : A) → count (B x)) → count A
+count-base-count-Σ b e f =
+  count-equiv
+    ( equiv-section-count-base-count-Σ b)
+    ( count-Σ e (count-fib-map-section b e f))
 
 {- A coproduct X + Y has a count if and only if both X and Y have a count -}
 
@@ -289,7 +300,7 @@ count-decidable-Prop :
   {l1 : Level} (P : UU-Prop l1) →
   is-decidable (type-Prop P) → count (type-Prop P)
 count-decidable-Prop P (inl p) =
-  count-is-contr (is-contr-is-prop-inh (is-prop-type-Prop P) p)
+  count-is-contr (is-proof-irrelevant-is-prop (is-prop-type-Prop P) p)
 count-decidable-Prop P (inr f) = count-is-empty f
 
 count-decidable-subset :

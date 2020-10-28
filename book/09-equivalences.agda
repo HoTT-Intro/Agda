@@ -13,7 +13,8 @@ open book.08-decidability-in-number-theory public
 -- Definition 9.1.2
 
 _~_ :
-  {i j : Level} {A : UU i} {B : A → UU j} (f g : (x : A) → B x) → UU (i ⊔ j)
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
+  (f g : (x : A) → B x) → UU (l1 ⊔ l2)
 f ~ g = (x : _) → Id (f x) (g x)
 
 -- Example 9.1.3
@@ -25,14 +26,14 @@ neg-neg-𝟚 false = refl
 -- Remark 9.1.4
 
 square :
-  {i : Level} {A : UU i} {x y1 y2 z : A}
-  (p1 : Id x y1) (q1 : Id y1 z) (p2 : Id x y2) (q2 : Id y2 z) → UU i
+  {l1 : Level} {A : UU l1} {x y1 y2 z : A}
+  (p1 : Id x y1) (q1 : Id y1 z) (p2 : Id x y2) (q2 : Id y2 z) → UU l1
 square p q p' q' = Id (p ∙ q) (p' ∙ q')
 
 -- Definition 9.1.5
 
 refl-htpy :
-  {i j : Level} {A : UU i} {B : A → UU j} {f : (x : A) → B x} → f ~ f
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {f : (x : A) → B x} → f ~ f
 refl-htpy x = refl
 
 {- Most of the time we get by with refl-htpy. However, sometimes Agda wants us
@@ -40,21 +41,21 @@ refl-htpy x = refl
    to use Agda's {f = ?} notation. -}
    
 refl-htpy' :
-  {i j : Level} {A : UU i} {B : A → UU j} (f : (x : A) → B x) → f ~ f
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (f : (x : A) → B x) → f ~ f
 refl-htpy' f = refl-htpy
 
 inv-htpy :
-  {i j : Level} {A : UU i} {B : A → UU j} {f g : (x : A) → B x} →
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {f g : (x : A) → B x} →
   (f ~ g) → (g ~ f)
 inv-htpy H x = inv (H x)
 
 _∙h_ :
-  {i j : Level} {A : UU i} {B : A → UU j} {f g h : (x : A) → B x} →
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {f g h : (x : A) → B x} →
   (f ~ g) → (g ~ h) → (f ~ h)
 _∙h_ H K x = (H x) ∙ (K x)
 
 concat-htpy :
-  {i j : Level} {A : UU i} {B : A → UU j} {f g : (x : A) → B x} →
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {f g : (x : A) → B x} →
   (f ~ g) → (h : (x : A) → B x) → (g ~ h) → (f ~ h)
 concat-htpy H h K x = concat (H x) (h x) (K x)
 

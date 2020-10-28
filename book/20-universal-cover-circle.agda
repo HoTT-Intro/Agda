@@ -796,7 +796,7 @@ abstract
     ( p0 : P zero-ℤ) (pS : (k : ℤ) → (P k) ≃ (P (succ-ℤ k))) →
     is-contr (ELIM-ℤ P p0 pS)
   is-contr-ELIM-ℤ P p0 pS =
-    is-contr-is-prop-inh (is-prop-ELIM-ℤ P p0 pS) (Elim-ℤ P p0 pS)
+    is-proof-irrelevant-is-prop (is-prop-ELIM-ℤ P p0 pS) (Elim-ℤ P p0 pS)
 
 -- The universal property of ℤ is now just a special case
 

@@ -176,7 +176,7 @@ abstract
   is-subtype-is-contr :
     {l : Level} → is-subtype {lsuc l} {A = UU l} is-contr
   is-subtype-is-contr A =
-    is-prop-is-contr-if-inh
+    is-prop-is-proof-irrelevant
       ( λ is-contr-A →
         is-contr-Σ
           ( is-contr-A)
@@ -316,7 +316,7 @@ abstract
   is-subtype-is-equiv :
     {l1 l2 : Level} {A : UU l1} {B : UU l2} →
     is-subtype (is-equiv {A = A} {B = B})
-  is-subtype-is-equiv f = is-prop-is-contr-if-inh
+  is-subtype-is-equiv f = is-prop-is-proof-irrelevant
     ( λ is-equiv-f → is-contr-prod
       ( is-contr-sec-is-equiv is-equiv-f)
       ( is-contr-retr-is-equiv is-equiv-f))
@@ -512,7 +512,7 @@ abstract
   is-contr-endomaps-is-prop :
     {l : Level} (P : UU l) → is-prop P → is-contr (P → P)
   is-contr-endomaps-is-prop P is-prop-P =
-    is-contr-is-prop-inh (is-prop-function-type is-prop-P) id
+    is-proof-irrelevant-is-prop (is-prop-function-type is-prop-P) id
 
 -- Exercise 13.7
 
@@ -521,7 +521,7 @@ abstract
     {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
     is-prop (is-path-split f)
   is-prop-is-path-split f =
-    is-prop-is-contr-if-inh (λ is-path-split-f →
+    is-prop-is-proof-irrelevant (λ is-path-split-f →
       let is-equiv-f = is-equiv-is-path-split f is-path-split-f in
       is-contr-prod
         ( is-contr-sec-is-equiv is-equiv-f)
@@ -544,7 +544,7 @@ abstract
     {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
     is-prop (is-coherently-invertible f)
   is-prop-is-coherently-invertible {l1} {l2} {A} {B} f =
-    is-prop-is-contr-if-inh (λ is-hae-f →
+    is-prop-is-proof-irrelevant (λ is-hae-f →
       let is-equiv-f = is-equiv-is-coherently-invertible f is-hae-f in
       is-contr-equiv'
         ( Σ (sec f)

@@ -710,9 +710,8 @@ abstract
       ( issec-map-inv-fib-pr1 B a)
 
 equiv-fib-pr1 :
-  {i j : Level} {A : UU i} (B : A → UU j) (a : A) →
-  fib (pr1 {B = B}) a ≃ B a
-equiv-fib-pr1 B a =
+  {i j : Level} {A : UU i} {B : A → UU j} (a : A) → fib (pr1 {B = B}) a ≃ B a
+equiv-fib-pr1 {B = B} a =
   pair (map-fib-pr1 B a) (is-equiv-map-fib-pr1 B a)
 
 abstract
@@ -741,7 +740,7 @@ abstract
     is-equiv-is-contr-map
       ( λ x → is-contr-equiv
         ( B x)
-        ( equiv-fib-pr1 B x)
+        ( equiv-fib-pr1 x)
         ( is-contr-B x))
 
 equiv-pr1 :
@@ -761,7 +760,7 @@ abstract
   is-contr-is-equiv-pr1 {B = B} is-equiv-pr1-B a =
     is-contr-equiv'
       ( fib pr1 a)
-      ( equiv-fib-pr1 B a)
+      ( equiv-fib-pr1 a)
       ( is-contr-map-is-equiv is-equiv-pr1-B a)
 
 -- Exercise 10.7 (c)
