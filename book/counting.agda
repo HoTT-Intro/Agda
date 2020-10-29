@@ -174,17 +174,20 @@ equiv-section-count-base-count-Σ :
   Σ (Σ A B) (fib (map-section b)) ≃ A
 equiv-section-count-base-count-Σ b = equiv-total-fib (map-section b)
 
-is-decidable-fib-map-section :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
-  count (Σ A B) → ((x : A) → count (B x)) →
-  (t : Σ A B) → is-decidable (fib (map-section b) t)
-is-decidable-fib-map-section b e f t = {!!}
-
 count-fib-map-section :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
   count (Σ A B) → ((x : A) → count (B x)) →
   (t : Σ A B) → count (fib (map-section b) t)
-count-fib-map-section b t = {!!}
+count-fib-map-section {l1} {l2} {A} {B} b e f (pair y z) =
+  count-equiv'
+    ( ( ( left-unit-law-Σ-is-contr
+            ( is-contr-total-path' y)
+            ( pair y refl)) ∘e
+        ( inv-assoc-Σ A
+          ( λ x → Id x y)
+          ( λ t → Id (tr B (pr2 t) (b (pr1 t))) z))) ∘e
+      ( equiv-tot (λ x → equiv-pair-eq-Σ (pair x (b x)) (pair y z))))
+    ( count-eq (has-decidable-equality-count (f y)))
 
 count-base-count-Σ :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →

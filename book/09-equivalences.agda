@@ -809,6 +809,14 @@ left-unit-law-Σ :
 left-unit-law-Σ A =
   pair (map-left-unit-law-Σ A) (is-equiv-map-left-unit-law-Σ A)
 
+is-equiv-map-inv-left-unit-law-Σ :
+  {l : Level} (A : unit → UU l) → is-equiv (map-inv-left-unit-law-Σ A)
+is-equiv-map-inv-left-unit-law-Σ A =
+  is-equiv-has-inverse
+    ( map-left-unit-law-Σ A)
+    ( isretr-map-inv-left-unit-law-Σ A)
+    ( issec-map-inv-left-unit-law-Σ A)
+
 map-left-unit-law-prod :
   {l : Level} (A : UU l) → unit × A → A
 map-left-unit-law-prod A = pr2
@@ -843,15 +851,20 @@ left-unit-law-prod A =
     ( map-left-unit-law-prod A)
     ( is-equiv-map-left-unit-law-prod A)
 
+is-equiv-map-inv-left-unit-law-prod :
+  {l : Level} (A : UU l) → is-equiv (map-inv-left-unit-law-prod A)
+is-equiv-map-inv-left-unit-law-prod A =
+  is-equiv-has-inverse
+    ( map-left-unit-law-prod A)
+    ( isretr-map-inv-left-unit-law-prod A)
+    ( issec-map-inv-left-unit-law-prod A)
+
 inv-left-unit-law-prod :
   {l : Level} (A : UU l) → A ≃ (unit × A)
 inv-left-unit-law-prod A =
   pair
     ( map-inv-left-unit-law-prod A)
-    ( is-equiv-has-inverse
-      ( map-left-unit-law-prod A)
-      ( isretr-map-inv-left-unit-law-prod A)
-      ( issec-map-inv-left-unit-law-prod A))
+    ( is-equiv-map-inv-left-unit-law-prod A)
 
 map-right-unit-law-prod :
   {l1 : Level} {A : UU l1} → A × unit → A
@@ -1308,15 +1321,23 @@ abstract
       ( issec-pair-eq-Σ s t)
       ( isretr-pair-eq-Σ s t)
 
+equiv-eq-pair-Σ :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (s t : Σ A B) → Eq-Σ s t ≃ Id s t
+equiv-eq-pair-Σ s t = pair eq-pair-Σ' (is-equiv-eq-pair-Σ s t)
+
 abstract
   is-equiv-pair-eq-Σ :
-    {i j : Level} {A : UU i} {B : A → UU j} (s t : Σ A B) →
+    {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (s t : Σ A B) →
     is-equiv (pair-eq-Σ {s = s} {t})
   is-equiv-pair-eq-Σ s t =
     is-equiv-has-inverse
       ( eq-pair-Σ')
       ( isretr-pair-eq-Σ s t)
       ( issec-pair-eq-Σ s t)
+
+equiv-pair-eq-Σ :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (s t : Σ A B) → Id s t ≃ Eq-Σ s t
+equiv-pair-eq-Σ s t = pair pair-eq-Σ (is-equiv-pair-eq-Σ s t)
 
 η-pair :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (t : Σ A B) →

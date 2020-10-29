@@ -590,7 +590,7 @@ triangle-is-invertible-id-htpy-id-id :
   {l : Level} (A : UU l) →
   ( is-invertible-id-htpy-id-id A) ~
     ( ( map-assoc-Σ (A → A) (λ g → (id ∘ g) ~ id) (λ s → ((pr1 s) ∘ id) ~ id)) ∘
-      ( map-left-unit-law-Σ-is-contr
+      ( map-inv-left-unit-law-Σ-is-contr
         { B = λ s → ((pr1 s) ∘ id) ~ id}
         ( is-contr-sec-is-equiv (is-equiv-id {_} {A}))
         ( pair id refl-htpy)))
@@ -603,11 +603,11 @@ abstract
     is-equiv-comp
       ( is-invertible-id-htpy-id-id A)
       ( map-assoc-Σ (A → A) (λ g → (id ∘ g) ~ id) (λ s → ((pr1 s) ∘ id) ~ id))
-      ( map-left-unit-law-Σ-is-contr
+      ( map-inv-left-unit-law-Σ-is-contr
         ( is-contr-sec-is-equiv is-equiv-id)
         ( pair id refl-htpy))
       ( triangle-is-invertible-id-htpy-id-id A)
-      ( is-equiv-map-left-unit-law-Σ-is-contr
+      ( is-equiv-map-inv-left-unit-law-Σ-is-contr
         ( is-contr-sec-is-equiv is-equiv-id)
         ( pair id refl-htpy))
       ( is-equiv-map-assoc-Σ _ _ _)

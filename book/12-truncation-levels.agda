@@ -295,7 +295,7 @@ abstract
     is-contr-equiv
       ( Σ (Σ A B) (λ t → P (pr1 t)))
       ( equiv-double-structure P B)
-      ( is-contr-equiv'
+      ( is-contr-equiv
         ( P a)
         ( left-unit-law-Σ-is-contr
           ( is-contr-AB)
@@ -1012,7 +1012,7 @@ has-decidable-equality-Σ dA dB (pair x y) (pair x' y') with dA x x'
 ... | inr np = inr (λ r → np (ap pr1 r))
 ... | inl p =
   is-decidable-iff eq-pair-Σ' pair-eq-Σ
-    ( is-decidable-equiv'
+    ( is-decidable-equiv
       ( left-unit-law-Σ-is-contr
         ( is-proof-irrelevant-is-prop
           ( is-set-has-decidable-equality dA x x') p)

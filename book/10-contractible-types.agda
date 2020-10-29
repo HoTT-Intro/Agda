@@ -608,42 +608,42 @@ abstract
 
 -- In this exercise we will show that if the base type in a Σ-type is contractible, then the Σ-type is equivalent to the fiber at the center of contraction. This can be seen as a left unit law for Σ-types. We will derive a right unit law for Σ-types in Lecture 7 (not because it is unduable here, but it is useful to have some knowledge of fiberwise equivalences).
 
-map-left-unit-law-Σ-is-contr :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → is-contr A → (a : A) →
-  B a → Σ A B
-map-left-unit-law-Σ-is-contr C a = pair a
-
 map-inv-left-unit-law-Σ-is-contr :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → is-contr A → (a : A) →
+  B a → Σ A B
+map-inv-left-unit-law-Σ-is-contr C a = pair a
+
+map-left-unit-law-Σ-is-contr :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → is-contr A → (a : A) →
   Σ A B → B a
-map-inv-left-unit-law-Σ-is-contr {B = B} C a =
+map-left-unit-law-Σ-is-contr {B = B} C a =
   ind-Σ
     ( ind-singleton-is-contr a C
       ( λ x → B x → B a)
       ( id))
 
-isretr-map-inv-left-unit-law-Σ-is-contr :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (C : is-contr A) (a : A) →
-  ( ( map-inv-left-unit-law-Σ-is-contr {B = B} C a) ∘
-    ( map-left-unit-law-Σ-is-contr {B = B} C a)) ~ id
-isretr-map-inv-left-unit-law-Σ-is-contr {B = B} C a b = 
-  ap ( λ (f : B a → B a) → f b)
-     ( comp-singleton-is-contr a C (λ x → B x → B a) id)
-
 issec-map-inv-left-unit-law-Σ-is-contr :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (C : is-contr A) (a : A) →
   ( ( map-left-unit-law-Σ-is-contr {B = B} C a) ∘
     ( map-inv-left-unit-law-Σ-is-contr {B = B} C a)) ~ id
-issec-map-inv-left-unit-law-Σ-is-contr {B = B} C a =
+issec-map-inv-left-unit-law-Σ-is-contr {B = B} C a b =
+  ap ( λ (f : B a → B a) → f b)
+     ( comp-singleton-is-contr a C (λ x → B x → B a) id)
+
+isretr-map-inv-left-unit-law-Σ-is-contr :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (C : is-contr A) (a : A) →
+  ( ( map-inv-left-unit-law-Σ-is-contr {B = B} C a) ∘
+    ( map-left-unit-law-Σ-is-contr {B = B} C a)) ~ id
+isretr-map-inv-left-unit-law-Σ-is-contr {B = B} C a = 
   ind-Σ
     ( ind-singleton-is-contr a C
       ( λ x → (y : B x) →
-        Id ( ( ( map-left-unit-law-Σ-is-contr C a) ∘
-               ( map-inv-left-unit-law-Σ-is-contr C a))
+        Id ( ( ( map-inv-left-unit-law-Σ-is-contr C a) ∘
+               ( map-left-unit-law-Σ-is-contr C a))
              ( pair x y))
            ( id (pair x y)))
       ( λ y → ap
-        ( map-left-unit-law-Σ-is-contr C a)
+        ( map-inv-left-unit-law-Σ-is-contr C a)
         ( ap ( λ f → f y)
              ( comp-singleton-is-contr a C (λ x → B x → B a) id))))
 
@@ -657,6 +657,14 @@ abstract
       ( issec-map-inv-left-unit-law-Σ-is-contr C a)
       ( isretr-map-inv-left-unit-law-Σ-is-contr C a)
 
+left-unit-law-Σ-is-contr :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (C : is-contr A) (a : A) →
+  Σ A B ≃ B a
+left-unit-law-Σ-is-contr C a =
+  pair
+    ( map-left-unit-law-Σ-is-contr C a)
+    ( is-equiv-map-left-unit-law-Σ-is-contr C a)
+
 abstract
   is-equiv-map-inv-left-unit-law-Σ-is-contr :
     {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (C : is-contr A) (a : A) →
@@ -667,13 +675,13 @@ abstract
       ( isretr-map-inv-left-unit-law-Σ-is-contr C a)
       ( issec-map-inv-left-unit-law-Σ-is-contr C a)
 
-left-unit-law-Σ-is-contr :
+inv-left-unit-law-Σ-is-contr :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (C : is-contr A) (a : A) →
   B a ≃ Σ A B
-left-unit-law-Σ-is-contr C a =
+inv-left-unit-law-Σ-is-contr C a =
   pair
-    ( map-left-unit-law-Σ-is-contr C a)
-    ( is-equiv-map-left-unit-law-Σ-is-contr C a)
+    ( map-inv-left-unit-law-Σ-is-contr C a)
+    ( is-equiv-map-inv-left-unit-law-Σ-is-contr C a)
 
 -- Exercise 10.7
 
