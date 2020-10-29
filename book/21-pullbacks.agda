@@ -1047,8 +1047,7 @@ abstract
     is-pullback f g c → is-emb g → is-emb (pr1 c)
   is-emb-is-pullback f g c pb is-emb-g =
     is-emb-is-prop-map
-      ( pr1 c)
-      ( is-trunc-is-pullback neg-one-𝕋 f g c pb (is-prop-map-is-emb g is-emb-g))
+      ( is-trunc-is-pullback neg-one-𝕋 f g c pb (is-prop-map-is-emb is-emb-g))
 
 abstract
   is-equiv-is-pullback :
@@ -2178,14 +2177,14 @@ abstract
   is-equiv-diagonal-map-is-emb f is-emb-f =
     is-equiv-is-contr-map
       ( is-trunc-diagonal-map-is-trunc-map neg-two-𝕋 f
-        ( is-prop-map-is-emb f is-emb-f))
+        ( is-prop-map-is-emb is-emb-f))
 
 abstract
   is-emb-is-equiv-diagonal-map :
     {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
     is-equiv (diagonal-map f) → is-emb f
   is-emb-is-equiv-diagonal-map f is-equiv-δ =
-    is-emb-is-prop-map f
+    is-emb-is-prop-map
       ( is-trunc-map-is-trunc-diagonal-map neg-two-𝕋 f
         ( is-contr-map-is-equiv is-equiv-δ))
 
@@ -2276,9 +2275,8 @@ abstract
     is-pullback f g c → is-emb f → is-emb (pr1 (pr2 c))
   is-emb-is-pullback' f g c pb is-emb-f =
     is-emb-is-prop-map
-      ( pr1 (pr2 c))
       ( is-trunc-is-pullback' neg-one-𝕋 f g c pb
-        ( is-prop-map-is-emb f is-emb-f))
+        ( is-prop-map-is-emb is-emb-f))
 
 abstract
   is-equiv-is-pullback' :

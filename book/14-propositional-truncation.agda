@@ -505,7 +505,7 @@ is-prop-hom-slice {X = X} f i =
     ( is-equiv-fiberwise-hom-hom-slice f (map-emb i))
     ( is-prop-Π
       ( λ x → is-prop-Π
-        ( λ p → is-prop-map-is-emb (map-emb i) (is-emb-map-emb i) x)))
+        ( λ p → is-prop-map-is-emb (is-emb-map-emb i) x)))
 
 -- Proposition 13.4.4
 
@@ -605,7 +605,7 @@ fiberwise-map-universal-property-im :
 fiberwise-map-universal-property-im f m h x =
   map-universal-property-trunc-Prop
     { A = (fib f x)}
-    ( fib-prop-emb m x)
+    ( fib-emb-Prop m x)
     ( λ t →
       pair ( map-hom-slice f (map-emb m) h (pr1 t))
            ( ( inv (triangle-hom-slice f (map-emb m) h (pr1 t))) ∙

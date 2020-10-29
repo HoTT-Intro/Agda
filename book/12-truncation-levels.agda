@@ -168,29 +168,117 @@ equiv-prop is-prop-A is-prop-B f g =
 
 --------------------------------------------------------------------------------
 
-is-subtype :
-  {i j : Level} {A : UU i} (B : A → UU j) → UU (i ⊔ j)
+-- Section 12.2 Subtypes
+
+{- Definition 12.2.1 -}
+
+is-subtype : {l1 l2 : Level} {A : UU l1} (B : A → UU l2) → UU (l1 ⊔ l2)
 is-subtype B = (x : _) → is-prop (B x)
 
-double-structure-swap :
-  {l1 l2 l3 : Level} (A : UU l1) (B : A → UU l2) (C : A → UU l3) →
+is-property : {l1 l2 : Level} {A : UU l1} (B : A → UU l2) → UU (l1 ⊔ l2)
+is-property B = is-subtype B
+
+is-prop-map : {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) → UU (l1 ⊔ l2)
+is-prop-map f = (b : _) → is-prop (fib f b)
+
+{- Lemma 12.2.2 -}
+
+abstract
+  is-prop-is-equiv :
+    {l1 l2 : Level} {A : UU l1} (B : UU l2) (f : A → B) (E : is-equiv f) →
+    is-prop B → is-prop A
+  is-prop-is-equiv B f E H x y =
+    is-contr-is-equiv _ (ap f {x} {y}) (is-emb-is-equiv f E x y) (H (f x) (f y))
+
+is-prop-equiv :
+  {l1 l2 : Level} {A : UU l1} (B : UU l2) (e : A ≃ B) → is-prop B → is-prop A
+is-prop-equiv B (pair f is-equiv-f) = is-prop-is-equiv B f is-equiv-f
+
+abstract
+  is-prop-is-equiv' :
+    {l1 l2 : Level} (A : UU l1) {B : UU l2} (f : A → B) (E : is-equiv f) →
+    is-prop A → is-prop B
+  is-prop-is-equiv' A f E H =
+    is-prop-is-equiv _ (map-inv-is-equiv E) (is-equiv-map-inv-is-equiv E) H
+
+is-prop-equiv' :
+  {l1 l2 : Level} (A : UU l1) {B : UU l2} (e : A ≃ B) → is-prop A → is-prop B
+is-prop-equiv' A (pair f is-equiv-f) = is-prop-is-equiv' A f is-equiv-f
+
+{- Theorem 12.2.3 -}
+
+abstract
+  is-emb-is-prop-map :
+    {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
+    is-prop-map f → is-emb f
+  is-emb-is-prop-map {f = f} is-prop-map-f x =
+    fundamental-theorem-id x refl
+      ( is-contr-equiv
+        ( fib f (f x))
+        ( equiv-tot (λ y → equiv-inv (f x) (f y)))
+        ( is-proof-irrelevant-is-prop (is-prop-map-f (f x)) (pair x refl)))
+      ( λ y → ap f)
+
+abstract
+  is-prop-map-is-emb :
+    {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
+    is-emb f → is-prop-map f
+  is-prop-map-is-emb {f = f} is-emb-f y =
+    is-prop-is-proof-irrelevant α
+    where
+    α : (t : fib f y) → is-contr (fib f y)
+    α (pair x refl) =
+      fundamental-theorem-id' x refl
+        ( λ y → inv ∘ ap f)
+        ( λ y →
+          is-equiv-comp' inv (ap f)
+            ( is-emb-f x y)
+            ( is-equiv-inv (f x) (f y)))
+
+fib-emb-Prop :
+  {i j : Level} {A : UU i} {B : UU j} (f : A ↪ B) → B → UU-Prop (i ⊔ j)
+fib-emb-Prop f y =
+  pair ( fib (map-emb f) y)
+       ( is-prop-map-is-emb (is-emb-map-emb f) y)
+
+abstract
+  is-emb-pr1-is-subtype :
+    {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+    is-subtype B → is-emb (pr1 {B = B})
+  is-emb-pr1-is-subtype {B = B} H =
+    is-emb-is-prop-map (λ x → is-prop-equiv (B x) (equiv-fib-pr1 x) (H x))
+
+equiv-ap-pr1-is-subtype : {i j : Level} {A : UU i} {B : A → UU j} →
+  is-subtype B → {s t : Σ A B} → Id s t ≃ Id (pr1 s) (pr1 t)
+equiv-ap-pr1-is-subtype is-subtype-B {s} {t} =
+  pair (ap pr1) (is-emb-pr1-is-subtype is-subtype-B s t)
+
+abstract
+  is-subtype-is-emb-pr1 : {i j : Level} {A : UU i} {B : A → UU j} →
+    is-emb (pr1 {B = B}) → is-subtype B
+  is-subtype-is-emb-pr1 H x =
+    is-prop-equiv' (fib pr1 x) (equiv-fib-pr1 x) (is-prop-map-is-emb H x)
+
+{- Remark 12.2.5 -}
+
+equiv-double-structure :
+  {l1 l2 l3 : Level} {A : UU l1} (B : A → UU l2) (C : A → UU l3) →
+  Σ (Σ A B) (λ t → C (pr1 t)) ≃ Σ (Σ A C) (λ t → B (pr1 t))
+equiv-double-structure {A = A} B C =
+  ( ( inv-assoc-Σ A C (λ t → B (pr1 t))) ∘e
+    ( equiv-tot (λ x → commutative-prod))) ∘e
+  ( assoc-Σ A B (λ t → C (pr1 t)))
+
+map-equiv-double-structure :
+  {l1 l2 l3 : Level} {A : UU l1} (B : A → UU l2) (C : A → UU l3) →
   Σ (Σ A B) (λ t → C (pr1 t)) → Σ (Σ A C) (λ t → B (pr1 t))
-double-structure-swap A B C (pair (pair a b) c) = (pair (pair a c) b)
+map-equiv-double-structure B C = map-equiv (equiv-double-structure B C)
 
-htpy-double-structure-swap :
-  {l1 l2 l3 : Level} (A : UU l1) (B : A → UU l2) (C : A → UU l3) →
-  ((double-structure-swap A C B) ∘ (double-structure-swap A B C)) ~ id
-htpy-double-structure-swap A B C (pair (pair a b) c) =
-  eq-pair-Σ (eq-pair-Σ refl refl) refl
-
-is-equiv-double-structure-swap :
-  {l1 l2 l3 : Level} (A : UU l1) (B : A → UU l2) (C : A → UU l3) →
-  is-equiv (double-structure-swap A B C)
-is-equiv-double-structure-swap A B C =
-  is-equiv-has-inverse
-    ( double-structure-swap A C B)
-    ( htpy-double-structure-swap A C B)
-    ( htpy-double-structure-swap A B C)
+is-equiv-map-equiv-double-structure :
+  {l1 l2 l3 : Level} {A : UU l1} (B : A → UU l2) (C : A → UU l3) →
+  is-equiv (map-equiv-double-structure B C)
+is-equiv-map-equiv-double-structure B C =
+  is-equiv-map-equiv (equiv-double-structure B C)
 
 {- The following is a general construction that will help us show that
    the identity type of a subtype agrees with the identity type of the 
@@ -204,10 +292,9 @@ abstract
     is-contr (Σ (Σ A P) (λ t → B (pr1 t)))
   is-contr-total-Eq-substructure {A = A} {B} {P}
     is-contr-AB is-subtype-P a b p =
-    is-contr-is-equiv
+    is-contr-equiv
       ( Σ (Σ A B) (λ t → P (pr1 t)))
-      ( double-structure-swap A P B)
-      ( is-equiv-double-structure-swap A P B)
+      ( equiv-double-structure P B)
       ( is-contr-equiv'
         ( P a)
         ( left-unit-law-Σ-is-contr
@@ -322,28 +409,6 @@ abstract
       (λ y → pair
         (ind-Id x (λ z p → R x z) (ρ x) y)
         ((λ r → eq-is-prop (p x y) _ r)))
-
-abstract
-  is-prop-is-equiv :
-    {i j : Level} {A : UU i} (B : UU j) (f : A → B) (E : is-equiv f) →
-    is-prop B → is-prop A
-  is-prop-is-equiv B f E H x y =
-    is-contr-is-equiv _ (ap f {x} {y}) (is-emb-is-equiv f E x y) (H (f x) (f y))
-
-is-prop-equiv :
-  {i j : Level} {A : UU i} (B : UU j) (e : A ≃ B) → is-prop B → is-prop A
-is-prop-equiv B (pair f is-equiv-f) = is-prop-is-equiv B f is-equiv-f
-
-abstract
-  is-prop-is-equiv' :
-    {i j : Level} (A : UU i) {B : UU j} (f : A → B) (E : is-equiv f) →
-    is-prop A → is-prop B
-  is-prop-is-equiv' A f E H =
-    is-prop-is-equiv _ (map-inv-is-equiv E) (is-equiv-map-inv-is-equiv E) H
-
-is-prop-equiv' :
-  {i j : Level} (A : UU i) {B : UU j} (e : A ≃ B) → is-prop A → is-prop B
-is-prop-equiv' A (pair f is-equiv-f) = is-prop-is-equiv' A f is-equiv-f
 
 abstract
   is-set-prop-in-id :
@@ -667,50 +732,6 @@ abstract
       ( is-equiv-eq-fib-fib-ap f x y p)
       ( is-trunc-map-f (f y) (pair x p) (pair y refl))
 
-is-prop-map : {i j : Level} {A : UU i} {B : UU j} (f : A → B) → UU (i ⊔ j)
-is-prop-map f = (b : _) → is-trunc neg-one-𝕋 (fib f b)
-
-abstract
-  is-emb-is-prop-map : {i j : Level} {A : UU i} {B : UU j} (f : A → B) →
-    is-prop-map f → is-emb f
-  is-emb-is-prop-map f is-prop-map-f x y =
-    is-equiv-is-contr-map
-      ( is-trunc-ap-is-trunc-map neg-two-𝕋 f is-prop-map-f x y)
-
-abstract
-  is-prop-map-is-emb : {i j : Level} {A : UU i} {B : UU j} (f : A → B) →
-    is-emb f → is-prop-map f
-  is-prop-map-is-emb f is-emb-f =
-    is-trunc-map-is-trunc-ap neg-two-𝕋 f
-      ( λ x y → is-contr-map-is-equiv (is-emb-f x y))
-
-fib-prop-emb :
-  {i j : Level} {A : UU i} {B : UU j} (f : A ↪ B) → B → UU-Prop (i ⊔ j)
-fib-prop-emb f y =
-  pair ( fib (map-emb f) y)
-       ( is-prop-map-is-emb (map-emb f) (is-emb-map-emb f) y)
-
-abstract
-  is-emb-pr1-is-subtype : {i j : Level} {A : UU i} {B : A → UU j} →
-    is-subtype B → is-emb (pr1 {B = B})
-  is-emb-pr1-is-subtype {B = B} H =
-    is-emb-is-prop-map pr1
-      ( λ x → is-trunc-equiv neg-one-𝕋 (B x) (equiv-fib-pr1 x) (H x))
-
-equiv-ap-pr1-is-subtype : {i j : Level} {A : UU i} {B : A → UU j} →
-  is-subtype B → {s t : Σ A B} → Id s t ≃ Id (pr1 s) (pr1 t)
-equiv-ap-pr1-is-subtype is-subtype-B {s} {t} =
-  pair (ap pr1) (is-emb-pr1-is-subtype is-subtype-B s t)
-
-abstract
-  is-subtype-is-emb-pr1 : {i j : Level} {A : UU i} {B : A → UU j} →
-    is-emb (pr1 {B = B}) → is-subtype B
-  is-subtype-is-emb-pr1 is-emb-pr1-B x =
-    is-trunc-equiv neg-one-𝕋
-      ( fib pr1 x)
-      ( inv-equiv-fib-pr1 _ x)
-      ( is-prop-map-is-emb pr1 is-emb-pr1-B x)
-
 abstract
   is-trunc-succ-subtype :
     {i j : Level} (k : 𝕋) {A : UU i} {P : A → UU j} →
@@ -781,7 +802,7 @@ abstract
     {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
     is-set B → is-injective f → is-prop-map f
   is-prop-map-is-injective {f = f} H I =
-    is-prop-map-is-emb f (is-emb-is-injective H I)
+    is-prop-map-is-emb (is-emb-is-injective H I)
 
 -- Exercise 12.2
 
@@ -1314,9 +1335,8 @@ is-emb-map-Σ-map-base :
   is-emb f → is-emb (map-Σ-map-base f C)
 is-emb-map-Σ-map-base f C is-emb-f =
   is-emb-is-prop-map
-    ( map-Σ-map-base f C)
     ( λ x →
       is-prop-equiv'
         ( fib f (pr1 x))
         ( equiv-fib-map-Σ-map-base-fib f C x)
-        ( is-prop-map-is-emb f is-emb-f (pr1 x)))
+        ( is-prop-map-is-emb is-emb-f (pr1 x)))

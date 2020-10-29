@@ -1084,17 +1084,16 @@ is-emb-postcomp-is-emb :
   is-emb f → is-emb (postcomp A f)
 is-emb-postcomp-is-emb A f is-emb-f =
   is-emb-is-prop-map
-    ( postcomp A f)
     ( is-trunc-map-postcomp-is-trunc-map neg-one-𝕋 A f
-      ( is-prop-map-is-emb f is-emb-f))
+      ( is-prop-map-is-emb is-emb-f))
 
 is-emb-is-emb-postcomp :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (f : X → Y) →
   ({l : Level} (A : UU l) → is-emb (postcomp A f)) → is-emb f
 is-emb-is-emb-postcomp f is-emb-post-f =
-  is-emb-is-prop-map f
+  is-emb-is-prop-map
     ( is-trunc-map-is-trunc-map-postcomp neg-one-𝕋 f
-      ( λ A → is-prop-map-is-emb (postcomp A f) (is-emb-post-f A)))
+      ( λ A → is-prop-map-is-emb (is-emb-post-f A)))
 
 -- Exercise 13.15
 
@@ -1340,7 +1339,7 @@ swap-equiv-slice :
   equiv-slice X f g →
   Σ (hom-slice f g) (λ hH → is-equiv (pr1 hH))
 swap-equiv-slice {A = A} {B} f g =
-  double-structure-swap (A → B) is-equiv (λ h → f ~ (g ∘ h))
+  map-equiv-double-structure is-equiv (λ h → f ~ (g ∘ h))
 
 abstract
   is-equiv-swap-equiv-slice :
@@ -1348,7 +1347,7 @@ abstract
     (f : A → X) (g : B → X) →
     is-equiv (swap-equiv-slice f g)
   is-equiv-swap-equiv-slice f g =
-    is-equiv-double-structure-swap _ is-equiv (λ h → (f ~ (g ∘ h)))
+    is-equiv-map-equiv (equiv-double-structure is-equiv (λ h → f ~ (g ∘ h)))
 
 abstract
   fiberwise-equiv-equiv-slice :
