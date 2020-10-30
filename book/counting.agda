@@ -16,6 +16,10 @@ equiv-count :
   {l : Level} {X : UU l} (e : count X) → Fin (number-of-elements e) ≃ X
 equiv-count = pr2
 
+map-equiv-count :
+  {l : Level} {X : UU l} (e : count X) → Fin (number-of-elements e) → X
+map-equiv-count e = map-equiv (equiv-count e)
+
 {- We show that count is closed under equivalences -}
 
 abstract
@@ -197,11 +201,32 @@ count-base-count-Σ b e f =
     ( equiv-section-count-base-count-Σ b)
     ( count-Σ e (count-fib-map-section b e f))
 
+section-count-base-count-Σ' :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → count (Σ A B) →
+  (f : (x : A) → count (B x)) →
+  count (Σ A (λ x → is-zero-ℕ (number-of-elements (f x)))) →
+  (x : A) → coprod (B x) (is-zero-ℕ (number-of-elements (f x)))
+section-count-base-count-Σ' e f g x with
+  is-decidable-is-zero-ℕ (number-of-elements (f x))
+... | inl p = inr p
+... | inr H =
+  inl
+    ( map-equiv-count
+      ( f x)
+      ( tr Fin (inv (pr2 (is-successor-is-nonzero-ℕ H))) zero-Fin))
+
 count-base-count-Σ' :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → count (Σ A B) →
   (f : (x : A) → count (B x)) →
   count (Σ A (λ x → is-zero-ℕ (number-of-elements (f x)))) → count A
-count-base-count-Σ' g e f = {!!}
+count-base-count-Σ' {l1} {l2} {A} {B} e f g =
+  count-base-count-Σ
+    ( section-count-base-count-Σ' e f g)
+    ( count-equiv'
+      ( left-distributive-Σ-coprod A B
+        ( λ x → is-zero-ℕ (number-of-elements (f x))))
+      ( count-coprod e g))
+    ( λ x → count-coprod (f x) (count-eq has-decidable-equality-ℕ))
 
 {- A coproduct X + Y has a count if and only if both X and Y have a count -}
 
