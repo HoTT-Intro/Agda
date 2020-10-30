@@ -209,11 +209,8 @@ section-count-base-count-Σ' :
 section-count-base-count-Σ' e f g x with
   is-decidable-is-zero-ℕ (number-of-elements (f x))
 ... | inl p = inr p
-... | inr H =
-  inl
-    ( map-equiv-count
-      ( f x)
-      ( tr Fin (inv (pr2 (is-successor-is-nonzero-ℕ H))) zero-Fin))
+... | inr H with is-successor-is-nonzero-ℕ H
+... | (pair k p) = inl (map-equiv-count (f x) (tr Fin (inv p) zero-Fin))
 
 count-base-count-Σ' :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → count (Σ A B) →
@@ -356,3 +353,8 @@ is-decidable-count-Σ :
   count X → count (Σ X P) → (x : X) → is-decidable (P x)
 is-decidable-count-Σ e f x =
   is-decidable-count (count-fiber-count-Σ e f x)
+
+is-decidable-count-subset :
+  {l1 l2 : Level} {X : UU l1} (P : X → UU-Prop l2) → count X →
+  count (Σ X (λ x → type-Prop (P x))) → (x : X) → is-decidable (type-Prop (P x))
+is-decidable-count-subset P = is-decidable-count-Σ

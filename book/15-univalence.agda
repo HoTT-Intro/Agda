@@ -182,16 +182,24 @@ is-prop-is-finite :
   {l : Level} (X : UU l) → is-prop (is-finite X)
 is-prop-is-finite X = is-prop-type-Prop (is-finite-Prop X)
 
-is-finite' :
+is-finite-strong :
   {l : Level} → UU l → UU l
-is-finite' X = Σ ℕ (λ n → type-trunc-Prop (Fin n ≃ X))
+is-finite-strong X = Σ ℕ (λ k → type-trunc-Prop (Fin k ≃ X))
 
---
-is-finite-empty : is-finite empty
-is-finite-empty =
-  unit-trunc-Prop
-    ( Σ ℕ (λ n → Fin n ≃ empty))
-    ( pair zero-ℕ equiv-id)
+is-finite-is-finite-strong :
+  {l : Level} {X : UU l} → is-finite-strong X → is-finite X
+is-finite-is-finite-strong {l} {X} (pair k K) =
+  map-universal-property-trunc-Prop
+    ( is-finite-Prop X)
+    ( λ e → unit-trunc-Prop (count X) (pair k e))
+    ( K)
+
+is-prop-is-finite-strong' :
+  {l : Level} {X : UU l} → is-prop' (is-finite-strong X)
+is-prop-is-finite-strong' (pair k K) (pair l L) =
+  eq-subtype
+    ( λ k → is-prop-type-trunc-Prop (Fin k ≃ _))
+    {! ind-trunc-Prop!}
 
 𝔽 : UU (lsuc lzero)
 𝔽 = Σ (UU lzero) is-finite
@@ -201,6 +209,12 @@ type-𝔽 X = pr1 X
 
 is-finite-type-𝔽 : (X : 𝔽) → is-finite (type-𝔽 X)
 is-finite-type-𝔽 X = pr2 X
+
+is-finite-empty : is-finite empty
+is-finite-empty =
+  unit-trunc-Prop
+    ( Σ ℕ (λ n → Fin n ≃ empty))
+    ( pair zero-ℕ equiv-id)
 
 type-free-symmetric-monoid :
   {l1 : Level} (A : UU l1) → UU (lsuc lzero ⊔ l1)

@@ -5,13 +5,13 @@ module book.14-propositional-truncation where
 import book.13-function-extensionality-solutions
 open book.13-function-extensionality-solutions public
 
--- Section 13 Propositional truncations and the image of a map
+-- Section 14 Propositional truncations and the image of a map
 
 --------------------------------------------------------------------------------
 
--- Section 13.1 Propositional truncations
+-- Section 14.1 Propositional truncations
 
--- Definition 13.1.1
+-- Definition 14.1.1
 
 precomp-Prop :
   { l1 l2 l3 : Level} {A : UU l1} (P : UU-Prop l2) →
@@ -32,7 +32,7 @@ universal-property-propositional-truncation l {A = A} P f =
   (Q : UU-Prop l) (g : A → type-Prop Q) →
   is-contr (Σ (type-hom-Prop P Q) (λ h → (h ∘ f) ~  g))
 
--- Some unnumbered remarks after Definition 13.1.1
+-- Some unnumbered remarks after Definition 14.1.1
 
 universal-property-is-propositional-truncation :
   (l : Level) {l1 l2 : Level} {A : UU l1}
@@ -76,7 +76,7 @@ is-propositional-truncation-universal-property l P f up-f Q =
       ( equiv-tot (λ h → equiv-funext))
       ( up-f Q g))
 
--- Remark 13.1.2
+-- Remark 14.1.2
 
 is-propositional-truncation' :
   ( l : Level) {l1 l2 : Level} {A : UU l1} (P : UU-Prop l2) →
@@ -95,7 +95,7 @@ is-propositional-truncation-simpl P f up-P l Q =
     ( is-prop-Π (λ x → is-prop-type-Prop Q))
     ( up-P l Q)
 
--- Example 13.1.3
+-- Example 14.1.3
 
 is-propositional-truncation-const-star :
   { l1 : Level} (A : UU l1) (a : A)
@@ -106,14 +106,14 @@ is-propositional-truncation-const-star A a =
     ( const A unit star)
     ( λ l P f → const unit (type-Prop P) (f a))
 
--- Example 13.1.4
+-- Example 14.1.4
 
 is-propositional-truncation-id :
   { l1 : Level} (P : UU-Prop l1) →
   ( l : Level) → is-propositional-truncation l P id
 is-propositional-truncation-id P l Q = is-equiv-id
 
--- Proposition 13.1.5
+-- Proposition 14.1.5
 
 abstract
   is-equiv-is-equiv-precomp-Prop :
@@ -184,7 +184,7 @@ is-ptruncation-is-equiv-is-ptruncation P P' f f' h H is-ptr-f' is-equiv-h l Q =
     ( is-ptr-f' l Q)
     ( is-equiv-precomp-is-equiv h is-equiv-h (type-Prop Q))
 
--- Corollary 13.1.6
+-- Corollary 14.1.6
 
 is-uniquely-unique-propositional-truncation :
   {l1 l2 l3 : Level} {A : UU l1} (P : UU-Prop l2) (P' : UU-Prop l3)
@@ -204,7 +204,7 @@ is-uniquely-unique-propositional-truncation P P' f f' is-ptr-f is-ptr-f' =
       ( λ l → is-ptr-f)
       ( λ l → is-ptr-f'))
 
--- Axiom 13.1.8
+-- Axiom 14.1.8
 
 postulate type-trunc-Prop : {l : Level} → UU l → UU l
 
@@ -238,7 +238,7 @@ map-universal-property-trunc-Prop {A = A} P f =
     ( P)
     ( f) 
 
--- Proposition 13.1.9
+-- Proposition 14.1.9
 
 unique-functor-trunc-Prop :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
@@ -287,10 +287,10 @@ comp-functor-trunc-Prop g f =
 
 --------------------------------------------------------------------------------
 
--- Section 13.2 The dependent universal property of the propositional
+-- Section 14.2 The dependent universal property of the propositional
 -- truncations
 
--- Definition 13.2.1
+-- Definition 14.2.1
 
 dependent-universal-property-propositional-truncation :
   ( l : Level) {l1 l2 : Level} {A : UU l1}
@@ -298,7 +298,7 @@ dependent-universal-property-propositional-truncation :
 dependent-universal-property-propositional-truncation l {l1} {l2} {A} P f =
   ( Q : type-Prop P → UU-Prop l) → is-equiv (precomp-Π f (type-Prop ∘ Q))
 
--- Theorem 13.2.2
+-- Theorem 14.2.2
 
 abstract
   dependent-universal-property-is-propositional-truncation :
@@ -350,9 +350,9 @@ abstract
 
 --------------------------------------------------------------------------------
 
--- Section 13.3 Propositional truncations as higher inductive types
+-- Section 14.3 Propositional truncations as higher inductive types
 
--- Definition 13.3.1
+-- Definition 14.3.1
 
 case-paths-induction-principle-propositional-truncation :
   { l : Level} {l1 l2 : Level} {A : UU l1}
@@ -371,7 +371,7 @@ induction-principle-propositional-truncation l {l1} {l2} {A} P α f =
   ( β : case-paths-induction-principle-propositional-truncation P α f B) →
   Σ ((p : type-Prop P) → B p) (λ h → (x : A) → Id (h (f x)) (g x))
 
--- Lemma 13.3.2
+-- Lemma 14.3.2
 
 is-prop-case-paths-induction-principle-propositional-truncation :
   { l : Level} {l1 l2 : Level} {A : UU l1}
@@ -392,7 +392,7 @@ case-paths-induction-principle-propositional-truncation-is-prop
   P α f B is-prop-B p q x y =
   eq-is-prop (is-prop-B q) (tr B (α p q) x) y
 
--- Theorem 13.2.3
+-- Theorem 14.2.3
 
 abstract
   induction-principle-dependent-universal-property-propositional-truncation :
@@ -416,6 +416,13 @@ abstract
                   ( eq-is-prop (is-prop-type-Prop P))
                   f B α p)))
           ( g)))
+
+{-
+induction-principle-trunc-Prop :
+  {l1 l2 : Level} (A : UU l1) →
+  induction-principle-propositional-truncation l2
+induction-principle-trunc-Prop A = ?
+-}
 
 abstract
   dependent-universal-property-induction-principle-propositional-truncation :
@@ -442,13 +449,13 @@ abstract
 
 --------------------------------------------------------------------------------
 
--- Section 13.4 The image of a map
+-- Section 14.4 The image of a map
 
 --------------------------------------------------------------------------------
 
 -- The universal property of the image
 
--- Definition 13.4.1
+-- Definition 14.4.1
 
 -- We introduce the image inclusion of a map.
 
@@ -471,7 +478,7 @@ is-equiv-hom-slice :
   (f : A → X) (g : B → X) → hom-slice f g → UU (l2 ⊔ l3)
 is-equiv-hom-slice f g h = is-equiv (map-hom-slice f g h)
 
--- Definition 13.4.2
+-- Definition 14.4.2
 
 precomp-emb :
   { l1 l2 l3 l4 : Level} {X : UU l1} {A : UU l2} (f : A → X)
@@ -493,7 +500,7 @@ universal-property-image :
 universal-property-image l {X = X} f i q =
   ( C : UU l) (j : C ↪ X) → is-equiv (precomp-emb f i q j)
 
--- Lemma 13.4.3
+-- Lemma 14.4.3
 
 is-prop-hom-slice :
   { l1 l2 l3 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
@@ -507,9 +514,9 @@ is-prop-hom-slice {X = X} f i =
       ( λ x → is-prop-Π
         ( λ p → is-prop-map-is-emb (is-emb-map-emb i) x)))
 
--- Proposition 13.4.4
+-- Proposition 14.4.4
 
--- Proposition 13.4.4 condition (ii)
+-- Proposition 14.4.4 condition (ii)
 
 universal-property-image' :
   ( l : Level) {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
@@ -533,7 +540,7 @@ universal-property-image-universal-property-image' l f i q up' C j =
     ( is-prop-hom-slice f j)
     ( up' C j)
 
--- Example 13.4.5
+-- Example 14.4.5
 
 universal-property-image-has-section :
   (l : Level) {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
@@ -551,7 +558,7 @@ universal-property-image-is-emb l f H =
     l f (pair f H) (pair id refl-htpy)
     ( λ B m h → h)
 
--- Example 13.4.6
+-- Example 14.4.6
 
 {- We show that a map A → P into a proposition P is a propositional truncation
    if and only if P is the image of A in 1. -}
@@ -560,7 +567,7 @@ universal-property-image-is-emb l f H =
 
 -- The existence of the image
 
--- Definition 13.4.7
+-- Definition 14.4.7
 
 im :
   {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) → UU (l1 ⊔ l2)
@@ -584,7 +591,7 @@ hom-slice-im :
   hom-slice f (inclusion-im f)
 hom-slice-im f = pair (map-im f) (triangle-im f)
 
--- Proposition 13.4.8
+-- Proposition 14.4.8
 
 is-emb-inclusion-im :
   {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
@@ -596,7 +603,7 @@ emb-im :
   {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) → im f ↪ X
 emb-im f = pair (inclusion-im f) (is-emb-inclusion-im f)
 
--- Theorem 13.4.9
+-- Theorem 14.4.9
 
 fiberwise-map-universal-property-im :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3} (f : A → X) →
@@ -681,7 +688,7 @@ im-1-Type A = im-1-Type' (type-1-Type A)
 
 -- The uniqueness of the image
 
--- Proposition 13.4.10
+-- Proposition 14.4.10
 
 is-equiv-hom-slice-emb :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
@@ -775,17 +782,17 @@ up-image-is-equiv-up-image f i q i' q' h p up-i' is-equiv-h {l} =
 
 --------------------------------------------------------------------------------
 
--- Section 13.5 Surjective maps
+-- Section 14.5 Surjective maps
 
--- Definition 13.5.1
+-- Definition 14.5.1
 
 is-surjective :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} → (A → B) → UU (l1 ⊔ l2)
 is-surjective {B = B} f = (y : B) → type-trunc-Prop (fib f y)
 
--- Example 13.5.2
+-- Example 14.5.2
 
--- Proposition 13.5.3
+-- Proposition 14.5.3
 
 dependent-universal-property-surj :
   (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
@@ -838,7 +845,7 @@ dependent-universal-property-surj-is-surjective f is-surj-f P =
         ( λ b → is-propositional-truncation-trunc-Prop (fib f b) (P b))))
     ( is-equiv-map-reduce-Π-fib f ( λ y z → type-Prop (P y)))
 
--- Corollary 13.5.4
+-- Corollary 14.5.4
 
 is-surjective-is-propositional-truncation :
   {l1 l2 : Level} {A : UU l1} {P : UU-Prop l2} (f : A → type-Prop P) →
@@ -852,7 +859,7 @@ is-propsitional-truncation-is-surjective :
 is-propsitional-truncation-is-surjective f is-surj-f =
   dependent-universal-property-surj-is-surjective f is-surj-f
 
--- Theorem 13.5.5
+-- Theorem 14.5.5
 
 {-
 is-surjective-universal-property-image :
@@ -865,11 +872,11 @@ is-surjective-universal-property-image f i q up-i b = {!!}
 
 --------------------------------------------------------------------------------
 
--- Section 13.6 Cantor's diagonal argument
+-- Section 14.6 Cantor's diagonal argument
 
--- Definition 13.6.1
+-- Definition 14.6.1
 
--- Theorem 13.6.2
+-- Theorem 14.6.2
 
 map-cantor :
   {l1 l2 : Level} (X : UU l1) (f : X → (X → UU-Prop l2)) → (X → UU-Prop l2)
@@ -898,7 +905,7 @@ cantor X f H =
 
 --------------------------------------------------------------------------------
 
--- Section 13.7 Logic in type theory
+-- Section 14.7 Logic in type theory
 
 -- Definition
 
