@@ -184,6 +184,10 @@ is-prop-is-finite :
   {l : Level} (X : UU l) → is-prop (is-finite X)
 is-prop-is-finite X = is-prop-type-Prop (is-finite-Prop X)
 
+is-finite-count :
+  {l : Level} {X : UU l} → count X → is-finite X
+is-finite-count = unit-trunc-Prop
+
 𝔽 : UU (lsuc lzero)
 𝔽 = Σ (UU lzero) is-finite
 
@@ -193,25 +197,46 @@ type-𝔽 X = pr1 X
 is-finite-type-𝔽 : (X : 𝔽) → is-finite (type-𝔽 X)
 is-finite-type-𝔽 X = pr2 X
 
+is-finite-equiv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
+  is-finite A → is-finite B
+is-finite-equiv e =
+  map-universal-property-trunc-Prop
+    ( is-finite-Prop _)
+    ( is-finite-count ∘ (count-equiv e))
+
+is-finite-is-equiv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
+  is-equiv f → is-finite A → is-finite B
+is-finite-is-equiv is-equiv-f =
+  map-universal-property-trunc-Prop
+    ( is-finite-Prop _)
+    ( is-finite-count ∘ (count-equiv (pair _ is-equiv-f)))
+
 {- Theorem -}
 
-is-finite-strong :
+mere-equiv :
+  {l1 l2 : Level} → UU l1 → UU l2 → UU (l1 ⊔ l2)
+mere-equiv X Y = type-trunc-Prop (X ≃ Y)
+
+has-finite-cardinality :
   {l : Level} → UU l → UU l
-is-finite-strong X = Σ ℕ (λ k → type-trunc-Prop (Fin k ≃ X))
+has-finite-cardinality X = Σ ℕ (λ k → mere-equiv (Fin k) X)
 
-is-finite-is-finite-strong :
-  {l : Level} {X : UU l} → is-finite-strong X → is-finite X
-is-finite-is-finite-strong {l} {X} (pair k K) =
-  map-universal-property-trunc-Prop
-    ( is-finite-Prop X)
-    ( λ e → unit-trunc-Prop (count X) (pair k e))
-    ( K)
+number-of-elements-has-finite-cardinality :
+  {l : Level} {X : UU l} → has-finite-cardinality X → ℕ
+number-of-elements-has-finite-cardinality = pr1
 
-is-prop-is-finite-strong' :
-  {l1 : Level} {X : UU l1} → is-prop' (is-finite-strong X)
-is-prop-is-finite-strong' {l1} {X} (pair k K) (pair l L) =
+mere-equiv-has-finite-cardinality :
+  {l : Level} {X : UU l} (c : has-finite-cardinality X) →
+  type-trunc-Prop (Fin (number-of-elements-has-finite-cardinality c) ≃ X)
+mere-equiv-has-finite-cardinality = pr2
+
+is-prop-has-finite-cardinality' :
+  {l1 : Level} {X : UU l1} → is-prop' (has-finite-cardinality X)
+is-prop-has-finite-cardinality' {l1} {X} (pair k K) (pair l L) =
   eq-subtype
-    ( λ k → is-prop-type-trunc-Prop (Fin k ≃ _))
+    ( λ k → is-prop-type-trunc-Prop)
     ( map-universal-property-trunc-Prop
       ( pair (Id k l) (is-set-ℕ k l))
       ( λ (e : Fin k ≃ X) →
@@ -222,64 +247,117 @@ is-prop-is-finite-strong' {l1} {X} (pair k K) (pair l L) =
           ( L))
       ( K))
 
-is-prop-is-finite-strong :
-  {l1 : Level} {X : UU l1} → is-prop (is-finite-strong X)
-is-prop-is-finite-strong = is-prop-is-prop' is-prop-is-finite-strong'
+is-prop-has-finite-cardinality :
+  {l1 : Level} {X : UU l1} → is-prop (has-finite-cardinality X)
+is-prop-has-finite-cardinality =
+  is-prop-is-prop' is-prop-has-finite-cardinality'
 
-is-finite-strong-Prop :
+has-finite-cardinality-Prop :
   {l1 : Level} (X : UU l1) → UU-Prop l1
-is-finite-strong-Prop X =
-  pair (is-finite-strong X) (is-prop-is-finite-strong)
+has-finite-cardinality-Prop X =
+  pair (has-finite-cardinality X) (is-prop-has-finite-cardinality)
 
-is-finite-strong-count :
-  {l1  : Level} {X : UU l1} → count X → is-finite-strong X
-is-finite-strong-count (pair k e) =
-  pair k (unit-trunc-Prop (Fin k ≃ _) e)
-
-is-finite-strong-is-finite :
-  {l1 : Level} {X : UU l1} → is-finite X → is-finite-strong X
-is-finite-strong-is-finite =
+is-finite-has-finite-cardinality :
+  {l : Level} {X : UU l} → has-finite-cardinality X → is-finite X
+is-finite-has-finite-cardinality {l} {X} (pair k K) =
   map-universal-property-trunc-Prop
-    ( is-finite-strong-Prop _)
-    ( is-finite-strong-count)
+    ( is-finite-Prop X)
+    ( is-finite-count ∘ (pair k))
+    ( K)
+
+has-finite-cardinality-count :
+  {l1  : Level} {X : UU l1} → count X → has-finite-cardinality X
+has-finite-cardinality-count (pair k e) =
+  pair k (unit-trunc-Prop e)
+
+has-finite-cardinality-is-finite :
+  {l1 : Level} {X : UU l1} → is-finite X → has-finite-cardinality X
+has-finite-cardinality-is-finite =
+  map-universal-property-trunc-Prop
+    ( has-finite-cardinality-Prop _)
+    ( has-finite-cardinality-count)
+
+number-of-elements-is-finite :
+  {l1 : Level} {X : UU l1} → is-finite X → ℕ
+number-of-elements-is-finite =
+  number-of-elements-has-finite-cardinality ∘ has-finite-cardinality-is-finite
+
+mere-equiv-is-finite :
+  {l1 : Level} {X : UU l1} (f : is-finite X) →
+  mere-equiv (Fin (number-of-elements-is-finite f)) X
+mere-equiv-is-finite f =
+  mere-equiv-has-finite-cardinality (has-finite-cardinality-is-finite f)
+
+{- Closure properties of finite sets -}
 
 is-finite-empty : is-finite empty
-is-finite-empty =
-  unit-trunc-Prop
-    ( Σ ℕ (λ n → Fin n ≃ empty))
-    ( pair zero-ℕ equiv-id)
+is-finite-empty = is-finite-count count-empty
 
-type-free-symmetric-monoid :
-  {l1 : Level} (A : UU l1) → UU (lsuc lzero ⊔ l1)
-type-free-symmetric-monoid A = Σ 𝔽 (λ X → type-𝔽 X → A)
+is-finite-is-empty :
+  {l1 : Level} {X : UU l1} → is-empty X → is-finite X
+is-finite-is-empty H = is-finite-count (count-is-empty H)
 
-map-universal-property-is-finite :
-  {l1 l2 : Level} (X : UU l1) (P : UU-Prop l2) →
-  ((n : ℕ) → (Fin n ≃ X) → type-Prop P) →
-  is-finite X → type-Prop P
-map-universal-property-is-finite X P f =
-  map-universal-property-trunc-Prop P (ind-Σ f)
+is-finite-unit : is-finite unit
+is-finite-unit = is-finite-count count-unit
 
-is-finite-is-finite :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
-  ((n : ℕ) → (Fin n ≃ X) → is-finite Y) →
-  is-finite X → is-finite Y
-is-finite-is-finite {l1} {l2} {X} {Y} f =
-  map-universal-property-is-finite X (is-finite-Prop Y) f
+is-finite-is-contr :
+  {l1 : Level} {X : UU l1} → is-contr X → is-finite X
+is-finite-is-contr H = is-finite-count (count-is-contr H) 
+
+is-finite-Fin : {k : ℕ} → is-finite (Fin k)
+is-finite-Fin {k} = is-finite-count (count-Fin k)
 
 is-finite-coprod :
-  {l1 l2 : Level} (X : UU l1) (Y : UU l2) →
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
   is-finite X → is-finite Y → is-finite (coprod X Y)
-is-finite-coprod X Y is-finite-X is-finite-Y =
-  is-finite-is-finite 
-    ( λ n e →
-      is-finite-is-finite 
-        ( λ m f →
-          unit-trunc-Prop _
-            ( pair
-              ( add-ℕ n m)
-              ( ( equiv-coprod e f) ∘e (inv-equiv (coprod-Fin n m)))))
-        is-finite-Y)
+is-finite-coprod {X = X} {Y} is-finite-X is-finite-Y =
+  map-universal-property-trunc-Prop
+    ( is-finite-Prop (coprod X Y))
+    ( λ (e : count X) →
+      map-universal-property-trunc-Prop
+        ( is-finite-Prop (coprod X Y))
+        ( is-finite-count ∘ (count-coprod e))
+        ( is-finite-Y))
+    ( is-finite-X)
+
+is-finite-prod :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
+  is-finite X → is-finite Y → is-finite (X × Y)
+is-finite-prod {X = X} {Y} is-finite-X is-finite-Y =
+  map-universal-property-trunc-Prop
+    ( is-finite-Prop (X × Y))
+    ( λ (e : count X) →
+      map-universal-property-trunc-Prop
+        ( is-finite-Prop (X × Y))
+        ( is-finite-count ∘ (count-prod e))
+        ( is-finite-Y))
+    ( is-finite-X)
+
+finite-choice-count :
+  {l1 l2 : Level} {X : UU l1} {Y : X → UU l2} → count X →
+  ((x : X) → type-trunc-Prop (Y x)) → type-trunc-Prop ((x : X) → Y x)
+finite-choice-count (pair k e) H = {!equiv-trunc-Prop!}
+
+finite-choice :
+  {l1 l2 : Level} {X : UU l1} {Y : X → UU l2} → is-finite X →
+  ((x : X) → type-trunc-Prop (Y x)) → type-trunc-Prop ((x : X) → Y x)
+finite-choice {l1} {l2} {X} {Y} is-finite-X H =
+  map-universal-property-trunc-Prop
+    ( trunc-Prop ((x : X) → Y x))
+    ( λ e → finite-choice-count e H)
+    ( is-finite-X)
+
+is-finite-Σ :
+  {l1 l2 : Level} {X : UU l1} {Y : X → UU l2} →
+  is-finite X → ((x : X) → is-finite (Y x)) → is-finite (Σ X Y)
+is-finite-Σ {X = X} {Y} is-finite-X is-finite-Y =
+  map-universal-property-trunc-Prop
+    ( is-finite-Prop (Σ X Y))
+    ( λ (e : count X) →
+      map-universal-property-trunc-Prop
+        ( is-finite-Prop (Σ X Y))
+        ( is-finite-count ∘ (count-Σ e))
+        ( finite-choice is-finite-X is-finite-Y))
     ( is-finite-X)
 
 --------------------------------------------------------------------------------
@@ -353,60 +431,7 @@ eq-Eq-total-subuniverse :
   {s t : total-subuniverse P} → Eq-total-subuniverse P s t → Id s t
 eq-Eq-total-subuniverse P {s} {t} =
   map-inv-is-equiv (is-equiv-Eq-total-subuniverse-eq P s t)
-
---------------------------------------------------------------------------------
-
--- Finite sets
     
-{-
-  map-universal-property-is-finite X 
-    ( is-finite-Prop (coprod X Y))
-    ( λ n e →
-      map-universal-property-is-finite Y
-        ( is-finite-Prop (coprod X Y))
-        ( λ m f →
-          unit-trunc-Prop _
-            ( pair
-              ( add-ℕ n m)
-              ( equiv-functor-coprod e f ∘e
-                inv-equiv (coprod-Fin n m))))
-        is-finite-Y)
-    is-finite-X
--}
-
-is-finite-is-equiv :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  is-equiv f → is-finite A → is-finite B
-is-finite-is-equiv f is-equiv-f =
-  is-finite-is-finite
-    ( λ n e → unit-trunc-Prop _ (pair n ((pair f is-equiv-f) ∘e e)))
-
-is-finite-equiv :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
-  is-finite A → is-finite B
-is-finite-equiv (pair f is-equiv-f) = is-finite-is-equiv f is-equiv-f
-
-{-
-is-finite-is-equiv' :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  is-equiv f → is-finite' A → is-finite' B
-is-finite-is-equiv' f is-equiv-f (pair n e) =
-  pair n ({!!}) 
-
-is-finite-Π :
-  {l1 l2 : Level} (A : UU l1) (B : A → UU l2) →
-  is-finite' A → ((x : A) → is-finite' (B x)) → is-finite' ((x : A) → B x)
-is-finite-Π A B (pair zero-ℕ e) is-finite-B = pair one-ℕ {!!}
-is-finite-Π A B (pair (succ-ℕ n) e) is-finite-B = {!!}
--}
-
-{-
-μ-free-symmetric-monoid :
-  {l : Level} (A : UU l) →
-  type-free-symmetric-monoid (type-free-symmetric-monoid A) →
-  type-free-symmetric-monoid A
-μ-free-symmetric-monoid A x = {!!}
--}
 
 -- Classical logic in univalent type theory
 

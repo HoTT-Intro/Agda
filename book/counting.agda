@@ -37,6 +37,16 @@ count-equiv' :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ≃ Y) → count Y → count X
 count-equiv' e = count-equiv (inv-equiv e)
 
+count-is-equiv :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : X → Y} →
+  is-equiv f → count X → count Y
+count-is-equiv is-equiv-f = count-equiv (pair _ is-equiv-f)
+
+count-is-equiv' :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : X → Y} →
+  is-equiv f → count Y → count X
+count-is-equiv' is-equiv-f = count-equiv' (pair _ is-equiv-f)
+
 {- Types with a count have decidable equality -}
 
 has-decidable-equality-count :

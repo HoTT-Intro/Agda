@@ -210,23 +210,23 @@ is-uniquely-unique-propositional-truncation P P' f f' is-ptr-f is-ptr-f' =
 
 postulate type-trunc-Prop : {l : Level} → UU l → UU l
 
-postulate is-prop-type-trunc-Prop : {l : Level} (A : UU l) → is-prop (type-trunc-Prop A)
+postulate is-prop-type-trunc-Prop : {l : Level} {A : UU l} → is-prop (type-trunc-Prop A)
 
 trunc-Prop : {l : Level} → UU l → UU-Prop l
-trunc-Prop A = pair (type-trunc-Prop A) (is-prop-type-trunc-Prop A)
+trunc-Prop A = pair (type-trunc-Prop A) is-prop-type-trunc-Prop
 
-postulate unit-trunc-Prop : {l : Level} (A : UU l) → A → type-Prop (trunc-Prop A)
+postulate unit-trunc-Prop : {l : Level} {A : UU l} → A → type-Prop (trunc-Prop A)
 
-postulate is-propositional-truncation-trunc-Prop : {l1 l2 : Level} (A : UU l1) → is-propositional-truncation l2 (trunc-Prop A) (unit-trunc-Prop A)
+postulate is-propositional-truncation-trunc-Prop : {l1 l2 : Level} (A : UU l1) → is-propositional-truncation l2 (trunc-Prop A) unit-trunc-Prop
 
 universal-property-trunc-Prop : {l1 l2 : Level} (A : UU l1) →
   universal-property-propositional-truncation l2
     ( trunc-Prop A)
-    ( unit-trunc-Prop A)
+    ( unit-trunc-Prop)
 universal-property-trunc-Prop A =
   universal-property-is-propositional-truncation _
     ( trunc-Prop A)
-    ( unit-trunc-Prop A)
+    ( unit-trunc-Prop)
     ( is-propositional-truncation-trunc-Prop A)
 
 map-universal-property-trunc-Prop :
@@ -235,7 +235,7 @@ map-universal-property-trunc-Prop :
 map-universal-property-trunc-Prop {A = A} P f =
   map-is-propositional-truncation
     ( trunc-Prop A)
-    ( unit-trunc-Prop A)
+    ( unit-trunc-Prop)
     ( is-propositional-truncation-trunc-Prop A)
     ( P)
     ( f) 
@@ -246,9 +246,9 @@ unique-functor-trunc-Prop :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
   is-contr
     ( Σ ( type-hom-Prop (trunc-Prop A) (trunc-Prop B))
-        ( λ h → (h ∘ (unit-trunc-Prop A)) ~ ((unit-trunc-Prop B) ∘ f)))
+        ( λ h → (h ∘ unit-trunc-Prop) ~ (unit-trunc-Prop ∘ f)))
 unique-functor-trunc-Prop {l1} {l2} {A} {B} f =
-  universal-property-trunc-Prop A (trunc-Prop B) ((unit-trunc-Prop B) ∘ f)
+  universal-property-trunc-Prop A (trunc-Prop B) (unit-trunc-Prop ∘ f)
 
 functor-trunc-Prop :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} →
@@ -258,14 +258,14 @@ functor-trunc-Prop f =
 
 htpy-functor-trunc-Prop :
   { l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  ( (functor-trunc-Prop f) ∘ (unit-trunc-Prop A)) ~ ((unit-trunc-Prop B) ∘ f)
+  ( (functor-trunc-Prop f) ∘ unit-trunc-Prop) ~ (unit-trunc-Prop ∘ f)
 htpy-functor-trunc-Prop f =
   pr2 (center (unique-functor-trunc-Prop f))
 
 htpy-uniqueness-functor-trunc-Prop :
   { l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
   ( h : type-hom-Prop (trunc-Prop A) (trunc-Prop B)) →
-  ( ( h ∘ (unit-trunc-Prop A)) ~ ((unit-trunc-Prop B) ∘ f)) →
+  ( ( h ∘ unit-trunc-Prop) ~ (unit-trunc-Prop ∘ f)) →
   (functor-trunc-Prop f) ~ h
 htpy-uniqueness-functor-trunc-Prop f h H =
   htpy-eq (ap pr1 (contraction (unique-functor-trunc-Prop f) (pair h H)))
@@ -286,6 +286,27 @@ comp-functor-trunc-Prop g f =
     ( (functor-trunc-Prop g) ∘ (functor-trunc-Prop f))
     ( ( (functor-trunc-Prop g) ·l (htpy-functor-trunc-Prop f)) ∙h
       ( ( htpy-functor-trunc-Prop g) ·r f))
+
+map-equiv-trunc-Prop :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  (A ≃ B) → type-trunc-Prop A → type-trunc-Prop B
+map-equiv-trunc-Prop e = functor-trunc-Prop (map-equiv e)
+
+map-inv-equiv-trunc-Prop :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  (A ≃ B) → type-trunc-Prop B → type-trunc-Prop A
+map-inv-equiv-trunc-Prop e = map-equiv-trunc-Prop (inv-equiv e)
+
+equiv-trunc-Prop :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  (A ≃ B) → (type-trunc-Prop A ≃ type-trunc-Prop B)
+equiv-trunc-Prop e =
+  pair
+    ( map-equiv-trunc-Prop e)
+    ( is-equiv-is-prop
+      ( is-prop-type-trunc-Prop)
+      ( is-prop-type-trunc-Prop)
+      ( map-inv-equiv-trunc-Prop e))
 
 --------------------------------------------------------------------------------
 
@@ -334,32 +355,32 @@ dependent-universal-property-trunc-Prop :
   {l l1 : Level} {A : UU l1} →
   dependent-universal-property-propositional-truncation l
     ( trunc-Prop A)
-    ( unit-trunc-Prop A)
+    ( unit-trunc-Prop)
 dependent-universal-property-trunc-Prop {A = A} =
   dependent-universal-property-is-propositional-truncation
     ( trunc-Prop A)
-    ( unit-trunc-Prop A)
+    ( unit-trunc-Prop)
     ( is-propositional-truncation-trunc-Prop A)
 
 equiv-dependent-universal-property-trunc-Prop :
   {l1 l2 : Level} {A : UU l1} (P : type-trunc-Prop A → UU-Prop l2) →
   (((y : type-trunc-Prop A) → type-Prop (P y)) ≃
-  ((x : A) → type-Prop (P (unit-trunc-Prop A x))))
+  ((x : A) → type-Prop (P (unit-trunc-Prop x))))
 equiv-dependent-universal-property-trunc-Prop P =
   pair
-    ( precomp-Π (unit-trunc-Prop _) (type-Prop ∘ P))
+    ( precomp-Π unit-trunc-Prop (type-Prop ∘ P))
     ( dependent-universal-property-trunc-Prop P)
 
 ind-trunc-Prop :
   {l l1 : Level} {A : UU l1} (P : type-trunc-Prop A → UU-Prop l) →
-  (( x : A) → type-Prop (P (unit-trunc-Prop A x))) →
+  (( x : A) → type-Prop (P (unit-trunc-Prop x))) →
   (( y : type-trunc-Prop A) → type-Prop (P y))
 ind-trunc-Prop {l} {l1} {A} P =
   map-inv-is-equiv (dependent-universal-property-trunc-Prop P)
 
 comp-trunc-Prop :
   {l l1 : Level} {A : UU l1} (P : type-trunc-Prop A → UU-Prop l) →
-  ((precomp-Π (unit-trunc-Prop A) (type-Prop ∘ P)) ∘ ind-trunc-Prop P) ~ id
+  ((precomp-Π unit-trunc-Prop (type-Prop ∘ P)) ∘ ind-trunc-Prop P) ~ id
 comp-trunc-Prop P =
   issec-map-inv-is-equiv (dependent-universal-property-trunc-Prop P)
 
@@ -603,7 +624,7 @@ inclusion-im f = pr1
 
 map-im :
   {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) → A → im f
-map-im f a = pair (f a) (unit-trunc-Prop (fib f (f a)) (pair a refl))
+map-im f a = pair (f a) (unit-trunc-Prop (pair a refl))
 
 triangle-im :
   {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
@@ -621,7 +642,7 @@ is-emb-inclusion-im :
   {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
   is-emb (inclusion-im f)
 is-emb-inclusion-im f =
-  is-emb-pr1-is-subtype (λ x → is-prop-type-trunc-Prop (fib f x))
+  is-emb-pr1-is-subtype (λ x → is-prop-type-trunc-Prop)
 
 emb-im :
   {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) → im f ↪ X
@@ -832,14 +853,14 @@ is-surjective-dependent-universal-property-surj :
 is-surjective-dependent-universal-property-surj f dup-surj-f =
   map-inv-is-equiv
     ( dup-surj-f (λ b → trunc-Prop (fib f b)))
-    ( λ x → unit-trunc-Prop (fib f (f x)) (pair x refl))
+    ( λ x → unit-trunc-Prop (pair x refl))
 
 square-dependent-universal-property-surj :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
   (P : B → UU-Prop l3) →
   ( λ (h : (y : B) → type-Prop (P y)) x → h (f x)) ~
   ( ( λ h x → h (f x) (pair x refl)) ∘
-    ( ( λ h y → (h y) ∘ (unit-trunc-Prop (fib f y))) ∘
+    ( ( λ h y → (h y) ∘ unit-trunc-Prop) ∘
       ( λ h y → const (type-trunc-Prop (fib f y)) (type-Prop (P y)) (h y))))
 square-dependent-universal-property-surj f P = refl-htpy
 
@@ -850,10 +871,10 @@ dependent-universal-property-surj-is-surjective :
 dependent-universal-property-surj-is-surjective f is-surj-f P =
   is-equiv-comp'
     ( λ h x → h (f x) (pair x refl))
-    ( ( λ h y → (h y) ∘ (unit-trunc-Prop (fib f y))) ∘
+    ( ( λ h y → (h y) ∘ unit-trunc-Prop) ∘
       ( λ h y → const (type-trunc-Prop (fib f y)) (type-Prop (P y)) (h y)))
     ( is-equiv-comp'
-      ( λ h y → (h y) ∘ (unit-trunc-Prop (fib f y)))
+      ( λ h y → (h y) ∘ unit-trunc-Prop)
       ( λ h y → const (type-trunc-Prop (fib f y)) (type-Prop (P y)) (h y))
       ( is-equiv-postcomp-Π
         ( λ y p z → p)
@@ -861,11 +882,11 @@ dependent-universal-property-surj-is-surjective f is-surj-f P =
           is-equiv-diagonal-is-contr
             ( is-surj-f y)
             ( is-proof-irrelevant-is-prop
-              ( is-prop-type-trunc-Prop (fib f y))
+              ( is-prop-type-trunc-Prop)
               ( is-surj-f y))
             ( type-Prop (P y))))
       ( is-equiv-postcomp-Π
-        ( λ b g → g ∘ (unit-trunc-Prop (fib f b)))
+        ( λ b g → g ∘ unit-trunc-Prop)
         ( λ b → is-propositional-truncation-trunc-Prop (fib f b) (P b))))
     ( is-equiv-map-reduce-Π-fib f ( λ y z → type-Prop (P y)))
 
@@ -950,14 +971,12 @@ type-disj-Prop P Q = type-Prop (disj-Prop P Q)
 inl-disj-Prop :
   {l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) →
   type-hom-Prop P (disj-Prop P Q)
-inl-disj-Prop P Q =
-  (unit-trunc-Prop (coprod (type-Prop P) (type-Prop Q))) ∘ inl
+inl-disj-Prop P Q = unit-trunc-Prop ∘ inl
 
 inr-disj-Prop :
   {l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) →
   type-hom-Prop Q (disj-Prop P Q)
-inr-disj-Prop P Q =
-  (unit-trunc-Prop (coprod (type-Prop P) (type-Prop Q))) ∘ inr
+inr-disj-Prop P Q = unit-trunc-Prop ∘ inr
 
 -- Proposition
 
@@ -1003,8 +1022,7 @@ is-prop-exists P = is-prop-type-Prop (exists-Prop P)
 intro-exists-Prop :
   {l1 l2 : Level} {A : UU l1} (P : A → UU-Prop l2) →
   (x : A) → type-Prop (P x) → exists P
-intro-exists-Prop {A = A} P x p =
-  unit-trunc-Prop (Σ A (λ x → type-Prop (P x))) (pair x p)
+intro-exists-Prop {A = A} P x p = unit-trunc-Prop (pair x p)
 
 -- Proposition
 
