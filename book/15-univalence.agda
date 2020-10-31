@@ -9,7 +9,7 @@ open book.counting public
 
 --------------------------------------------------------------------------------
 
--- The univalence axiom
+-- Section 15 The univalence axiom
 
 --------------------------------------------------------------------------------
 
@@ -168,7 +168,9 @@ funext-univalence {A = A} {B} f =
 
 --------------------------------------------------------------------------------
 
--- Section 15.3 Finite sets
+-- Section 15.3 Finite types
+
+{- Definition -}
 
 is-finite-Prop :
   {l : Level} → UU l → UU-Prop l
@@ -181,6 +183,17 @@ is-finite X = type-Prop (is-finite-Prop X)
 is-prop-is-finite :
   {l : Level} (X : UU l) → is-prop (is-finite X)
 is-prop-is-finite X = is-prop-type-Prop (is-finite-Prop X)
+
+𝔽 : UU (lsuc lzero)
+𝔽 = Σ (UU lzero) is-finite
+
+type-𝔽 : 𝔽 → UU lzero
+type-𝔽 X = pr1 X
+
+is-finite-type-𝔽 : (X : 𝔽) → is-finite (type-𝔽 X)
+is-finite-type-𝔽 X = pr2 X
+
+{- Theorem -}
 
 is-finite-strong :
   {l : Level} → UU l → UU l
@@ -195,20 +208,40 @@ is-finite-is-finite-strong {l} {X} (pair k K) =
     ( K)
 
 is-prop-is-finite-strong' :
-  {l : Level} {X : UU l} → is-prop' (is-finite-strong X)
-is-prop-is-finite-strong' (pair k K) (pair l L) =
+  {l1 : Level} {X : UU l1} → is-prop' (is-finite-strong X)
+is-prop-is-finite-strong' {l1} {X} (pair k K) (pair l L) =
   eq-subtype
     ( λ k → is-prop-type-trunc-Prop (Fin k ≃ _))
-    {! ind-trunc-Prop!}
+    ( map-universal-property-trunc-Prop
+      ( pair (Id k l) (is-set-ℕ k l))
+      ( λ (e : Fin k ≃ X) →
+        map-universal-property-trunc-Prop
+          ( pair (Id k l) (is-set-ℕ k l))
+          ( λ (f : Fin l ≃ X) →
+            is-injective-Fin ((inv-equiv f) ∘e e))
+          ( L))
+      ( K))
 
-𝔽 : UU (lsuc lzero)
-𝔽 = Σ (UU lzero) is-finite
+is-prop-is-finite-strong :
+  {l1 : Level} {X : UU l1} → is-prop (is-finite-strong X)
+is-prop-is-finite-strong = is-prop-is-prop' is-prop-is-finite-strong'
 
-type-𝔽 : 𝔽 → UU lzero
-type-𝔽 X = pr1 X
+is-finite-strong-Prop :
+  {l1 : Level} (X : UU l1) → UU-Prop l1
+is-finite-strong-Prop X =
+  pair (is-finite-strong X) (is-prop-is-finite-strong)
 
-is-finite-type-𝔽 : (X : 𝔽) → is-finite (type-𝔽 X)
-is-finite-type-𝔽 X = pr2 X
+is-finite-strong-count :
+  {l1  : Level} {X : UU l1} → count X → is-finite-strong X
+is-finite-strong-count (pair k e) =
+  pair k (unit-trunc-Prop (Fin k ≃ _) e)
+
+is-finite-strong-is-finite :
+  {l1 : Level} {X : UU l1} → is-finite X → is-finite-strong X
+is-finite-strong-is-finite =
+  map-universal-property-trunc-Prop
+    ( is-finite-strong-Prop _)
+    ( is-finite-strong-count)
 
 is-finite-empty : is-finite empty
 is-finite-empty =

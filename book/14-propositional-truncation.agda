@@ -5,6 +5,8 @@ module book.14-propositional-truncation where
 import book.13-function-extensionality-solutions
 open book.13-function-extensionality-solutions public
 
+--------------------------------------------------------------------------------
+
 -- Section 14 Propositional truncations and the image of a map
 
 --------------------------------------------------------------------------------
@@ -329,15 +331,37 @@ abstract
       ( id {A = type-Prop P})
 
 dependent-universal-property-trunc-Prop :
-  {l l1 : Level} (A : UU l1) →
+  {l l1 : Level} {A : UU l1} →
   dependent-universal-property-propositional-truncation l
     ( trunc-Prop A)
     ( unit-trunc-Prop A)
-dependent-universal-property-trunc-Prop A =
+dependent-universal-property-trunc-Prop {A = A} =
   dependent-universal-property-is-propositional-truncation
     ( trunc-Prop A)
     ( unit-trunc-Prop A)
     ( is-propositional-truncation-trunc-Prop A)
+
+equiv-dependent-universal-property-trunc-Prop :
+  {l1 l2 : Level} {A : UU l1} (P : type-trunc-Prop A → UU-Prop l2) →
+  (((y : type-trunc-Prop A) → type-Prop (P y)) ≃
+  ((x : A) → type-Prop (P (unit-trunc-Prop A x))))
+equiv-dependent-universal-property-trunc-Prop P =
+  pair
+    ( precomp-Π (unit-trunc-Prop _) (type-Prop ∘ P))
+    ( dependent-universal-property-trunc-Prop P)
+
+ind-trunc-Prop :
+  {l l1 : Level} {A : UU l1} (P : type-trunc-Prop A → UU-Prop l) →
+  (( x : A) → type-Prop (P (unit-trunc-Prop A x))) →
+  (( y : type-trunc-Prop A) → type-Prop (P y))
+ind-trunc-Prop {l} {l1} {A} P =
+  map-inv-is-equiv (dependent-universal-property-trunc-Prop P)
+
+comp-trunc-Prop :
+  {l l1 : Level} {A : UU l1} (P : type-trunc-Prop A → UU-Prop l) →
+  ((precomp-Π (unit-trunc-Prop A) (type-Prop ∘ P)) ∘ ind-trunc-Prop P) ~ id
+comp-trunc-Prop P =
+  issec-map-inv-is-equiv (dependent-universal-property-trunc-Prop P)
 
 abstract
   is-propositional-truncation-dependent-universal-property :
