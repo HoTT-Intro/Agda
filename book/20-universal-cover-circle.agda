@@ -343,14 +343,14 @@ equiv-tr-contraction-total-space' :
 equiv-tr-contraction-total-space' c p f e e' H =
   ( equiv-postcomp-Π
     ( λ y → equiv-concat' c (inv (segment-Σ p f e e' H y)))) ∘e
-  ( precomp-Π-equiv f _)
+  ( equiv-precomp-Π f _)
 
 equiv-contraction-total-space :
   { l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} (c : Σ A B) →
   ( x : A) → {F : UU l3} (e : F ≃ B x) →
   ( contraction-total-space c x) ≃ (contraction-total-space' c x e)
 equiv-contraction-total-space c x e =
-  precomp-Π-equiv e (λ y → Id c (pair x y))
+  equiv-precomp-Π e (λ y → Id c (pair x y))
 
 tr-path-total-tr-coherence :
   { l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} (c : Σ A B) (x : A) →
@@ -432,7 +432,7 @@ map-path-over-contraction-total-space' c {x} {.x} refl f e e' H h h' α =
             ( map-equiv (equiv-tr-contraction-total-space' c refl f e e' H))
             ( issec-map-inv-is-equiv
               ( is-equiv-map-equiv
-                ( precomp-Π-equiv e' (λ y' → Id c (pair x y'))))
+                ( equiv-precomp-Π e' (λ y' → Id c (pair x y'))))
               ( h'))))))
 
 equiv-path-over-contraction-total-space' :
@@ -460,7 +460,7 @@ equiv-path-over-contraction-total-space' c {x} {.x} refl f e e' H h h' =
           ( map-equiv (equiv-tr-contraction-total-space' c refl f e e' H))
           ( issec-map-inv-is-equiv
             ( is-equiv-map-equiv
-              ( precomp-Π-equiv e' (λ y' → Id c (pair x y'))))
+              ( equiv-precomp-Π e' (λ y' → Id c (pair x y'))))
             ( h')))) ∘e
       ( ( equiv-concat
           ( inv

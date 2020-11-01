@@ -52,7 +52,7 @@ count-is-equiv' is-equiv-f = count-equiv' (pair _ is-equiv-f)
 has-decidable-equality-count :
   {l : Level} {X : UU l} → count X → has-decidable-equality X
 has-decidable-equality-count (pair k e) =
-  has-decidable-equality-equiv' e (has-decidable-equality-Fin k)
+  has-decidable-equality-equiv' e has-decidable-equality-Fin
 
 {- Fin k has a count -}
 
@@ -127,7 +127,7 @@ count-eq d {x} {y} =
       ( is-set-has-decidable-equality d x y)
       ( eq-Eq-has-decidable-equality d)
       ( Eq-has-decidable-equality-eq d))
-      ( count-Eq-has-decidable-equality d)
+    ( count-Eq-has-decidable-equality d)
 
 {- Types equipped with a count are closed under coproducts -}
 
@@ -183,10 +183,10 @@ count-fiber-count-Σ {B = B} e f x =
     ( count-Σ f
       ( λ z → count-eq (has-decidable-equality-count e)))
 
-equiv-section-count-base-count-Σ :
+equiv-total-fib-map-section :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
   Σ (Σ A B) (fib (map-section b)) ≃ A
-equiv-section-count-base-count-Σ b = equiv-total-fib (map-section b)
+equiv-total-fib-map-section b = equiv-total-fib (map-section b)
 
 count-fib-map-section :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
@@ -208,7 +208,7 @@ count-base-count-Σ :
   count (Σ A B) → ((x : A) → count (B x)) → count A
 count-base-count-Σ b e f =
   count-equiv
-    ( equiv-section-count-base-count-Σ b)
+    ( equiv-total-fib-map-section b)
     ( count-Σ e (count-fib-map-section b e f))
 
 section-count-base-count-Σ' :

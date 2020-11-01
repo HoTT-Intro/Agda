@@ -133,24 +133,24 @@ is-decidable-Eq-Fin (succ-ℕ k) (inr x) (inl y) = inr id
 is-decidable-Eq-Fin (succ-ℕ k) (inr x) (inr y) = inl star
 
 has-decidable-equality-Fin :
-  (k : ℕ) (x y : Fin k) → is-decidable (Id x y)
-has-decidable-equality-Fin k x y =
+  {k : ℕ} (x y : Fin k) → is-decidable (Id x y)
+has-decidable-equality-Fin {k} x y =
   map-coprod eq-Eq-Fin (functor-neg Eq-Fin-eq) (is-decidable-Eq-Fin k x y)
 
 is-decidable-is-zero-Fin :
   {k : ℕ} (x : Fin k) → is-decidable (is-zero-Fin x)
 is-decidable-is-zero-Fin {succ-ℕ k} x =
-  has-decidable-equality-Fin (succ-ℕ k) x zero-Fin
+  has-decidable-equality-Fin x zero-Fin
 
 is-decidable-is-neg-one-Fin :
   {k : ℕ} (x : Fin k) → is-decidable (is-neg-one-Fin x)
 is-decidable-is-neg-one-Fin {succ-ℕ k} x =
-  has-decidable-equality-Fin (succ-ℕ k) x neg-one-Fin
+  has-decidable-equality-Fin x neg-one-Fin
 
 is-decidable-is-one-Fin :
   {k : ℕ} (x : Fin k) → is-decidable (is-one-Fin x)
 is-decidable-is-one-Fin {succ-ℕ k} x =
-  has-decidable-equality-Fin (succ-ℕ k) x one-Fin
+  has-decidable-equality-Fin x one-Fin
 
 {- Theorem 8.1.9 -}
 

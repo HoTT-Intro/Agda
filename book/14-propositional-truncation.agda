@@ -1045,3 +1045,60 @@ is-equiv-ev-intro-exists-Prop P Q =
     ( is-prop-type-hom-Prop (exists-Prop P) Q)
     ( is-prop-Π ((λ x → is-prop-type-hom-Prop (P x) Q)))
     ( elim-exists-Prop P Q)
+
+--------------------------------------------------------------------------------
+
+map-distributive-trunc-prod-Prop :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  type-trunc-Prop (A × B) → type-trunc-Prop A × type-trunc-Prop B
+map-distributive-trunc-prod-Prop {l1} {l2} {A} {B} =
+  map-universal-property-trunc-Prop
+    ( pair
+      ( type-trunc-Prop A × type-trunc-Prop B)
+      ( is-prop-prod is-prop-type-trunc-Prop is-prop-type-trunc-Prop))
+    ( map-prod unit-trunc-Prop unit-trunc-Prop)
+
+map-inv-distributive-trunc-prod-Prop :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  type-trunc-Prop A × type-trunc-Prop B → type-trunc-Prop (A × B)
+map-inv-distributive-trunc-prod-Prop {l1} {l2} {A} {B} t =
+  map-universal-property-trunc-Prop
+    ( trunc-Prop (A × B))
+    ( λ x →
+      map-universal-property-trunc-Prop
+        ( trunc-Prop (A × B))
+        ( unit-trunc-Prop ∘ (pair x))
+        ( pr2 t))
+    ( pr1 t)
+
+is-equiv-map-distributive-trunc-prod-Prop :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  is-equiv (map-distributive-trunc-prod-Prop {A = A} {B = B})
+is-equiv-map-distributive-trunc-prod-Prop {l1} {l2} {A} {B} =
+  is-equiv-is-prop
+    ( is-prop-type-trunc-Prop)
+    ( is-prop-prod is-prop-type-trunc-Prop is-prop-type-trunc-Prop)
+    ( map-inv-distributive-trunc-prod-Prop)
+
+distributive-trunc-prod-Prop :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  type-trunc-Prop (A × B) ≃ (type-trunc-Prop A × type-trunc-Prop B)
+distributive-trunc-prod-Prop =
+  pair map-distributive-trunc-prod-Prop
+       is-equiv-map-distributive-trunc-prod-Prop
+
+is-equiv-map-inv-distributive-trunc-prod-Prop :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  is-equiv (map-inv-distributive-trunc-prod-Prop {A = A} {B = B})
+is-equiv-map-inv-distributive-trunc-prod-Prop {l1} {l2} {A} {B} =
+  is-equiv-is-prop
+    ( is-prop-prod is-prop-type-trunc-Prop is-prop-type-trunc-Prop)
+    ( is-prop-type-trunc-Prop)
+    ( map-distributive-trunc-prod-Prop)
+
+inv-distributive-trunc-prod-Prop :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  ( type-trunc-Prop A × type-trunc-Prop B) ≃ type-trunc-Prop (A × B)
+inv-distributive-trunc-prod-Prop =
+  pair map-inv-distributive-trunc-prod-Prop
+       is-equiv-map-inv-distributive-trunc-prod-Prop
