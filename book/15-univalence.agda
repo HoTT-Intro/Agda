@@ -493,14 +493,14 @@ elim-trunc-decidable-fam-Fin :
   {l1 : Level} {k : ℕ} {B : Fin k → UU l1} →
   ((x : Fin k) → is-decidable (B x)) →
   type-trunc-Prop (Σ (Fin k) B) → Σ (Fin k) B
-elim-trunc-subtype-Fin {l1} {zero-ℕ} {B} d y =
+elim-trunc-decidable-fam-Fin {l1} {zero-ℕ} {B} d y =
   ex-falso (is-empty-type-trunc-Prop pr1 y)
-elim-trunc-subtype-Fin {l1} {succ-ℕ k} {B} d y
+elim-trunc-decidable-fam-Fin {l1} {succ-ℕ k} {B} d y
   with d (inr star)
 ... | inl x = pair (inr star) x
 ... | inr f =
   map-Σ-map-base inl B
-    ( elim-trunc-subtype-Fin {l1} {k} {B ∘ inl}
+    ( elim-trunc-decidable-fam-Fin {l1} {k} {B ∘ inl}
       ( λ x → d (inl x))
       ( map-equiv-trunc-Prop
         ( ( ( right-unit-law-coprod-is-empty
@@ -510,20 +510,45 @@ elim-trunc-subtype-Fin {l1} {succ-ℕ k} {B} d y
           ( right-distributive-Σ-coprod (Fin k) unit B))
         ( y)))
 
+is-finite-base-is-finite-Σ-section :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
+  is-finite (Σ A B) → ((x : A) → is-finite (B x)) → is-finite A
+is-finite-base-is-finite-Σ-section {l1} {l2} {A} {B} b f g =
+  map-universal-property-trunc-Prop
+    ( is-finite-Prop A)
+    ( λ e →
+      is-finite-count
+        ( count-equiv
+          ( ( equiv-total-fib-map-section b) ∘e
+            ( equiv-tot
+              ( λ t →
+                ( equiv-tot (λ x → equiv-eq-pair-Σ (map-section b x) t)) ∘e
+                ( ( assoc-Σ A
+                    ( λ (x : A) → Id x (pr1 t))
+                    ( λ s → Id (tr B (pr2 s) (b (pr1 s))) (pr2 t))) ∘e
+                  ( inv-left-unit-law-Σ-is-contr
+                    ( is-contr-total-path' (pr1 t))
+                    ( pair (pr1 t) refl))))))
+          ( count-Σ e
+            ( λ t → count-eq (has-decidable-equality-is-finite (g (pr1 t)))))))
+    ( f)
+
+{-
+choice-subtype-finite-type :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  (d : (x : A) → is-decidable (B x))
+  is-finite A → type-trunc-Prop (Σ A B) → Σ A B)
+-}
+
 is-finite-base-is-finite-Σ-mere-section :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
   ( b : (x : A) → type-trunc-Prop (B x)) →
   is-finite (Σ A B) → ((x : A) → is-finite (B x)) → is-finite A
-is-finite-base-is-finite-Σ-mere-section {l1} {l2} {A} {B} b f g = {!!}
-{-
-  map-universal-property-trunc-Prop
-    ( is-finite-Prop A)
-    ( λ b' →
-      is-finite-equiv
-        ( equiv-total-fib-map-section b')
-        ( is-finite-Σ f (is-finite-fib-map-section b' f g)))
-    ( b)
--}
+is-finite-base-is-finite-Σ-mere-section {l1} {l2} {A} {B} b f g =
+  is-finite-base-is-finite-Σ-section
+    ( λ x → {!map-universal-property-trunc-Prop!})
+    f
+    g
 
 section-is-finite-base-is-finite-Σ :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → is-finite (Σ A B) →
