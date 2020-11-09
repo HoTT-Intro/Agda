@@ -1252,3 +1252,66 @@ associative-add-ℕ₂ x y one-ℕ₂ = {!!}
 associative-add-ℕ₂ x y (double-plus-two-ℕ₂ z) = {!!}
 associative-add-ℕ₂ x y (double-plus-three-ℕ₂ z) = {!!}
 -}
+
+--------------------------------------------------------------------------------
+
+leq-Fin :
+  {k : ℕ} → Fin k → Fin k → UU lzero
+leq-Fin {succ-ℕ k} (inl x) (inl y) = leq-Fin x y
+leq-Fin {succ-ℕ k} (inr x) (inl y) = empty
+leq-Fin {succ-ℕ k} x (inr star) = unit
+
+refl-leq-Fin :
+  {k : ℕ} (x : Fin k) → leq-Fin x x
+refl-leq-Fin {succ-ℕ k} (inl x) = refl-leq-Fin x
+refl-leq-Fin {succ-ℕ k} (inr star) = star
+
+antisymmetric-leq-Fin :
+  {k : ℕ} {x y : Fin k} → leq-Fin x y → leq-Fin y x → Id x y
+antisymmetric-leq-Fin {succ-ℕ k} {inl x} {inl y} H K =
+  ap inl (antisymmetric-leq-Fin H K)
+antisymmetric-leq-Fin {succ-ℕ k} {inr star} {inr star} H K = refl
+
+transitive-leq-Fin :
+  {k : ℕ} {x y z : Fin k} → leq-Fin x y → leq-Fin {k} y z → leq-Fin {k} x z
+transitive-leq-Fin {succ-ℕ k} {inl x} {inl y} {inl z} H K =
+  transitive-leq-Fin {k} H K
+transitive-leq-Fin {succ-ℕ k} {inl x} {inl y} {inr star} H K = star
+transitive-leq-Fin {succ-ℕ k} {inl x} {inr star} {inr star} H K = star
+transitive-leq-Fin {succ-ℕ k} {inr star} {inr star} {inr star} H K = star
+
+preserves-leq-nat-Fin :
+  {k : ℕ} {x y : Fin k} → leq-Fin x y → leq-ℕ (nat-Fin x) (nat-Fin y)
+preserves-leq-nat-Fin {succ-ℕ k} {inl x} {inl y} H =
+  preserves-leq-nat-Fin {k} H
+preserves-leq-nat-Fin {succ-ℕ k} {inl x} {inr star} H =
+  leq-le-ℕ {nat-Fin x} {k} (strict-upper-bound-nat-Fin x)
+preserves-leq-nat-Fin {succ-ℕ k} {inr star} {inr star} H =
+  reflexive-leq-ℕ k
+
+reflects-leq-nat-Fin :
+  {k : ℕ} {x y : Fin k} → leq-ℕ (nat-Fin x) (nat-Fin y) → leq-Fin x y
+reflects-leq-nat-Fin {succ-ℕ k} {inl x} {inl y} H =
+  reflects-leq-nat-Fin {k} H
+reflects-leq-nat-Fin {succ-ℕ k} {inr star} {inl y} H =
+  ex-falso (contradiction-le-ℕ (nat-Fin y) k (strict-upper-bound-nat-Fin y) H)
+reflects-leq-nat-Fin {succ-ℕ k} {inl x} {inr star} H = star
+reflects-leq-nat-Fin {succ-ℕ k} {inr star} {inr star} H = star
+
+is-lower-bound-Fin :
+  {l : Level} {k : ℕ} (P : Fin k → UU l) → Fin k → UU l
+is-lower-bound-Fin {l} {k} P x =
+  (y : Fin k) → P y → leq-ℕ (nat-Fin x) (nat-Fin y)
+
+minimal-element-Fin :
+  {l : Level} {k : ℕ} (P : Fin k → UU l) → UU l
+minimal-element-Fin {l} {k} P =
+  Σ (Fin k) (λ x → (P x) × is-lower-bound-Fin P x)
+
+minimal-element-decidable-subtype-Fin :
+  {l : Level} {k : ℕ} {P : Fin k → UU l} →
+  ((x : Fin k) → is-decidable (P x)) →
+  Σ (Fin k) P → minimal-element-Fin P
+minimal-element-decidable-subtype-Fin {l} {succ-ℕ k} d (pair (inl x) p) =
+  {!!}
+minimal-element-decidable-subtype-Fin {l} {succ-ℕ k} d (pair (inr x) p) = {!!}

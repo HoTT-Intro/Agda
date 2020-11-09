@@ -540,6 +540,25 @@ choice-subtype-finite-type :
   is-finite A → type-trunc-Prop (Σ A B) → Σ A B)
 -}
 
+is-prop-minimal-element-subtype-Fin :
+  {l : Level} {k : ℕ} (P : Fin k → UU l) →
+  ((x : Fin k) → is-prop (P x)) → is-prop (minimal-element-Fin P)
+is-prop-minimal-element-subtype-Fin P = {!!}
+
+element-inhabited-decidable-subtype-Fin :
+  {l : Level} {k : ℕ} {P : Fin k → UU l} →
+  ((x : Fin k) → is-decidable (P x)) → ((x : Fin k) → is-prop (P x)) →
+  type-trunc-Prop (Σ (Fin k) P) → Σ (Fin k) P
+element-inhabited-decidable-subtype-Fin {l} {k} {P} d H t =
+  tot
+    ( λ x → pr1)
+    ( map-universal-property-trunc-Prop
+      ( pair
+        ( minimal-element-Fin P)
+        ( is-prop-minimal-element-subtype-Fin P H))
+      ( minimal-element-decidable-subtype-Fin d)
+      ( t))
+
 is-finite-base-is-finite-Σ-mere-section :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
   ( b : (x : A) → type-trunc-Prop (B x)) →
