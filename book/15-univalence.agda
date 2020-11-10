@@ -533,17 +533,43 @@ is-finite-base-is-finite-Σ-section {l1} {l2} {A} {B} b f g =
             ( λ t → count-eq (has-decidable-equality-is-finite (g (pr1 t)))))))
     ( f)
 
-{-
-choice-subtype-finite-type :
+is-finite-base-is-finite-Σ-mere-section :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  (d : (x : A) → is-decidable (B x))
-  is-finite A → type-trunc-Prop (Σ A B) → Σ A B)
--}
+  type-trunc-Prop ((x : A) → B x) →
+  is-finite (Σ A B) → ((x : A) → is-finite (B x)) → is-finite A
+is-finite-base-is-finite-Σ-mere-section {l1} {l2} {A} {B} H f g =
+  map-universal-property-trunc-Prop
+    ( is-finite-Prop A)
+    ( λ b → is-finite-base-is-finite-Σ-section b f g)
+    ( H)
+
+is-prop-leq-Fin :
+  {k : ℕ} (x y : Fin k) → is-prop (leq-Fin x y)
+is-prop-leq-Fin {succ-ℕ k} (inl x) (inl y) = is-prop-leq-Fin x y
+is-prop-leq-Fin {succ-ℕ k} (inl x) (inr star) = is-prop-unit
+is-prop-leq-Fin {succ-ℕ k} (inr star) (inl y) = is-prop-empty
+is-prop-leq-Fin {succ-ℕ k} (inr star) (inr star) = is-prop-unit
+
+is-prop-is-lower-bound-Fin :
+  {l : Level} {k : ℕ} {P : Fin k → UU l} (x : Fin k) →
+  is-prop (is-lower-bound-Fin P x)
+is-prop-is-lower-bound-Fin x =
+  is-prop-Π (λ y → is-prop-function-type (is-prop-leq-Fin x y))
+
+is-prop-minimal-element-subtype-Fin' :
+  {l : Level} {k : ℕ} (P : Fin k → UU l) →
+  ((x : Fin k) → is-prop (P x)) → is-prop' (minimal-element-Fin P)
+is-prop-minimal-element-subtype-Fin' P H
+  (pair x (pair p l)) (pair y (pair q m)) =
+  eq-subtype
+    ( λ t → is-prop-prod (H t) (is-prop-is-lower-bound-Fin t))
+    ( antisymmetric-leq-Fin (l y q) (m x p))
 
 is-prop-minimal-element-subtype-Fin :
   {l : Level} {k : ℕ} (P : Fin k → UU l) →
   ((x : Fin k) → is-prop (P x)) → is-prop (minimal-element-Fin P)
-is-prop-minimal-element-subtype-Fin P = {!!}
+is-prop-minimal-element-subtype-Fin P H =
+  is-prop-is-prop' (is-prop-minimal-element-subtype-Fin' P H)
 
 element-inhabited-decidable-subtype-Fin :
   {l : Level} {k : ℕ} {P : Fin k → UU l} →
@@ -559,15 +585,29 @@ element-inhabited-decidable-subtype-Fin {l} {k} {P} d H t =
       ( minimal-element-decidable-subtype-Fin d)
       ( t))
 
-is-finite-base-is-finite-Σ-mere-section :
+choice-is-finite-Σ-is-finite-fiber :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  is-finite (Σ A B) → ((x : A) → is-finite (B x)) →
+  ((x : A) → type-trunc-Prop (B x)) → type-trunc-Prop ((x : A) → B x)
+choice-is-finite-Σ-is-finite-fiber {l1} {l2} {A} {B} f g H =
+  map-universal-property-trunc-Prop
+    ( trunc-Prop ((x : A) → B x))
+    ( λ e →
+      unit-trunc-Prop
+        ( λ x →
+          map-fib-pr1 B x
+            {!map-Σ!}))
+    ( f)
+
+is-finite-base-is-finite-Σ-merely-inhabited :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
   ( b : (x : A) → type-trunc-Prop (B x)) →
   is-finite (Σ A B) → ((x : A) → is-finite (B x)) → is-finite A
-is-finite-base-is-finite-Σ-mere-section {l1} {l2} {A} {B} b f g =
-  is-finite-base-is-finite-Σ-section
-    ( λ x → {!map-universal-property-trunc-Prop!})
-    f
-    g
+is-finite-base-is-finite-Σ-merely-inhabited {l1} {l2} {A} {B} b f g =
+  is-finite-base-is-finite-Σ-mere-section
+    ( choice-is-finite-Σ-is-finite-fiber f g b)
+    ( f)
+    ( g)
 
 section-is-finite-base-is-finite-Σ :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → is-finite (Σ A B) →
