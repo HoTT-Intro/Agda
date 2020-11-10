@@ -298,9 +298,23 @@ mere-equiv-is-finite f =
 is-finite-empty : is-finite empty
 is-finite-empty = is-finite-count count-empty
 
+has-finite-cardinality-empty : has-finite-cardinality empty
+has-finite-cardinality-empty = pair zero-ℕ (unit-trunc-Prop equiv-id)
+
 is-finite-is-empty :
   {l1 : Level} {X : UU l1} → is-empty X → is-finite X
 is-finite-is-empty H = is-finite-count (count-is-empty H)
+
+has-finite-cardinality-is-empty :
+  {l1 : Level} {X : UU l1} → is-empty X → has-finite-cardinality X
+has-finite-cardinality-is-empty f =
+  pair zero-ℕ (unit-trunc-Prop (equiv-count (count-is-empty f)))
+
+is-empty-is-zero-number-of-elements-is-finite :
+  {l1 : Level} {X : UU l1} (f : is-finite X) →
+  is-zero-ℕ (number-of-elements-is-finite f) → is-empty X
+is-empty-is-zero-number-of-elements-is-finite f p x =
+  map-universal-property-trunc-Prop empty-Prop (λ e → {!tr Fin p (map-inv-equiv (equiv-count e) x)!}) f
 
 is-finite-unit : is-finite unit
 is-finite-unit = is-finite-count count-unit
@@ -533,12 +547,13 @@ is-finite-base-is-finite-Σ-section {l1} {l2} {A} {B} b f g =
             ( λ t → count-eq (has-decidable-equality-is-finite (g (pr1 t)))))))
     ( f)
 
-{-
-choice-subtype-finite-type :
+choice-subtype-is-finite :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  (d : (x : A) → is-decidable (B x))
-  is-finite A → type-trunc-Prop (Σ A B) → Σ A B)
--}
+  (d : (x : A) → is-decidable (B x)) →
+  is-finite A → type-trunc-Prop (Σ A B) → Σ A B
+choice-subtype-is-finite d f t with has-finite-cardinality-is-finite f
+... | pair zero-ℕ e = ex-falso (map-universal-property-trunc-Prop empty-Prop {!is-empty-is-zero-number-of-elements-has-finite-cardinality!} t)
+... | pair (succ-ℕ k) e = {!!}
 
 is-finite-base-is-finite-Σ-mere-section :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
