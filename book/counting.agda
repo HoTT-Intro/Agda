@@ -9,29 +9,33 @@ open book.12-truncation-levels public
 count : {l : Level} → UU l → UU l
 count X = Σ ℕ (λ k → Fin k ≃ X)
 
-number-of-elements : {l : Level} {X : UU l} → count X → ℕ
-number-of-elements = pr1
+number-of-elements-count : {l : Level} {X : UU l} → count X → ℕ
+number-of-elements-count = pr1
 
 equiv-count :
-  {l : Level} {X : UU l} (e : count X) → Fin (number-of-elements e) ≃ X
+  {l : Level} {X : UU l} (e : count X) → Fin (number-of-elements-count e) ≃ X
 equiv-count = pr2
 
 map-equiv-count :
-  {l : Level} {X : UU l} (e : count X) → Fin (number-of-elements e) → X
+  {l : Level} {X : UU l} (e : count X) → Fin (number-of-elements-count e) → X
 map-equiv-count e = map-equiv (equiv-count e)
+
+map-inv-equiv-count :
+  {l : Level} {X : UU l} (e : count X) → X → Fin (number-of-elements-count e)
+map-inv-equiv-count e = map-inv-equiv (equiv-count e)
 
 {- We show that count is closed under equivalences -}
 
 abstract
   equiv-count-equiv :
     {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ≃ Y) (f : count X) →
-    Fin (number-of-elements f) ≃ Y
+    Fin (number-of-elements-count f) ≃ Y
   equiv-count-equiv e f = e ∘e (equiv-count f)
 
 count-equiv :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ≃ Y) → count X → count Y
 count-equiv e f =
-  pair (number-of-elements f) (equiv-count-equiv e f)
+  pair (number-of-elements-count f) (equiv-count-equiv e f)
 
 count-equiv' :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ≃ Y) → count Y → count X
@@ -61,17 +65,17 @@ count-Fin k = pair k equiv-id
 
 {- A type as 0 elements if and only if it is empty -}
 
-is-empty-is-zero-number-of-elements :
+is-empty-is-zero-number-of-elements-count :
   {l : Level} {X : UU l} (e : count X) →
-  is-zero-ℕ (number-of-elements e) → is-empty X
-is-empty-is-zero-number-of-elements (pair .zero-ℕ e) refl x =
+  is-zero-ℕ (number-of-elements-count e) → is-empty X
+is-empty-is-zero-number-of-elements-count (pair .zero-ℕ e) refl x =
   map-inv-equiv e x
 
-is-zero-number-of-elements-is-empty :
+is-zero-number-of-elements-count-is-empty :
   {l : Level} {X : UU l} (e : count X) →
-  is-empty X → is-zero-ℕ (number-of-elements e)
-is-zero-number-of-elements-is-empty (pair zero-ℕ e) H = refl
-is-zero-number-of-elements-is-empty (pair (succ-ℕ k) e) H =
+  is-empty X → is-zero-ℕ (number-of-elements-count e)
+is-zero-number-of-elements-count-is-empty (pair zero-ℕ e) H = refl
+is-zero-number-of-elements-count-is-empty (pair (succ-ℕ k) e) H =
   ex-falso (H (map-equiv e zero-Fin))
 
 count-is-empty :
@@ -88,16 +92,16 @@ count-is-contr :
   {l : Level} {X : UU l} → is-contr X → count X
 count-is-contr H = pair one-ℕ (equiv-is-contr is-contr-Fin-one-ℕ H)
 
-is-contr-is-one-number-of-elements :
+is-contr-is-one-number-of-elements-count :
   {l : Level} {X : UU l} (e : count X) →
-  is-one-ℕ (number-of-elements e) → is-contr X
-is-contr-is-one-number-of-elements (pair .(succ-ℕ zero-ℕ) e) refl =
+  is-one-ℕ (number-of-elements-count e) → is-contr X
+is-contr-is-one-number-of-elements-count (pair .(succ-ℕ zero-ℕ) e) refl =
   is-contr-equiv' (Fin one-ℕ) e is-contr-Fin-one-ℕ
 
-is-one-number-of-elements-is-contr :
+is-one-number-of-elements-count-is-contr :
   {l : Level} {X : UU l} (e : count X) →
-  is-contr X → is-one-ℕ (number-of-elements e)
-is-one-number-of-elements-is-contr (pair k e) H =
+  is-contr X → is-one-ℕ (number-of-elements-count e)
+is-one-number-of-elements-count-is-contr (pair k e) H =
   is-injective-Fin (equiv-is-contr H is-contr-Fin-one-ℕ ∘e e)
 
 count-unit : count unit
@@ -147,7 +151,7 @@ count-Σ' :
   (k : ℕ) (e : Fin k ≃ A) → ((x : A) → count (B x)) → count (Σ A B)
 count-Σ' zero-ℕ e f =
   count-is-empty
-    ( λ x → is-empty-is-zero-number-of-elements (pair zero-ℕ e) refl (pr1 x))
+    ( λ x → is-empty-is-zero-number-of-elements-count (pair zero-ℕ e) refl (pr1 x))
 count-Σ' {l1} {l2} {A} {B} (succ-ℕ k) e f =
   count-equiv
     ( ( equiv-Σ-equiv-base B e) ∘e
@@ -165,14 +169,14 @@ abstract
   equiv-count-Σ' :
     {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
     (k : ℕ) (e : Fin k ≃ A) (f : (x : A) → count (B x)) →
-    Fin (number-of-elements (count-Σ' k e f)) ≃ Σ A B
+    Fin (number-of-elements-count (count-Σ' k e f)) ≃ Σ A B
   equiv-count-Σ' k e f = pr2 (count-Σ' k e f)
 
 count-Σ :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
   count A → ((x : A) → count (B x)) → count (Σ A B)
 count-Σ (pair k e) f =
-  pair (number-of-elements (count-Σ' k e f)) (equiv-count-Σ' k e f)
+  pair (number-of-elements-count (count-Σ' k e f)) (equiv-count-Σ' k e f)
 
 count-fiber-count-Σ :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
@@ -214,10 +218,10 @@ count-base-count-Σ b e f =
 section-count-base-count-Σ' :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → count (Σ A B) →
   (f : (x : A) → count (B x)) →
-  count (Σ A (λ x → is-zero-ℕ (number-of-elements (f x)))) →
-  (x : A) → coprod (B x) (is-zero-ℕ (number-of-elements (f x)))
+  count (Σ A (λ x → is-zero-ℕ (number-of-elements-count (f x)))) →
+  (x : A) → coprod (B x) (is-zero-ℕ (number-of-elements-count (f x)))
 section-count-base-count-Σ' e f g x with
-  is-decidable-is-zero-ℕ (number-of-elements (f x))
+  is-decidable-is-zero-ℕ (number-of-elements-count (f x))
 ... | inl p = inr p
 ... | inr H with is-successor-is-nonzero-ℕ H
 ... | (pair k p) = inl (map-equiv-count (f x) (tr Fin (inv p) zero-Fin))
@@ -225,13 +229,13 @@ section-count-base-count-Σ' e f g x with
 count-base-count-Σ' :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → count (Σ A B) →
   (f : (x : A) → count (B x)) →
-  count (Σ A (λ x → is-zero-ℕ (number-of-elements (f x)))) → count A
+  count (Σ A (λ x → is-zero-ℕ (number-of-elements-count (f x)))) → count A
 count-base-count-Σ' {l1} {l2} {A} {B} e f g =
   count-base-count-Σ
     ( section-count-base-count-Σ' e f g)
     ( count-equiv'
       ( left-distributive-Σ-coprod A B
-        ( λ x → is-zero-ℕ (number-of-elements (f x))))
+        ( λ x → is-zero-ℕ (number-of-elements-count (f x))))
       ( count-coprod e g))
     ( λ x → count-coprod (f x) (count-eq has-decidable-equality-ℕ))
 
@@ -283,22 +287,22 @@ count-right-summand e =
 count-Maybe : {l : Level} {X : UU l} → count X → count (Maybe X)
 count-Maybe {l} {X} e = count-coprod e count-unit
 
-is-nonzero-number-of-elements-Maybe :
+is-nonzero-number-of-elements-count-Maybe :
   {l : Level} {X : UU l} (e : count (Maybe X)) →
-  is-nonzero-ℕ (number-of-elements e)
-is-nonzero-number-of-elements-Maybe e p =
-  is-empty-is-zero-number-of-elements e p exception-Maybe
+  is-nonzero-ℕ (number-of-elements-count e)
+is-nonzero-number-of-elements-count-Maybe e p =
+  is-empty-is-zero-number-of-elements-count e p exception-Maybe
 
-is-successor-number-of-elements-Maybe :
+is-successor-number-of-elements-count-Maybe :
   {l : Level} {X : UU l} (e : count (Maybe X)) →
-  is-successor-ℕ (number-of-elements e)
-is-successor-number-of-elements-Maybe e =
-  is-successor-is-nonzero-ℕ (is-nonzero-number-of-elements-Maybe e)
+  is-successor-ℕ (number-of-elements-count e)
+is-successor-number-of-elements-count-Maybe e =
+  is-successor-is-nonzero-ℕ (is-nonzero-number-of-elements-count-Maybe e)
 
 count-count-Maybe :
   {l : Level} {X : UU l} → count (Maybe X) → count X
 count-count-Maybe (pair k e) with
-  is-successor-number-of-elements-Maybe (pair k e)
+  is-successor-number-of-elements-count-Maybe (pair k e)
 ... | pair l refl = pair l (equiv-equiv-Maybe e)
 
 {- X × Y has a count if and only if Y → count X and X → count Y -}
@@ -354,7 +358,7 @@ count-decidable-subset P d e =
 is-decidable-count :
   {l : Level} {X : UU l} → count X → is-decidable X
 is-decidable-count (pair zero-ℕ e) =
-  inr (is-empty-is-zero-number-of-elements (pair zero-ℕ e) refl)
+  inr (is-empty-is-zero-number-of-elements-count (pair zero-ℕ e) refl)
 is-decidable-count (pair (succ-ℕ k) e) =
   inl (map-equiv e zero-Fin)
 
@@ -368,3 +372,82 @@ is-decidable-count-subset :
   {l1 l2 : Level} {X : UU l1} (P : X → UU-Prop l2) → count X →
   count (Σ X (λ x → type-Prop (P x))) → (x : X) → is-decidable (type-Prop (P x))
 is-decidable-count-subset P = is-decidable-count-Σ
+
+----------
+
+leq-count :
+  {l : Level} {X : UU l} → count X → X → X → UU lzero
+leq-count e x y =
+  leq-Fin (map-inv-equiv-count e x) (map-inv-equiv-count e y)
+
+refl-leq-count :
+  {l : Level} {X : UU l} (e : count X) (x : X) → leq-count e x x
+refl-leq-count (pair k e) x = refl-leq-Fin (map-inv-equiv e x)
+
+antisymmetric-leq-count :
+  {l : Level} {X : UU l} (e : count X) {x y : X} →
+  leq-count e x y → leq-count e y x → Id x y
+antisymmetric-leq-count (pair k e) H K =
+  is-injective-map-inv-equiv e (antisymmetric-leq-Fin H K)
+
+transitive-leq-count :
+  {l : Level} {X : UU l} (e : count X) {x y z : X} →
+  leq-count e x y → leq-count e y z → leq-count e x z
+transitive-leq-count (pair k e) {x} {y} {z} H K =
+  transitive-leq-Fin {x = map-inv-equiv e x} {map-inv-equiv e y} H K
+
+preserves-leq-equiv-count :
+  {l : Level} {X : UU l} (e : count X)
+  {x y : Fin (number-of-elements-count e)} →
+  leq-Fin x y → leq-count e (map-equiv-count e x) (map-equiv-count e y)
+preserves-leq-equiv-count e {x} {y} H =
+  concatenate-eq-leq-eq-Fin
+    ( isretr-map-inv-equiv (equiv-count e) x)
+    ( H)
+    ( inv (isretr-map-inv-equiv (equiv-count e) y))
+
+reflects-leq-equiv-count :
+  {l : Level} {X : UU l} (e : count X)
+  {x y : Fin (number-of-elements-count e)} →
+  leq-count e (map-equiv-count e x) (map-equiv-count e y) → leq-Fin x y
+reflects-leq-equiv-count e {x} {y} H =
+  concatenate-eq-leq-eq-Fin
+    ( inv (isretr-map-inv-equiv (equiv-count e) x))
+    ( H)
+    ( isretr-map-inv-equiv (equiv-count e) y)
+
+transpose-leq-equiv-count :
+  {l : Level} {X : UU l} (e : count X) →
+  {x : Fin (number-of-elements-count e)} {y : X} →
+  leq-Fin x (map-inv-equiv-count e y) → leq-count e (map-equiv-count e x) y
+transpose-leq-equiv-count e {x} {y} H =
+  concatenate-eq-leq-eq-Fin
+    ( isretr-map-inv-equiv (equiv-count e) x)
+    ( H)
+    ( refl)
+
+is-lower-bound-count :
+  {l1 l2 : Level} {A : UU l1} → count A → (A → UU l2) → A → UU (l1 ⊔ l2)
+is-lower-bound-count {l1} {l2} {A} e B a = (x : A) → B x → leq-count e a x
+
+first-element-count :
+  {l1 l2 : Level} {A : UU l1} (e : count A) (B : A → UU l2) → UU (l1 ⊔ l2)
+first-element-count {l1} {l2} {A} e B =
+  Σ A (λ x → (B x) × is-lower-bound-count e B x)
+
+first-element-is-decidable-subtype-count :
+  {l1 l2 : Level} {A : UU l1} (e : count A) {B : A → UU l2} →
+  ((x : A) → is-decidable (B x)) → ((x : A) → is-prop (B x)) →
+  Σ A B → first-element-count e B
+first-element-is-decidable-subtype-count (pair k e) {B} d H (pair a b) =
+  map-Σ
+    ( λ x → (B x) × is-lower-bound-count (pair k e) B x)
+    ( map-equiv e)
+    ( λ x → map-prod {B = is-lower-bound-Fin (B ∘ map-equiv e) x} id
+      ( λ L y b →
+        transpose-leq-equiv-count
+          ( pair k e)
+          ( L (map-inv-equiv e y) (tr B (inv (issec-map-inv-equiv e y)) b))))
+    ( minimal-element-decidable-subtype-Fin
+      ( λ x → d (map-equiv e x))
+      ( pair (map-inv-equiv e a) (tr B (inv (issec-map-inv-equiv e a)) b)))

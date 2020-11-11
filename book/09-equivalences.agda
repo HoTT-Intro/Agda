@@ -386,10 +386,18 @@ is-injective-is-equiv {l1} {l2} {A} {B} {f} H {x} {y} p =
   ( ( ap (map-inv-is-equiv H) p) ∙
     ( isretr-map-inv-is-equiv H y))
 
-is-injective-map-equiv :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-  (e : A ≃ B) → is-injective (map-equiv e)
-is-injective-map-equiv (pair f H) = is-injective-is-equiv H
+abstract
+  is-injective-map-equiv :
+    {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+    (e : A ≃ B) → is-injective (map-equiv e)
+  is-injective-map-equiv (pair f H) = is-injective-is-equiv H
+
+abstract
+  is-injective-map-inv-equiv :
+    {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+    (e : A ≃ B) → is-injective (map-inv-equiv e)
+  is-injective-map-inv-equiv e =
+    is-injective-is-equiv (is-equiv-map-inv-equiv e)
 
 is-equiv-is-injective :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →

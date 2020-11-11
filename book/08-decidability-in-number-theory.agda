@@ -1252,3 +1252,124 @@ associative-add-ℕ₂ x y one-ℕ₂ = {!!}
 associative-add-ℕ₂ x y (double-plus-two-ℕ₂ z) = {!!}
 associative-add-ℕ₂ x y (double-plus-three-ℕ₂ z) = {!!}
 -}
+
+--------------------------------------------------------------------------------
+
+leq-Fin :
+  {k : ℕ} → Fin k → Fin k → UU lzero
+leq-Fin {succ-ℕ k} (inl x) (inl y) = leq-Fin x y
+leq-Fin {succ-ℕ k} (inr x) (inl y) = empty
+leq-Fin {succ-ℕ k} (inl x) (inr y) = unit
+leq-Fin {succ-ℕ k} (inr x) (inr y) = unit
+
+leq-neg-one-Fin :
+  {k : ℕ} (x : Fin (succ-ℕ k)) → leq-Fin x neg-one-Fin
+leq-neg-one-Fin (inl x) = star
+leq-neg-one-Fin (inr x) = star
+
+refl-leq-Fin :
+  {k : ℕ} (x : Fin k) → leq-Fin x x
+refl-leq-Fin {succ-ℕ k} (inl x) = refl-leq-Fin x
+refl-leq-Fin {succ-ℕ k} (inr star) = star
+
+antisymmetric-leq-Fin :
+  {k : ℕ} {x y : Fin k} → leq-Fin x y → leq-Fin y x → Id x y
+antisymmetric-leq-Fin {succ-ℕ k} {inl x} {inl y} H K =
+  ap inl (antisymmetric-leq-Fin H K)
+antisymmetric-leq-Fin {succ-ℕ k} {inr star} {inr star} H K = refl
+
+transitive-leq-Fin :
+  {k : ℕ} {x y z : Fin k} → leq-Fin x y → leq-Fin {k} y z → leq-Fin {k} x z
+transitive-leq-Fin {succ-ℕ k} {inl x} {inl y} {inl z} H K =
+  transitive-leq-Fin {k} H K
+transitive-leq-Fin {succ-ℕ k} {inl x} {inl y} {inr star} H K = star
+transitive-leq-Fin {succ-ℕ k} {inl x} {inr star} {inr star} H K = star
+transitive-leq-Fin {succ-ℕ k} {inr star} {inr star} {inr star} H K = star
+
+concatenate-eq-leq-eq-Fin :
+  {k : ℕ} {x1 x2 x3 x4 : Fin k} →
+  Id x1 x2 → leq-Fin x2 x3 → Id x3 x4 → leq-Fin x1 x4
+concatenate-eq-leq-eq-Fin refl H refl = H
+
+preserves-leq-nat-Fin :
+  {k : ℕ} {x y : Fin k} → leq-Fin x y → leq-ℕ (nat-Fin x) (nat-Fin y)
+preserves-leq-nat-Fin {succ-ℕ k} {inl x} {inl y} H =
+  preserves-leq-nat-Fin {k} H
+preserves-leq-nat-Fin {succ-ℕ k} {inl x} {inr star} H =
+  leq-le-ℕ {nat-Fin x} {k} (strict-upper-bound-nat-Fin x)
+preserves-leq-nat-Fin {succ-ℕ k} {inr star} {inr star} H =
+  reflexive-leq-ℕ k
+
+reflects-leq-nat-Fin :
+  {k : ℕ} {x y : Fin k} → leq-ℕ (nat-Fin x) (nat-Fin y) → leq-Fin x y
+reflects-leq-nat-Fin {succ-ℕ k} {inl x} {inl y} H =
+  reflects-leq-nat-Fin {k} H
+reflects-leq-nat-Fin {succ-ℕ k} {inr star} {inl y} H =
+  ex-falso (contradiction-le-ℕ (nat-Fin y) k (strict-upper-bound-nat-Fin y) H)
+reflects-leq-nat-Fin {succ-ℕ k} {inl x} {inr star} H = star
+reflects-leq-nat-Fin {succ-ℕ k} {inr star} {inr star} H = star
+
+is-lower-bound-Fin :
+  {l : Level} {k : ℕ} (P : Fin k → UU l) → Fin k → UU l
+is-lower-bound-Fin {l} {k} P x =
+  (y : Fin k) → P y → leq-Fin x y
+
+minimal-element-Fin :
+  {l : Level} {k : ℕ} (P : Fin k → UU l) → UU l
+minimal-element-Fin {l} {k} P =
+  Σ (Fin k) (λ x → (P x) × is-lower-bound-Fin P x)
+
+is-lower-bound-inl-Fin :
+  {l : Level} {k : ℕ} {P : Fin (succ-ℕ k) → UU l} {x : Fin k} →
+  is-lower-bound-Fin (P ∘ inl) x → is-lower-bound-Fin P (inl-Fin k x)
+is-lower-bound-inl-Fin H (inl y) p = H y p
+is-lower-bound-inl-Fin {l} {k} {P} {x} H (inr star) p =
+  ( leq-neg-one-Fin (inl x))
+
+is-decidable-Σ-Fin :
+  {l : Level} {k : ℕ} {P : Fin k → UU l} →
+  ((x : Fin k) → is-decidable (P x)) → is-decidable (Σ (Fin k) P)
+is-decidable-Σ-Fin {l} {zero-ℕ} {P} d = inr pr1
+is-decidable-Σ-Fin {l} {succ-ℕ k} {P} d with d (inr star)
+... | inl p = inl (pair (inr star) p)
+... | inr f =
+  is-decidable-iff
+    ( λ t → pair (inl (pr1 t)) (pr2 t))
+    ( g)
+    ( is-decidable-Σ-Fin {l} {k} {P ∘ inl} (λ x → d (inl x)))
+  where
+  g : Σ (Fin (succ-ℕ k)) P → Σ (Fin k) (P ∘ inl)
+  g (pair (inl x) p) = pair x p
+  g (pair (inr star) p) = ex-falso (f p)
+
+minimal-element-decidable-subtype-Fin :
+  {l : Level} {k : ℕ} {P : Fin k → UU l} →
+  ((x : Fin k) → is-decidable (P x)) →
+  Σ (Fin k) P → minimal-element-Fin P
+minimal-element-decidable-subtype-Fin {l} {succ-ℕ k} d (pair (inl x) p) =
+  pair
+    ( inl (pr1 m))
+    ( pair
+      ( pr1 (pr2 m))
+      ( is-lower-bound-inl-Fin (pr2 (pr2 m))))
+  where
+  m = minimal-element-decidable-subtype-Fin (λ x' → d (inl x')) (pair x p)
+minimal-element-decidable-subtype-Fin {l} {succ-ℕ k} {P} d (pair (inr star) p)
+  with
+  is-decidable-Σ-Fin (λ t → d (inl t))
+... | inl t =
+  pair
+    ( inl (pr1 m))
+    ( pair
+      ( pr1 (pr2 m))
+      ( is-lower-bound-inl-Fin (pr2 (pr2 m))))
+  where
+  m = minimal-element-decidable-subtype-Fin (λ x' → d (inl x')) t
+... | inr f =
+  pair
+    ( inr star)
+    ( pair p g)
+  where
+  g : (y : Fin (succ-ℕ k)) → P y → leq-Fin (neg-one-Fin {k}) y
+  g (inl y) q = ex-falso (f (pair y q))
+  g (inr star) q = refl-leq-Fin (neg-one-Fin {k})

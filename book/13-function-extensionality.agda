@@ -315,17 +315,20 @@ type-implication-Prop P Q = type-hom-Prop P Q
 
 -- Negation is a special case of function-Prop and hom-Prop
 
-is-prop-neg :
-  {l : Level} {A : UU l} → is-prop (¬ A)
+is-prop-neg : {l : Level} {A : UU l} → is-prop (¬ A)
 is-prop-neg {A = A} = is-prop-function-type is-prop-empty
 
-neg-Prop' :
-  {l1 : Level} → UU l1 → UU-Prop l1
+neg-Prop' : {l1 : Level} → UU l1 → UU-Prop l1
 neg-Prop' A = pair (¬ A) is-prop-neg
 
-neg-Prop :
-  {l1 : Level} → UU-Prop l1 → UU-Prop l1
+neg-Prop : {l1 : Level} → UU-Prop l1 → UU-Prop l1
 neg-Prop P = neg-Prop' (type-Prop P)
+
+is-prop-is-empty : {l : Level} {A : UU l} → is-prop (is-empty A)
+is-prop-is-empty = is-prop-neg
+
+is-empty-Prop : {l1 : Level} → UU l1 → UU-Prop l1
+is-empty-Prop A = pair (is-empty A) is-prop-is-empty
 
 -- Double negation is a special case of negation
 
