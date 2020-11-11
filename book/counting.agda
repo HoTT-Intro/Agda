@@ -426,6 +426,16 @@ transpose-leq-equiv-count e {x} {y} H =
     ( H)
     ( refl)
 
+transpose-leq-equiv-count' :
+  {l : Level} {X : UU l} (e : count X) →
+  {x : X} {y : Fin (number-of-elements-count e)} →
+  leq-Fin (map-inv-equiv-count e x) y → leq-count e x (map-equiv-count e y)
+transpose-leq-equiv-count' e {x} {y} H =
+  concatenate-eq-leq-eq-Fin
+    ( refl)
+    ( H)
+    ( inv (isretr-map-inv-equiv (equiv-count e) y))
+
 is-lower-bound-count :
   {l1 l2 : Level} {A : UU l1} → count A → (A → UU l2) → A → UU (l1 ⊔ l2)
 is-lower-bound-count {l1} {l2} {A} e B a = (x : A) → B x → leq-count e a x
