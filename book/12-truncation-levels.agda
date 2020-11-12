@@ -235,6 +235,10 @@ abstract
             ( is-emb-f x y)
             ( is-equiv-inv (f x) (f y)))
 
+is-prop-map-emb :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : B ↪ A) → is-prop-map (map-emb f)
+is-prop-map-emb f = is-prop-map-is-emb (is-emb-map-emb f)
+
 fib-emb-Prop :
   {i j : Level} {A : UU i} {B : UU j} (f : A ↪ B) → B → UU-Prop (i ⊔ j)
 fib-emb-Prop f y =

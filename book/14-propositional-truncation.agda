@@ -238,7 +238,13 @@ map-universal-property-trunc-Prop {A = A} P f =
     ( unit-trunc-Prop)
     ( is-propositional-truncation-trunc-Prop A)
     ( P)
-    ( f) 
+    ( f)
+
+apply-universal-property-trunc-Prop :
+  {l1 l2 : Level} {A : UU l1} (t : type-trunc-Prop A) (P : UU-Prop l2) →
+  (A → type-Prop P) → type-Prop P
+apply-universal-property-trunc-Prop t P f =
+  map-universal-property-trunc-Prop P f t
 
 -- Proposition 14.1.9
 
@@ -944,9 +950,10 @@ not-in-image-map-cantor X f (pair x α) =
 cantor : {l1 l2 : Level} (X : UU l1) (f : X → (X → UU-Prop l2)) →
   ¬ (is-surjective f)
 cantor X f H =
-  ( map-universal-property-trunc-Prop empty-Prop
-    ( not-in-image-map-cantor X f)
-    ( H (map-cantor X f)))
+  ( apply-universal-property-trunc-Prop
+    ( H (map-cantor X f))
+    ( empty-Prop)
+    ( not-in-image-map-cantor X f))
 
 --------------------------------------------------------------------------------
 

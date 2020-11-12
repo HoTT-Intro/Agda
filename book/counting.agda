@@ -348,11 +348,11 @@ count-decidable-Prop P (inl p) =
   count-is-contr (is-proof-irrelevant-is-prop (is-prop-type-Prop P) p)
 count-decidable-Prop P (inr f) = count-is-empty f
 
-count-decidable-subset :
+count-decidable-subtype :
   {l1 l2 : Level} {X : UU l1} (P : X → UU-Prop l2) →
   ((x : X) → is-decidable (type-Prop (P x))) →
   count X → count (Σ X (λ x → type-Prop (P x)))
-count-decidable-subset P d e =
+count-decidable-subtype P d e =
   count-Σ e (λ x → count-decidable-Prop (P x) (d x))
 
 is-decidable-count :
@@ -368,10 +368,10 @@ is-decidable-count-Σ :
 is-decidable-count-Σ e f x =
   is-decidable-count (count-fiber-count-Σ e f x)
 
-is-decidable-count-subset :
+is-decidable-count-subtype :
   {l1 l2 : Level} {X : UU l1} (P : X → UU-Prop l2) → count X →
   count (Σ X (λ x → type-Prop (P x))) → (x : X) → is-decidable (type-Prop (P x))
-is-decidable-count-subset P = is-decidable-count-Σ
+is-decidable-count-subtype P = is-decidable-count-Σ
 
 ----------
 

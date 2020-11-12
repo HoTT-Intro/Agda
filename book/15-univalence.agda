@@ -242,15 +242,14 @@ is-prop-has-finite-cardinality' :
 is-prop-has-finite-cardinality' {l1} {X} (pair k K) (pair l L) =
   eq-subtype
     ( λ k → is-prop-type-trunc-Prop)
-    ( map-universal-property-trunc-Prop
+    ( apply-universal-property-trunc-Prop K
       ( pair (Id k l) (is-set-ℕ k l))
       ( λ (e : Fin k ≃ X) →
         map-universal-property-trunc-Prop
           ( pair (Id k l) (is-set-ℕ k l))
           ( λ (f : Fin l ≃ X) →
             is-injective-Fin ((inv-equiv f) ∘e e))
-          ( L))
-      ( K))
+          ( L)))
 
 is-prop-has-finite-cardinality :
   {l1 : Level} {X : UU l1} → is-prop (has-finite-cardinality X)
@@ -265,10 +264,9 @@ has-finite-cardinality-Prop X =
 is-finite-has-finite-cardinality :
   {l : Level} {X : UU l} → has-finite-cardinality X → is-finite X
 is-finite-has-finite-cardinality {l} {X} (pair k K) =
-  map-universal-property-trunc-Prop
+  apply-universal-property-trunc-Prop K
     ( is-finite-Prop X)
     ( is-finite-count ∘ (pair k))
-    ( K)
 
 has-finite-cardinality-count :
   {l1  : Level} {X : UU l1} → count X → has-finite-cardinality X
@@ -333,12 +331,11 @@ is-empty-is-zero-number-of-elements-is-finite :
   {l1 : Level} {X : UU l1} (f : is-finite X) →
   is-zero-ℕ (number-of-elements-is-finite f) → is-empty X
 is-empty-is-zero-number-of-elements-is-finite {l1} {X} f p =
-  map-universal-property-trunc-Prop
+  apply-universal-property-trunc-Prop f
     ( is-empty-Prop X)
     ( λ e →
       is-empty-is-zero-number-of-elements-count e
         ( compute-number-of-elements-is-finite e f ∙ p))
-    ( f)
 
 is-finite-unit : is-finite unit
 is-finite-unit = is-finite-count count-unit
@@ -356,14 +353,13 @@ is-finite-coprod :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
   is-finite X → is-finite Y → is-finite (coprod X Y)
 is-finite-coprod {X = X} {Y} is-finite-X is-finite-Y =
-  map-universal-property-trunc-Prop
+  apply-universal-property-trunc-Prop is-finite-X
     ( is-finite-Prop (coprod X Y))
     ( λ (e : count X) →
       map-universal-property-trunc-Prop
         ( is-finite-Prop (coprod X Y))
         ( is-finite-count ∘ (count-coprod e))
         ( is-finite-Y))
-    ( is-finite-X)
 
 is-finite-left-summand :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → is-finite (coprod X Y) → is-finite X
@@ -381,14 +377,13 @@ is-finite-prod :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
   is-finite X → is-finite Y → is-finite (X × Y)
 is-finite-prod {X = X} {Y} is-finite-X is-finite-Y =
-  map-universal-property-trunc-Prop
+  apply-universal-property-trunc-Prop is-finite-X
     ( is-finite-Prop (X × Y))
     ( λ (e : count X) →
       map-universal-property-trunc-Prop
         ( is-finite-Prop (X × Y))
         ( is-finite-count ∘ (count-prod e))
         ( is-finite-Y))
-    ( is-finite-X)
 
 is-finite-left-factor :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
@@ -430,10 +425,9 @@ finite-choice :
   {l1 l2 : Level} {X : UU l1} {Y : X → UU l2} → is-finite X →
   ((x : X) → type-trunc-Prop (Y x)) → type-trunc-Prop ((x : X) → Y x)
 finite-choice {l1} {l2} {X} {Y} is-finite-X H =
-  map-universal-property-trunc-Prop
+  apply-universal-property-trunc-Prop is-finite-X
     ( trunc-Prop ((x : X) → Y x))
     ( λ e → finite-choice-count e H)
-    ( is-finite-X)
 
 {- Finiteness and Σ-types -}
 
@@ -441,23 +435,21 @@ is-finite-Σ :
   {l1 l2 : Level} {X : UU l1} {Y : X → UU l2} →
   is-finite X → ((x : X) → is-finite (Y x)) → is-finite (Σ X Y)
 is-finite-Σ {X = X} {Y} is-finite-X is-finite-Y =
-  map-universal-property-trunc-Prop
+  apply-universal-property-trunc-Prop is-finite-X
     ( is-finite-Prop (Σ X Y))
     ( λ (e : count X) →
       map-universal-property-trunc-Prop
         ( is-finite-Prop (Σ X Y))
         ( is-finite-count ∘ (count-Σ e))
         ( finite-choice is-finite-X is-finite-Y))
-    ( is-finite-X)
 
 is-finite-fiber-is-finite-Σ :
   {l1 l2 : Level} {X : UU l1} {Y : X → UU l2} →
   is-finite X → is-finite (Σ X Y) → (x : X) → is-finite (Y x)
 is-finite-fiber-is-finite-Σ {l1} {l2} {X} {Y} f g x =
-  map-universal-property-trunc-Prop
+  apply-universal-property-trunc-Prop f
     ( is-finite-Prop (Y x))
     ( λ e → functor-trunc-Prop (λ h → count-fiber-count-Σ e h x) g)
-    ( f)
 
 is-prop-is-inhabited :
   {l1 : Level} {X : UU l1} → (X → is-prop X) → is-prop X
@@ -480,10 +472,10 @@ is-prop-has-decidable-equality {l1} {X} =
 has-decidable-equality-is-finite :
   {l1 : Level} {X : UU l1} → is-finite X → has-decidable-equality X
 has-decidable-equality-is-finite {l1} {X} is-finite-X =
-  map-universal-property-trunc-Prop
+  apply-universal-property-trunc-Prop is-finite-X
     ( pair (has-decidable-equality X) is-prop-has-decidable-equality)
-    ( λ e → has-decidable-equality-equiv' (equiv-count e) has-decidable-equality-Fin)
-    is-finite-X
+    ( λ e →
+      has-decidable-equality-equiv' (equiv-count e) has-decidable-equality-Fin)
 
 is-finite-Eq-has-decidable-equality :
   {l1 : Level} {X : UU l1} (d : has-decidable-equality X) →
@@ -552,7 +544,7 @@ is-finite-base-is-finite-Σ-section :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
   is-finite (Σ A B) → ((x : A) → is-finite (B x)) → is-finite A
 is-finite-base-is-finite-Σ-section {l1} {l2} {A} {B} b f g =
-  map-universal-property-trunc-Prop
+  apply-universal-property-trunc-Prop f
     ( is-finite-Prop A)
     ( λ e →
       is-finite-count
@@ -569,17 +561,15 @@ is-finite-base-is-finite-Σ-section {l1} {l2} {A} {B} b f g =
                     ( pair (pr1 t) refl))))))
           ( count-Σ e
             ( λ t → count-eq (has-decidable-equality-is-finite (g (pr1 t)))))))
-    ( f)
 
 is-finite-base-is-finite-Σ-mere-section :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
   type-trunc-Prop ((x : A) → B x) →
   is-finite (Σ A B) → ((x : A) → is-finite (B x)) → is-finite A
 is-finite-base-is-finite-Σ-mere-section {l1} {l2} {A} {B} H f g =
-  map-universal-property-trunc-Prop
+  apply-universal-property-trunc-Prop H
     ( is-finite-Prop A)
     ( λ b → is-finite-base-is-finite-Σ-section b f g)
-    ( H)
 
 is-prop-leq-Fin :
   {k : ℕ} (x y : Fin k) → is-prop (leq-Fin x y)
@@ -609,6 +599,55 @@ is-prop-minimal-element-subtype-Fin :
 is-prop-minimal-element-subtype-Fin P H =
   is-prop-is-prop' (is-prop-minimal-element-subtype-Fin' P H)
 
+is-prop-leq-count :
+  {l : Level} {A : UU l} (e : count A) {x y : A} → is-prop (leq-count e x y)
+is-prop-leq-count e {x} {y} =
+  is-prop-leq-Fin (map-inv-equiv-count e x) (map-inv-equiv-count e y)
+
+is-prop-is-lower-bound-count :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (e : count A) →
+  (x : A) → is-prop (is-lower-bound-count e B x)
+is-prop-is-lower-bound-count e x =
+  is-prop-Π ( λ x → is-prop-function-type (is-prop-leq-count e))
+
+equiv-is-lower-bound-count :
+  {l1 l2 : Level} {A : UU l1} (e : count A) {B : A → UU l2} →
+  (x : Fin (number-of-elements-count e)) →
+  is-lower-bound-Fin (B ∘ map-equiv-count e) x ≃
+  is-lower-bound-count e B (map-equiv-count e x)
+equiv-is-lower-bound-count e {B} x =
+  equiv-prop
+    ( is-prop-is-lower-bound-Fin x)
+    ( is-prop-is-lower-bound-count e (map-equiv-count e x))
+    ( λ H y l →
+      transpose-leq-equiv-count e
+        ( H ( map-inv-equiv-count e y)
+            ( tr B (inv (issec-map-inv-equiv (equiv-count e) y)) l)))
+    ( λ H y l →
+      reflects-leq-equiv-count e (H (map-equiv-count e y) l))
+
+is-prop-first-element-subtype-count :
+  {l1 l2 : Level} {A : UU l1} (e : count A) {P : A → UU l2} →
+  ((x : A) → is-prop (P x)) → is-prop (first-element-count e P)
+is-prop-first-element-subtype-count e {P} H =
+  is-prop-equiv'
+    ( minimal-element-Fin (P ∘ map-equiv-count e))
+    ( equiv-Σ
+      ( λ x → P x × is-lower-bound-count e P x)
+      ( equiv-count e)
+      ( λ x → equiv-prod equiv-id (equiv-is-lower-bound-count e x)))
+    ( is-prop-minimal-element-subtype-Fin
+      ( P ∘ map-equiv-count e)
+      ( λ y → H (map-equiv-count e y)))
+
+first-element-subtype-count-Prop :
+  {l1 l2 : Level} {A : UU l1} (e : count A) {P : A → UU l2} →
+  ((x : A) → is-prop (P x)) → UU-Prop (l1 ⊔ l2)
+first-element-subtype-count-Prop e {P} H =
+  pair
+    ( first-element-count e P)
+    ( is-prop-first-element-subtype-count e H)
+
 element-inhabited-decidable-subtype-Fin :
   {l : Level} {k : ℕ} {P : Fin k → UU l} →
   ((x : Fin k) → is-decidable (P x)) → ((x : Fin k) → is-prop (P x)) →
@@ -616,26 +655,163 @@ element-inhabited-decidable-subtype-Fin :
 element-inhabited-decidable-subtype-Fin {l} {k} {P} d H t =
   tot
     ( λ x → pr1)
-    ( map-universal-property-trunc-Prop
+    ( apply-universal-property-trunc-Prop t
       ( pair
         ( minimal-element-Fin P)
         ( is-prop-minimal-element-subtype-Fin P H))
-      ( minimal-element-decidable-subtype-Fin d)
-      ( t))
+      ( minimal-element-decidable-subtype-Fin d))
+
+choice-subtype-count :
+  {l1 l2 : Level} {A : UU l1} (e : count A) {P : A → UU l2} →
+  ((x : A) → is-decidable (P x)) → ((x : A) → is-prop (P x)) →
+  type-trunc-Prop (Σ A P) → Σ A P
+choice-subtype-count e d H t =
+  tot
+    ( λ x → pr1)
+    ( apply-universal-property-trunc-Prop t
+      ( first-element-subtype-count-Prop e H)
+      ( first-element-is-decidable-subtype-count e d H))
+
+is-inhabited-or-empty : {l1 : Level} → UU l1 → UU l1
+is-inhabited-or-empty A = coprod (type-trunc-Prop A) (is-empty A)
+
+is-prop-is-inhabited-or-empty :
+  {l1 : Level} (A : UU l1) → is-prop (is-inhabited-or-empty A)
+is-prop-is-inhabited-or-empty A =
+  is-prop-coprod
+    ( λ t → apply-universal-property-trunc-Prop t empty-Prop)
+    ( is-prop-type-trunc-Prop)
+    ( is-prop-neg)
+
+is-inhabited-or-empty-Prop : {l1 : Level} → UU l1 → UU-Prop l1
+is-inhabited-or-empty-Prop A =
+  pair (is-inhabited-or-empty A) (is-prop-is-inhabited-or-empty A)
+
+is-inhabited-or-empty-count :
+  {l1 : Level} {A : UU l1} → count A → is-inhabited-or-empty A
+is-inhabited-or-empty-count (pair zero-ℕ e) =
+  inr (is-empty-is-zero-number-of-elements-count (pair zero-ℕ e) refl)
+is-inhabited-or-empty-count (pair (succ-ℕ k) e) =
+  inl (unit-trunc-Prop (map-equiv e zero-Fin))
+
+is-inhabited-or-empty-is-finite :
+  {l1 : Level} {A : UU l1} → is-finite A → is-inhabited-or-empty A
+is-inhabited-or-empty-is-finite {l1} {A} f =
+  apply-universal-property-trunc-Prop f
+    ( is-inhabited-or-empty-Prop A)
+    ( is-inhabited-or-empty-count)
+
+choice-emb-count :
+  {l1 l2 : Level} {A : UU l1} (e : count A) {B : UU l2} (f : B ↪ A) →
+  ((x : A) → is-decidable (fib (map-emb f) x)) → type-trunc-Prop B → B
+choice-emb-count e f d t =
+  map-equiv-total-fib
+    ( map-emb f)
+    ( choice-subtype-count e d
+      ( is-prop-map-emb f)
+      ( functor-trunc-Prop
+        ( map-inv-equiv-total-fib (map-emb f))
+        ( t)))
+
+{- We show that if A is a proposition, then so is is-decidable A. -}
+
+is-prop-is-decidable :
+  {l : Level} {A : UU l} → is-prop A → is-prop (is-decidable A)
+is-prop-is-decidable is-prop-A =
+  is-prop-coprod intro-dn is-prop-A is-prop-neg
+
+is-decidable-Prop :
+  {l : Level} → UU-Prop l → UU-Prop l
+is-decidable-Prop P =
+  pair (is-decidable (type-Prop P)) (is-prop-is-decidable (is-prop-type-Prop P))
+
+count-total-subtype-is-finite-total-subtype :
+  {l1 l2 : Level} {A : UU l1} (e : count A) (P : A → UU-Prop l2) →
+  is-finite (Σ A (λ x → type-Prop (P x))) → count (Σ A (λ x → type-Prop (P x)))
+count-total-subtype-is-finite-total-subtype {l1} {l2} {A} e P f =
+  count-decidable-subtype P d e
+  where
+  d : (x : A) → is-decidable (type-Prop (P x))
+  d x =
+    apply-universal-property-trunc-Prop f
+      ( is-decidable-Prop (P x))
+      ( λ g → is-decidable-count-Σ e g x)
+
+fiber-inclusion :
+  {l1 l2 : Level} {A : UU l1} (B : A → UU l2) (x : A) → B x → Σ A B
+fiber-inclusion B x = pair x
+
+map-transpose-total-span :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : A → B → UU l3} →
+  Σ A (Σ B ∘ C) → Σ B (λ y → Σ A (λ x → C x y))
+map-transpose-total-span (pair x (pair y z)) = pair y (pair x z)
+
+map-inv-transpose-total-span :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : A → B → UU l3} →
+  Σ B (λ y → Σ A (λ x → C x y)) → Σ A (Σ B ∘ C)
+map-inv-transpose-total-span (pair y (pair x z)) = pair x (pair y z)
+
+issec-map-inv-transpose-total-span :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : A → B → UU l3} →
+  ( ( map-transpose-total-span {A = A} {B} {C}) ∘
+    ( map-inv-transpose-total-span {A = A} {B} {C})) ~ id
+issec-map-inv-transpose-total-span (pair y (pair x z)) = refl
+
+isretr-map-inv-transpose-total-span :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : A → B → UU l3} →
+  ( ( map-inv-transpose-total-span {A = A} {B} {C}) ∘
+    ( map-transpose-total-span {A = A} {B} {C})) ~ id
+isretr-map-inv-transpose-total-span (pair x (pair y z)) = refl
+
+is-equiv-map-transpose-total-span :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : A → B → UU l3} →
+  is-equiv (map-transpose-total-span {A = A} {B} {C})
+is-equiv-map-transpose-total-span =
+  is-equiv-has-inverse
+    map-inv-transpose-total-span
+    issec-map-inv-transpose-total-span
+    isretr-map-inv-transpose-total-span
+
+transpose-total-span :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : A → B → UU l3} →
+  Σ A (Σ B ∘ C) ≃ Σ B (λ y → Σ A (λ x → C x y))
+transpose-total-span =
+  pair map-transpose-total-span is-equiv-map-transpose-total-span
+
+is-emb-fiber-inclusion :
+  {l1 l2 : Level} {A : UU l1} (B : A → UU l2) →
+  is-set A → (x : A) → is-emb (fiber-inclusion B x)
+is-emb-fiber-inclusion B H x =
+  is-emb-is-prop-map
+    ( λ z →
+      is-prop-equiv
+        ( Id x (pr1 z))
+        ( ( ( right-unit-law-Σ-is-contr
+                ( λ p →
+                  is-contr-map-is-equiv (is-equiv-tr B p) (pr2 z))) ∘e
+            ( transpose-total-span)) ∘e
+          ( equiv-tot (λ y → equiv-pair-eq-Σ (pair x y) z)))
+        ( H x (pr1 z)))
+
+choice-count-Σ-is-finite-fiber :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  count (Σ A B) → ((x : A) → is-finite (B x)) →
+  ((x : A) → type-trunc-Prop (B x)) → (x : A) → B x
+choice-count-Σ-is-finite-fiber e g H x =
+  {!!}
 
 choice-is-finite-Σ-is-finite-fiber :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
   is-finite (Σ A B) → ((x : A) → is-finite (B x)) →
   ((x : A) → type-trunc-Prop (B x)) → type-trunc-Prop ((x : A) → B x)
 choice-is-finite-Σ-is-finite-fiber {l1} {l2} {A} {B} f g H =
-  map-universal-property-trunc-Prop
+  apply-universal-property-trunc-Prop f
     ( trunc-Prop ((x : A) → B x))
     ( λ e →
       unit-trunc-Prop
         ( λ x →
           map-fib-pr1 B x
             {!map-Σ!}))
-    ( f)
 
 is-finite-base-is-finite-Σ-merely-inhabited :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
@@ -690,15 +866,13 @@ is-finite-base-is-finite-Σ' :
   is-finite (Σ X (λ x → is-zero-ℕ (number-of-elements-is-finite (g x)))) →
   is-finite X
 is-finite-base-is-finite-Σ' {l1} {l2} {X} {Y} f g h =
-  map-universal-property-trunc-Prop
+  apply-universal-property-trunc-Prop f
     ( is-finite-Prop X)
     ( λ eΣ →
-      map-universal-property-trunc-Prop
+      apply-universal-property-trunc-Prop h
         ( is-finite-Prop X)
         ( λ ec →
-          {!!})
-        ( h))
-    ( f)
+          {!!}))
   
 
 --------------------------------------------------------------------------------
@@ -782,13 +956,6 @@ classical-Prop :
   (l : Level) → UU (lsuc l)
 classical-Prop l = Σ (UU-Prop l) (λ P → is-decidable (pr1 P))
 
-{- We show that if A is a proposition, then so is is-decidable A. -}
-
-is-prop-is-decidable :
-  {l : Level} {A : UU l} → is-prop A → is-prop (is-decidable A)
-is-prop-is-decidable is-prop-A =
-  is-prop-coprod intro-dn is-prop-A is-prop-neg
-
 {- Not every type is decidable. -}
 
 case-elim :
@@ -803,10 +970,9 @@ simplify-not-all-2-element-types-decidable :
   ((X : UU l) (p : type-trunc-Prop (bool ≃ X)) → X)
 simplify-not-all-2-element-types-decidable d X p =
   case-elim
-    ( map-universal-property-trunc-Prop
+    ( apply-universal-property-trunc-Prop p
       ( dn-Prop' X)
-      ( λ e → intro-dn (map-equiv e true))
-      ( p))
+      ( λ e → intro-dn (map-equiv e true)))
     ( d X p)
 
 {-
