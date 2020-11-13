@@ -1,14 +1,11 @@
-{-# OPTIONS --without-K --exact-split #-}
+{-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
 module extra.localizations-rings where
 
-import extra.subrings
-open extra.subrings public
-
-is-invertible-Ring :
-  {l1 : Level} (R : Ring l1) (x : type-Ring R) → UU l1
-is-invertible-Ring R =
-  is-invertible-Monoid (multiplicative-monoid-Ring R)
+import extra.ideals
+import extra.rings-with-properties
+open extra.rings-with-properties public
+open extra.ideals public
 
 is-prop-is-invertible-Ring :
   {l1 : Level} (R : Ring l1) (x : type-Ring R) →

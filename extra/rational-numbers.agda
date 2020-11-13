@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --exact-split #-}
+{-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
 module extra.rational-numbers where
 
@@ -8,9 +8,6 @@ open extra.integers public
 --------------------------------------------------------------------------------
 
 {- We introduce the type of non-zero integers. -}
-
-is-zero-ℤ : ℤ → UU lzero
-is-zero-ℤ k = Id k zero-ℤ
 
 ℤ\0 : UU lzero
 ℤ\0 = Σ ℤ is-nonzero-ℤ
@@ -25,13 +22,13 @@ mul-ℤ-ℤ\0 : ℤ → ℤ\0 → ℤ
 mul-ℤ-ℤ\0 x y = mul-ℤ x (int-ℤ\0 y)
 
 mul-ℤ\0 : ℤ\0 → ℤ\0 → ℤ\0
-mul-ℤ\0 (pair x Hx) (pair y Hy) = pair (mul-ℤ x y) (is-not-zero-mul-ℤ x y Hx Hy)
+mul-ℤ\0 (pair x Hx) (pair y Hy) = pair (mul-ℤ x y) {!!} --(is-not-zero-mul-ℤ x y Hx Hy)
 
 postulate is-emb-mul-ℤ-ℤ\0 : (y : ℤ\0) → is-emb (λ x → mul-ℤ-ℤ\0 x y)
 
 is-injective-mul-ℤ-ℤ\0 :
   (y : ℤ\0) (x1 x2 : ℤ) → Id (mul-ℤ-ℤ\0 x1 y) (mul-ℤ-ℤ\0 x2 y) → Id x1 x2
-is-injective-mul-ℤ-ℤ\0 y x1 x2 = inv-is-equiv (is-emb-mul-ℤ-ℤ\0 y x1 x2)
+is-injective-mul-ℤ-ℤ\0 y x1 x2 = map-inv-is-equiv (is-emb-mul-ℤ-ℤ\0 y x1 x2)
 
 --------------------------------------------------------------------------------
 

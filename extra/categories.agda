@@ -1,10 +1,11 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module categories where
+module extra.categories where
 
-import 21-image
-open 21-image public
+import book
+open book public
 
+{-
 {- We introduce precategories and categories. -}
 
 Precat :
@@ -75,3 +76,4 @@ iso-Precat :
 iso-Precat C X Y =
   {!!}
 
+-}
