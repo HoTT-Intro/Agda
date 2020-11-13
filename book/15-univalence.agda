@@ -867,11 +867,43 @@ is-finite-type-trunc-Prop :
   {l1 : Level} {A : UU l1} → is-finite A → is-finite (type-trunc-Prop A)
 is-finite-type-trunc-Prop = functor-trunc-Prop count-type-trunc-Prop
 
-is-finite-base-is-finite-Σ' :
+complement :
+  {l1 l2 : Level} {A : UU l1} (B : A → UU l2) → UU (l1 ⊔ l2)
+complement {l1} {l2} {A} B = Σ A (is-empty ∘ B)
+
+is-finite-base-is-finite-complement :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → is-set A →
   is-finite (Σ A B) → (g : (x : A) → is-finite (B x)) →
-  is-finite (Σ A (is-empty ∘ B)) → is-finite A
-is-finite-base-is-finite-Σ' {l1} {l2} {A} {B} K f g h =
+  is-finite (complement B) → is-finite A
+is-finite-base-is-finite-complement {l1} {l2} {A} {B} K f g h =
+  is-finite-equiv
+    ( ( right-unit-law-Σ-is-contr
+        ( λ x →
+          is-proof-irrelevant-is-prop
+            ( is-prop-is-inhabited-or-empty (B x))
+            ( is-inhabited-or-empty-is-finite (g x)))) ∘e
+      ( inv-equiv
+        ( left-distributive-Σ-coprod A
+          ( λ x → type-trunc-Prop (B x))
+          ( λ x → is-empty (B x)))))
+    ( is-finite-coprod
+      ( is-finite-base-is-finite-Σ-merely-inhabited
+        ( is-set-subtype (λ x → is-prop-type-trunc-Prop) K)
+        ( λ t → pr2 t)
+        ( is-finite-equiv
+          ( equiv-double-structure B (λ x → type-trunc-Prop (B x)))
+          ( is-finite-Σ
+            ( f)
+            ( λ x → is-finite-type-trunc-Prop (g (pr1 x)))))
+        ( λ x → g (pr1 x)))
+      ( h))
+              
+{-
+is-finite-base-is-finite-complement :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → is-set A →
+  is-finite (Σ A B) → (g : (x : A) → is-finite (B x)) →
+  is-finite (complement B) → is-finite A
+is-finite-base-is-finite-complement {l1} {l2} {A} {B} K f g h =
   apply-universal-property-trunc-Prop f
     ( is-finite-Prop A)
     ( λ eΣ →
@@ -899,6 +931,7 @@ is-finite-base-is-finite-Σ' {l1} {l2} {A} {B} K f g h =
                     ( λ x → is-finite-type-trunc-Prop (g (pr1 x)))))
                 ( λ x → g (pr1 x)))
               ( h))))
+-}
   
 
 --------------------------------------------------------------------------------
