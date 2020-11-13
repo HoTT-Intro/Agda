@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module subrings where
+module extra.subrings where
 
-import rings
-open rings public
+import extra.rings
+open extra.rings public
 
 --------------------------------------------------------------------------------
 

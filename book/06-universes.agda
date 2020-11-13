@@ -765,6 +765,9 @@ int-abs-ℤ = int-ℕ ∘ abs-ℤ
 is-zero-ℤ : ℤ → UU lzero
 is-zero-ℤ x = Id x zero-ℤ
 
+is-nonzero-ℤ : ℤ → UU lzero
+is-nonzero-ℤ k = ¬ (is-zero-ℤ k)
+
 eq-abs-ℤ : (x : ℤ) → is-zero-ℕ (abs-ℤ x) → is-zero-ℤ x
 eq-abs-ℤ (inl x) p = ex-falso (Peano-8 x p)
 eq-abs-ℤ (inr (inl star)) p = refl

@@ -2,8 +2,8 @@
 
 module extra.W-types where
 
-import book.18-real-numbers
-open book.18-real-numbers public
+import book
+open book public
 
 module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
 
@@ -116,14 +116,14 @@ module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
       (x y : type-polynomial-endofunctor) →
       Eq-type-polynomial-endofunctor x y → Id x y
     eq-Eq-type-polynomial-endofunctor x y =
-      inv-is-equiv (is-equiv-Eq-type-polynomial-endofunctor-eq x y)
+      map-inv-is-equiv (is-equiv-Eq-type-polynomial-endofunctor-eq x y)
 
     isretr-eq-Eq-type-polynomial-endofunctor :
       (x y : type-polynomial-endofunctor) →
       ( ( eq-Eq-type-polynomial-endofunctor x y) ∘
         ( Eq-type-polynomial-endofunctor-eq x y)) ~ id
     isretr-eq-Eq-type-polynomial-endofunctor x y =
-      isretr-inv-is-equiv (is-equiv-Eq-type-polynomial-endofunctor-eq x y)
+      isretr-map-inv-is-equiv (is-equiv-Eq-type-polynomial-endofunctor-eq x y)
 
     coh-refl-eq-Eq-type-polynomial-endofunctor :
       (x : type-polynomial-endofunctor) →
@@ -308,7 +308,7 @@ module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
       (g : hom-algebra-polynomial-endofunctor X Y) →
       htpy-hom-algebra-polynomial-endofunctor g → Id f g
     eq-htpy-hom-algebra-polynomial-endofunctor g =
-      inv-is-equiv (is-equiv-htpy-hom-algebra-polynomial-endofunctor-eq g)
+      map-inv-is-equiv (is-equiv-htpy-hom-algebra-polynomial-endofunctor-eq g)
 
   ------------------------------------------------------------------------------
 

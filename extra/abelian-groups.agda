@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module abelian-groups where
+module extra.abelian-groups where
 
-import 17-number-theory
-open 17-number-theory public
+import book
+open book public
 
 is-abelian-Group :
   {l : Level} (G : Group l) → UU l
@@ -315,4 +315,4 @@ is-equiv-iso-eq-Ab A =
 
 eq-iso-Ab :
   { l1 : Level} (A B : Ab l1) → iso-Ab A B → Id A B
-eq-iso-Ab A B = inv-is-equiv (is-equiv-iso-eq-Ab A B)
+eq-iso-Ab A B = map-inv-is-equiv (is-equiv-iso-eq-Ab A B)

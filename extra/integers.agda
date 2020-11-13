@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module integers where
+module extra.integers where
 
-import rings-with-properties
-open rings-with-properties public
+import extra.rings-with-properties
+open extra.rings-with-properties public
 
 --------------------------------------------------------------------------------
 
@@ -41,21 +41,21 @@ inv-map-aut-Pointed-Type-With-Aut :
   {l : Level} (X : UU-Pointed-Type-With-Aut l) →
   type-Pointed-Type-With-Aut X → type-Pointed-Type-With-Aut X
 inv-map-aut-Pointed-Type-With-Aut X =
-  inv-map-equiv (aut-Pointed-Type-With-Aut X)
+  map-inv-equiv (aut-Pointed-Type-With-Aut X)
 
 issec-inv-map-aut-Pointed-Type-With-Aut :
   {l : Level} (X : UU-Pointed-Type-With-Aut l) →
   ((map-aut-Pointed-Type-With-Aut X) ∘ (inv-map-aut-Pointed-Type-With-Aut X))
   ~ id
 issec-inv-map-aut-Pointed-Type-With-Aut X =
-  issec-inv-map-equiv (aut-Pointed-Type-With-Aut X)
+  issec-map-inv-equiv (aut-Pointed-Type-With-Aut X)
 
 isretr-inv-map-aut-Pointed-Type-With-Aut :
   {l : Level} (X : UU-Pointed-Type-With-Aut l) →
   ((inv-map-aut-Pointed-Type-With-Aut X) ∘ (map-aut-Pointed-Type-With-Aut X))
   ~ id
 isretr-inv-map-aut-Pointed-Type-With-Aut X =
-  isretr-inv-map-equiv (aut-Pointed-Type-With-Aut X)
+  isretr-map-inv-equiv (aut-Pointed-Type-With-Aut X)
 
 -- ℤ is a pointed type with an automorphism
 
@@ -193,7 +193,7 @@ is-contr-total-htpy-hom-Pointed-Type-With-Aut X Y h1 =
               ( x : type-Pointed-Type-With-Aut X) →
               Id ( preserves-aut-map-hom-Pointed-Type-With-Aut X Y h1 x)
                  ( aut-h2 x)))
-        ( equiv-tot (equiv-htpy-concat htpy-right-unit))
+        ( equiv-tot (equiv-concat-htpy right-unit-htpy))
         ( is-contr-total-htpy
           ( preserves-aut-map-hom-Pointed-Type-With-Aut X Y h1))))
 
@@ -215,7 +215,7 @@ eq-htpy-hom-Pointed-Type-With-Aut :
   (Y : UU-Pointed-Type-With-Aut l2) (h1 h2 : hom-Pointed-Type-With-Aut X Y) →
   htpy-hom-Pointed-Type-With-Aut X Y h1 h2 → Id h1 h2
 eq-htpy-hom-Pointed-Type-With-Aut X Y h1 h2 =
-  inv-is-equiv (is-equiv-htpy-hom-Pointed-Type-With-Aut X Y h1 h2)
+  map-inv-is-equiv (is-equiv-htpy-hom-Pointed-Type-With-Aut X Y h1 h2)
 
 -- We show that from ℤ there is a morphism of pointed types with automorphism
 -- to any pointed type with automorphisms
@@ -338,7 +338,7 @@ coh-aut-htpy-map-ℤ-Pointed-Type-With-Aut :
 coh-aut-htpy-map-ℤ-Pointed-Type-With-Aut X h (inl zero-ℕ) =
   inv
     ( inv-con
-      ( issec-inv-map-equiv
+      ( issec-map-inv-equiv
         ( aut-Pointed-Type-With-Aut X)
         ( point-Pointed-Type-With-Aut X))
       ( ( htpy-map-ℤ-Pointed-Type-With-Aut X h zero-ℤ) ∙
@@ -356,7 +356,7 @@ coh-aut-htpy-map-ℤ-Pointed-Type-With-Aut X h (inl zero-ℕ) =
 coh-aut-htpy-map-ℤ-Pointed-Type-With-Aut X h (inl (succ-ℕ k)) =
   inv
     ( inv-con
-      ( issec-inv-map-equiv
+      ( issec-map-inv-equiv
         ( aut-Pointed-Type-With-Aut X)
         ( map-ℤ-Pointed-Type-With-Aut X (inl k)))
       ( ( htpy-map-ℤ-Pointed-Type-With-Aut X h (inl k)) ∙
@@ -479,9 +479,6 @@ has-inverses-add-ℤ-Monoid = pair neg-ℤ (pair left-inverse-law-add-ℤ right-
 is-group-add-ℤ-Semi-Group : is-group add-ℤ-Semi-Group
 is-group-add-ℤ-Semi-Group = pair is-unital-add-ℤ-Semi-Group has-inverses-add-ℤ-Monoid
 
-ℤ-Group : Group lzero
-ℤ-Group = pair add-ℤ-Semi-Group is-group-add-ℤ-Semi-Group
-
 ℤ-Ab : Ab lzero
 ℤ-Ab = pair ℤ-Group commutative-add-ℤ
 
@@ -544,9 +541,9 @@ Eq-ℤ-eq {x} {.x} refl = refl-Eq-ℤ x
 contraction-total-Eq-ℤ :
   (x : ℤ) (y : Σ ℤ (Eq-ℤ x)) → Id (pair x (refl-Eq-ℤ x)) y
 contraction-total-Eq-ℤ (inl x) (pair (inl y) e) =
-  eq-pair
+  eq-pair-Σ
     ( ap inl (eq-Eq-ℕ x y e))
-    ( is-prop'-is-prop
+    ( eq-is-prop
       ( is-prop-Eq-ℕ x y)
       ( tr
         ( Eq-ℤ (inl x))
@@ -554,11 +551,11 @@ contraction-total-Eq-ℤ (inl x) (pair (inl y) e) =
         ( refl-Eq-ℤ (inl x)))
       ( e))
 contraction-total-Eq-ℤ (inr (inl star)) (pair (inr (inl star)) e) =
-  eq-pair refl (is-prop'-is-prop is-prop-unit (refl-Eq-ℤ zero-ℤ) e)
+  eq-pair-Σ refl (eq-is-prop is-prop-unit (refl-Eq-ℤ zero-ℤ) e)
 contraction-total-Eq-ℤ (inr (inr x)) (pair (inr (inr y)) e) =
-  eq-pair
+  eq-pair-Σ
     ( ap (inr ∘ inr) (eq-Eq-ℕ x y e))
-    ( is-prop'-is-prop
+    ( eq-is-prop
       ( is-prop-Eq-ℕ x y)
       ( tr
         ( Eq-ℤ (inr (inr x)))
@@ -581,7 +578,7 @@ is-equiv-Eq-ℤ-eq x =
 
 eq-Eq-ℤ :
   {x y : ℤ} → Eq-ℤ x y → Id x y
-eq-Eq-ℤ {x} {y} = inv-is-equiv (is-equiv-Eq-ℤ-eq x y)
+eq-Eq-ℤ {x} {y} = map-inv-is-equiv (is-equiv-Eq-ℤ-eq x y)
 
 --------------------------------------------------------------------------------
 
@@ -599,7 +596,7 @@ is-emb-add-ℤ x =
 
 is-injective-add-ℤ :
   (x y z : ℤ) → Id (add-ℤ x y) (add-ℤ x z) → Id y z
-is-injective-add-ℤ x y z = inv-is-equiv (is-emb-add-ℤ x y z)
+is-injective-add-ℤ x y z = map-inv-is-equiv (is-emb-add-ℤ x y z)
 
 is-emb-add-ℤ' :
   (y : ℤ) → is-emb (add-ℤ' y)
@@ -607,7 +604,7 @@ is-emb-add-ℤ' y = is-emb-is-equiv (add-ℤ' y) (is-equiv-add-ℤ' y)
 
 is-injective-add-ℤ' :
   (y x w : ℤ) → Id (add-ℤ x y) (add-ℤ w y) → Id x w
-is-injective-add-ℤ' y x w = inv-is-equiv (is-emb-add-ℤ' y x w)
+is-injective-add-ℤ' y x w = map-inv-is-equiv (is-emb-add-ℤ' y x w)
 
 --------------------------------------------------------------------------------
 
@@ -618,7 +615,7 @@ is-emb-neg-ℤ = is-emb-is-equiv neg-ℤ is-equiv-neg-ℤ
 
 is-injective-neg-ℤ :
   (x y : ℤ) → Id (neg-ℤ x) (neg-ℤ y) → Id x y
-is-injective-neg-ℤ x y = inv-is-equiv (is-emb-neg-ℤ x y)
+is-injective-neg-ℤ x y = map-inv-is-equiv (is-emb-neg-ℤ x y)
 
 --------------------------------------------------------------------------------
 

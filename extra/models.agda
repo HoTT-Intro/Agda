@@ -19,10 +19,10 @@
    constructors. We then proceed to develop some examples.
 -}
 
-module models where
+module extra.models where
 
-import Lecture15
-open Lecture15 public
+import book
+open book public
 
 Contexts :
   ( l : Level) → UU (lsuc l)

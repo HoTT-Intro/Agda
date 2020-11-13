@@ -1,11 +1,11 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module abelian-subgroups where
+module extra.abelian-subgroups where
 
-import abelian-groups
-import subgroups
-open abelian-groups public
-open subgroups public
+import extra.abelian-groups
+import extra.subgroups
+open extra.abelian-groups public
+open extra.subgroups public
 
 {- Subsets of abelian groups -}
 

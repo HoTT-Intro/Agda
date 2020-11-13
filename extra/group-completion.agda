@@ -1,7 +1,7 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module group-completion where
+module extra.group-completion where
 
-import 15-groups
-open 15-groups public
+import book
+open book public
 

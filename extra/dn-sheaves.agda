@@ -1,34 +1,31 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module dn-sheaves where
+module extra.dn-sheaves where
 
-import rings
-open rings public
+import book
+open book public
 
 {- We postulate a propositional resizing axiom -}
 
 raise-UU-Prop :
-  (l : Level) → UU-Prop lzero → UU-Prop l
+  (l : Level) {l1 : Level} → UU-Prop l1 → UU-Prop (l ⊔ l1)
 raise-UU-Prop l (pair P is-prop-P) =
   pair ( raise l P)
-       ( is-prop-is-equiv' P
-         ( map-raise l P)
-         ( is-equiv-map-raise l P)
-         ( is-prop-P))
+       ( is-prop-equiv' P (equiv-raise l P) (is-prop-P))
 
-postulate propositional-resizing : {l : Level} → is-equiv (raise-UU-Prop l)
+postulate propositional-resizing : {l : Level} → is-equiv (raise-UU-Prop l {lzero})
 
 lower-UU-Prop :
   {l : Level} → UU-Prop l → UU-Prop lzero
-lower-UU-Prop = inv-is-equiv propositional-resizing
+lower-UU-Prop = map-inv-is-equiv propositional-resizing
 
 issec-lower-UU-Prop :
   {l : Level} (P : UU-Prop l) → Id (raise-UU-Prop l (lower-UU-Prop P)) P
-issec-lower-UU-Prop = issec-inv-is-equiv propositional-resizing
+issec-lower-UU-Prop = issec-map-inv-is-equiv propositional-resizing
 
 isretr-lower-UU-Prop :
   {l : Level} (P : UU-Prop lzero) → Id (lower-UU-Prop (raise-UU-Prop l P)) P
-isretr-lower-UU-Prop = isretr-inv-is-equiv propositional-resizing
+isretr-lower-UU-Prop = isretr-map-inv-is-equiv propositional-resizing
   
 {- We define what it means for a type to be a double-negation-sheaf -}
 
@@ -56,8 +53,8 @@ postulate is-dn-sheafification : {l1 l2 : Level} (X : UU l1) → universal-prope
 is-dn-sheaf-dn : {l : Level} (P : UU l) → is-dn-sheaf (¬¬ P)
 is-dn-sheaf-dn P Q =
   is-equiv-is-prop
-    ( is-prop-function-type (¬¬ (type-Prop Q)) (¬¬ P) is-prop-neg)
-    ( is-prop-function-type (type-Prop Q) (¬¬ P) is-prop-neg)
+    ( is-prop-function-type is-prop-neg)
+    ( is-prop-function-type is-prop-neg)
     ( dn-extend)
 
 is-dn-sheafification-intro-dn :

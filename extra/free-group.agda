@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module free-group where
+module extra.free-group where
 
-import 15-groups
-open 15-groups public
+import book
+open book public
 
 {- We state the universal property of the free group on a set X -}
 

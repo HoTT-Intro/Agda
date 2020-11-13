@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K #-}
 
-module combinatorial-objects where
+module extra.combinatorial-objects where
 
-import 12-univalence
-open 12-univalence public
+import book
+open book public
 
 {- The type ℍ of hereditarily finite types is introduces as an inductive type.
 
@@ -93,7 +93,7 @@ is-equiv-htpy-hom-ℍ-eq f =
 
 eq-htpy-hom-ℍ : {x y : ℍ} {f g : hom-ℍ x y} → htpy-hom-ℍ f g → Id f g
 eq-htpy-hom-ℍ {x} {y} {f} {g} =
-  inv-is-equiv (is-equiv-htpy-hom-ℍ-eq f g)
+  map-inv-is-equiv (is-equiv-htpy-hom-ℍ-eq f g)
 
 id-ℍ : {x : ℍ} → hom-ℍ x x
 id-ℍ {join-ℍ n x} = pair id (λ i → id-ℍ)

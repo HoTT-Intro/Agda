@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module lists where
+module extra.lists where
 
-import 16-number-theory
-open 16-number-theory public
+import book
+open book public
 
 unit-list :
   {l1 : Level} {A : UU l1} → A → list A
@@ -344,20 +344,13 @@ is-equiv-map-algebra-list A =
 
 --------------------------------------------------------------------------------
 
-Eq-list :
-  {l1 : Level} {A : UU l1} →
-  list A → list A → UU l1
-Eq-list nil nil = raise _ unit
-Eq-list nil (cons x y) = raise _ empty
-Eq-list (cons a x) nil = raise _ empty
-Eq-list (cons a x) (cons b y) = (Id a b) × (Eq-list x y)
-
 data Eq-list' {l1 : Level} {A : UU l1} : list A → list A → UU l1 where
   refl-nil : Eq-list' nil nil
   eq-cons :
     (x y : list A) (a b : A) →
     Eq-list' x y → Id a b → Eq-list' (cons a x) (cons b y)
 
+{-
 refl-Eq-list :
   {l1 : Level} {A : UU l1} (x : list A) → Eq-list x x
 refl-Eq-list nil = map-raise star
@@ -381,5 +374,5 @@ is-contr-total-Eq-list nil =
     ( pair nil (map-raise star))
     {!!}
 is-contr-total-Eq-list (cons x x₁) = {!!}
-
+-}
 

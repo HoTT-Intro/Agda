@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module subgroups where
+module extra.subgroups where
 
-import 13-groups
-open 13-groups public
+import book
+open book public
 
 {- Subsets of groups -}
 
@@ -141,7 +141,7 @@ eq-subgroup-eq-group :
   {x y : type-group-Subgroup G P} →
   Id (incl-group-Subgroup G P x) (incl-group-Subgroup G P y) → Id x y
 eq-subgroup-eq-group G P {x} {y} =
-  inv-is-equiv (is-emb-incl-group-Subgroup G P x y)
+  map-inv-is-equiv (is-emb-incl-group-Subgroup G P x y)
 
 set-group-Subgroup :
   {l1 l2 : Level} (G : Group l1) → Subgroup l2 G → UU-Set (l1 ⊔ l2)

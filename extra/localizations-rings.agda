@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module localizations-rings where
+module extra.localizations-rings where
 
-import subrings
-open subrings public
+import extra.subrings
+open extra.subrings public
 
 is-invertible-Ring :
   {l1 : Level} (R : Ring l1) (x : type-Ring R) → UU l1

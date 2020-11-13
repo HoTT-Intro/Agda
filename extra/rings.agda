@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module rings where
+module extra.rings where
 
-import abelian-groups
-open abelian-groups public
+import extra.abelian-groups
+open extra.abelian-groups public
 
 has-mul-Ab :
   { l1 : Level} (A : Ab l1) → UU l1
@@ -311,7 +311,7 @@ eq-htpy-hom-Ring :
   {l1 l2 : Level} (R1 : Ring l1) (R2 : Ring l2) (f g : hom-Ring R1 R2) →
   htpy-hom-Ring R1 R2 f g → Id f g
 eq-htpy-hom-Ring R1 R2 f g =
-  inv-is-equiv (is-equiv-htpy-hom-Ring-eq R1 R2 f g)
+  map-inv-is-equiv (is-equiv-htpy-hom-Ring-eq R1 R2 f g)
 
 is-set-hom-Ring :
   {l1 l2 : Level} (R1 : Ring l1) (R2 : Ring l2) → is-set (hom-Ring R1 R2)
@@ -742,7 +742,7 @@ equiv-iso-Ab-iso-Ring :
   (iso-Ring R1 R2) ≃ (iso-Ab-Ring R1 R2)
 equiv-iso-Ab-iso-Ring R1 R2 =
   ( ( ( inv-equiv
-        ( equiv-Σ-assoc
+        ( assoc-Σ
           ( hom-Ab (ab-Ring R1) (ab-Ring R2))
           ( is-iso-hom-Ab (ab-Ring R1) (ab-Ring R2))
           ( λ f → is-ring-homomorphism-hom-Ab R1 R2 (pr1 f)))) ∘e
@@ -751,7 +751,7 @@ equiv-iso-Ab-iso-Ring R1 R2 =
           equiv-swap-prod
             ( is-ring-homomorphism-hom-Ab R1 R2 f)
             ( is-iso-hom-Ab (ab-Ring R1) (ab-Ring R2) f)))) ∘e
-    ( equiv-Σ-assoc
+    ( assoc-Σ
       ( hom-Ab (ab-Ring R1) (ab-Ring R2))
       ( is-ring-homomorphism-hom-Ab R1 R2)
       ( λ f → is-iso-hom-Ab (ab-Ring R1) (ab-Ring R2) (pr1 f)))) ∘e
@@ -826,4 +826,4 @@ is-equiv-iso-eq-Ring R =
     
 eq-iso-Ring :
   { l : Level} (R S : Ring l) → iso-Ring R S → Id R S
-eq-iso-Ring R S = inv-is-equiv (is-equiv-iso-eq-Ring R S)
+eq-iso-Ring R S = map-inv-is-equiv (is-equiv-iso-eq-Ring R S)

@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module quotient-groups where
+module extra.quotient-groups where
 
-import subgroups
-open subgroups public
+import extra.subgroups
+open extra.subgroups public
 
 {- The left and right coset relation -}
 
@@ -26,7 +26,6 @@ is-prop-left-coset-relation :
   (x y : type-Group G) → is-prop (left-coset-relation G H x y)
 is-prop-left-coset-relation G H x =
   is-prop-map-is-emb
-    ( (mul-Group G x) ∘ (incl-group-Subgroup G H))
     ( is-emb-comp'
       ( mul-Group G x)
       ( incl-group-Subgroup G H)
@@ -71,7 +70,6 @@ is-prop-right-coset-relation :
   (x y : type-Group G) → is-prop (right-coset-relation G H x y)
 is-prop-right-coset-relation G H x =
   is-prop-map-is-emb
-    ( (mul-Group' G x) ∘ (incl-group-Subgroup G H))
     ( is-emb-comp'
       ( mul-Group' G x)
       ( incl-group-Subgroup G H)

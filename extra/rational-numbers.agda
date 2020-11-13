@@ -1,16 +1,19 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module rational-numbers where
+module extra.rational-numbers where
 
-import integers
-open integers public
+import extra.integers
+open extra.integers public
 
 --------------------------------------------------------------------------------
 
 {- We introduce the type of non-zero integers. -}
 
+is-zero-ℤ : ℤ → UU lzero
+is-zero-ℤ k = Id k zero-ℤ
+
 ℤ\0 : UU lzero
-ℤ\0 = Σ ℤ (λ k → ¬ (Id zero-ℤ k))
+ℤ\0 = Σ ℤ is-nonzero-ℤ
 
 int-ℤ\0 : ℤ\0 → ℤ
 int-ℤ\0 = pr1
@@ -22,7 +25,7 @@ mul-ℤ-ℤ\0 : ℤ → ℤ\0 → ℤ
 mul-ℤ-ℤ\0 x y = mul-ℤ x (int-ℤ\0 y)
 
 mul-ℤ\0 : ℤ\0 → ℤ\0 → ℤ\0
-mul-ℤ\0 (pair x Hx) (pair y Hy) = pair (mul-ℤ x y) (neq-zero-mul-ℤ x y Hx Hy)
+mul-ℤ\0 (pair x Hx) (pair y Hy) = pair (mul-ℤ x y) (is-not-zero-mul-ℤ x y Hx Hy)
 
 postulate is-emb-mul-ℤ-ℤ\0 : (y : ℤ\0) → is-emb (λ x → mul-ℤ-ℤ\0 x y)
 
