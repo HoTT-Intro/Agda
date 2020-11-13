@@ -737,6 +737,18 @@ count-total-subtype-is-finite-total-subtype {l1} {l2} {A} e P f =
       ( is-decidable-Prop (P x))
       ( λ g → is-decidable-count-Σ e g x)
 
+count-domain-emb-is-finite-domain-emb :
+  {l1 l2 : Level} {A : UU l1} (e : count A) {B : UU l2} (f : B ↪ A) →
+  is-finite B → count B
+count-domain-emb-is-finite-domain-emb e f H =
+  count-equiv
+    ( equiv-total-fib (map-emb f))
+    ( count-total-subtype-is-finite-total-subtype e
+      ( λ x → pair (fib (map-emb f) x) (is-prop-map-emb f x))
+      ( is-finite-equiv'
+        ( equiv-total-fib (map-emb f))
+        ( H)))
+
 fiber-inclusion :
   {l1 l2 : Level} {A : UU l1} (B : A → UU l2) (x : A) → B x → Σ A B
 fiber-inclusion B x = pair x
@@ -793,86 +805,100 @@ is-emb-fiber-inclusion B H x =
           ( equiv-tot (λ y → equiv-pair-eq-Σ (pair x y) z)))
         ( H x (pr1 z)))
 
+emb-fiber-inclusion :
+  {l1 l2 : Level} {A : UU l1} (B : A → UU l2) → is-set A → (x : A) → B x ↪ Σ A B
+emb-fiber-inclusion B H x =
+  pair (fiber-inclusion B x) (is-emb-fiber-inclusion B H x)
+
+choice : {l : Level} → UU l → UU l
+choice X = type-trunc-Prop X → X
+
+choice-count :
+  {l : Level} {A : UU l} → count A → choice A
+choice-count (pair zero-ℕ e) t =
+  ex-falso
+    ( apply-universal-property-trunc-Prop t empty-Prop
+      ( is-empty-is-zero-number-of-elements-count (pair zero-ℕ e) refl))
+choice-count (pair (succ-ℕ k) e) t = map-equiv e zero-Fin
+
 choice-count-Σ-is-finite-fiber :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  count (Σ A B) → ((x : A) → is-finite (B x)) →
+  is-set A → count (Σ A B) → ((x : A) → is-finite (B x)) →
   ((x : A) → type-trunc-Prop (B x)) → (x : A) → B x
-choice-count-Σ-is-finite-fiber e g H x =
-  {!!}
+choice-count-Σ-is-finite-fiber {l1} {l2} {A} {B} K e g H x =
+   choice-count
+     ( count-domain-emb-is-finite-domain-emb e
+       ( emb-fiber-inclusion B K x)
+       ( g x))
+     ( H x)
 
 choice-is-finite-Σ-is-finite-fiber :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  is-finite (Σ A B) → ((x : A) → is-finite (B x)) →
+  is-set A → is-finite (Σ A B) → ((x : A) → is-finite (B x)) →
   ((x : A) → type-trunc-Prop (B x)) → type-trunc-Prop ((x : A) → B x)
-choice-is-finite-Σ-is-finite-fiber {l1} {l2} {A} {B} f g H =
+choice-is-finite-Σ-is-finite-fiber {l1} {l2} {A} {B} K f g H =
   apply-universal-property-trunc-Prop f
     ( trunc-Prop ((x : A) → B x))
-    ( λ e →
-      unit-trunc-Prop
-        ( λ x →
-          map-fib-pr1 B x
-            {!map-Σ!}))
+    ( λ e → unit-trunc-Prop (choice-count-Σ-is-finite-fiber K e g H))
 
 is-finite-base-is-finite-Σ-merely-inhabited :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
-  ( b : (x : A) → type-trunc-Prop (B x)) →
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  is-set A → (b : (x : A) → type-trunc-Prop (B x)) →
   is-finite (Σ A B) → ((x : A) → is-finite (B x)) → is-finite A
-is-finite-base-is-finite-Σ-merely-inhabited {l1} {l2} {A} {B} b f g =
+is-finite-base-is-finite-Σ-merely-inhabited {l1} {l2} {A} {B} K b f g =
   is-finite-base-is-finite-Σ-mere-section
-    ( choice-is-finite-Σ-is-finite-fiber f g b)
+    ( choice-is-finite-Σ-is-finite-fiber K f g b)
     ( f)
     ( g)
 
-section-is-finite-base-is-finite-Σ :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → is-finite (Σ A B) →
-  (g : (x : A) → is-finite (B x)) →
-  is-finite (Σ A (λ x → is-zero-ℕ (number-of-elements-is-finite (g x)))) →
-  (x : A) → coprod (B x) (is-zero-ℕ (number-of-elements-is-finite (g x)))
-section-is-finite-base-is-finite-Σ f g h x with
-  is-decidable-is-zero-ℕ (number-of-elements-is-finite (g x))
-... | inl p = inr p
-... | inr H with is-successor-is-nonzero-ℕ H
-... | (pair k p) = inl {!!}
+count-type-trunc-Prop :
+  {l1 : Level} {A : UU l1} → count A → count (type-trunc-Prop A)
+count-type-trunc-Prop (pair zero-ℕ e) =
+  count-is-empty
+    ( is-empty-type-trunc-Prop
+      ( is-empty-is-zero-number-of-elements-count (pair zero-ℕ e) refl))
+count-type-trunc-Prop (pair (succ-ℕ k) e) =
+  count-is-contr
+    ( is-proof-irrelevant-is-prop
+      ( is-prop-type-trunc-Prop)
+      ( unit-trunc-Prop (map-equiv e zero-Fin)))
 
-{-
-section-count-base-count-Σ' :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → count (Σ A B) →
-  (f : (x : A) → count (B x)) →
-  count (Σ A (λ x → is-zero-ℕ (number-of-elements (f x)))) →
-  (x : A) → coprod (B x) (is-zero-ℕ (number-of-elements (f x)))
-section-count-base-count-Σ' e f g x with
-  is-decidable-is-zero-ℕ (number-of-elements (f x))
-... | inl p = inr p
-... | inr H with is-successor-is-nonzero-ℕ H
-... | (pair k p) = inl (map-equiv-count (f x) (tr Fin (inv p) zero-Fin))
-
-count-base-count-Σ' :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → count (Σ A B) →
-  (f : (x : A) → count (B x)) →
-  count (Σ A (λ x → is-zero-ℕ (number-of-elements (f x)))) → count A
-count-base-count-Σ' {l1} {l2} {A} {B} e f g =
-  count-base-count-Σ
-    ( section-count-base-count-Σ' e f g)
-    ( count-equiv'
-      ( left-distributive-Σ-coprod A B
-        ( λ x → is-zero-ℕ (number-of-elements (f x))))
-      ( count-coprod e g))
-    ( λ x → count-coprod (f x) (count-eq has-decidable-equality-ℕ))
--}
+is-finite-type-trunc-Prop :
+  {l1 : Level} {A : UU l1} → is-finite A → is-finite (type-trunc-Prop A)
+is-finite-type-trunc-Prop = functor-trunc-Prop count-type-trunc-Prop
 
 is-finite-base-is-finite-Σ' :
-  {l1 l2 : Level} {X : UU l1} {Y : X → UU l2} →
-  is-finite (Σ X Y) → (g : (x : X) → is-finite (Y x)) →
-  is-finite (Σ X (λ x → is-zero-ℕ (number-of-elements-is-finite (g x)))) →
-  is-finite X
-is-finite-base-is-finite-Σ' {l1} {l2} {X} {Y} f g h =
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → is-set A →
+  is-finite (Σ A B) → (g : (x : A) → is-finite (B x)) →
+  is-finite (Σ A (is-empty ∘ B)) → is-finite A
+is-finite-base-is-finite-Σ' {l1} {l2} {A} {B} K f g h =
   apply-universal-property-trunc-Prop f
-    ( is-finite-Prop X)
+    ( is-finite-Prop A)
     ( λ eΣ →
       apply-universal-property-trunc-Prop h
-        ( is-finite-Prop X)
+        ( is-finite-Prop A)
         ( λ ec →
-          {!!}))
+          is-finite-equiv
+            ( ( right-unit-law-Σ-is-contr
+                ( λ x →
+                  is-proof-irrelevant-is-prop
+                    ( is-prop-is-inhabited-or-empty (B x))
+                    ( is-inhabited-or-empty-is-finite (g x)))) ∘e
+              ( inv-equiv
+                ( left-distributive-Σ-coprod A
+                  ( λ x → type-trunc-Prop (B x))
+                  ( λ x → is-empty (B x)))))
+            ( is-finite-coprod
+              ( is-finite-base-is-finite-Σ-merely-inhabited
+                ( is-set-subtype (λ x → is-prop-type-trunc-Prop) K)
+                ( λ t → pr2 t)
+                ( is-finite-equiv
+                  ( equiv-double-structure B (λ x → type-trunc-Prop (B x)))
+                  ( is-finite-Σ
+                    ( unit-trunc-Prop eΣ)
+                    ( λ x → is-finite-type-trunc-Prop (g (pr1 x)))))
+                ( λ x → g (pr1 x)))
+              ( h))))
   
 
 --------------------------------------------------------------------------------

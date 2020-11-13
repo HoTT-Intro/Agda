@@ -744,6 +744,18 @@ abstract
   is-trunc-succ-subtype k H is-trunc-A =
     is-trunc-is-emb k pr1 (is-emb-pr1-is-subtype H) is-trunc-A
 
+abstract
+  is-prop-subtype :
+    {i j : Level} {A : UU i} {P : A → UU j} →
+    ((x : A) → is-prop (P x)) → is-prop A → is-prop (Σ A P)
+  is-prop-subtype = is-trunc-succ-subtype neg-two-𝕋
+
+abstract
+  is-set-subtype :
+    {i j : Level} {A : UU i} {P : A → UU j} →
+    ((x : A) → is-prop (P x)) → is-set A → is-set (Σ A P)
+  is-set-subtype = is-trunc-succ-subtype neg-one-𝕋
+
 is-fiberwise-trunc : {l1 l2 l3 : Level} (k : 𝕋)  {A : UU l1} {B : A → UU l2}
   {C : A → UU l3} (f : (x : A) → B x → C x) → UU (l1 ⊔ (l2 ⊔ l3))
 is-fiberwise-trunc k f = (x : _) → is-trunc-map k (f x)
