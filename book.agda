@@ -21,6 +21,7 @@ open import book.14-propositional-truncation-solutions public
 open import book.15-univalence public
 open import book.16-groups public
 open import book.17-set-quotients public
+open import book.18-finite-types public
 open import book.18-real-numbers public
 open import book.19-circle public
 open import book.20-universal-cover-circle public
