@@ -56,13 +56,9 @@ is-proof-irrelevant :
   {l1 : Level} → UU l1 → UU l1
 is-proof-irrelevant A = A → is-contr A
 
-terminal-map :
-  {l1 : Level} (A : UU l1) → A → unit
-terminal-map A a = star
-
 is-subterminal :
   {l1 : Level} → UU l1 → UU l1
-is-subterminal A = is-emb (terminal-map A)
+is-subterminal A = is-emb (terminal-map {A = A})
 
 abstract
   is-prop-is-prop' :
@@ -113,7 +109,7 @@ abstract
     is-emb-is-emb
       ( λ x →
         is-emb-is-equiv
-          ( terminal-map _)
+          ( terminal-map)
           ( is-equiv-is-contr _ (H x) is-contr-unit))
 
 abstract
@@ -134,7 +130,7 @@ abstract
   is-prop-is-subterminal {l1} {A} H x y =
     is-contr-is-equiv
       ( Id star star)
-      ( ap (terminal-map A))
+      ( ap terminal-map)
       ( H x y)
       ( is-prop-is-contr is-contr-unit star star)
 

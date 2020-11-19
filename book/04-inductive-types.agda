@@ -19,6 +19,9 @@ data unit : UU lzero where
 ind-unit : {l : Level} {P : unit → UU l} → P star → ((x : unit) → P x)
 ind-unit p star = p
 
+terminal-map : {l : Level} {A : UU l} → A → unit
+terminal-map a = star
+
 raise-unit : (l : Level) → UU l
 raise-unit l = raise l unit
 

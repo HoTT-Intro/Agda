@@ -80,18 +80,18 @@ is-propositional-truncation-universal-property l P f up-f Q =
 
 -- Remark 14.1.2
 
-is-propositional-truncation' :
+extension-property-propositional-truncation :
   ( l : Level) {l1 l2 : Level} {A : UU l1} (P : UU-Prop l2) →
   ( A → type-Prop P) → UU (lsuc l ⊔ l1 ⊔ l2)
-is-propositional-truncation' l {A = A} P f =
+extension-property-propositional-truncation l {A = A} P f =
   (Q : UU-Prop l) → (A → type-Prop Q) → (type-hom-Prop P Q)
 
-is-propositional-truncation-simpl :
+is-propositional-truncation-extension-property :
   { l1 l2 : Level} {A : UU l1} (P : UU-Prop l2)
   ( f : A → type-Prop P) →
-  ( (l : Level) → is-propositional-truncation' l P f) →
+  ( (l : Level) → extension-property-propositional-truncation l P f) →
   ( (l : Level) → is-propositional-truncation l P f)
-is-propositional-truncation-simpl P f up-P l Q =
+is-propositional-truncation-extension-property P f up-P l Q =
   is-equiv-is-prop
     ( is-prop-Π (λ x → is-prop-type-Prop Q))
     ( is-prop-Π (λ x → is-prop-type-Prop Q))
@@ -99,13 +99,13 @@ is-propositional-truncation-simpl P f up-P l Q =
 
 -- Example 14.1.3
 
-is-propositional-truncation-const-star :
+is-propositional-truncation-terminal-map :
   { l1 : Level} (A : UU l1) (a : A)
-  ( l : Level) → is-propositional-truncation l unit-Prop (const A unit star)
-is-propositional-truncation-const-star A a =
-  is-propositional-truncation-simpl
+  ( l : Level) → is-propositional-truncation l unit-Prop (terminal-map {A = A})
+is-propositional-truncation-terminal-map A a =
+  is-propositional-truncation-extension-property
     ( unit-Prop)
-    ( const A unit star)
+    ( terminal-map)
     ( λ l P f → const unit (type-Prop P) (f a))
 
 -- Example 14.1.4
@@ -114,6 +114,12 @@ is-propositional-truncation-id :
   { l1 : Level} (P : UU-Prop l1) →
   ( l : Level) → is-propositional-truncation l P id
 is-propositional-truncation-id P l Q = is-equiv-id
+
+is-propositional-truncation-map-equiv :
+  { l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) (e : equiv-Prop P Q) →
+  ( l : Level) → is-propositional-truncation l Q (map-equiv e)
+is-propositional-truncation-map-equiv P Q e l R =
+  is-equiv-precomp-is-equiv (map-equiv e) (is-equiv-map-equiv e) (type-Prop R)
 
 -- Proposition 14.1.5
 
@@ -314,12 +320,7 @@ equiv-trunc-Prop e =
       ( is-prop-type-trunc-Prop)
       ( map-inv-equiv-trunc-Prop e))
 
---------------------------------------------------------------------------------
-
--- Section 14.2 The dependent universal property of the propositional
--- truncations
-
--- Definition 14.2.1
+-- Definition 14.1.9
 
 dependent-universal-property-propositional-truncation :
   ( l : Level) {l1 l2 : Level} {A : UU l1}
