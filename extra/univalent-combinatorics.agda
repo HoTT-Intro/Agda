@@ -79,6 +79,8 @@ is-prop-is-htpy-finite :
   {l : Level} (k : ℕ) (A : UU l) → is-prop (is-htpy-finite k A)
 is-prop-is-htpy-finite k A = is-prop-type-Prop (is-htpy-finite-Prop k A)
 
+--------------------------------------------------------------------------------
+
 -- Dependent product of locally finite types
 
 is-locally-finite-prod :

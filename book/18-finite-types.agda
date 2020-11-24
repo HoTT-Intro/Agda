@@ -541,11 +541,9 @@ is-prop-has-finite-cardinality' {l1} {X} (pair k K) (pair l L) =
     ( apply-universal-property-trunc-Prop K
       ( pair (Id k l) (is-set-ℕ k l))
       ( λ (e : Fin k ≃ X) →
-        map-universal-property-trunc-Prop
+        apply-universal-property-trunc-Prop L
           ( pair (Id k l) (is-set-ℕ k l))
-          ( λ (f : Fin l ≃ X) →
-            is-injective-Fin ((inv-equiv f) ∘e e))
-          ( L)))
+          ( λ (f : Fin l ≃ X) → is-injective-Fin ((inv-equiv f) ∘e e))))
 
 is-prop-has-finite-cardinality :
   {l1 : Level} {X : UU l1} → is-prop (has-finite-cardinality X)
@@ -652,10 +650,9 @@ is-finite-coprod {X = X} {Y} is-finite-X is-finite-Y =
   apply-universal-property-trunc-Prop is-finite-X
     ( is-finite-Prop (coprod X Y))
     ( λ (e : count X) →
-      map-universal-property-trunc-Prop
+      apply-universal-property-trunc-Prop is-finite-Y
         ( is-finite-Prop (coprod X Y))
-        ( is-finite-count ∘ (count-coprod e))
-        ( is-finite-Y))
+        ( is-finite-count ∘ (count-coprod e)))
 
 is-finite-left-summand :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → is-finite (coprod X Y) → is-finite X
@@ -676,10 +673,9 @@ is-finite-prod {X = X} {Y} is-finite-X is-finite-Y =
   apply-universal-property-trunc-Prop is-finite-X
     ( is-finite-Prop (X × Y))
     ( λ (e : count X) →
-      map-universal-property-trunc-Prop
+      apply-universal-property-trunc-Prop is-finite-Y
         ( is-finite-Prop (X × Y))
-        ( is-finite-count ∘ (count-prod e))
-        ( is-finite-Y))
+        ( is-finite-count ∘ (count-prod e)))
 
 is-finite-left-factor :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
@@ -734,10 +730,10 @@ is-finite-Σ {X = X} {Y} is-finite-X is-finite-Y =
   apply-universal-property-trunc-Prop is-finite-X
     ( is-finite-Prop (Σ X Y))
     ( λ (e : count X) →
-      map-universal-property-trunc-Prop
+      apply-universal-property-trunc-Prop
+        ( finite-choice is-finite-X is-finite-Y)
         ( is-finite-Prop (Σ X Y))
-        ( is-finite-count ∘ (count-Σ e))
-        ( finite-choice is-finite-X is-finite-Y))
+        ( is-finite-count ∘ (count-Σ e)))
 
 is-finite-fiber-is-finite-Σ :
   {l1 l2 : Level} {X : UU l1} {Y : X → UU l2} →
@@ -1193,3 +1189,39 @@ is-finite-base-is-finite-complement {l1} {l2} {A} {B} K f g h =
             ( λ x → is-finite-type-trunc-Prop (g (pr1 x)))))
         ( λ x → g (pr1 x)))
       ( h))  
+
+--------------------------------------------------------------------------------
+
+count-Π-Fin :
+  {l1 : Level} {k : ℕ} {B : Fin k → UU l1} →
+  ((x : Fin k) → count (B x)) → count ((x : Fin k) → B x)
+count-Π-Fin {l1} {zero-ℕ} {B} e =
+  count-is-contr (dependent-universal-property-empty B)
+count-Π-Fin {l1} {succ-ℕ k} {B} e =
+  count-equiv'
+    ( equiv-dependent-universal-property-coprod B)
+    ( count-prod
+      ( count-Π-Fin (λ x → e (inl x)))
+      ( count-equiv'
+        ( equiv-ev-star (B ∘ inr))
+        ( e (inr star))))
+
+count-Π :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  count A → ((x : A) → count (B x)) → count ((x : A) → B x)
+count-Π {l1} {l2} {A} {B} e f =
+  count-equiv'
+    ( equiv-precomp-Π (equiv-count e) B)
+    ( count-Π-Fin (λ x → f (map-equiv-count e x)))
+
+is-finite-Π :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  is-finite A → ((x : A) → is-finite (B x)) → is-finite ((x : A) → B x)
+is-finite-Π {l1} {l2} {A} {B} f g =
+  apply-universal-property-trunc-Prop f
+    ( is-finite-Prop ((x : A) → B x))
+    ( λ e →
+      apply-universal-property-trunc-Prop
+        ( finite-choice f g)
+        ( is-finite-Prop ((x : A) → B x))
+        ( λ h → unit-trunc-Prop (count-Π e h)))
