@@ -457,16 +457,16 @@ abstract
 -- In this exercise we are showing that a type is contractible if and only if the constant map to the unit type is an equivalence. This can be used to derive a '3-for-2 property' for contractible types, which may come in handy sometimes.
 
 abstract
-  is-equiv-const-is-contr :
-    {i : Level} {A : UU i} → is-contr A → is-equiv (const A unit star)
-  is-equiv-const-is-contr {i} {A} is-contr-A =
+  is-equiv-terminal-map-is-contr :
+    {i : Level} {A : UU i} → is-contr A → is-equiv (terminal-map {A = A})
+  is-equiv-terminal-map-is-contr {i} {A} is-contr-A =
     pair
       ( pair (ind-unit (center is-contr-A)) (ind-unit refl))
       ( pair (const unit A (center is-contr-A)) (contraction is-contr-A))
 
 abstract
   is-contr-is-equiv-const :
-    {i : Level} {A : UU i} → is-equiv (const A unit star) → is-contr A
+    {i : Level} {A : UU i} → is-equiv (terminal-map {A = A}) → is-contr A
   is-contr-is-equiv-const (pair (pair g issec) (pair h isretr)) =
     pair (h star) isretr
 
@@ -477,10 +477,10 @@ abstract
   is-contr-is-equiv B f is-equiv-f is-contr-B =
     is-contr-is-equiv-const
       ( is-equiv-comp'
-        ( const B unit star)
+        ( terminal-map)
         ( f)
         ( is-equiv-f)
-        ( is-equiv-const-is-contr is-contr-B))
+        ( is-equiv-terminal-map-is-contr is-contr-B))
 
 abstract
   is-contr-equiv :
