@@ -104,3 +104,102 @@ eckmann-hilton-Ω² α β =
         ( ap-vertical-concat
           ( left-unit-law-horizontal-concat-Ω² {α = β})
           ( right-unit-law-horizontal-concat-Ω² {α = α})))))
+
+--------------------------------------------------------------------------------
+
+-- Identity types of identity types of identity types
+
+x-concat-Id³ :
+  {l : Level} {A : UU l} {x y : A} {p q : Id x y} {α β γ : Id p q} →
+  Id α β → Id β γ → Id α γ
+x-concat-Id³ σ τ = σ ∙ τ
+
+left-unit-law-x-concat-Id³ :
+  {l : Level} {A : UU l} {x y : A} {p q : Id x y} {α β : Id p q} {τ : Id α β} →
+  Id (x-concat-Id³ refl τ) τ
+left-unit-law-x-concat-Id³ = left-unit
+
+right-unit-law-x-concat-Id³ :
+  {l : Level} {A : UU l} {x y : A} {p q : Id x y} {α β : Id p q} {τ : Id α β} →
+  Id (x-concat-Id³ τ refl) τ
+right-unit-law-x-concat-Id³ = right-unit
+
+y-concat-Id³ :
+  {l : Level} {A : UU l} {x y : A} {p q r : Id x y} {α β : Id p q}
+  {γ δ : Id q r} → Id α β → Id γ δ → Id (α ∙ γ) (β ∙ δ)
+y-concat-Id³ σ τ = horizontal-concat σ τ
+
+left-unit-law-y-concat-Id³ :
+  {l : Level} {A : UU l} {x y : A} {p q r : Id x y} {α : Id p q} {γ δ : Id q r}
+  {τ : Id γ δ} → Id (y-concat-Id³ (refl {x = α}) τ) (ap (concat α r) τ)
+left-unit-law-y-concat-Id³ {τ = τ} = left-unit-law-horizontal-concat τ
+
+right-unit-law-y-concat-Id³ :
+  {l : Level} {A : UU l} {x y : A} {p q r : Id x y} {α β : Id p q} {γ : Id q r}
+  {σ : Id α β} → Id (y-concat-Id³ σ (refl {x = γ})) (ap (concat' p γ) σ)
+right-unit-law-y-concat-Id³ {σ = σ} = right-unit-law-horizontal-concat σ
+
+z-concat-Id³ :
+  {l : Level} {A : UU l} {x y z : A} {p q : Id x y} {u v : Id y z}
+  {α β : Id p q} {γ δ : Id u v} →
+  Id α β → Id γ δ → Id (horizontal-concat α γ) (horizontal-concat β δ)
+z-concat-Id³ refl refl = refl
+
+left-unit-law-z-concat-Id³ :
+  {l : Level} {A : UU l} {x y z : A} {p q : Id x y} {u v : Id y z}
+  {α : Id p q} {γ δ : Id u v} (τ : Id γ δ) →
+  Id (z-concat-Id³ (refl {x = α}) τ) (ap (horizontal-concat α) τ)
+left-unit-law-z-concat-Id³ refl = refl
+
+right-unit-law-z-concat-Id³ :
+  {l : Level} {A : UU l} {x y z : A} {p q : Id x y} {u v : Id y z}
+  {α β : Id p q} {γ : Id u v} (σ : Id α β) →
+  Id (z-concat-Id³ σ (refl {x = γ})) (ap (λ ω → horizontal-concat ω γ) σ)
+right-unit-law-z-concat-Id³ refl = refl
+
+interchange-x-y-concat-Id³ :
+  {l : Level} {A : UU l} {x y : A} {p q r : Id x y} {α β γ : Id p q}
+  {δ ε ζ : Id q r} (σ : Id α β) (τ : Id β γ) (υ : Id δ ε) (ϕ : Id ε ζ) →
+  Id ( y-concat-Id³ (x-concat-Id³ σ τ) (x-concat-Id³ υ ϕ))
+     ( x-concat-Id³ (y-concat-Id³ σ υ) (y-concat-Id³ τ ϕ))
+interchange-x-y-concat-Id³ = interchange-concat
+
+interchange-x-z-concat-Id³ :
+  {l : Level} {A : UU l} {x y z : A} {p q : Id x y} {u v : Id y z}
+  {α β γ : Id p q} {δ ε ζ : Id u v} (σ : Id α β) (τ : Id β γ) (υ : Id δ ε)
+  (ϕ : Id ε ζ) →
+  Id ( z-concat-Id³ (x-concat-Id³ σ τ) (x-concat-Id³ υ ϕ))
+     ( x-concat-Id³ (z-concat-Id³ σ υ) (z-concat-Id³ τ ϕ))
+interchange-x-z-concat-Id³ refl τ refl ϕ = refl
+
+interchange-y-z-concat-Id³ :
+  {l : Level} {A : UU l} {x y z : A} {p q r : Id x y} {u v w : Id y z}
+  {α β : Id p q} {γ δ : Id q r} {ε ζ : Id u v} {η θ : Id v w}
+  (σ : Id α β) (τ : Id γ δ) (υ : Id ε ζ) (ϕ : Id η θ) →
+  Id ( ( z-concat-Id³ (y-concat-Id³ σ τ) (y-concat-Id³ υ ϕ)) ∙
+       ( interchange-concat β δ ζ θ))
+     ( ( interchange-concat α γ ε η) ∙
+       ( y-concat-Id³ (z-concat-Id³ σ υ) (z-concat-Id³ τ ϕ)))
+interchange-y-z-concat-Id³ refl refl refl refl = inv right-unit
+
+--------------------------------------------------------------------------------
+
+-- Triple loop spaces
+
+Ω³ : {l : Level} {A : UU l} → A → UU l
+Ω³ a = Ω² (refl {x = a})
+
+refl-Ω³ : {l : Level} {A : UU l} (a : A) → Ω³ a
+refl-Ω³ a = refl-Ω² {a = refl}
+
+x-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} → Ω³ a → Ω³ a → Ω³ a
+x-concat-Ω³ = x-concat-Id³
+
+y-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} → Ω³ a → Ω³ a → Ω³ a
+y-concat-Ω³ = y-concat-Id³
+
+z-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} → Ω³ a → Ω³ a → Ω³ a
+z-concat-Ω³ = z-concat-Id³
