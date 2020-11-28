@@ -188,24 +188,7 @@ interchange-y-z-concat-Id³ :
        ( y-concat-Id³ (z-concat-Id³ σ υ) (z-concat-Id³ τ ϕ)))
 interchange-y-z-concat-Id³ refl refl refl refl = inv right-unit
 
-type-type-coherence-interchange-concat-Id³ :
-  {l : Level} {X : UU l} {x y z : X} {p q r : Id x y} {u v w : Id y z}
-  {α β γ : Id p q} {δ ε ζ : Id q r} {η θ ι : Id u v} {κ μ ν : Id v w}
-  (A : Id α β) (B : Id β γ) (C : Id δ ε) (D : Id ε ζ) (E : Id η θ) (F : Id θ ι)
-  (G : Id κ μ) (H : Id μ ν) →
-  UU l
-type-type-coherence-interchange-concat-Id³ {l} {X} {x} {y} {z} {p} {q} {r} {u} {v} {w}
-  {α} {β} {γ} {δ} {ε} {ζ} {η} {θ} {ι} {κ} {μ} {ν} A B C D E F G H =
-  Id ( ( ( z-concat-Id³
-           ( y-concat-Id³ (x-concat-Id³ A B) (x-concat-Id³ C D))
-           ( y-concat-Id³ (x-concat-Id³ E F) (x-concat-Id³ G H))) ∙
-         ( interchange-concat γ ζ ι ν)))
-     ( ( interchange-concat α δ η κ) ∙
-       ( x-concat-Id³
-         ( y-concat-Id³ (z-concat-Id³ A E) (z-concat-Id³ C G))
-         ( y-concat-Id³ (z-concat-Id³ B F) (z-concat-Id³ D H))))
-
-source-type-coherence-interchange-concat-Id³ :
+source-coherence-interchange-concat-Id³ :
   {l : Level} {X : UU l} {x y z : X} {p q r : Id x y} {u v w : Id y z}
   {α β γ : Id p q} {δ ε ζ : Id q r} {η θ ι : Id u v} {κ μ ν : Id v w}
   (A : Id α β) (B : Id β γ) (C : Id δ ε) (D : Id ε ζ) (E : Id η θ) (F : Id θ ι)
@@ -218,7 +201,7 @@ source-type-coherence-interchange-concat-Id³ :
        ( x-concat-Id³
          ( y-concat-Id³ (z-concat-Id³ A E) (z-concat-Id³ C G))
          ( y-concat-Id³ (z-concat-Id³ B F) (z-concat-Id³ D H))))
-source-type-coherence-interchange-concat-Id³ {l} {X} {x} {y} {z} {p} {q} {r} {u} {v} {w}
+source-coherence-interchange-concat-Id³ {l} {X} {x} {y} {z} {p} {q} {r} {u} {v} {w}
   {α} {β} {γ} {δ} {ε} {ζ} {η} {θ} {ι} {κ} {μ} {ν} A B C D E F G H =
   ( interchange-y-z-concat-Id³ (A ∙ B) (C ∙ D) (E ∙ F) (G ∙ H)) ∙
   ( ( ap ( concat
@@ -233,7 +216,7 @@ source-type-coherence-interchange-concat-Id³ {l} {X} {x} {y} {z} {p} {q} {r} {u
              ( z-concat-Id³ C G)
              ( z-concat-Id³ D H)))))
 
-target-type-coherence-interchange-concat-Id³ :
+target-coherence-interchange-concat-Id³ :
   {l : Level} {X : UU l} {x y z : X} {p q r : Id x y} {u v w : Id y z}
   {α β γ : Id p q} {δ ε ζ : Id q r} {η θ ι : Id u v} {κ μ ν : Id v w}
   (A : Id α β) (B : Id β γ) (C : Id δ ε) (D : Id ε ζ) (E : Id η θ) (F : Id θ ι)
@@ -246,7 +229,7 @@ target-type-coherence-interchange-concat-Id³ :
        ( x-concat-Id³
          ( y-concat-Id³ (z-concat-Id³ A E) (z-concat-Id³ C G))
          ( y-concat-Id³ (z-concat-Id³ B F) (z-concat-Id³ D H))))
-target-type-coherence-interchange-concat-Id³ {l} {X} {x} {y} {z} {p} {q} {r} {u} {v} {w}
+target-coherence-interchange-concat-Id³ {l} {X} {x} {y} {z} {p} {q} {r} {u} {v} {w}
   {α} {β} {γ} {δ} {ε} {ζ} {η} {θ} {ι} {κ} {μ} {ν} A B C D E F G H =
   ( ap
     ( concat' (horizontal-concat (α ∙ δ) (η ∙ κ)) (interchange-concat γ ζ ι ν))
@@ -286,8 +269,8 @@ coherence-interchange-concat-Id³ :
   {α β γ : Id p q} {δ ε ζ : Id q r} {η θ ι : Id u v} {κ μ ν : Id v w}
   (A : Id α β) (B : Id β γ) (C : Id δ ε) (D : Id ε ζ) (E : Id η θ) (F : Id θ ι)
   (G : Id κ μ) (H : Id μ ν) →
-  Id ( source-type-coherence-interchange-concat-Id³ A B C D E F G H)
-     ( target-type-coherence-interchange-concat-Id³ A B C D E F G H)
+  Id ( source-coherence-interchange-concat-Id³ A B C D E F G H)
+     ( target-coherence-interchange-concat-Id³ A B C D E F G H)
 coherence-interchange-concat-Id³
   {l} {X} {x} {y} {z} {p} {.p} {.p} {u} {.u} {.u} {refl} {.refl} {.refl} {refl}
   {.refl} {.refl} {refl} {.refl} {.refl} {refl} {.refl} {.refl} refl refl refl
@@ -314,3 +297,10 @@ y-concat-Ω³ = y-concat-Id³
 z-concat-Ω³ :
   {l : Level} {A : UU l} {a : A} → Ω³ a → Ω³ a → Ω³ a
 z-concat-Ω³ = z-concat-Id³
+
+-- eckmann-hilton-Ω³
+
+syllepsis :
+  {l : Level} {A : UU l} {a : A} (s t : Ω³ a) →
+  Id (eckmann-hilton-Ω² s t ∙ eckmann-hilton-Ω² t s) refl
+syllepsis s t = {!!}
