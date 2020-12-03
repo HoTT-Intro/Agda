@@ -448,14 +448,38 @@ A →* B =
 
 -- Definition 6.3.3
 
-Ω : {i : Level} → UU-pt i → UU-pt i
-Ω A = pair (Id (pt-UU-pt A) (pt-UU-pt A)) refl
+type-Ω : {l : Level} → UU-pt l → UU l
+type-Ω A = Id (pt-UU-pt A) (pt-UU-pt A)
+
+refl-Ω : {l : Level} (A : UU-pt l) → type-Ω A
+refl-Ω A = refl
+
+Ω : {l : Level} → UU-pt l → UU-pt l
+Ω A = pair (type-Ω A) (refl-Ω A)
 
 -- Definition 6.3.4
 
-iterated-loop-space : {i : Level} → ℕ → UU-pt i → UU-pt i
+iterated-loop-space : {l : Level} → ℕ → UU-pt l → UU-pt l
 iterated-loop-space zero-ℕ A = A
 iterated-loop-space (succ-ℕ n) A = Ω (iterated-loop-space n A)
+
+Ω² : {l : Level} → UU-pt l → UU-pt l
+Ω² A = iterated-loop-space two-ℕ A
+
+type-Ω² : {l : Level} {A : UU l} (a : A) → UU l
+type-Ω² {l} {A} a = type-UU-pt (Ω² (pair A a))
+
+refl-Ω² : {l : Level} {A : UU l} {a : A} → type-Ω² a
+refl-Ω² {l} {A} {a} = pt-UU-pt (Ω² (pair A a))
+
+Ω³ : {l : Level} → UU-pt l → UU-pt l
+Ω³ A = iterated-loop-space three-ℕ A
+
+type-Ω³ : {l : Level} {A : UU l} (a : A) → UU l
+type-Ω³ {l} {A} a = type-UU-pt (Ω³ (pair A a))
+
+refl-Ω³ : {l : Level} {A : UU l} {a : A} → type-Ω³ a
+refl-Ω³ {l} {A} {a} = pt-UU-pt (Ω³ (pair A a))
 
 {- Pointed maps and pointed homotopies. -}
 

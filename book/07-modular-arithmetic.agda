@@ -540,7 +540,7 @@ add-Fin' x y = add-Fin y x
 ap-add-Fin :
   {k : ℕ} {x y x' y' : Fin k} →
   Id x x' → Id y y' → Id (add-Fin x y) (add-Fin x' y')
-ap-add-Fin refl refl = refl
+ap-add-Fin p q = ap-binary add-Fin p q
 
 -- The negative of an element of Fin k --
 
@@ -940,7 +940,7 @@ mul-Fin {succ-ℕ k} x y = mod-succ-ℕ k (mul-ℕ (nat-Fin x) (nat-Fin y))
 ap-mul-Fin :
   {k : ℕ} {x y x' y' : Fin k} →
   Id x x' → Id y y' → Id (mul-Fin x y) (mul-Fin x' y')
-ap-mul-Fin refl refl = refl
+ap-mul-Fin p q = ap-binary mul-Fin p q
 
 -- Exercise 7.7 (a)
 
@@ -1277,7 +1277,7 @@ dist-ℤ' x y = dist-ℤ y x
 
 ap-dist-ℤ :
   {x y x' y' : ℤ} → Id x x' → Id y y' → Id (dist-ℤ x y) (dist-ℤ x' y')
-ap-dist-ℤ refl refl = refl
+ap-dist-ℤ p q = ap-binary dist-ℤ p q
 
 eq-dist-ℤ :
   (x y : ℤ) → is-zero-ℕ (dist-ℤ x y) → Id x y

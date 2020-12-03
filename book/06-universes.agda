@@ -113,7 +113,7 @@ is-injective-right-mul-is-nonzero-ℕ k H p with
 
 ap-mul-ℕ :
   {x y x' y' : ℕ} → Id x x' → Id y y' → Id (mul-ℕ x y) (mul-ℕ x' y')
-ap-mul-ℕ refl refl = refl
+ap-mul-ℕ p q = ap-binary mul-ℕ p q
 
 is-injective-left-mul-ℕ :
   (k : ℕ) → is-injective (mul-ℕ (succ-ℕ k))
@@ -554,7 +554,7 @@ dist-ℕ' m n = dist-ℕ n m
 
 ap-dist-ℕ :
   {m n m' n' : ℕ} → Id m m' → Id n n' → Id (dist-ℕ m n) (dist-ℕ m' n')
-ap-dist-ℕ refl refl = refl
+ap-dist-ℕ p q = ap-binary dist-ℕ p q
 
 {- We show that two natural numbers are equal if and only if their distance is
    zero. -}
@@ -598,7 +598,7 @@ right-unit-law-dist-ℕ (succ-ℕ n) = refl
 
 ap-add-ℕ :
   {m n m' n' : ℕ} → Id m m' → Id n n' → Id (add-ℕ m n) (add-ℕ m' n')
-ap-add-ℕ refl refl = refl
+ap-add-ℕ p q = ap-binary add-ℕ p q
 
 triangle-inequality-dist-ℕ :
   (m n k : ℕ) → leq-ℕ (dist-ℕ m n) (add-ℕ (dist-ℕ m k) (dist-ℕ k n))

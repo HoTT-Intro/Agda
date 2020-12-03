@@ -94,6 +94,11 @@ ap-comp :
   (f : A → B) {x y : A} (p : Id x y) → Id (ap (g ∘ f) p) (ap g (ap f p))
 ap-comp g f refl = refl
 
+ap-binary :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} (f : A → B → C) →
+  {x x' : A} (p : Id x x') {y y' : B} (q : Id y y') → Id (f x y) (f x' y')
+ap-binary f refl refl = refl
+
 -- Definition 5.3.2
 
 ap-refl :
@@ -512,9 +517,8 @@ abstract
 -- Exercise 5.8
 
 ap-add-ℤ :
-  {a b a' b' : ℤ} →
-  Id a a' → Id b b' → Id (add-ℤ a b) (add-ℤ a' b')
-ap-add-ℤ refl refl = refl
+  {a b a' b' : ℤ} → Id a a' → Id b b' → Id (add-ℤ a b) (add-ℤ a' b')
+ap-add-ℤ p q = ap-binary add-ℤ p q
 
 -- Exercise 5.8 (a)
 
