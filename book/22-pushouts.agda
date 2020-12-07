@@ -467,19 +467,19 @@ iterated-loop-space (succ-ℕ n) A = Ω (iterated-loop-space n A)
 Ω² A = iterated-loop-space two-ℕ A
 
 type-Ω² : {l : Level} {A : UU l} (a : A) → UU l
-type-Ω² {l} {A} a = type-UU-pt (Ω² (pair A a))
+type-Ω² {l} {A} a = Id (refl {x = a}) (refl {x = a})
 
 refl-Ω² : {l : Level} {A : UU l} {a : A} → type-Ω² a
-refl-Ω² {l} {A} {a} = pt-UU-pt (Ω² (pair A a))
+refl-Ω² {l} {A} {a} = refl
 
 Ω³ : {l : Level} → UU-pt l → UU-pt l
 Ω³ A = iterated-loop-space three-ℕ A
 
 type-Ω³ : {l : Level} {A : UU l} (a : A) → UU l
-type-Ω³ {l} {A} a = type-UU-pt (Ω³ (pair A a))
+type-Ω³ {l} {A} a = Id (refl-Ω² {a = a}) (refl-Ω² {a = a})
 
 refl-Ω³ : {l : Level} {A : UU l} {a : A} → type-Ω³ a
-refl-Ω³ {l} {A} {a} = pt-UU-pt (Ω³ (pair A a))
+refl-Ω³ {l} {A} {a} = refl
 
 {- Pointed maps and pointed homotopies. -}
 
