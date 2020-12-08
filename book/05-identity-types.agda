@@ -99,6 +99,18 @@ ap-binary :
   {x x' : A} (p : Id x x') {y y' : B} (q : Id y y') → Id (f x y) (f x' y')
 ap-binary f refl refl = refl
 
+triangle-ap-binary :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} (f : A → B → C) →
+  {x x' : A} (p : Id x x') {y y' : B} (q : Id y y') →
+  Id (ap-binary f p q) (ap (λ z → f z y) p ∙ ap (f x') q)
+triangle-ap-binary f refl refl = refl
+
+triangle-ap-binary' :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} (f : A → B → C) →
+  {x x' : A} (p : Id x x') {y y' : B} (q : Id y y') →
+  Id (ap-binary f p q) (ap (f x) q ∙ ap (λ z → f z y') p)
+triangle-ap-binary' f refl refl = refl
+
 -- Definition 5.3.2
 
 ap-refl :

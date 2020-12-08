@@ -302,6 +302,11 @@ unit-law-assoc-101 :
   Id (assoc p refl q) (ap (concat' x q) right-unit)
 unit-law-assoc-101 refl refl = refl
 
+unit-law-assoc-101' :
+  {l : Level} {X : UU l} {x y z : X} (p : Id x y) (q : Id y z) →
+  Id (inv (assoc p refl q)) (ap (concat' x q) (inv right-unit))
+unit-law-assoc-101' refl refl = refl
+
 unit-law-assoc-110 :
   {l : Level} {X : UU l} {x y z : X} (p : Id x y) (q : Id y z) →
   Id (assoc p q refl ∙ ap (concat p z) right-unit) right-unit
@@ -679,7 +684,155 @@ coherence-interchange-Ω³ α β γ δ ε ζ η θ =
                         ( unit-law-assoc-110'
                           ( z-concat-Ω³ (y-concat-Ω³ α γ) (y-concat-Ω³ ε η))
                           ( z-concat-Ω³ (y-concat-Ω³ β δ) (y-concat-Ω³ ζ θ)))) ∙
-                      {!!}))))))))))
+                      ( ( inv
+                          ( assoc
+                            ( ap
+                              ( concat
+                                ( z-concat-Ω³
+                                  ( y-concat-Ω³ α γ)
+                                  ( y-concat-Ω³ ε η))
+                                ( refl))
+                              ( inv right-unit))
+                            ( ap
+                              ( concat
+                                ( z-concat-Ω³
+                                  ( y-concat-Ω³ α γ)
+                                  ( y-concat-Ω³ ε η))
+                                ( refl))
+                              ( interchange-y-z-concat-Id³ β δ ζ θ))
+                            ( _))) ∙
+                        ( ( ap
+                            ( concat'
+                              ( x-concat-Ω³
+                                ( z-concat-Ω³
+                                  ( y-concat-Ω³ α γ)
+                                  ( y-concat-Ω³ ε η))
+                                ( z-concat-Ω³
+                                  ( y-concat-Ω³ β δ)
+                                  ( y-concat-Ω³ ζ θ)))
+                              ( ( inv
+                                  ( assoc
+                                    ( z-concat-Ω³
+                                      ( y-concat-Ω³ α γ)
+                                      ( y-concat-Ω³ ε η))
+                                    ( refl)
+                                    ( y-concat-Ω³
+                                      ( z-concat-Ω³ β ζ)
+                                      ( z-concat-Ω³ δ θ)))) ∙
+                                ( ap
+                                  ( concat'
+                                    ( refl)
+                                    ( y-concat-Ω³
+                                      ( z-concat-Ω³ β ζ)
+                                      ( z-concat-Ω³ δ θ)))
+                                  ( interchange-y-z-concat-Id³ α γ ε η))))
+                            { x = ( ap
+                                    ( concat
+                                      ( z-concat-Ω³
+                                        ( y-concat-Ω³ α γ)
+                                        ( y-concat-Ω³ ε η))
+                                      ( refl))
+                                    ( inv right-unit)) ∙
+                                  ( ap
+                                    ( concat
+                                      ( z-concat-Ω³
+                                        ( y-concat-Ω³ α γ)
+                                        ( y-concat-Ω³ ε η))
+                                      ( refl))
+                                    ( interchange-y-z-concat-Id³ β δ ζ θ))}
+                            { y = ( ap
+                                    ( concat
+                                      ( z-concat-Ω³
+                                        ( y-concat-Ω³ α γ)
+                                        ( y-concat-Ω³ ε η))
+                                      ( refl))
+                                    ( interchange-y-z-concat-Ω³ β δ ζ θ))}
+                            ( inv
+                              ( ap-concat
+                                ( concat
+                                  ( z-concat-Ω³
+                                    ( y-concat-Ω³ α γ)
+                                    ( y-concat-Ω³ ε η))
+                                  ( refl))
+                                ( inv right-unit)
+                                ( interchange-y-z-concat-Id³ β δ ζ θ)))) ∙
+                          ( ( ap
+                              ( concat
+                                ( ap
+                                  ( concat
+                                    ( z-concat-Ω³
+                                      ( y-concat-Ω³ α γ)
+                                      ( y-concat-Ω³ ε η))
+                                    ( refl))
+                                  ( interchange-y-z-concat-Ω³ β δ ζ θ))
+                                ( x-concat-Ω³
+                                  ( y-concat-Ω³
+                                    ( z-concat-Ω³ α ε)
+                                    ( z-concat-Ω³ γ η))
+                                  ( y-concat-Ω³
+                                    ( z-concat-Ω³ β ζ)
+                                    ( z-concat-Ω³ δ θ))))
+                              { x = ( inv
+                                      ( assoc
+                                        ( z-concat-Ω³
+                                          ( y-concat-Ω³ α γ)
+                                          ( y-concat-Ω³ ε η))
+                                        ( refl)
+                                        ( y-concat-Ω³
+                                          ( z-concat-Ω³ β ζ)
+                                          ( z-concat-Ω³ δ θ)))) ∙
+                                    ( ap
+                                      ( concat'
+                                        ( refl)
+                                        ( y-concat-Ω³
+                                          ( z-concat-Ω³ β ζ)
+                                          ( z-concat-Ω³ δ θ)))
+                                      ( interchange-y-z-concat-Id³ α γ ε η))}
+                              { y = ap
+                                    ( concat'
+                                      ( refl)
+                                      ( y-concat-Ω³
+                                        ( z-concat-Ω³ β ζ)
+                                        ( z-concat-Ω³ δ θ)))
+                                    ( interchange-y-z-concat-Ω³ α γ ε η)}
+                              ( ( ap
+                                  ( concat'
+                                    ( x-concat-Ω³
+                                      ( z-concat-Ω³
+                                        ( y-concat-Ω³ α γ)
+                                        ( y-concat-Ω³ ε η))
+                                      ( y-concat-Ω³
+                                        ( z-concat-Ω³ β ζ)
+                                        ( z-concat-Ω³ δ θ)))
+                                    ( ap
+                                      ( concat'
+                                        ( refl)
+                                        ( y-concat-Ω³
+                                          ( z-concat-Ω³ β ζ)
+                                          ( z-concat-Ω³ δ θ)))
+                                      ( interchange-y-z-concat-Id³ α γ ε η)))
+                                  ( unit-law-assoc-101'
+                                    ( z-concat-Ω³
+                                      ( y-concat-Ω³ α γ)
+                                      ( y-concat-Ω³ ε η))
+                                    ( y-concat-Ω³
+                                      ( z-concat-Id³ β ζ)
+                                      ( z-concat-Id³ δ θ)))) ∙
+                                ( inv
+                                  ( ap-concat
+                                    ( concat'
+                                      ( refl)
+                                      ( y-concat-Ω³
+                                        ( z-concat-Ω³ β ζ)
+                                        ( z-concat-Ω³ δ θ)))
+                                    ( inv right-unit)
+                                    ( interchange-y-z-concat-Id³ α γ ε η))))) ∙
+                            ( inv
+                              ( triangle-ap-binary'
+                                ( x-concat-Ω³)
+                                ( interchange-y-z-concat-Ω³ α γ ε η)
+                                ( interchange-y-z-concat-Ω³ β δ ζ θ)
+                              )))))))))))))))
 
 -- syllepsis
 
