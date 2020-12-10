@@ -143,7 +143,7 @@ coherence-interchange-Ω³ α β γ δ ε ζ η θ =
               ( ( y-concat-Id³ (z-concat-Id³ α ε) (z-concat-Id³ γ η)) ∙
                 ( y-concat-Id³ (z-concat-Id³ β ζ) (z-concat-Id³ δ θ))))
             ( ap-id
-              ( ( ap-binary horizontal-concat
+              ( ( ap-binary horizontal-concat-Id²
                   ( interchange-x-z-concat-Id³ α β ε ζ)
                   ( interchange-x-z-concat-Id³ γ δ η θ)) ∙
                 ( interchange-Id²
