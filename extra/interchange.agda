@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --exact-split #-}
+{-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
 module extra.interchange where
 
@@ -7,7 +7,7 @@ open book public
 
 --------------------------------------------------------------------------------
 
-{- Binary equivalences -}
+{- Binary equivalences and binary embeddings -}
 
 is-binary-equiv :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
@@ -15,20 +15,75 @@ is-binary-equiv :
 is-binary-equiv {A = A} {B = B} f =
   ((b : B) → is-equiv (λ x → f x b)) × ((a : A) → is-equiv (λ y → f a y))
 
+is-equiv-fix-left :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} (f : A → B → C) →
+  is-binary-equiv f → {a : A} → is-equiv (λ y → f a y)
+is-equiv-fix-left f H {a} = pr2 H a
+
+is-emb-fix-left-is-binary-equiv :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} (f : A → B → C) →
+  is-binary-equiv f → {a : A} → is-emb (λ y → f a y)
+is-emb-fix-left-is-binary-equiv f H {a} =
+  is-emb-is-equiv (λ y → f a y) (is-equiv-fix-left f H)
+
+is-equiv-fix-right :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} (f : A → B → C) →
+  is-binary-equiv f → {b : B} → is-equiv (λ x → f x b)
+is-equiv-fix-right f H {b} = pr1 H b
+
+is-emb-fix-right-is-binary-equiv :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} (f : A → B → C) →
+  is-binary-equiv f → {b : B} → is-emb (λ x → f x b)
+is-emb-fix-right-is-binary-equiv f H {b} =
+  is-emb-is-equiv (λ x → f x b) (is-equiv-fix-right f H)
+
 is-binary-equiv-concat :
   {l : Level} {A : UU l} {x y z : A} →
   is-binary-equiv (λ (p : Id x y) (q : Id y z) → p ∙ q)
 is-binary-equiv-concat {l} {A} {x} {y} {z} =
   pair (λ q → is-equiv-concat' x q) (λ p → is-equiv-concat p z)
 
+is-binary-emb :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
+  (A → B → C) → UU (l1 ⊔ l2 ⊔ l3)
+is-binary-emb {A = A} {B = B} f =
+  {x x' : A} {y y' : B} →
+    is-binary-equiv (λ (p : Id x x') (q : Id y y') → ap-binary f p q)
+
+is-binary-emb-is-binary-equiv :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} (f : A → B → C) →
+  is-binary-equiv f → is-binary-emb f
+is-binary-emb-is-binary-equiv f H {x} {x'} {y} {y'} =
+  pair
+    ( λ q →
+      is-equiv-comp
+        ( λ p → ap-binary f p q)
+        ( concat' (f x y) (ap (λ z → f x' z) q))
+        ( λ p → ap (λ z → f z y) p)
+        ( λ p → triangle-ap-binary f p q)
+        ( is-emb-fix-right-is-binary-equiv f H x x')
+        ( is-equiv-concat' (f x y) (ap (λ z → f x' z) q)))
+    ( λ p →
+      is-equiv-comp
+        ( λ q → ap-binary f p q)
+        ( concat (ap (λ z → f z y) p) (f x' y'))
+        ( λ q → ap (f x') q)
+        ( λ q → triangle-ap-binary f p q)
+        ( is-emb-fix-left-is-binary-equiv f H y y')
+        ( is-equiv-concat (ap (λ z → f z y) p) (f x' y')))
+
 --------------------------------------------------------------------------------
 
 {- Identity types of identity types -}
 
 vertical-concat :
-  {l : Level} {A : UU l} {x y : A} {p q r : Id x y} (α : Id p q) (β : Id q r) →
-  Id p r
+  {l : Level} {A : UU l} {x y : A} {p q r : Id x y} → Id p q → Id q r → Id p r
 vertical-concat α β = α ∙ β
+
+is-binary-equiv-vertical-concat :
+  {l : Level} {A : UU l} {x y : A} {p q r : Id x y} →
+  is-binary-equiv (vertical-concat {l} {A} {x} {y} {p} {q} {r})
+is-binary-equiv-vertical-concat = is-binary-equiv-concat
 
 ap-vertical-concat :
   {l : Level} {A : UU l} {x y : A} {p q r : Id x y} {α α' : Id p q}
@@ -39,7 +94,13 @@ ap-vertical-concat s t = ap-binary vertical-concat s t
 horizontal-concat :
   {l : Level} {A : UU l} {x y z : A} {p q : Id x y} {u v : Id y z} →
   Id p q → Id u v → Id (p ∙ u) (q ∙ v)
-horizontal-concat α β = ap-binary (λ r w → r ∙ w) α β
+horizontal-concat α β = ap-binary (λ s t → s ∙ t) α β
+
+is-binary-equiv-horizontal-concat :
+  {l : Level} {A : UU l} {x y z : A} {p q : Id x y} {u v : Id y z} →
+  is-binary-equiv (horizontal-concat {l} {A} {x} {y} {z} {p} {q} {u} {v})
+is-binary-equiv-horizontal-concat =
+  is-binary-emb-is-binary-equiv (λ s t → s ∙ t) is-binary-equiv-concat
 
 left-unit-law-horizontal-concat :
   {l : Level} {A : UU l} {x y z : A} {p : Id x y} {u v : Id y z} (γ : Id u v) →
@@ -163,6 +224,17 @@ x-concat-Id³ :
   Id α β → Id β γ → Id α γ
 x-concat-Id³ σ τ = σ ∙ τ
 
+y-concat-Id³ :
+  {l : Level} {A : UU l} {x y : A} {p q r : Id x y} {α β : Id p q}
+  {γ δ : Id q r} → Id α β → Id γ δ → Id (α ∙ γ) (β ∙ δ)
+y-concat-Id³ σ τ = horizontal-concat σ τ
+
+z-concat-Id³ :
+  {l : Level} {A : UU l} {x y z : A} {p q : Id x y} {u v : Id y z}
+  {α β : Id p q} {γ δ : Id u v} →
+  Id α β → Id γ δ → Id (horizontal-concat α γ) (horizontal-concat β δ)
+z-concat-Id³ σ τ = ap-binary (λ s t → horizontal-concat s t) σ τ
+
 left-unit-law-x-concat-Id³ :
   {l : Level} {A : UU l} {x y : A} {p q : Id x y} {α β : Id p q} {τ : Id α β} →
   Id (x-concat-Id³ refl τ) τ
@@ -173,17 +245,6 @@ right-unit-law-x-concat-Id³ :
   Id (x-concat-Id³ τ refl) τ
 right-unit-law-x-concat-Id³ = right-unit
 
-y-concat-Id³ :
-  {l : Level} {A : UU l} {x y : A} {p q r : Id x y} {α β : Id p q}
-  {γ δ : Id q r} → Id α β → Id γ δ → Id (α ∙ γ) (β ∙ δ)
-y-concat-Id³ σ τ = horizontal-concat σ τ
-
-ap-y-concat-Id³ :
-  {l : Level} {A : UU l} {x y : A} {p q r : Id x y} {α β : Id p q}
-  {γ δ : Id q r} {σ σ' : Id α β} (s : Id σ σ') {τ τ' : Id γ δ} (t : Id τ τ') →
-  Id (y-concat-Id³ σ τ) (y-concat-Id³ σ' τ')
-ap-y-concat-Id³ s t = ap-horizontal-concat s t
-
 left-unit-law-y-concat-Id³ :
   {l : Level} {A : UU l} {x y : A} {p q r : Id x y} {α : Id p q} {γ δ : Id q r}
   {τ : Id γ δ} → Id (y-concat-Id³ (refl {x = α}) τ) (ap (concat α r) τ)
@@ -193,18 +254,6 @@ right-unit-law-y-concat-Id³ :
   {l : Level} {A : UU l} {x y : A} {p q r : Id x y} {α β : Id p q} {γ : Id q r}
   {σ : Id α β} → Id (y-concat-Id³ σ (refl {x = γ})) (ap (concat' p γ) σ)
 right-unit-law-y-concat-Id³ {σ = σ} = right-unit-law-horizontal-concat σ
-
-z-concat-Id³ :
-  {l : Level} {A : UU l} {x y z : A} {p q : Id x y} {u v : Id y z}
-  {α β : Id p q} {γ δ : Id u v} →
-  Id α β → Id γ δ → Id (horizontal-concat α γ) (horizontal-concat β δ)
-z-concat-Id³ refl refl = refl
-
-ap-z-concat-Id³ :
-  {l : Level} {A : UU l} {x y z : A} {p q : Id x y} {u v : Id y z}
-  {α β : Id p q} {γ δ : Id u v} {σ σ' : Id α β} {τ τ' : Id γ δ} →
-  Id σ σ' → Id τ τ' → Id (z-concat-Id³ σ τ) (z-concat-Id³ σ' τ')
-ap-z-concat-Id³ s t = ap-binary z-concat-Id³ s t
 
 left-unit-law-z-concat-Id³ :
   {l : Level} {A : UU l} {x y z : A} {p q : Id x y} {u v : Id y z}
@@ -217,6 +266,18 @@ right-unit-law-z-concat-Id³ :
   {α β : Id p q} {γ : Id u v} (σ : Id α β) →
   Id (z-concat-Id³ σ (refl {x = γ})) (ap (λ ω → horizontal-concat ω γ) σ)
 right-unit-law-z-concat-Id³ refl = refl
+
+ap-y-concat-Id³ :
+  {l : Level} {A : UU l} {x y : A} {p q r : Id x y} {α β : Id p q}
+  {γ δ : Id q r} {σ σ' : Id α β} (s : Id σ σ') {τ τ' : Id γ δ} (t : Id τ τ') →
+  Id (y-concat-Id³ σ τ) (y-concat-Id³ σ' τ')
+ap-y-concat-Id³ s t = ap-horizontal-concat s t
+
+ap-z-concat-Id³ :
+  {l : Level} {A : UU l} {x y z : A} {p q : Id x y} {u v : Id y z}
+  {α β : Id p q} {γ δ : Id u v} {σ σ' : Id α β} {τ τ' : Id γ δ} →
+  Id σ σ' → Id τ τ' → Id (z-concat-Id³ σ τ) (z-concat-Id³ σ' τ')
+ap-z-concat-Id³ s t = ap-binary z-concat-Id³ s t
 
 interchange-x-y-concat-Id³ :
   {l : Level} {A : UU l} {x y : A} {p q r : Id x y} {α β γ : Id p q}
