@@ -7,6 +7,22 @@ open book public
 
 --------------------------------------------------------------------------------
 
+{- Binary equivalences -}
+
+is-binary-equiv :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
+  (A → B → C) → UU (l1 ⊔ l2 ⊔ l3)
+is-binary-equiv {A = A} {B = B} f =
+  ((b : B) → is-equiv (λ x → f x b)) × ((a : A) → is-equiv (λ y → f a y))
+
+is-binary-equiv-concat :
+  {l : Level} {A : UU l} {x y z : A} →
+  is-binary-equiv (λ (p : Id x y) (q : Id y z) → p ∙ q)
+is-binary-equiv-concat {l} {A} {x} {y} {z} =
+  pair (λ q → is-equiv-concat' x q) (λ p → is-equiv-concat p z)
+
+--------------------------------------------------------------------------------
+
 {- Identity types of identity types -}
 
 vertical-concat :
@@ -23,7 +39,7 @@ ap-vertical-concat s t = ap-binary vertical-concat s t
 horizontal-concat :
   {l : Level} {A : UU l} {x y z : A} {p q : Id x y} {u v : Id y z} →
   Id p q → Id u v → Id (p ∙ u) (q ∙ v)
-horizontal-concat refl refl = refl
+horizontal-concat α β = ap-binary (λ r w → r ∙ w) α β
 
 left-unit-law-horizontal-concat :
   {l : Level} {A : UU l} {x y z : A} {p : Id x y} {u v : Id y z} (γ : Id u v) →
