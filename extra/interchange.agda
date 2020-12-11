@@ -321,14 +321,21 @@ left-unit-law-horizontal-concat-Ω² :
 left-unit-law-horizontal-concat-Ω² {α = α} =
   ( left-unit-law-horizontal-concat-Id² α) ∙ (ap-id α)
 
+naturality-right-unit :
+  {l : Level} {A : UU l} {x y : A} {p q : Id x y} (α : Id p q) →
+  Id (ap (concat' x refl) α ∙ right-unit) (right-unit ∙ α)
+naturality-right-unit {p = refl} refl = refl
+
+naturality-right-unit-Ω² :
+  {l : Level} {A : UU l} {x : A} (α :  type-Ω² x) →
+  Id (ap (concat' x refl) α) α
+naturality-right-unit-Ω² α = inv right-unit ∙ naturality-right-unit α
+
 right-unit-law-horizontal-concat-Ω² :
   {l : Level} {A : UU l} {a : A} {α : type-Ω² a} →
   Id (horizontal-concat-Ω² α refl-Ω²) α
 right-unit-law-horizontal-concat-Ω² {α = α} =
-  ( right-unit-law-horizontal-concat-Id² α) ∙
-  ( ( inv (right-unit {p = ap (concat' _ refl) α})) ∙
-    ( ( inv (htpy-nat {g = id} (λ t → right-unit) α)) ∙
-      ( ap (concat right-unit refl) (ap-id α))))
+  ( right-unit-law-horizontal-concat-Id² α) ∙ (naturality-right-unit-Ω² α)
 
 interchange-Ω² :
   {l : Level} {A : UU l} {a : A} (α β γ δ : type-Ω² a) →
@@ -365,9 +372,10 @@ eckmann-hilton-Ω² :
   {l : Level} {A : UU l} {a : A} (α β : type-Ω² a) →
   Id (α ∙ β) (β ∙ α)
 eckmann-hilton-Ω² α β =
+  x-concat-Id³
   ( y-concat-Id³
     ( inv (right-unit-law-horizontal-concat-Ω² {α = α}))
-    ( inv left-unit-law-horizontal-concat-Ω²)) ∙
+    ( inv left-unit-law-horizontal-concat-Ω²))
   ( ( inv (interchange-Ω² α refl-Ω² refl-Ω² β)) ∙
     ( ( z-concat-Id³ right-unit (inv right-unit)) ∙
       ( ( interchange-Ω² refl-Ω² α β refl-Ω²) ∙
