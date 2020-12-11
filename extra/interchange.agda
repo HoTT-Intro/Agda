@@ -1,9 +1,38 @@
-{-# OPTIONS --without-K --exact-split #-}
+{-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
 module extra.interchange where
 
 import book
 open book public
+
+--------------------------------------------------------------------------------
+
+-- Unit laws for the associator
+
+unit-law-assoc-011 :
+  {l : Level} {X : UU l} {x y z : X} (p : Id x y) (q : Id y z) →
+  Id (assoc refl p q) refl
+unit-law-assoc-011 p q = refl
+
+unit-law-assoc-101 :
+  {l : Level} {X : UU l} {x y z : X} (p : Id x y) (q : Id y z) →
+  Id (assoc p refl q) (ap (concat' x q) right-unit)
+unit-law-assoc-101 refl refl = refl
+
+unit-law-assoc-101' :
+  {l : Level} {X : UU l} {x y z : X} (p : Id x y) (q : Id y z) →
+  Id (inv (assoc p refl q)) (ap (concat' x q) (inv right-unit))
+unit-law-assoc-101' refl refl = refl
+
+unit-law-assoc-110 :
+  {l : Level} {X : UU l} {x y z : X} (p : Id x y) (q : Id y z) →
+  Id (assoc p q refl ∙ ap (concat p z) right-unit) right-unit
+unit-law-assoc-110 refl refl = refl
+
+unit-law-assoc-110' :
+  {l : Level} {X : UU l} {x y z : X} (p : Id x y) (q : Id y z) →
+  Id (inv right-unit ∙ assoc p q refl) (ap (concat p z) (inv right-unit))
+unit-law-assoc-110' refl refl = refl
 
 --------------------------------------------------------------------------------
 
@@ -122,7 +151,25 @@ unit-law-α-interchange-Ω² :
   Id ( ( interchange-Ω² α refl-Ω² refl-Ω² refl-Ω²) ∙
        ( right-unit ∙ right-unit-law-horizontal-concat-Ω²))
      ( right-unit-law-horizontal-concat-Ω² ∙ right-unit)
-unit-law-α-interchange-Ω² α = {!unit-law-α-interchange-Id² α refl!}
+unit-law-α-interchange-Ω² α =
+  ( ap
+    ( concat (interchange-Ω² α refl-Ω² refl-Ω² refl-Ω²) α)
+    ( inv
+      ( assoc
+        ( right-unit)
+        ( right-unit-law-horizontal-concat α)
+        ( _)))) ∙
+  ( ( inv
+      ( assoc
+        ( interchange-Ω² α refl-Ω² refl-Ω² refl-Ω²)
+        ( right-unit ∙ right-unit-law-horizontal-concat α)
+        ( _))) ∙
+    ( ( ap
+        ( concat'
+          ( horizontal-concat-Ω² (α ∙ refl) refl)
+          ( _))
+        ( unit-law-α-interchange-Id² α refl)) ∙
+      {!!}))
 
 eckmann-hilton-Ω² :
   {l : Level} {A : UU l} {a : A} (α β : type-Ω² a) →

@@ -6,35 +6,6 @@ open import extra.interchange public
 
 --------------------------------------------------------------------------------
 
--- Unit laws for the associator
-
-unit-law-assoc-011 :
-  {l : Level} {X : UU l} {x y z : X} (p : Id x y) (q : Id y z) →
-  Id (assoc refl p q) refl
-unit-law-assoc-011 p q = refl
-
-unit-law-assoc-101 :
-  {l : Level} {X : UU l} {x y z : X} (p : Id x y) (q : Id y z) →
-  Id (assoc p refl q) (ap (concat' x q) right-unit)
-unit-law-assoc-101 refl refl = refl
-
-unit-law-assoc-101' :
-  {l : Level} {X : UU l} {x y z : X} (p : Id x y) (q : Id y z) →
-  Id (inv (assoc p refl q)) (ap (concat' x q) (inv right-unit))
-unit-law-assoc-101' refl refl = refl
-
-unit-law-assoc-110 :
-  {l : Level} {X : UU l} {x y z : X} (p : Id x y) (q : Id y z) →
-  Id (assoc p q refl ∙ ap (concat p z) right-unit) right-unit
-unit-law-assoc-110 refl refl = refl
-
-unit-law-assoc-110' :
-  {l : Level} {X : UU l} {x y z : X} (p : Id x y) (q : Id y z) →
-  Id (inv right-unit ∙ assoc p q refl) (ap (concat p z) (inv right-unit))
-unit-law-assoc-110' refl refl = refl
-
---------------------------------------------------------------------------------
-
 -- Triple loop spaces
 
 x-concat-Ω³ :
