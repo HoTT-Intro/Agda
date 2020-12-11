@@ -110,15 +110,25 @@ is-binary-equiv-horizontal-concat-Id² =
 
 -- both operations satisfy unit laws
 
+left-unit-law-vertical-concat-Id² :
+  {l : Level} {A : UU l} {x y : A} {p q : Id x y} {β : Id p q} →
+  Id (vertical-concat-Id² refl β) β
+left-unit-law-vertical-concat-Id² = left-unit
+
+right-unit-law-vertical-concat-Id² :
+  {l : Level} {A : UU l} {x y : A} {p q : Id x y} {α : Id p q} →
+  Id (vertical-concat-Id² α refl) α
+right-unit-law-vertical-concat-Id² = right-unit
+
 left-unit-law-horizontal-concat-Id² :
   {l : Level} {A : UU l} {x y z : A} {p : Id x y} {u v : Id y z} (γ : Id u v) →
   Id (horizontal-concat-Id² (refl {x = p}) γ) (ap (concat p z) γ)
-left-unit-law-horizontal-concat-Id² refl = refl
+left-unit-law-horizontal-concat-Id² γ = left-unit-ap-binary (λ s t → s ∙ t) γ
 
 right-unit-law-horizontal-concat-Id² :
   {l : Level} {A : UU l} {x y z : A} {p q : Id x y} (α : Id p q) {u : Id y z} →
   Id (horizontal-concat-Id² α (refl {x = u})) (ap (concat' x u) α)
-right-unit-law-horizontal-concat-Id² refl = refl
+right-unit-law-horizontal-concat-Id² α = right-unit-ap-binary (λ s t → s ∙ t) α
 
 --------------------------------------------------------------------------------
 
@@ -143,6 +153,42 @@ z-concat-Id³ :
   {α β : Id p q} {γ δ : Id u v} →
   Id α β → Id γ δ → Id (horizontal-concat-Id² α γ) (horizontal-concat-Id² β δ)
 z-concat-Id³ σ τ = ap-binary (λ s t → horizontal-concat-Id² s t) σ τ
+
+-- All three operations satisfy unit laws
+
+left-unit-law-x-concat-Id³ :
+  {l : Level} {A : UU l} {x y : A} {p q : Id x y} {α β : Id p q} {σ : Id α β} →
+  Id (x-concat-Id³ refl σ) σ
+left-unit-law-x-concat-Id³ = left-unit-law-vertical-concat-Id²
+
+right-unit-law-x-concat-Id³ :
+  {l : Level} {A : UU l} {x y : A} {p q : Id x y} {α β : Id p q} {τ : Id α β} →
+  Id (x-concat-Id³ τ refl) τ
+right-unit-law-x-concat-Id³ = right-unit-law-vertical-concat-Id²
+
+left-unit-law-y-concat-Id³ :
+  {l : Level} {A : UU l} {x y : A} {p q r : Id x y} {α : Id p q} {γ δ : Id q r}
+  {τ : Id γ δ} → Id (y-concat-Id³ (refl {x = α}) τ) (ap (concat α r) τ)
+left-unit-law-y-concat-Id³ {τ = τ} = left-unit-law-horizontal-concat-Id² τ
+
+right-unit-law-y-concat-Id³ :
+  {l : Level} {A : UU l} {x y : A} {p q r : Id x y} {α β : Id p q} {γ : Id q r}
+  {σ : Id α β} → Id (y-concat-Id³ σ (refl {x = γ})) (ap (concat' p γ) σ)
+right-unit-law-y-concat-Id³ {σ = σ} = right-unit-law-horizontal-concat-Id² σ
+
+left-unit-law-z-concat-Id³ :
+  {l : Level} {A : UU l} {x y z : A} {p q : Id x y} {u v : Id y z}
+  {α : Id p q} {γ δ : Id u v} (τ : Id γ δ) →
+  Id (z-concat-Id³ (refl {x = α}) τ) (ap (horizontal-concat-Id² α) τ)
+left-unit-law-z-concat-Id³ τ =
+  left-unit-ap-binary (λ s t → horizontal-concat-Id² s t) τ
+
+right-unit-law-z-concat-Id³ :
+  {l : Level} {A : UU l} {x y z : A} {p q : Id x y} {u v : Id y z}
+  {α β : Id p q} {γ : Id u v} (σ : Id α β) →
+  Id (z-concat-Id³ σ (refl {x = γ})) (ap (λ ω → horizontal-concat-Id² ω γ) σ)
+right-unit-law-z-concat-Id³ σ =
+  right-unit-ap-binary (λ s t → horizontal-concat-Id² s t) σ
 
 --------------------------------------------------------------------------------
 
@@ -283,38 +329,6 @@ eckmann-hilton-Ω² α β =
 --------------------------------------------------------------------------------
 
 -- Identity types of identity types of identity types
-
-left-unit-law-x-concat-Id³ :
-  {l : Level} {A : UU l} {x y : A} {p q : Id x y} {α β : Id p q} {τ : Id α β} →
-  Id (x-concat-Id³ refl τ) τ
-left-unit-law-x-concat-Id³ = left-unit
-
-right-unit-law-x-concat-Id³ :
-  {l : Level} {A : UU l} {x y : A} {p q : Id x y} {α β : Id p q} {τ : Id α β} →
-  Id (x-concat-Id³ τ refl) τ
-right-unit-law-x-concat-Id³ = right-unit
-
-left-unit-law-y-concat-Id³ :
-  {l : Level} {A : UU l} {x y : A} {p q r : Id x y} {α : Id p q} {γ δ : Id q r}
-  {τ : Id γ δ} → Id (y-concat-Id³ (refl {x = α}) τ) (ap (concat α r) τ)
-left-unit-law-y-concat-Id³ {τ = τ} = left-unit-law-horizontal-concat-Id² τ
-
-right-unit-law-y-concat-Id³ :
-  {l : Level} {A : UU l} {x y : A} {p q r : Id x y} {α β : Id p q} {γ : Id q r}
-  {σ : Id α β} → Id (y-concat-Id³ σ (refl {x = γ})) (ap (concat' p γ) σ)
-right-unit-law-y-concat-Id³ {σ = σ} = right-unit-law-horizontal-concat-Id² σ
-
-left-unit-law-z-concat-Id³ :
-  {l : Level} {A : UU l} {x y z : A} {p q : Id x y} {u v : Id y z}
-  {α : Id p q} {γ δ : Id u v} (τ : Id γ δ) →
-  Id (z-concat-Id³ (refl {x = α}) τ) (ap (horizontal-concat-Id² α) τ)
-left-unit-law-z-concat-Id³ refl = refl
-
-right-unit-law-z-concat-Id³ :
-  {l : Level} {A : UU l} {x y z : A} {p q : Id x y} {u v : Id y z}
-  {α β : Id p q} {γ : Id u v} (σ : Id α β) →
-  Id (z-concat-Id³ σ (refl {x = γ})) (ap (λ ω → horizontal-concat-Id² ω γ) σ)
-right-unit-law-z-concat-Id³ refl = refl
 
 ap-y-concat-Id³ :
   {l : Level} {A : UU l} {x y : A} {p q r : Id x y} {α β : Id p q}
