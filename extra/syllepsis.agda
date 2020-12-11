@@ -24,7 +24,7 @@ y-concat-Ω³ = y-concat-Id³
 ap-y-concat-Ω³ :
   {l : Level} {A : UU l} {a : A} {α α' β β' : type-Ω³ a}
   (s : Id α α') (t : Id β β') → Id (y-concat-Ω³ α β) (y-concat-Ω³ α' β')
-ap-y-concat-Ω³ s t = ap-y-concat-Id³ s t
+ap-y-concat-Ω³ s t = j-concat-Id⁴ s t
 
 z-concat-Ω³ :
   {l : Level} {A : UU l} {a : A} → type-Ω³ a → type-Ω³ a → type-Ω³ a
@@ -33,7 +33,7 @@ z-concat-Ω³ = z-concat-Id³
 ap-z-concat-Ω³ :
   {l : Level} {A : UU l} {a : A} {α α' β β' : type-Ω³ a}
   (s : Id α α') (t : Id β β') → Id (z-concat-Ω³ α β) (z-concat-Ω³ α' β')
-ap-z-concat-Ω³ s t = ap-z-concat-Id³ s t
+ap-z-concat-Ω³ s t = k-concat-Id⁴ s t
 
 -- The interchange laws for Ω³
 
@@ -90,7 +90,7 @@ coherence-interchange-Ω³ α β γ δ ε ζ η θ =
       ( x-concat-Id³ γ δ)
       ( x-concat-Id³ ε ζ)
       ( x-concat-Id³ η θ))
-    ( ( ap-y-concat-Id³
+    ( ( j-concat-Id⁴
         ( interchange-x-z-concat-Id³ α β ε ζ)
         ( interchange-x-z-concat-Id³ γ δ η θ)) ∙
       ( interchange-x-y-concat-Id³
@@ -114,7 +114,7 @@ coherence-interchange-Ω³ α β γ δ ε ζ η θ =
               ( ( y-concat-Id³ (z-concat-Id³ α ε) (z-concat-Id³ γ η)) ∙
                 ( y-concat-Id³ (z-concat-Id³ β ζ) (z-concat-Id³ δ θ))))
             ( ap-id
-              ( ( ap-binary horizontal-concat
+              ( ( ap-binary horizontal-concat-Id²
                   ( interchange-x-z-concat-Id³ α β ε ζ)
                   ( interchange-x-z-concat-Id³ γ δ η θ)) ∙
                 ( interchange-Id²
@@ -135,7 +135,7 @@ coherence-interchange-Ω³ α β γ δ ε ζ η θ =
             ( inv right-unit)
             ( ap
               ( concat' refl refl)
-              ( ap-z-concat-Id³ 
+              ( k-concat-Id⁴ 
                 ( interchange-x-y-concat-Id³ α β γ δ)
                 ( interchange-x-y-concat-Id³ ε ζ η θ)))
             ( ( ap 
@@ -205,7 +205,7 @@ coherence-interchange-Ω³ α β γ δ ε ζ η θ =
                         ( interchange-y-z-concat-Id³ α γ ε η))))))))
           ( ( htpy-nat
               ( λ x → inv right-unit)
-              ( ap-z-concat-Id³
+              ( k-concat-Id⁴
                 ( interchange-x-y-concat-Id³ α β γ δ)
                 ( interchange-x-y-concat-Id³ ε ζ η θ))) ∙
             ( ap
@@ -215,7 +215,7 @@ coherence-interchange-Ω³ α β γ δ ε ζ η θ =
                   ( y-concat-Id³ (x-concat-Id³ ε ζ) (x-concat-Id³ η θ)))
                 ( inv right-unit))
               ( ap-id
-                ( ap-z-concat-Id³
+                ( k-concat-Id⁴
                   ( interchange-x-y-concat-Id³ α β γ δ)
                   ( interchange-x-y-concat-Id³ ε ζ η θ)))))) ∙
         ( ( assoc
