@@ -343,45 +343,32 @@ interchange-Ω² :
      ( vertical-concat-Ω² (horizontal-concat-Ω² α γ) (horizontal-concat-Ω² β δ))
 interchange-Ω² α β γ δ = interchange-Id² α β γ δ
 
-unit-law-α-interchange-Ω² :
-  {l : Level} {A : UU l} {a : A} (α : type-Ω² a) →
-  Id ( ( interchange-Ω² α refl-Ω² refl-Ω² refl-Ω²) ∙
-       ( right-unit ∙ right-unit-law-horizontal-concat-Ω²))
-     ( right-unit-law-horizontal-concat-Ω² ∙ right-unit)
-unit-law-α-interchange-Ω² α =
-  ( ap
-    ( concat (interchange-Ω² α refl-Ω² refl-Ω² refl-Ω²) α)
-    ( inv
-      ( assoc
-        ( right-unit)
-        ( right-unit-law-horizontal-concat-Id² α)
-        ( _)))) ∙
-  ( ( inv
-      ( assoc
-        ( interchange-Ω² α refl-Ω² refl-Ω² refl-Ω²)
-        ( right-unit ∙ right-unit-law-horizontal-concat-Id² α)
-        ( _))) ∙
-    ( ( ap
-        ( concat'
-          ( horizontal-concat-Ω² (α ∙ refl) refl)
-          ( _))
-        ( unit-law-α-interchange-Id² α refl)) ∙
-      {!!}))
+outer-eckmann-hilton-connection-Ω² :
+  {l : Level} {A : UU l} {a : A} (α δ : type-Ω² a) →
+  Id (horizontal-concat-Ω² α δ) (vertical-concat-Ω² α δ)
+outer-eckmann-hilton-connection-Ω² α δ =
+  ( z-concat-Id³ (inv right-unit) (inv left-unit)) ∙
+  ( ( interchange-Ω² α refl refl δ) ∙
+    ( y-concat-Id³
+      ( right-unit-law-horizontal-concat-Ω² {α = α})
+      ( left-unit-law-horizontal-concat-Ω² {α = δ})))
+
+inner-eckmann-hilton-connection-Ω² :
+  {l : Level} {A : UU l} {a : A} (β γ : type-Ω² a) →
+  Id ( horizontal-concat-Ω² β γ) (vertical-concat-Ω² γ β)
+inner-eckmann-hilton-connection-Ω² β γ =
+  ( z-concat-Id³ (inv left-unit) (inv right-unit)) ∙
+  ( ( interchange-Ω² refl β γ refl) ∙
+    ( y-concat-Id³
+      ( left-unit-law-horizontal-concat-Ω² {α = γ})
+      ( right-unit-law-horizontal-concat-Ω² {α = β})))
 
 eckmann-hilton-Ω² :
   {l : Level} {A : UU l} {a : A} (α β : type-Ω² a) →
   Id (α ∙ β) (β ∙ α)
 eckmann-hilton-Ω² α β =
-  x-concat-Id³
-  ( y-concat-Id³
-    ( inv (right-unit-law-horizontal-concat-Ω² {α = α}))
-    ( inv left-unit-law-horizontal-concat-Ω²))
-  ( ( inv (interchange-Ω² α refl-Ω² refl-Ω² β)) ∙
-    ( ( z-concat-Id³ right-unit (inv right-unit)) ∙
-      ( ( interchange-Ω² refl-Ω² α β refl-Ω²) ∙
-        ( y-concat-Id³
-          ( left-unit-law-horizontal-concat-Ω² {α = β})
-          ( right-unit-law-horizontal-concat-Ω² {α = α})))))
+  ( inv (outer-eckmann-hilton-connection-Ω² α β)) ∙
+  ( inner-eckmann-hilton-connection-Ω² α β)
 
 --------------------------------------------------------------------------------
 
@@ -412,98 +399,177 @@ interchange-y-z-concat-Id³ :
        ( y-concat-Id³ (z-concat-Id³ σ υ) (z-concat-Id³ τ ϕ)))
 interchange-y-z-concat-Id³ refl refl refl refl = inv right-unit
 
-source-coherence-interchange-Id³ :
-  {l : Level} {X : UU l} {x y z : X} {p q r : Id x y} {u v w : Id y z}
-  {α β γ : Id p q} {δ ε ζ : Id q r} {η θ ι : Id u v} {κ μ ν : Id v w}
-  (A : Id α β) (B : Id β γ) (C : Id δ ε) (D : Id ε ζ) (E : Id η θ) (F : Id θ ι)
-  (G : Id κ μ) (H : Id μ ν) →
-  Id ( ( ( z-concat-Id³
-           ( y-concat-Id³ (x-concat-Id³ A B) (x-concat-Id³ C D))
-           ( y-concat-Id³ (x-concat-Id³ E F) (x-concat-Id³ G H))) ∙
-         ( interchange-Id² γ ζ ι ν)))
-     ( ( interchange-Id² α δ η κ) ∙
-       ( x-concat-Id³
-         ( y-concat-Id³ (z-concat-Id³ A E) (z-concat-Id³ C G))
-         ( y-concat-Id³ (z-concat-Id³ B F) (z-concat-Id³ D H))))
-source-coherence-interchange-Id³ {l} {X} {x} {y} {z} {p} {q} {r} {u} {v} {w}
-  {α} {β} {γ} {δ} {ε} {ζ} {η} {θ} {ι} {κ} {μ} {ν} A B C D E F G H =
-  ( interchange-y-z-concat-Id³ (A ∙ B) (C ∙ D) (E ∙ F) (G ∙ H)) ∙
-  ( ( ap ( concat
-           ( interchange-Id² α δ η κ)
-           ( horizontal-concat-Id² γ ι ∙ horizontal-concat-Id² ζ ν))
-         ( ( z-concat-Id³
-             ( interchange-x-z-concat-Id³ A B E F)
-             ( interchange-x-z-concat-Id³ C D G H)) ∙
-           ( interchange-x-y-concat-Id³
-             ( z-concat-Id³ A E)
-             ( z-concat-Id³ B F)
-             ( z-concat-Id³ C G)
-             ( z-concat-Id³ D H)))))
-
-target-coherence-interchange-Id³ :
-  {l : Level} {X : UU l} {x y z : X} {p q r : Id x y} {u v w : Id y z}
-  {α β γ : Id p q} {δ ε ζ : Id q r} {η θ ι : Id u v} {κ μ ν : Id v w}
-  (A : Id α β) (B : Id β γ) (C : Id δ ε) (D : Id ε ζ) (E : Id η θ) (F : Id θ ι)
-  (G : Id κ μ) (H : Id μ ν) →
-  Id ( ( ( z-concat-Id³
-           ( y-concat-Id³ (x-concat-Id³ A B) (x-concat-Id³ C D))
-           ( y-concat-Id³ (x-concat-Id³ E F) (x-concat-Id³ G H))) ∙
-         ( interchange-Id² γ ζ ι ν)))
-     ( ( interchange-Id² α δ η κ) ∙
-       ( x-concat-Id³
-         ( y-concat-Id³ (z-concat-Id³ A E) (z-concat-Id³ C G))
-         ( y-concat-Id³ (z-concat-Id³ B F) (z-concat-Id³ D H))))
-target-coherence-interchange-Id³ {l} {X} {x} {y} {z} {p} {q} {r} {u} {v} {w}
-  {α} {β} {γ} {δ} {ε} {ζ} {η} {θ} {ι} {κ} {μ} {ν} A B C D E F G H =
-  ( ( ap
-      ( concat'
-        ( horizontal-concat-Id² (α ∙ δ) (η ∙ κ))
-        ( interchange-Id² γ ζ ι ν))
-      ( k-concat-Id⁴
-        ( interchange-x-y-concat-Id³ A B C D)
-        ( interchange-x-y-concat-Id³ E F G H))) ∙
-    ( ( ap
-        ( concat'
-          ( horizontal-concat-Id² (α ∙ δ) (η ∙ κ))
-          ( interchange-Id² γ ζ ι ν))
-        ( interchange-x-z-concat-Id³
-          ( y-concat-Id³ A C)
-          ( y-concat-Id³ B D)
-          ( y-concat-Id³ E G)
-          ( y-concat-Id³ F H))) ∙
-      ( ( assoc
-          ( z-concat-Id³ (y-concat-Id³ A C) (y-concat-Id³ E G))
-          ( z-concat-Id³ (y-concat-Id³ B D) (y-concat-Id³ F H))
-          ( interchange-Id² γ ζ ι ν)) ∙
-        ( ( ap ( concat
-                 ( z-concat-Id³ (y-concat-Id³ A C) (y-concat-Id³ E G))
-                 ( horizontal-concat-Id² γ ι ∙ horizontal-concat-Id² ζ ν))
-               ( interchange-y-z-concat-Id³ B D F H)) ∙
-          ( ( inv
-              ( assoc
-                ( z-concat-Id³ (y-concat-Id³ A C) (y-concat-Id³ E G))
-                ( interchange-Id² β ε θ μ)
-                ( y-concat-Id³ (z-concat-Id³ B F) (z-concat-Id³ D H)))) ∙
-            ( ap
-              ( concat'
-                ( horizontal-concat-Id² (α ∙ δ) (η ∙ κ))
-                ( y-concat-Id³ (z-concat-Id³ B F) (z-concat-Id³ D H)))
-              ( interchange-y-z-concat-Id³ A C E G))))))) ∙
-  ( assoc
-    ( interchange-Id² α δ η κ)
-    ( y-concat-Id³ (z-concat-Id³ A E) (z-concat-Id³ C G))
-    ( y-concat-Id³ (z-concat-Id³ B F) (z-concat-Id³ D H)))
-  
-coherence-interchange-Id³ :
-  {l : Level} {X : UU l} {x y z : X} {p q r : Id x y} {u v w : Id y z}
-  {α β γ : Id p q} {δ ε ζ : Id q r} {η θ ι : Id u v} {κ μ ν : Id v w}
-  (A : Id α β) (B : Id β γ) (C : Id δ ε) (D : Id ε ζ) (E : Id η θ) (F : Id θ ι)
-  (G : Id κ μ) (H : Id μ ν) →
-  Id ( source-coherence-interchange-Id³ A B C D E F G H)
-     ( target-coherence-interchange-Id³ A B C D E F G H)
-coherence-interchange-Id³
-  {l} {X} {x} {y} {z} {p} {.p} {.p} {u} {.u} {.u} {refl} {.refl} {.refl} {refl}
-  {.refl} {.refl} {refl} {.refl} {.refl} {refl} {.refl} {.refl} refl refl refl
-  refl refl refl refl refl = refl
-
 --------------------------------------------------------------------------------
+
+-- Triple loop spaces
+
+x-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} → type-Ω³ a → type-Ω³ a → type-Ω³ a
+x-concat-Ω³ = x-concat-Id³
+
+y-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} → type-Ω³ a → type-Ω³ a → type-Ω³ a
+y-concat-Ω³ = y-concat-Id³
+
+z-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} → type-Ω³ a → type-Ω³ a → type-Ω³ a
+z-concat-Ω³ = z-concat-Id³
+
+ap-x-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} {α α' β β' : type-Ω³ a}
+  (s : Id α α') (t : Id β β') → Id (x-concat-Ω³ α β) (x-concat-Ω³ α' β')
+ap-x-concat-Ω³ s t = ap-binary x-concat-Ω³ s t
+
+ap-y-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} {α α' β β' : type-Ω³ a}
+  (s : Id α α') (t : Id β β') → Id (y-concat-Ω³ α β) (y-concat-Ω³ α' β')
+ap-y-concat-Ω³ s t = j-concat-Id⁴ s t
+
+ap-z-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} {α α' β β' : type-Ω³ a}
+  (s : Id α α') (t : Id β β') → Id (z-concat-Ω³ α β) (z-concat-Ω³ α' β')
+ap-z-concat-Ω³ s t = k-concat-Id⁴ s t
+
+-- The unit laws for the three concatenations on Ω³
+
+left-unit-law-x-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} (α : type-Ω³ a) →
+  Id (x-concat-Ω³ refl-Ω³ α) α
+left-unit-law-x-concat-Ω³ α = left-unit
+
+right-unit-law-x-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} (α : type-Ω³ a) →
+  Id (x-concat-Ω³ α refl-Ω³) α
+right-unit-law-x-concat-Ω³ α = right-unit
+
+left-unit-law-y-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} (α : type-Ω³ a) →
+  Id (y-concat-Ω³ refl-Ω³ α) α
+left-unit-law-y-concat-Ω³ α = left-unit-law-horizontal-concat-Ω²
+
+right-unit-law-y-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} (α : type-Ω³ a) →
+  Id (y-concat-Ω³ α refl-Ω³) α
+right-unit-law-y-concat-Ω³ α = right-unit-law-horizontal-concat-Ω²
+
+left-unit-law-z-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} (α : type-Ω³ a) →
+  Id (z-concat-Ω³ refl-Ω³ α) α
+left-unit-law-z-concat-Ω³ α =
+  ( left-unit-law-z-concat-Id³ α) ∙
+  ( ( inv right-unit) ∙
+    ( ( inv (htpy-nat (λ ω → left-unit-law-horizontal-concat-Id² ω) α)) ∙
+      ( ( inv right-unit) ∙
+        ( ( inv (htpy-nat ap-id α)) ∙
+          ( ap-id α)))))
+
+right-unit-law-z-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} (α : type-Ω³ a) →
+  Id (z-concat-Ω³ α refl-Ω³) α
+right-unit-law-z-concat-Ω³ α =
+  ( right-unit-law-z-concat-Id³ α) ∙
+  ( ( inv right-unit) ∙
+    ( ( inv (htpy-nat (λ ω → right-unit-law-horizontal-concat-Id² ω) α)) ∙
+      ( left-unit ∙
+        ( ( inv right-unit) ∙
+          ( ( inv
+              ( htpy-nat
+                ( λ z →
+                  ( inv right-unit) ∙
+                  ( ( inv (htpy-nat (λ ω → right-unit) z)) ∙ ( ap-id z))) α)) ∙
+            ( ap-id α))))))
+
+-- The interchange laws for Ω³
+
+interchange-x-y-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} (α β γ δ : type-Ω³ a) →
+  Id ( y-concat-Ω³ (x-concat-Ω³ α β) (x-concat-Ω³ γ δ))
+     ( x-concat-Ω³ (y-concat-Ω³ α γ) (y-concat-Ω³ β δ))
+interchange-x-y-concat-Ω³ = interchange-x-y-concat-Id³
+
+interchange-x-z-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} (α β γ δ : type-Ω³ a) →
+  Id ( z-concat-Ω³ (x-concat-Ω³ α β) (x-concat-Ω³ γ δ))
+     ( x-concat-Ω³ (z-concat-Ω³ α γ) (z-concat-Ω³ β δ))
+interchange-x-z-concat-Ω³ = interchange-x-z-concat-Id³
+
+interchange-y-z-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} (α β γ δ : type-Ω³ a) →
+  Id ( z-concat-Ω³ (y-concat-Ω³ α β) (y-concat-Ω³ γ δ))
+     ( y-concat-Ω³ (z-concat-Ω³ α γ) (z-concat-Ω³ β δ))
+interchange-y-z-concat-Ω³ α β γ δ =
+  inv right-unit ∙ interchange-y-z-concat-Id³ α β γ δ
+
+-- The Eckmann-Hilton connections in Ω³
+
+outer-eckmann-hilton-connection-x-y-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} (α δ : type-Ω³ a) →
+  Id (y-concat-Ω³ α δ) (x-concat-Ω³ α δ)
+outer-eckmann-hilton-connection-x-y-concat-Ω³ α δ =
+  ( j-concat-Id⁴
+    ( inv (right-unit-law-x-concat-Ω³ α))
+    ( inv (left-unit-law-x-concat-Ω³ δ))) ∙
+  ( ( interchange-x-y-concat-Ω³ α refl refl δ) ∙
+    ( i-concat-Id⁴
+      ( right-unit-law-y-concat-Ω³ α)
+      ( left-unit-law-y-concat-Ω³ δ)))
+
+inner-eckmann-hilton-connection-x-y-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} (β γ : type-Ω³ a) →
+  Id (y-concat-Ω³ β γ) (x-concat-Ω³ γ β)
+inner-eckmann-hilton-connection-x-y-concat-Ω³ β γ =
+  ( j-concat-Id⁴
+    ( inv (left-unit-law-x-concat-Ω³ β))
+    ( inv (right-unit-law-x-concat-Ω³ γ))) ∙
+  ( ( interchange-x-y-concat-Ω³ refl β γ refl) ∙
+    ( i-concat-Id⁴
+      ( left-unit-law-y-concat-Ω³ γ)
+      ( right-unit-law-y-concat-Ω³ β)))
+
+outer-eckmann-hilton-connection-x-z-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} (α δ : type-Ω³ a) →
+  Id (z-concat-Ω³ α δ) (x-concat-Ω³ α δ)
+outer-eckmann-hilton-connection-x-z-concat-Ω³ α δ =
+  ( k-concat-Id⁴
+    ( inv (right-unit-law-x-concat-Ω³ α))
+    ( inv (left-unit-law-x-concat-Ω³ δ))) ∙
+  ( ( interchange-x-z-concat-Ω³ α refl refl δ) ∙
+    ( i-concat-Id⁴
+      ( right-unit-law-z-concat-Ω³ α)
+      ( left-unit-law-z-concat-Ω³ δ)))
+
+inner-eckmann-hilton-connection-x-z-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} (β γ : type-Ω³ a) →
+  Id (z-concat-Ω³ β γ) (x-concat-Ω³ γ β)
+inner-eckmann-hilton-connection-x-z-concat-Ω³ β γ =
+  ( k-concat-Id⁴
+    ( inv (left-unit-law-x-concat-Ω³ β))
+    ( inv (right-unit-law-x-concat-Ω³ γ))) ∙
+  ( ( interchange-x-z-concat-Ω³ refl β γ refl) ∙
+    ( i-concat-Id⁴
+      ( left-unit-law-z-concat-Ω³ γ)
+      ( right-unit-law-z-concat-Ω³ β)))
+
+outer-eckmann-hilton-connection-y-z-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} (α δ : type-Ω³ a) →
+  Id (z-concat-Ω³ α δ) (y-concat-Ω³ α δ)
+outer-eckmann-hilton-connection-y-z-concat-Ω³ α δ = 
+  ( k-concat-Id⁴
+    ( inv (right-unit-law-y-concat-Ω³ α))
+    ( inv (left-unit-law-y-concat-Ω³ δ))) ∙
+  ( ( interchange-y-z-concat-Ω³ α refl refl δ) ∙
+    ( j-concat-Id⁴
+      ( right-unit-law-z-concat-Ω³ α)
+      ( left-unit-law-z-concat-Ω³ δ)))
+
+inner-eckmann-hilton-connection-y-z-concat-Ω³ :
+  {l : Level} {A : UU l} {a : A} (β γ : type-Ω³ a) →
+  Id (z-concat-Ω³ β γ) (y-concat-Ω³ γ β)
+inner-eckmann-hilton-connection-y-z-concat-Ω³ β γ =
+  ( k-concat-Id⁴
+    ( inv (left-unit-law-y-concat-Ω³ β))
+    ( inv (right-unit-law-y-concat-Ω³ γ))) ∙
+  ( ( interchange-y-z-concat-Ω³ refl β γ refl) ∙
+    ( j-concat-Id⁴
+      ( left-unit-law-z-concat-Ω³ γ)
+      ( right-unit-law-z-concat-Ω³ β)))

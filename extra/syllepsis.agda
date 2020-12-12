@@ -4,57 +4,101 @@ module extra.syllepsis where
 
 open import extra.interchange public
 
+source-coherence-interchange-Id³ :
+  {l : Level} {X : UU l} {x y z : X} {p q r : Id x y} {u v w : Id y z}
+  {α β γ : Id p q} {δ ε ζ : Id q r} {η θ ι : Id u v} {κ μ ν : Id v w}
+  (A : Id α β) (B : Id β γ) (C : Id δ ε) (D : Id ε ζ) (E : Id η θ) (F : Id θ ι)
+  (G : Id κ μ) (H : Id μ ν) →
+  Id ( ( ( z-concat-Id³
+           ( y-concat-Id³ (x-concat-Id³ A B) (x-concat-Id³ C D))
+           ( y-concat-Id³ (x-concat-Id³ E F) (x-concat-Id³ G H))) ∙
+         ( interchange-Id² γ ζ ι ν)))
+     ( ( interchange-Id² α δ η κ) ∙
+       ( x-concat-Id³
+         ( y-concat-Id³ (z-concat-Id³ A E) (z-concat-Id³ C G))
+         ( y-concat-Id³ (z-concat-Id³ B F) (z-concat-Id³ D H))))
+source-coherence-interchange-Id³ {l} {X} {x} {y} {z} {p} {q} {r} {u} {v} {w}
+  {α} {β} {γ} {δ} {ε} {ζ} {η} {θ} {ι} {κ} {μ} {ν} A B C D E F G H =
+  ( interchange-y-z-concat-Id³ (A ∙ B) (C ∙ D) (E ∙ F) (G ∙ H)) ∙
+  ( ( ap ( concat
+           ( interchange-Id² α δ η κ)
+           ( horizontal-concat-Id² γ ι ∙ horizontal-concat-Id² ζ ν))
+         ( ( z-concat-Id³
+             ( interchange-x-z-concat-Id³ A B E F)
+             ( interchange-x-z-concat-Id³ C D G H)) ∙
+           ( interchange-x-y-concat-Id³
+             ( z-concat-Id³ A E)
+             ( z-concat-Id³ B F)
+             ( z-concat-Id³ C G)
+             ( z-concat-Id³ D H)))))
+
+target-coherence-interchange-Id³ :
+  {l : Level} {X : UU l} {x y z : X} {p q r : Id x y} {u v w : Id y z}
+  {α β γ : Id p q} {δ ε ζ : Id q r} {η θ ι : Id u v} {κ μ ν : Id v w}
+  (A : Id α β) (B : Id β γ) (C : Id δ ε) (D : Id ε ζ) (E : Id η θ) (F : Id θ ι)
+  (G : Id κ μ) (H : Id μ ν) →
+  Id ( ( ( z-concat-Id³
+           ( y-concat-Id³ (x-concat-Id³ A B) (x-concat-Id³ C D))
+           ( y-concat-Id³ (x-concat-Id³ E F) (x-concat-Id³ G H))) ∙
+         ( interchange-Id² γ ζ ι ν)))
+     ( ( interchange-Id² α δ η κ) ∙
+       ( x-concat-Id³
+         ( y-concat-Id³ (z-concat-Id³ A E) (z-concat-Id³ C G))
+         ( y-concat-Id³ (z-concat-Id³ B F) (z-concat-Id³ D H))))
+target-coherence-interchange-Id³ {l} {X} {x} {y} {z} {p} {q} {r} {u} {v} {w}
+  {α} {β} {γ} {δ} {ε} {ζ} {η} {θ} {ι} {κ} {μ} {ν} A B C D E F G H =
+  ( ( ap
+      ( concat'
+        ( horizontal-concat-Id² (α ∙ δ) (η ∙ κ))
+        ( interchange-Id² γ ζ ι ν))
+      ( k-concat-Id⁴
+        ( interchange-x-y-concat-Id³ A B C D)
+        ( interchange-x-y-concat-Id³ E F G H))) ∙
+    ( ( ap
+        ( concat'
+          ( horizontal-concat-Id² (α ∙ δ) (η ∙ κ))
+          ( interchange-Id² γ ζ ι ν))
+        ( interchange-x-z-concat-Id³
+          ( y-concat-Id³ A C)
+          ( y-concat-Id³ B D)
+          ( y-concat-Id³ E G)
+          ( y-concat-Id³ F H))) ∙
+      ( ( assoc
+          ( z-concat-Id³ (y-concat-Id³ A C) (y-concat-Id³ E G))
+          ( z-concat-Id³ (y-concat-Id³ B D) (y-concat-Id³ F H))
+          ( interchange-Id² γ ζ ι ν)) ∙
+        ( ( ap ( concat
+                 ( z-concat-Id³ (y-concat-Id³ A C) (y-concat-Id³ E G))
+                 ( horizontal-concat-Id² γ ι ∙ horizontal-concat-Id² ζ ν))
+               ( interchange-y-z-concat-Id³ B D F H)) ∙
+          ( ( inv
+              ( assoc
+                ( z-concat-Id³ (y-concat-Id³ A C) (y-concat-Id³ E G))
+                ( interchange-Id² β ε θ μ)
+                ( y-concat-Id³ (z-concat-Id³ B F) (z-concat-Id³ D H)))) ∙
+            ( ap
+              ( concat'
+                ( horizontal-concat-Id² (α ∙ δ) (η ∙ κ))
+                ( y-concat-Id³ (z-concat-Id³ B F) (z-concat-Id³ D H)))
+              ( interchange-y-z-concat-Id³ A C E G))))))) ∙
+  ( assoc
+    ( interchange-Id² α δ η κ)
+    ( y-concat-Id³ (z-concat-Id³ A E) (z-concat-Id³ C G))
+    ( y-concat-Id³ (z-concat-Id³ B F) (z-concat-Id³ D H)))
+  
+coherence-interchange-Id³ :
+  {l : Level} {X : UU l} {x y z : X} {p q r : Id x y} {u v w : Id y z}
+  {α β γ : Id p q} {δ ε ζ : Id q r} {η θ ι : Id u v} {κ μ ν : Id v w}
+  (A : Id α β) (B : Id β γ) (C : Id δ ε) (D : Id ε ζ) (E : Id η θ) (F : Id θ ι)
+  (G : Id κ μ) (H : Id μ ν) →
+  Id ( source-coherence-interchange-Id³ A B C D E F G H)
+     ( target-coherence-interchange-Id³ A B C D E F G H)
+coherence-interchange-Id³
+  {l} {X} {x} {y} {z} {p} {.p} {.p} {u} {.u} {.u} {refl} {.refl} {.refl} {refl}
+  {.refl} {.refl} {refl} {.refl} {.refl} {refl} {.refl} {.refl} refl refl refl
+  refl refl refl refl refl = refl
+
 --------------------------------------------------------------------------------
-
--- Triple loop spaces
-
-x-concat-Ω³ :
-  {l : Level} {A : UU l} {a : A} → type-Ω³ a → type-Ω³ a → type-Ω³ a
-x-concat-Ω³ = x-concat-Id³
-
-ap-x-concat-Ω³ :
-  {l : Level} {A : UU l} {a : A} {α α' β β' : type-Ω³ a}
-  (s : Id α α') (t : Id β β') → Id (x-concat-Ω³ α β) (x-concat-Ω³ α' β')
-ap-x-concat-Ω³ s t = ap-binary x-concat-Ω³ s t
-
-y-concat-Ω³ :
-  {l : Level} {A : UU l} {a : A} → type-Ω³ a → type-Ω³ a → type-Ω³ a
-y-concat-Ω³ = y-concat-Id³
-
-ap-y-concat-Ω³ :
-  {l : Level} {A : UU l} {a : A} {α α' β β' : type-Ω³ a}
-  (s : Id α α') (t : Id β β') → Id (y-concat-Ω³ α β) (y-concat-Ω³ α' β')
-ap-y-concat-Ω³ s t = j-concat-Id⁴ s t
-
-z-concat-Ω³ :
-  {l : Level} {A : UU l} {a : A} → type-Ω³ a → type-Ω³ a → type-Ω³ a
-z-concat-Ω³ = z-concat-Id³
-
-ap-z-concat-Ω³ :
-  {l : Level} {A : UU l} {a : A} {α α' β β' : type-Ω³ a}
-  (s : Id α α') (t : Id β β') → Id (z-concat-Ω³ α β) (z-concat-Ω³ α' β')
-ap-z-concat-Ω³ s t = k-concat-Id⁴ s t
-
--- The interchange laws for Ω³
-
-interchange-x-y-concat-Ω³ :
-  {l : Level} {A : UU l} {a : A} (α β γ δ : type-Ω³ a) →
-  Id ( y-concat-Ω³ (x-concat-Ω³ α β) (x-concat-Ω³ γ δ))
-     ( x-concat-Ω³ (y-concat-Ω³ α γ) (y-concat-Ω³ β δ))
-interchange-x-y-concat-Ω³ = interchange-x-y-concat-Id³
-
-interchange-x-z-concat-Ω³ :
-  {l : Level} {A : UU l} {a : A} (α β γ δ : type-Ω³ a) →
-  Id ( z-concat-Ω³ (x-concat-Ω³ α β) (x-concat-Ω³ γ δ))
-     ( x-concat-Ω³ (z-concat-Ω³ α γ) (z-concat-Ω³ β δ))
-interchange-x-z-concat-Ω³ = interchange-x-z-concat-Id³
-
-interchange-y-z-concat-Ω³ :
-  {l : Level} {A : UU l} {a : A} (α β γ δ : type-Ω³ a) →
-  Id ( z-concat-Ω³ (y-concat-Ω³ α β) (y-concat-Ω³ γ δ))
-     ( y-concat-Ω³ (z-concat-Ω³ α γ) (z-concat-Ω³ β δ))
-interchange-y-z-concat-Ω³ α β γ δ =
-  inv right-unit ∙ interchange-y-z-concat-Id³ α β γ δ
 
 coherence-interchange-Ω³ :
   {l : Level} {A : UU l} {a : A} (α β γ δ ε ζ η θ : type-Ω³ a) →
