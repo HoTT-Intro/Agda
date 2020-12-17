@@ -1030,9 +1030,6 @@ abstract
           ( is-contr-total-path x)))
       ( λ y → ap inl)
 
-is-emb-unit-Maybe : {l : Level} {X : UU l} → is-emb (unit-Maybe {X = X})
-is-emb-unit-Maybe {l} {X} = is-emb-inl X unit
-
 abstract
   is-emb-inr :
     {i j : Level} (A : UU i) (B : UU j) → is-emb (inr {A = A} {B = B})
