@@ -463,11 +463,19 @@ left-unit-law-z-concat-Ω³ α =
         ( ( inv (htpy-nat ap-id α)) ∙
           ( ap-id α)))))
 
+super-naturality-right-unit :
+  {l : Level} {A : UU l} {x y z : A} {p q : Id x y} {α β : Id p q} (γ : Id α β)
+  (u : Id y z) →
+  Id (ap (λ ω → horizontal-concat-Id² ω (refl {x = u})) γ) {!!}
+super-naturality-right-unit α = {!!}
+
 right-unit-law-z-concat-Ω³ :
   {l : Level} {A : UU l} {a : A} (α : type-Ω³ a) →
   Id (z-concat-Ω³ α refl-Ω³) α
 right-unit-law-z-concat-Ω³ α =
   ( right-unit-law-z-concat-Id³ α) ∙
+  {!!}
+{-
   ( ( inv right-unit) ∙
     ( ( inv (htpy-nat (λ ω → right-unit-law-horizontal-concat-Id² ω) α)) ∙
       ( left-unit ∙
@@ -478,6 +486,7 @@ right-unit-law-z-concat-Ω³ α =
                   ( inv right-unit) ∙
                   ( ( inv (htpy-nat (λ ω → right-unit) z)) ∙ ( ap-id z))) α)) ∙
             ( ap-id α))))))
+-}
 
 -- The interchange laws for Ω³
 

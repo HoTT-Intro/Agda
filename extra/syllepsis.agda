@@ -523,9 +523,7 @@ coherence-interchange-Ω³ α β γ δ ε ζ η θ =
 
 -- syllepsis
 
-{-
 syllepsis :
   {l : Level} {A : UU l} {a : A} (s t : type-Ω³ a) →
-  Id (eckmann-hilton-Ω² s t ∙ eckmann-hilton-Ω² t s) refl-Ω³
+  Id (eckmann-hilton-Ω² s t ∙ eckmann-hilton-Ω² t s) refl
 syllepsis s t = {!!}
--}

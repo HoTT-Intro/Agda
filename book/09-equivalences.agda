@@ -1523,15 +1523,97 @@ is-not-exception-is-value-Maybe :
 is-not-exception-is-value-Maybe {l1} {X} .(inl x) (pair x refl) =
   is-not-exception-unit-Maybe x
 
--- If e is an equivalence and e (inl x) is an exception, then e exception is
--- not an exception. In the proof we see that we only need a section-retraction
--- pair, not a full equivalence.
+-- If f is an injective map and f (inl x) is an exception, then f exception is
+-- not an exception.
+
+is-not-exception-injective-map-exception-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : Maybe X → Maybe Y} →
+  is-injective f → (x : X) → is-exception-Maybe (f (inl x)) →
+  is-not-exception-Maybe (f exception-Maybe)
+is-not-exception-injective-map-exception-Maybe is-inj-f x p q =
+  is-not-exception-unit-Maybe x (is-inj-f (p ∙ inv q))
+
 is-not-exception-map-equiv-exception-Maybe :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (x : X) →
   is-exception-Maybe (map-equiv e (inl x)) →
   is-not-exception-Maybe (map-equiv e exception-Maybe)
-is-not-exception-map-equiv-exception-Maybe {l1} {l2} {X} {Y} e x p q =
-  is-not-exception-unit-Maybe x (is-injective-map-equiv e (p ∙ inv q))
+is-not-exception-map-equiv-exception-Maybe e =
+  is-not-exception-injective-map-exception-Maybe (is-injective-map-equiv e)
+
+-- If f is injective and f (inl x) is an exception, then f exception is a value
+is-value-injective-map-exception-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : Maybe X → Maybe Y} →
+  is-injective f → (x : X) → is-exception-Maybe (f (inl x)) →
+  is-value-Maybe (f exception-Maybe)
+is-value-injective-map-exception-Maybe {f = f} is-inj-f x H =
+  is-value-is-not-exception-Maybe
+    ( f exception-Maybe)
+    ( is-not-exception-injective-map-exception-Maybe is-inj-f x H)
+
+value-injective-map-exception-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : Maybe X → Maybe Y} →
+  is-injective f → (x : X) → is-exception-Maybe (f (inl x)) → Y
+value-injective-map-exception-Maybe {f = f} is-inj-f x H =
+  value-is-value-Maybe
+    ( f exception-Maybe)
+    ( is-value-injective-map-exception-Maybe is-inj-f x H)
+
+comp-injective-map-exception-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : Maybe X → Maybe Y} →
+  (is-inj-f : is-injective f) (x : X) (H : is-exception-Maybe (f (inl x))) →
+  Id ( inl (value-injective-map-exception-Maybe is-inj-f x H))
+     ( f exception-Maybe)
+comp-injective-map-exception-Maybe {f = f} is-inj-f x H =
+  eq-is-value-Maybe
+    ( f exception-Maybe)
+    ( is-value-injective-map-exception-Maybe is-inj-f x H)
+
+is-not-exception-emb-exception-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ↪ Maybe Y)
+  (x : X) → is-exception-Maybe (map-emb e (inl x)) →
+  is-not-exception-Maybe (map-emb e exception-Maybe)
+is-not-exception-emb-exception-Maybe e =
+  is-not-exception-injective-map-Maybe (is-injective-map-emb e)
+
+{-
+-- If f is an injective map and f (inl x) is an exception, then f exception is
+-- not an exception.
+
+is-not-exception-map-equiv-exception-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (x : X) →
+  is-exception-Maybe (map-equiv e (inl x)) →
+  is-not-exception-Maybe (map-equiv e exception-Maybe)
+is-not-exception-map-equiv-exception-Maybe e =
+  is-not-exception-injective-map-exception-Maybe (is-injective-map-equiv e)
+
+-- If f is injective and f (inl x) is an exception, then f exception is a value
+is-value-injective-map-exception-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : Maybe X → Maybe Y} →
+  is-injective f → (x : X) → is-exception-Maybe (f (inl x)) →
+  is-value-Maybe (f exception-Maybe)
+is-value-injective-map-exception-Maybe {f = f} is-inj-f x H =
+  is-value-is-not-exception-Maybe
+    ( f exception-Maybe)
+    ( is-not-exception-injective-map-exception-Maybe is-inj-f x H)
+
+value-injective-map-exception-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : Maybe X → Maybe Y} →
+  is-injective f → (x : X) → is-exception-Maybe (f (inl x)) → Y
+value-injective-map-exception-Maybe {f = f} is-inj-f x H =
+  value-is-value-Maybe
+    ( f exception-Maybe)
+    ( is-value-injective-map-exception-Maybe is-inj-f x H)
+
+comp-injective-map-exception-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : Maybe X → Maybe Y} →
+  (is-inj-f : is-injective f) (x : X) (H : is-exception-Maybe (f (inl x))) →
+  Id ( inl (value-injective-map-exception-Maybe is-inj-f x H))
+     ( f exception-Maybe)
+comp-injective-map-exception-Maybe {f = f} is-inj-f x H =
+  eq-is-value-Maybe
+    ( f exception-Maybe)
+    ( is-value-injective-map-exception-Maybe is-inj-f x H)
+-}
 
 -- If e (inl x) is an exception, then e exception is a value
 is-value-map-equiv-exception-Maybe :
@@ -1561,6 +1643,54 @@ comp-map-equiv-exception-Maybe e x H =
     ( map-equiv e exception-Maybe)
     ( is-value-map-equiv-exception-Maybe e x H)
 
+restrict-injective-map-Maybe' :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : Maybe X → Maybe Y} →
+  is-injective f → (x : X) (u : Maybe Y) (p : Id (f (inl x)) u) → Y
+restrict-injective-map-Maybe' {f = f} is-inj-f x (inl y) p = y
+restrict-injective-map-Maybe' {f = f} is-inj-f x (inr star) p =
+  value-injective-map-exception-Maybe is-inj-f x p
+
+restrict-injective-map-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : Maybe X → Maybe Y} →
+  is-injective f → X → Y
+restrict-injective-map-Maybe {f = f} is-inj-f x =
+  restrict-injective-map-Maybe' is-inj-f x (f (inl x)) refl
+
+comp-restrict-injective-map-is-exception-Maybe' :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : Maybe X → Maybe Y} →
+  (is-inj-f : is-injective f) (x : X) (u : Maybe Y) (p : Id (f (inl x)) u) →
+  is-exception-Maybe (f (inl x)) →
+  Id (inl (restrict-injective-map-Maybe' is-inj-f x u p)) (f exception-Maybe)
+comp-restrict-injective-map-is-exception-Maybe' {f = f} is-inj-f x (inl y) p q =
+  ex-falso (is-not-exception-unit-Maybe y (inv p ∙ q))
+comp-restrict-injective-map-is-exception-Maybe' {f = f} is-inj-f x (inr star) p q =
+  comp-injective-map-exception-Maybe is-inj-f x p
+
+comp-restrict-injective-map-is-exception-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : Maybe X → Maybe Y} →
+  (is-inj-f : is-injective f) (x : X) → is-exception-Maybe (f (inl x)) →
+  Id (inl (restrict-injective-map-Maybe is-inj-f x)) (f exception-Maybe)
+comp-restrict-injective-map-is-exception-Maybe {f = f} is-inj-f x =
+  comp-restrict-injective-map-is-exception-Maybe' is-inj-f x (f (inl x)) refl
+
+comp-restrict-injective-map-is-not-exception-Maybe' :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : Maybe X → Maybe Y} →
+  (is-inj-f : is-injective f) (x : X) (u : Maybe Y) (p : Id (f (inl x)) u) →
+  is-not-exception-Maybe (f (inl x)) →
+  Id (inl (restrict-injective-map-Maybe' is-inj-f x u p)) (f (inl x))
+comp-restrict-injective-map-is-not-exception-Maybe' is-inj-f x (inl y) p H =
+  inv p
+comp-restrict-injective-map-is-not-exception-Maybe' is-inj-f x (inr star) p H =
+  ex-falso (H p)
+
+comp-restrict-injective-map-is-not-exception-Maybe :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : Maybe X → Maybe Y} →
+  (is-inj-f : is-injective f) (x : X) → is-not-exception-Maybe (f (inl x)) →
+  Id (inl (restrict-injective-map-Maybe is-inj-f x)) (f (inl x))
+comp-restrict-injective-map-is-not-exception-Maybe {f = f} is-inj-f x =
+  comp-restrict-injective-map-is-not-exception-Maybe' is-inj-f x (f (inl x))
+    refl
+
 -- An equivalence e : Maybe X ≃ Maybe Y induces a map X → Y. We don't use
 -- with-abstraction to keep full control over the definitional equalities, so
 -- we give the definition in two steps. After the definition is complete, we
@@ -1570,24 +1700,21 @@ comp-map-equiv-exception-Maybe e x H =
 map-equiv-equiv-Maybe' :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y)
   (x : X) (u : Maybe Y) (p : Id (map-equiv e (inl x)) u) → Y
-map-equiv-equiv-Maybe' e x (inl y) p = y
-map-equiv-equiv-Maybe' e x (inr star) p =
-  value-map-equiv-exception-Maybe e x p
+map-equiv-equiv-Maybe' e =
+  restrict-injective-map-Maybe' (is-injective-map-equiv e)
 
 map-equiv-equiv-Maybe :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) → X → Y
-map-equiv-equiv-Maybe e x =
-  map-equiv-equiv-Maybe' e x (map-equiv e (inl x)) refl
+map-equiv-equiv-Maybe e =
+  restrict-injective-map-Maybe (is-injective-map-equiv e)
 
 comp-map-equiv-equiv-is-exception-Maybe' :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (x : X) →
   (u : Maybe Y) (p : Id (map-equiv e (inl x)) u) →
   is-exception-Maybe (map-equiv e (inl x)) →
   Id (inl (map-equiv-equiv-Maybe' e x u p)) (map-equiv e exception-Maybe)
-comp-map-equiv-equiv-is-exception-Maybe' e x (inl y) p q =
-  ex-falso (is-not-exception-unit-Maybe y (inv p ∙ q))
-comp-map-equiv-equiv-is-exception-Maybe' e x (inr star) p q =
-  comp-map-equiv-exception-Maybe e x p
+comp-map-equiv-equiv-is-exception-Maybe' e =
+  comp-restrict-injective-map-is-exception-Maybe' (is-injective-map-equiv e)
 
 comp-map-equiv-equiv-is-exception-Maybe :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (x : X) →
