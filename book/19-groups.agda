@@ -1,9 +1,8 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module book.16-groups where
+module book.19-groups where
 
-import book.15-univalence
-open book.15-univalence public
+open import book.18-set-quotients public
 
 --------------------------------------------------------------------------------
 

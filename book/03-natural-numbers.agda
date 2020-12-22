@@ -144,10 +144,10 @@ zero-ℕ choose succ-ℕ k = zero-ℕ
 
 -- Exercise 3.5
 
-Fibonacci : ℕ → ℕ
-Fibonacci zero-ℕ = zero-ℕ
-Fibonacci (succ-ℕ zero-ℕ) = one-ℕ
-Fibonacci (succ-ℕ (succ-ℕ n)) = add-ℕ (Fibonacci n) (Fibonacci (succ-ℕ n))
+Fibonacci-ℕ : ℕ → ℕ
+Fibonacci-ℕ zero-ℕ = zero-ℕ
+Fibonacci-ℕ (succ-ℕ zero-ℕ) = one-ℕ
+Fibonacci-ℕ (succ-ℕ (succ-ℕ n)) = add-ℕ (Fibonacci-ℕ (succ-ℕ n)) (Fibonacci-ℕ n)
 
 {- The above definition of the Fibonacci sequence uses Agda's rather strong
    pattern matching definitions. Below, we will give a definition of the 

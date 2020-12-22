@@ -1,9 +1,8 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module book.17-set-quotients where
+module book.18-set-quotients where
 
-import book.16-groups
-open book.16-groups public
+open import book.17-univalence public
 
 --------------------------------------------------------------------------------
 

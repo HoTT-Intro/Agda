@@ -1,9 +1,8 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module book.20-universal-cover-circle where
+module book.22-universal-cover-circle where
 
-import book.19-circle
-open book.19-circle public
+open import book.21-circle public
 
 {- Section 12.1 Families over the circle -}
 

@@ -1,9 +1,8 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module book.15-univalence where
+module book.17-univalence where
 
-import book.14-propositional-truncation-solutions
-open book.14-propositional-truncation-solutions public
+open import book.16-finite-types public
 
 --------------------------------------------------------------------------------
 

@@ -223,12 +223,23 @@ is-decidable-Π-ℕ P d (succ-ℕ m) (inl H) with d zero-ℕ
 ... | inl g = inl (ind-ℕ p (λ x y → g x))
 ... | inr ng = inr (λ f → ng (λ x → f (succ-ℕ x)))
 
-{- Corollary 8.2.5 -}
+{- Corollary 8.2.5 and some variations -}
 
 is-upper-bound-ℕ :
   {l : Level} (P : ℕ → UU l) (n : ℕ) → UU l
 is-upper-bound-ℕ P n =
   (m : ℕ) → P m → leq-ℕ m n
+
+is-strict-upper-bound-ℕ :
+  {l : Level} (P : ℕ → UU l) (n : ℕ) → UU l
+is-strict-upper-bound-ℕ P n =
+  (m : ℕ) → P m → le-ℕ m n
+
+is-upper-bound-is-strict-upper-bound-ℕ :
+  {l : Level} (P : ℕ → UU l) (n : ℕ) →
+  is-strict-upper-bound-ℕ P n → is-upper-bound-ℕ P n
+is-upper-bound-is-strict-upper-bound-ℕ P n H x p =
+  leq-le-ℕ {x} {n} (H x p)
 
 is-decidable-bounded-Π-ℕ :
   {l1 l2 : Level} (P : ℕ → UU l1) (Q : ℕ → UU l2) (dP : is-decidable-fam P) →
@@ -240,6 +251,37 @@ is-decidable-bounded-Π-ℕ P Q dP dQ m H =
     ( λ x → is-decidable-function-type (dP x) (dQ x))
     ( succ-ℕ m)
     ( inl (λ x l p → ex-falso (contradiction-leq-ℕ x m (H x p) l)))
+
+is-decidable-bounded-Π-ℕ' :
+  {l : Level} (P : ℕ → UU l) (d : is-decidable-fam P) (m : ℕ) →
+  is-decidable ((x : ℕ) → (leq-ℕ x m) → P x)
+is-decidable-bounded-Π-ℕ' P d m =
+  is-decidable-bounded-Π-ℕ
+    ( λ x → leq-ℕ x m)
+    ( P)
+    ( λ x → is-decidable-leq-ℕ x m)
+    ( d)
+    ( m)
+    ( λ x → id)
+
+is-decidable-strictly-bounded-Π-ℕ :
+  {l1 l2 : Level} (P : ℕ → UU l1) (Q : ℕ → UU l2) (dP : is-decidable-fam P) →
+  (dQ : is-decidable-fam Q) (m : ℕ) (H : is-strict-upper-bound-ℕ P m) →
+  is-decidable ((x : ℕ) → P x → Q x)
+is-decidable-strictly-bounded-Π-ℕ P Q dP dQ m H =
+  is-decidable-bounded-Π-ℕ P Q dP dQ m (λ x p → leq-le-ℕ {x} {m} (H x p))
+
+is-decidable-strictly-bounded-Π-ℕ' :
+  {l : Level} (P : ℕ → UU l) (d : is-decidable-fam P) (m : ℕ) →
+  is-decidable ((x : ℕ) → le-ℕ x m → P x)
+is-decidable-strictly-bounded-Π-ℕ' P d m =
+  is-decidable-strictly-bounded-Π-ℕ
+    ( λ x → le-ℕ x m)
+    ( P)
+    ( λ x → is-decidable-le-ℕ x m)
+    ( d)
+    ( m)
+    ( λ x → id)
 
 --------------------------------------------------------------------------------
 
@@ -1115,6 +1157,82 @@ has-decidable-equality-has-decidable-equality-list d x y =
 
 --------------------------------------------------------------------------------
 
+-- Exercise 8.8
+
+-- Decidability of bounded Σ-types
+
+is-decidable-Σ-ℕ :
+  {l : Level} (P : ℕ → UU l) (d : is-decidable-fam P) (m : ℕ) →
+  is-decidable (Σ ℕ (λ x → (leq-ℕ m x) × (P x))) → is-decidable (Σ ℕ P)
+is-decidable-Σ-ℕ P d m (inl (pair x (pair l p))) = inl (pair x p)
+is-decidable-Σ-ℕ P d zero-ℕ (inr f) =
+  inr (λ p → f (pair (pr1 p) (pair star (pr2 p))))
+is-decidable-Σ-ℕ P d (succ-ℕ m) (inr f) with d zero-ℕ
+... | inl p = inl (pair zero-ℕ p)
+... | inr g with
+  is-decidable-Σ-ℕ
+    ( P ∘ succ-ℕ)
+    ( λ x → d (succ-ℕ x))
+    ( m)
+    ( inr (λ p → f (pair (succ-ℕ (pr1 p)) (pr2 p))))
+... | inl p = inl (pair (succ-ℕ (pr1 p)) (pr2 p))
+... | inr h = inr α
+  where
+  α : Σ ℕ P → empty
+  α (pair zero-ℕ p) = g p
+  α (pair (succ-ℕ x) p) = h (pair x p)
+
+is-decidable-bounded-Σ-ℕ :
+  {l1 l2 : Level} (P : ℕ → UU l1) (Q : ℕ → UU l2) (dP : is-decidable-fam P) →
+  (dQ : is-decidable-fam Q) (m : ℕ) (H : is-upper-bound-ℕ P m) →
+  is-decidable (Σ ℕ (λ x → (P x) × (Q x)))
+is-decidable-bounded-Σ-ℕ P Q dP dQ m H =
+  is-decidable-Σ-ℕ
+    ( λ x → (P x) × (Q x))
+    ( λ x → is-decidable-prod (dP x) (dQ x))
+    ( succ-ℕ m)
+    ( inr
+      ( λ p →
+        contradiction-leq-ℕ
+          ( pr1 p)
+          ( m)
+          ( H (pr1 p) (pr1 (pr2 (pr2 p))))
+          ( pr1 (pr2 p))))
+
+is-decidable-bounded-Σ-ℕ' :
+  {l : Level} (P : ℕ → UU l) (d : is-decidable-fam P) (m : ℕ) →
+  is-decidable (Σ ℕ (λ x → (leq-ℕ x m) × (P x)))
+is-decidable-bounded-Σ-ℕ' P d m =
+  is-decidable-bounded-Σ-ℕ
+    ( λ x → leq-ℕ x m)
+    ( P)
+    ( λ x → is-decidable-leq-ℕ x m)
+    ( d)
+    ( m)
+    ( λ x → id)
+
+is-decidable-strictly-bounded-Σ-ℕ :
+  {l1 l2 : Level} (P : ℕ → UU l1) (Q : ℕ → UU l2) (dP : is-decidable-fam P) →
+  (dQ : is-decidable-fam Q) (m : ℕ) (H : is-strict-upper-bound-ℕ P m) →
+  is-decidable (Σ ℕ (λ x → (P x) × (Q x)))
+is-decidable-strictly-bounded-Σ-ℕ P Q dP dQ m H =
+  is-decidable-bounded-Σ-ℕ P Q dP dQ m
+    ( is-upper-bound-is-strict-upper-bound-ℕ P m H)
+
+is-decidable-strictly-bounded-Σ-ℕ' :
+  {l : Level} (P : ℕ → UU l) (d : is-decidable-fam P) (m : ℕ) →
+  is-decidable (Σ ℕ (λ x → (le-ℕ x m) × (P x)))
+is-decidable-strictly-bounded-Σ-ℕ' P d m =
+  is-decidable-strictly-bounded-Σ-ℕ
+    ( λ x → le-ℕ x m)
+    ( P)
+    ( λ x → is-decidable-le-ℕ x m)
+    ( d)
+    ( m)
+    ( λ x → id)
+
+--------------------------------------------------------------------------------
+
 {- The binary natural numbers -}
 
 data ℕ₂ : UU lzero where
@@ -1373,3 +1491,5 @@ minimal-element-decidable-subtype-Fin {l} {succ-ℕ k} {P} d (pair (inr star) p)
   g : (y : Fin (succ-ℕ k)) → P y → leq-Fin (neg-one-Fin {k}) y
   g (inl y) q = ex-falso (f (pair y q))
   g (inr star) q = refl-leq-Fin (neg-one-Fin {k})
+
+--------------------------------------------------------------------------------

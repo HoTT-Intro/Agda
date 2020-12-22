@@ -1,9 +1,8 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module book.21-pullbacks where
+module book.23-pullbacks where
 
-import book.20-universal-cover-circle
-open book.20-universal-cover-circle public
+open import book.22-universal-cover-circle public
 
 -- Section 13.1 Cartesian squares
 
