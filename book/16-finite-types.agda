@@ -2,7 +2,7 @@
 
 module book.16-finite-types where
 
-open import book.14-propositional-truncation-solutions public
+open import book.15-image public
 
 --------------------------------------------------------------------------------
 
@@ -119,28 +119,44 @@ count-unit = count-is-contr is-contr-unit
 {- We can count the elements of an identity type of a type that has decidable
    equality. -}
 
-count-Eq-has-decidable-equality' :
-  {l : Level} {X : UU l} {x y : X} (d : is-decidable (Id x y)) →
-  count (Eq-has-decidable-equality' x y d)
-count-Eq-has-decidable-equality' {l} {X} {x} {y} (inl p) = count-unit
-count-Eq-has-decidable-equality' {l} {X} {x} {y} (inr f) = count-empty
-
-count-Eq-has-decidable-equality :
-  {l : Level} {X : UU l} (d : has-decidable-equality X) {x y : X} →
-  count (Eq-has-decidable-equality d x y)
-count-Eq-has-decidable-equality d {x} {y} =
-  count-Eq-has-decidable-equality' (d x y)
+cases-count-eq :
+  {l : Level} {X : UU l} (d : has-decidable-equality X) {x y : X}
+  (e : is-decidable (Id x y)) → count (Id x y)
+cases-count-eq d {x} {y} (inl p) =
+  count-is-contr
+    ( is-proof-irrelevant-is-prop (is-set-has-decidable-equality d x y) p)
+cases-count-eq d (inr f) =
+  count-is-empty f
 
 count-eq :
-  {l : Level} {X : UU l} → has-decidable-equality X → {x y : X} → count (Id x y)
-count-eq d {x} {y} =
-  count-equiv
-    ( equiv-prop
-      ( is-prop-Eq-has-decidable-equality d)
-      ( is-set-has-decidable-equality d x y)
-      ( eq-Eq-has-decidable-equality d)
-      ( Eq-has-decidable-equality-eq d))
-    ( count-Eq-has-decidable-equality d)
+  {l : Level} {X : UU l} → has-decidable-equality X → (x y : X) → count (Id x y)
+count-eq d x y = cases-count-eq d (d x y)
+
+cases-number-of-elements-count-eq' :
+  {l : Level} {X : UU l} {x y : X} →
+  is-decidable (Id x y) → ℕ
+cases-number-of-elements-count-eq' (inl p) = one-ℕ
+cases-number-of-elements-count-eq' (inr f) = zero-ℕ
+
+number-of-elements-count-eq' :
+  {l : Level} {X : UU l} (d : has-decidable-equality X) (x y : X) → ℕ
+number-of-elements-count-eq' d x y =
+  cases-number-of-elements-count-eq' (d x y)
+
+cases-number-of-elements-count-eq :
+  {l : Level} {X : UU l} (d : has-decidable-equality X) {x y : X}
+  (e : is-decidable (Id x y)) →
+  Id ( number-of-elements-count (cases-count-eq d e))
+     ( cases-number-of-elements-count-eq' e)
+cases-number-of-elements-count-eq d (inl p) = refl
+cases-number-of-elements-count-eq d (inr f) = refl
+
+number-of-elements-count-eq :
+  {l : Level} {X : UU l} (d : has-decidable-equality X) (x y : X) →
+  Id ( number-of-elements-count (count-eq d x y))
+     ( number-of-elements-count-eq' d x y)
+number-of-elements-count-eq d x y =
+  cases-number-of-elements-count-eq d (d x y)
 
 {- Types equipped with a count are closed under coproducts -}
 
@@ -153,14 +169,28 @@ count-coprod (pair k e) (pair l f) =
     ( ( equiv-coprod e f) ∘e
       ( inv-equiv (coprod-Fin k l)))
 
+number-of-elements-count-coprod :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : count X) (f : count Y) →
+  Id ( number-of-elements-count (count-coprod e f))
+     ( add-ℕ (number-of-elements-count e) (number-of-elements-count f))
+number-of-elements-count-coprod (pair k e) (pair l f) = refl
+
 {- Types equipped with a count are closed under Σ-types -}
+
+sum-Fin-ℕ : {k : ℕ} → (Fin k → ℕ) → ℕ
+sum-Fin-ℕ {zero-ℕ} f = zero-ℕ
+sum-Fin-ℕ {succ-ℕ k} f = add-ℕ (sum-Fin-ℕ (λ x → f (inl x))) (f (inr star))
+
+sum-count-ℕ : {l : Level} {A : UU l} (e : count A) → (f : A → ℕ) → ℕ
+sum-count-ℕ (pair k e) f = sum-Fin-ℕ (f ∘ (map-equiv e))
 
 count-Σ' :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
   (k : ℕ) (e : Fin k ≃ A) → ((x : A) → count (B x)) → count (Σ A B)
 count-Σ' zero-ℕ e f =
   count-is-empty
-    ( λ x → is-empty-is-zero-number-of-elements-count (pair zero-ℕ e) refl (pr1 x))
+    ( λ x →
+      is-empty-is-zero-number-of-elements-count (pair zero-ℕ e) refl (pr1 x))
 count-Σ' {l1} {l2} {A} {B} (succ-ℕ k) e f =
   count-equiv
     ( ( equiv-Σ-equiv-base B e) ∘e
@@ -173,6 +203,20 @@ count-Σ' {l1} {l2} {A} {B} (succ-ℕ k) e f =
     ( count-coprod
       ( count-Σ' k equiv-id (λ x → f (map-equiv e (inl x))))
       ( f (map-equiv e (inr star))))
+
+number-of-elements-count-Σ' :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (k : ℕ) (e : Fin k ≃ A) →
+  (f : (x : A) → count (B x)) →
+  Id ( number-of-elements-count (count-Σ' k e f))
+     ( sum-Fin-ℕ (λ x → number-of-elements-count (f (map-equiv e x)))) 
+number-of-elements-count-Σ' zero-ℕ e f = refl
+number-of-elements-count-Σ' (succ-ℕ k) e f =
+  ( number-of-elements-count-coprod
+    ( count-Σ' k equiv-id (λ x → f (map-equiv e (inl x))))
+    ( f (map-equiv e (inr star)))) ∙
+  ( ap
+    ( add-ℕ' (number-of-elements-count (f (map-equiv e (inr star)))))
+    ( number-of-elements-count-Σ' k equiv-id (λ x → f (map-equiv e (inl x)))))
 
 abstract
   equiv-count-Σ' :
@@ -187,6 +231,13 @@ count-Σ :
 count-Σ (pair k e) f =
   pair (number-of-elements-count (count-Σ' k e f)) (equiv-count-Σ' k e f)
 
+number-of-elements-count-Σ :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (e : count A)
+  (f : (x : A) → count (B x)) →
+  Id ( number-of-elements-count (count-Σ e f))
+     ( sum-count-ℕ e (λ x → number-of-elements-count (f x)))
+number-of-elements-count-Σ (pair k e) f = number-of-elements-count-Σ' k e f
+
 count-fiber-count-Σ :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
   count A → count (Σ A B) → (x : A) → count (B x)
@@ -194,7 +245,7 @@ count-fiber-count-Σ {B = B} e f x =
   count-equiv
     ( equiv-fib-pr1 x)
     ( count-Σ f
-      ( λ z → count-eq (has-decidable-equality-count e)))
+      ( λ z → count-eq (has-decidable-equality-count e) (pr1 z) x))
 
 equiv-total-fib-map-section :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
@@ -214,7 +265,7 @@ count-fib-map-section {l1} {l2} {A} {B} b e f (pair y z) =
           ( λ x → Id x y)
           ( λ t → Id (tr B (pr2 t) (b (pr1 t))) z))) ∘e
       ( equiv-tot (λ x → equiv-pair-eq-Σ (pair x (b x)) (pair y z))))
-    ( count-eq (has-decidable-equality-count (f y)))
+    ( count-eq (has-decidable-equality-count (f y)) (b y) z)
 
 count-base-count-Σ :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
@@ -246,7 +297,12 @@ count-base-count-Σ' {l1} {l2} {A} {B} e f g =
       ( left-distributive-Σ-coprod A B
         ( λ x → is-zero-ℕ (number-of-elements-count (f x))))
       ( count-coprod e g))
-    ( λ x → count-coprod (f x) (count-eq has-decidable-equality-ℕ))
+    ( λ x →
+      count-coprod
+        ( f x)
+        ( count-eq has-decidable-equality-ℕ
+          ( number-of-elements-count (f x))
+          ( zero-ℕ)))
 
 {- A coproduct X + Y has a count if and only if both X and Y have a count -}
 
@@ -320,7 +376,9 @@ count-left-factor e y =
         count-eq
           ( has-decidable-equality-right-factor
             ( has-decidable-equality-count e)
-            ( pr1 z))))
+            ( pr1 z))
+          ( pr2 z)
+          ( y)))
 
 count-right-factor :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → count (X × Y) → X → count Y
@@ -514,46 +572,6 @@ is-not-exception-emb-exception-Maybe :
   is-not-exception-Maybe (map-emb e exception-Maybe)
 is-not-exception-emb-exception-Maybe e =
   is-not-exception-injective-map-exception-Maybe (is-injective-emb e)
-
-{-
--- If f is an injective map and f (inl x) is an exception, then f exception is
--- not an exception.
-
-is-not-exception-map-equiv-exception-Maybe :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (x : X) →
-  is-exception-Maybe (map-equiv e (inl x)) →
-  is-not-exception-Maybe (map-equiv e exception-Maybe)
-is-not-exception-map-equiv-exception-Maybe e =
-  is-not-exception-injective-map-exception-Maybe (is-injective-map-equiv e)
-
--- If f is injective and f (inl x) is an exception, then f exception is a value
-is-value-injective-map-exception-Maybe :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : Maybe X → Maybe Y} →
-  is-injective f → (x : X) → is-exception-Maybe (f (inl x)) →
-  is-value-Maybe (f exception-Maybe)
-is-value-injective-map-exception-Maybe {f = f} is-inj-f x H =
-  is-value-is-not-exception-Maybe
-    ( f exception-Maybe)
-    ( is-not-exception-injective-map-exception-Maybe is-inj-f x H)
-
-value-injective-map-exception-Maybe :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : Maybe X → Maybe Y} →
-  is-injective f → (x : X) → is-exception-Maybe (f (inl x)) → Y
-value-injective-map-exception-Maybe {f = f} is-inj-f x H =
-  value-is-value-Maybe
-    ( f exception-Maybe)
-    ( is-value-injective-map-exception-Maybe is-inj-f x H)
-
-comp-injective-map-exception-Maybe :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : Maybe X → Maybe Y} →
-  (is-inj-f : is-injective f) (x : X) (H : is-exception-Maybe (f (inl x))) →
-  Id ( inl (value-injective-map-exception-Maybe is-inj-f x H))
-     ( f exception-Maybe)
-comp-injective-map-exception-Maybe {f = f} is-inj-f x H =
-  eq-is-value-Maybe
-    ( f exception-Maybe)
-    ( is-value-injective-map-exception-Maybe is-inj-f x H)
--}
 
 -- If e (inl x) is an exception, then e exception is a value
 is-value-map-equiv-exception-Maybe :
@@ -825,6 +843,18 @@ is-injective-Fin {succ-ℕ k} {zero-ℕ} e = ex-falso (map-equiv e zero-Fin)
 is-injective-Fin {succ-ℕ k} {succ-ℕ l} e =
   ap succ-ℕ (is-injective-Fin (equiv-equiv-Maybe e))
 
+double-counting :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (count-A : count A)
+  (count-B : count B) (e : A ≃ B) →
+  Id (number-of-elements-count count-A) (number-of-elements-count count-B)
+double-counting (pair k f) (pair l g) e =
+  is-injective-Fin ((inv-equiv g ∘e e) ∘e f)
+
+double-counting' :
+  {l : Level} {A : UU l} (count-A count-A' : count A) →
+  Id (number-of-elements-count count-A) (number-of-elements-count count-A')
+double-counting' count-A count-A' = double-counting count-A count-A' equiv-id
+
 {- Maybe X has a count if and only if X has a count -}
 
 count-Maybe : {l : Level} {X : UU l} → count X → count (Maybe X)
@@ -850,7 +880,49 @@ count-count-Maybe (pair k e) with
 
 --------------------------------------------------------------------------------
 
-----------
+-- Double counting in several specific situations
+
+double-counting-coprod :
+  { l1 l2 : Level} {A : UU l1} {B : UU l2}
+  ( count-A : count A) (count-B : count B) (count-C : count (coprod A B)) →
+  Id ( number-of-elements-count count-C)
+     ( add-ℕ
+       ( number-of-elements-count count-A)
+       ( number-of-elements-count count-B))
+double-counting-coprod count-A count-B count-C =
+  ( double-counting' count-C (count-coprod count-A count-B)) ∙
+  ( number-of-elements-count-coprod count-A count-B)
+
+double-counting-Σ :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (count-A : count A)
+  (count-B : (x : A) → count (B x)) (count-C : count (Σ A B)) →
+  Id ( number-of-elements-count count-C)
+     ( sum-count-ℕ count-A (λ x → number-of-elements-count (count-B x)))
+double-counting-Σ count-A count-B count-C =
+  ( double-counting' count-C (count-Σ count-A count-B)) ∙
+  ( number-of-elements-count-Σ count-A count-B)
+
+sum-number-of-elements-count-fiber-count-Σ :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (e : count A)
+  (f : count (Σ A B)) →
+  Id ( sum-count-ℕ e
+       ( λ x → number-of-elements-count (count-fiber-count-Σ e f x)))
+     ( number-of-elements-count f)
+sum-number-of-elements-count-fiber-count-Σ e f =
+  ( inv (number-of-elements-count-Σ e (λ x → count-fiber-count-Σ e f x))) ∙
+  ( double-counting' (count-Σ e (λ x → count-fiber-count-Σ e f x)) f)
+
+double-counting-fiber-count-Σ :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (count-A : count A)
+  (count-B : (x : A) → count (B x)) (count-C : count (Σ A B)) (x : A) →
+  Id ( number-of-elements-count (count-B x))
+     ( number-of-elements-count (count-fiber-count-Σ count-A count-C x))
+double-counting-fiber-count-Σ count-A count-B count-C x =
+  double-counting' (count-B x) (count-fiber-count-Σ count-A count-C x)
+
+--------------------------------------------------------------------------------
+
+-- Ordering relation on any type A that comes equipped with a count
 
 leq-count :
   {l : Level} {X : UU l} → count X → X → X → UU lzero
@@ -1246,23 +1318,10 @@ has-decidable-equality-is-finite {l1} {X} is-finite-X =
     ( λ e →
       has-decidable-equality-equiv' (equiv-count e) has-decidable-equality-Fin)
 
-is-finite-Eq-has-decidable-equality :
-  {l1 : Level} {X : UU l1} (d : has-decidable-equality X) →
-  {x y : X} → is-finite (Eq-has-decidable-equality d x y)
-is-finite-Eq-has-decidable-equality d =
-  is-finite-count (count-Eq-has-decidable-equality d)
-
 is-finite-eq :
   {l1 : Level} {X : UU l1} →
   has-decidable-equality X → {x y : X} → is-finite (Id x y)
-is-finite-eq d {x} {y} =
-  is-finite-equiv
-    ( equiv-prop
-      ( is-prop-Eq-has-decidable-equality d)
-      ( is-set-has-decidable-equality d x y)
-      ( eq-Eq-has-decidable-equality d)
-      ( Eq-has-decidable-equality-eq d))
-    ( is-finite-Eq-has-decidable-equality d)
+is-finite-eq d {x} {y} = is-finite-count (count-eq d x y)
 
 is-finite-fib-map-section :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
@@ -1329,7 +1388,11 @@ is-finite-base-is-finite-Σ-section {l1} {l2} {A} {B} b f g =
                     ( is-contr-total-path' (pr1 t))
                     ( pair (pr1 t) refl))))))
           ( count-Σ e
-            ( λ t → count-eq (has-decidable-equality-is-finite (g (pr1 t)))))))
+            ( λ t →
+              count-eq
+                ( has-decidable-equality-is-finite (g (pr1 t)))
+                ( b (pr1 t))
+                ( pr2 t)))))
 
 is-finite-base-is-finite-Σ-mere-section :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
