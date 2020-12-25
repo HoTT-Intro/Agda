@@ -163,17 +163,17 @@ module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
 
   -- algebras for the polynomial endofunctors
   
-  algebra-polynomial-endofunctor :
+  algebra-polynomial-endofunctor-UU :
     (l : Level) → UU (lsuc l ⊔ l1 ⊔ l2)
-  algebra-polynomial-endofunctor l =
+  algebra-polynomial-endofunctor-UU l =
     Σ (UU l) (λ X → type-polynomial-endofunctor X → X)
 
   type-algebra-polynomial-endofunctor :
-    {l : Level} → algebra-polynomial-endofunctor l → UU l
+    {l : Level} → algebra-polynomial-endofunctor-UU l → UU l
   type-algebra-polynomial-endofunctor X = pr1 X
 
   structure-algebra-polynomial-endofunctor :
-    {l : Level} (X : algebra-polynomial-endofunctor l) →
+    {l : Level} (X : algebra-polynomial-endofunctor-UU l) →
     type-polynomial-endofunctor (type-algebra-polynomial-endofunctor X) →
     type-algebra-polynomial-endofunctor X
   structure-algebra-polynomial-endofunctor X = pr2 X
@@ -183,14 +183,14 @@ module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
   structure-𝕎-Alg : type-polynomial-endofunctor 𝕎 → 𝕎
   structure-𝕎-Alg (pair x α) = sup-𝕎 x α
 
-  𝕎-Alg : algebra-polynomial-endofunctor (l1 ⊔ l2)
+  𝕎-Alg : algebra-polynomial-endofunctor-UU (l1 ⊔ l2)
   𝕎-Alg = pair 𝕎 structure-𝕎-Alg
 
   -- Morphisms of algebras for polynomial endofunctors
   
   hom-algebra-polynomial-endofunctor :
-    {l3 l4 : Level} (X : algebra-polynomial-endofunctor l3) →
-    (Y : algebra-polynomial-endofunctor l4) → UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+    {l3 l4 : Level} (X : algebra-polynomial-endofunctor-UU l3) →
+    (Y : algebra-polynomial-endofunctor-UU l4) → UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
   hom-algebra-polynomial-endofunctor X Y =
     Σ ( type-algebra-polynomial-endofunctor X →
         type-algebra-polynomial-endofunctor Y)
@@ -200,16 +200,16 @@ module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
           ( map-polynomial-endofunctor f)))
 
   map-hom-algebra-polynomial-endofunctor :
-    {l3 l4 : Level} (X : algebra-polynomial-endofunctor l3) →
-    (Y : algebra-polynomial-endofunctor l4) →
+    {l3 l4 : Level} (X : algebra-polynomial-endofunctor-UU l3) →
+    (Y : algebra-polynomial-endofunctor-UU l4) →
     hom-algebra-polynomial-endofunctor X Y →
     type-algebra-polynomial-endofunctor X →
     type-algebra-polynomial-endofunctor Y
   map-hom-algebra-polynomial-endofunctor X Y f = pr1 f
 
   structure-hom-algebra-polynomial-endofunctor :
-    {l3 l4 : Level} (X : algebra-polynomial-endofunctor l3) →
-    (Y : algebra-polynomial-endofunctor l4) →
+    {l3 l4 : Level} (X : algebra-polynomial-endofunctor-UU l3) →
+    (Y : algebra-polynomial-endofunctor-UU l4) →
     (f : hom-algebra-polynomial-endofunctor X Y) →
     ( ( map-hom-algebra-polynomial-endofunctor X Y f) ∘
       ( structure-algebra-polynomial-endofunctor X)) ~
@@ -222,8 +222,8 @@ module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
 
   module Htpy-Hom-Algebra-Polynomial-Endofunctor
     {l3 l4 : Level}
-    (X : algebra-polynomial-endofunctor l3)
-    (Y : algebra-polynomial-endofunctor l4)
+    (X : algebra-polynomial-endofunctor-UU l3)
+    (Y : algebra-polynomial-endofunctor-UU l4)
     (f : hom-algebra-polynomial-endofunctor X Y) where
 
     -- We characterize the identity type of the type of morphisms of algebras
@@ -314,7 +314,7 @@ module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
 
   open Htpy-Hom-Algebra-Polynomial-Endofunctor public
 
-  module W-Initial {l : Level} (X : algebra-polynomial-endofunctor l) where
+  module W-Initial {l : Level} (X : algebra-polynomial-endofunctor-UU l) where
   
     -- We show that 𝕎 is an initial algebra
     
