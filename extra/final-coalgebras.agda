@@ -167,3 +167,38 @@ is-equiv-htpy-hom-coalgebra-polynomial-endofunctor-eq X Y f =
     ( refl-htpy-hom-coalgebra-polynomial-endofunctor X Y f)
     ( is-contr-total-htpy-hom-coalgebra-polynomial-endofunctor X Y f)
     ( htpy-hom-coalgebra-polynomial-endofunctor-eq X Y f)
+
+--------------------------------------------------------------------------------
+
+{- We define the underlying type of the final coalgebra of a polynomial 
+   endofunctor -}
+
+type-coseq-final-coalgebra-polynomial-endofunctor :
+  {l1 l2 : Level} (A : UU l1) (B : A → UU l2) → ℕ → UU (l1 ⊔ l2)
+type-coseq-final-coalgebra-polynomial-endofunctor A B zero-ℕ =
+  raise _ unit
+type-coseq-final-coalgebra-polynomial-endofunctor A B (succ-ℕ n) =
+  type-polynomial-endofunctor A B
+    ( type-coseq-final-coalgebra-polynomial-endofunctor A B n)
+
+map-coseq-final-coalgebra-polynomial-endofunctor :
+  {l1 l2 : Level} (A : UU l1) (B : A → UU l2) (n : ℕ) →
+  type-coseq-final-coalgebra-polynomial-endofunctor A B (succ-ℕ n) →
+  type-coseq-final-coalgebra-polynomial-endofunctor A B n
+map-coseq-final-coalgebra-polynomial-endofunctor A B zero-ℕ x =
+  raise-star
+map-coseq-final-coalgebra-polynomial-endofunctor A B (succ-ℕ n) =
+  map-polynomial-endofunctor A B
+    ( map-coseq-final-coalgebra-polynomial-endofunctor A B n)
+
+coseq-canonical-final-coalgebra-polynomial-endofunctor :
+  {l1 l2 : Level} (A : UU l1) (B : A → UU l2) → Coseq-UU (l1 ⊔ l2)
+coseq-canonical-final-coalgebra-polynomial-endofunctor A B =
+  pair ( type-coseq-final-coalgebra-polynomial-endofunctor A B)
+       ( map-coseq-final-coalgebra-polynomial-endofunctor A B)
+
+type-final-coalgebra-polynomial-endofunctor :
+  {l1 l2 : Level} (A : UU l1) (B : A → UU l2) → UU (l1 ⊔ l2)
+type-final-coalgebra-polynomial-endofunctor A B =
+  canonical-sequential-limit
+    ( coseq-canonical-final-coalgebra-polynomial-endofunctor A B)
