@@ -141,7 +141,7 @@ module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
   map-polynomial-endofunctor :
     {l3 l4 : Level} {X : UU l3} {Y : UU l4} (f : X → Y) →
     type-polynomial-endofunctor X → type-polynomial-endofunctor Y
-  map-polynomial-endofunctor f (pair x α) = pair x (f ∘ α)
+  map-polynomial-endofunctor f = tot (λ x α → f ∘ α)
 
   -- The action on homotopies of the polynomial endofunctor
   

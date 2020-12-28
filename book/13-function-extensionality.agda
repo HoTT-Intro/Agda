@@ -712,9 +712,8 @@ eq-Eq-Π-total-fam C t t' = map-inv-is-equiv (is-equiv-Eq-Π-total-fam-eq C t t'
 is-contr-total-Eq-Π :
   { l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} (C : (x : A) → B x → UU l3) →
   ( is-contr-total-C : (x : A) → is-contr (Σ (B x) (C x))) →
-  ( f : (x : A) → B x) →
   is-contr (Σ ((x : A) → B x) (λ g → (x : A) → C x (g x)))
-is-contr-total-Eq-Π {A = A} {B} C is-contr-total-C f =
+is-contr-total-Eq-Π {A = A} {B} C is-contr-total-C =
   is-contr-equiv'
     ( (x : A) → Σ (B x) (C x))
     ( equiv-choice-∞)

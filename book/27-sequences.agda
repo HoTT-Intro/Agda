@@ -55,13 +55,11 @@ is-contr-total-equiv-Seq A =
       (n : ℕ) → naturality-hom-Seq A (pair B g) (λ n → map-equiv (e n)) n)
     ( is-contr-total-Eq-Π
       ( λ n X → type-seq A n ≃ X)
-      ( λ n → is-contr-total-equiv (type-seq A n))
-      ( type-seq A))
+      ( λ n → is-contr-total-equiv (type-seq A n)))
     ( pair (type-seq A) (λ n → equiv-id))
     ( is-contr-total-Eq-Π
       ( λ n h → h ~ (map-seq A n))
-      ( λ n → is-contr-total-htpy' (map-seq A n))
-      ( map-seq A))
+      ( λ n → is-contr-total-htpy' (map-seq A n)))
 
 is-equiv-equiv-eq-Seq :
   { l1 : Level} (A B : Sequence l1) → is-equiv (equiv-eq-Seq A B)
@@ -138,16 +136,14 @@ is-contr-total-htpy-cocone-sequence A c =
       (n : ℕ) → naturality-htpy-cocone-sequence A c (pair j t) H n)
     ( is-contr-total-Eq-Π
       ( λ n j → map-cocone-sequence A c n ~ j)
-      ( λ n → is-contr-total-htpy (map-cocone-sequence A c n))
-      ( map-cocone-sequence A c))
+      ( λ n → is-contr-total-htpy (map-cocone-sequence A c n)))
     ( pair
       ( map-cocone-sequence A c)
       ( λ n → refl-htpy))
     ( is-contr-total-Eq-Π
       ( λ n H → H ~ ((triangle-cocone-sequence A c n) ∙h refl-htpy))
       ( λ n → is-contr-total-htpy'
-        ( (triangle-cocone-sequence A c n) ∙h refl-htpy))
-      ( triangle-cocone-sequence A c))
+        ( (triangle-cocone-sequence A c n) ∙h refl-htpy)))
 
 is-equiv-htpy-cocone-sequence-eq :
   { l1 l2 : Level} (A : Sequence l1) {X : UU l2} (c c' : cocone-sequence A X) →

@@ -72,8 +72,7 @@ module hom-Fam-pushout
               ( (pr2 (pr2 h) s) ∙h ((map-equiv (QS s)) ·l (HA (f s))))))
       ( is-contr-total-Eq-Π
         ( λ x τ → (pr1 h x) ~ τ)
-        ( λ x → is-contr-total-htpy (pr1 h x))
-        ( pr1 h))
+        ( λ x → is-contr-total-htpy (pr1 h x)))
       ( pair (pr1 h) (λ x → refl-htpy))
       ( is-contr-total-Eq-structure
         ( λ kB ke (HB : (y : B) → (pr1 (pr2 h) y) ~ kB y) →
@@ -82,15 +81,12 @@ module hom-Fam-pushout
             ( (pr2 (pr2 h) s) ∙h ((map-equiv (QS s)) ·l refl-htpy)))
         ( is-contr-total-Eq-Π
           ( λ y τ → (pr1 (pr2 h) y) ~ τ)
-          ( λ y → is-contr-total-htpy (pr1 (pr2 h) y))
-          ( pr1 (pr2 h)))
+          ( λ y → is-contr-total-htpy (pr1 (pr2 h) y)))
         ( pair (pr1 (pr2 h)) (λ y → refl-htpy))
         ( is-contr-total-Eq-Π
           ( λ (s : S) he →
             (he ~ (pr2 (pr2 h) s ∙h (map-equiv (QS s) ·l refl-htpy))))
           ( λ s → is-contr-total-htpy'
-            ((pr2 (pr2 h) s) ∙h ((map-equiv (QS s)) ·l refl-htpy)))
-          ( λ s →
             ((pr2 (pr2 h) s) ∙h ((map-equiv (QS s)) ·l refl-htpy)))))
 
   is-equiv-htpy-hom-Fam-pushout-eq :

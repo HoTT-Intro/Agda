@@ -191,14 +191,98 @@ map-coseq-final-coalgebra-polynomial-endofunctor A B (succ-ℕ n) =
   map-polynomial-endofunctor A B
     ( map-coseq-final-coalgebra-polynomial-endofunctor A B n)
 
-coseq-canonical-final-coalgebra-polynomial-endofunctor :
+coseq-final-coalgebra-polynomial-endofunctor :
   {l1 l2 : Level} (A : UU l1) (B : A → UU l2) → Coseq-UU (l1 ⊔ l2)
-coseq-canonical-final-coalgebra-polynomial-endofunctor A B =
+coseq-final-coalgebra-polynomial-endofunctor A B =
   pair ( type-coseq-final-coalgebra-polynomial-endofunctor A B)
        ( map-coseq-final-coalgebra-polynomial-endofunctor A B)
 
 type-final-coalgebra-polynomial-endofunctor :
   {l1 l2 : Level} (A : UU l1) (B : A → UU l2) → UU (l1 ⊔ l2)
 type-final-coalgebra-polynomial-endofunctor A B =
-  canonical-sequential-limit
-    ( coseq-canonical-final-coalgebra-polynomial-endofunctor A B)
+  limit-Coseq
+    ( coseq-final-coalgebra-polynomial-endofunctor A B)
+
+point-type-final-coalgebra-polynomial-endofunctor :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  (x : type-final-coalgebra-polynomial-endofunctor A B) (n : ℕ) →
+  type-coseq-final-coalgebra-polynomial-endofunctor A B n
+point-type-final-coalgebra-polynomial-endofunctor {A = A} {B} =
+  point-limit-Coseq
+    ( coseq-final-coalgebra-polynomial-endofunctor A B)
+
+path-type-final-coalgebra-polynomial-endofunctor :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  (x : type-final-coalgebra-polynomial-endofunctor A B) (n : ℕ) →
+  Id ( map-coseq-final-coalgebra-polynomial-endofunctor A B n
+       ( point-type-final-coalgebra-polynomial-endofunctor x (succ-ℕ n)))
+     ( point-type-final-coalgebra-polynomial-endofunctor x n)
+path-type-final-coalgebra-polynomial-endofunctor {A = A} {B} =
+  path-limit-Coseq
+    ( coseq-final-coalgebra-polynomial-endofunctor A B)
+
+cone-final-coalgebra-polynomial-endofunctor :
+  {l1 l2 : Level} (A : UU l1) (B : A → UU l2) →
+  cone-Coseq (coseq-final-coalgebra-polynomial-endofunctor A B)
+             (type-final-coalgebra-polynomial-endofunctor A B)
+cone-final-coalgebra-polynomial-endofunctor A B =
+  cone-limit-Coseq
+    ( coseq-final-coalgebra-polynomial-endofunctor A B)
+
+universal-property-cone-final-coalgebra-polynomial-endofunctor :
+  ( l : Level) {l1 l2 : Level} (A : UU l1) (B : A → UU l2) → 
+  universal-property-limit-Coseq l
+    ( coseq-final-coalgebra-polynomial-endofunctor A B)
+    ( cone-final-coalgebra-polynomial-endofunctor A B)
+universal-property-cone-final-coalgebra-polynomial-endofunctor l A B =
+  universal-property-limit-limit-Coseq l
+    ( coseq-final-coalgebra-polynomial-endofunctor A B)
+
+--------------------------------------------------------------------------------
+
+{- We define the costructure on the final coalgebra -}
+
+costructure-final-coalgebra-polynomial-endofunctor :
+  {l1 l2 : Level} (A : UU l1) (B : A → UU l2) →
+  type-final-coalgebra-polynomial-endofunctor A B →
+  type-polynomial-endofunctor A B
+    ( type-final-coalgebra-polynomial-endofunctor A B)
+costructure-final-coalgebra-polynomial-endofunctor A B =
+  map-inv-equiv
+    ( ( equiv-limit-shift-Coseq
+        ( coseq-final-coalgebra-polynomial-endofunctor A B)) ∘e
+      {!!})  
+
+head-type-final-coalgebra-polynomial-endofunctor :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  type-final-coalgebra-polynomial-endofunctor A B → A
+head-type-final-coalgebra-polynomial-endofunctor x = pr1 (pr1 x one-ℕ)
+
+eq-head-type-final-coalgebra-polynomial-endofunctor :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  (x : type-final-coalgebra-polynomial-endofunctor A B) (n : ℕ) →
+  Id ( pr1 (point-type-final-coalgebra-polynomial-endofunctor x (succ-ℕ n)))
+     ( head-type-final-coalgebra-polynomial-endofunctor x)
+eq-head-type-final-coalgebra-polynomial-endofunctor x zero-ℕ = refl
+eq-head-type-final-coalgebra-polynomial-endofunctor x (succ-ℕ n) =
+  ( ap pr1 (path-type-final-coalgebra-polynomial-endofunctor x (succ-ℕ n))) ∙
+  ( eq-head-type-final-coalgebra-polynomial-endofunctor x n)
+
+points-tail-type-final-coalgebra-polynomial-endofunctor :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  (x : type-final-coalgebra-polynomial-endofunctor A B) →
+  B (head-type-final-coalgebra-polynomial-endofunctor x) →
+  (n : ℕ) → type-coseq-final-coalgebra-polynomial-endofunctor A B n
+points-tail-type-final-coalgebra-polynomial-endofunctor {A = A} {B} x y n =
+  pr2 ( point-type-final-coalgebra-polynomial-endofunctor x (succ-ℕ n))
+      ( inv-tr B (eq-head-type-final-coalgebra-polynomial-endofunctor x n) y)
+
+tail-type-final-coalgebra-polynomial-endofunctor :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  (x : type-final-coalgebra-polynomial-endofunctor A B) →
+  B (head-type-final-coalgebra-polynomial-endofunctor x) →
+  type-final-coalgebra-polynomial-endofunctor A B
+tail-type-final-coalgebra-polynomial-endofunctor x y =
+  pair
+    ( points-tail-type-final-coalgebra-polynomial-endofunctor x y)
+    {!!}
