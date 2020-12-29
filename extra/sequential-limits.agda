@@ -780,6 +780,32 @@ htpy-map-limit-Coseq A B f x =
   eq-Eq-limit-Coseq B
     ( refl-Eq-limit-Coseq B (map-limit-Coseq A B f x))
 
+comp-map-limit-Coseq :
+  {l1 l2 l3 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) (C : Coseq-UU l3)
+  (g : hom-Coseq B C) (f : hom-Coseq A B) →
+  map-limit-Coseq A C (comp-hom-Coseq A B C g f) ~
+  ( map-limit-Coseq B C g ∘ map-limit-Coseq A B f)
+comp-map-limit-Coseq A B C g f x = {!!}
+
+{-
+  eq-Eq-limit-Coseq C
+    ( pair
+      ( λ n → refl)
+      ( λ n →
+        {! ap (concat (pr2 g n (pr1 f (succ-ℕ n) (pr1 x (succ-ℕ n)))) ?) ?!} ∙
+        ( inv right-unit)))
+-}
+
+{-
+pr2 g n (pr1 f (succ-ℕ n) (pr1 x (succ-ℕ n))) ∙
+ap (pr1 g n) (pr2 f n (pr1 x (succ-ℕ n)) ∙ ap (pr1 f n) (pr2 x n))
+-}
+
+{-
+(pr2 g n (pr1 f (succ-ℕ n) _6476) ∙ ap (pr1 g n) (pr2 f n _6476)) ∙
+_6682
+-}
+
 --------------------------------------------------------------------------------
 
 {- We introduce the notion of diagonal fillers for morphisms of cosequences -}
@@ -994,19 +1020,19 @@ limit-shift-Coseq :
   {l : Level} → Coseq-UU l → UU l
 limit-shift-Coseq A = limit-Coseq (shift-Coseq A)
 
-map-hom-shift-Coseq :
+map-counit-shift-Coseq :
   {l : Level} (A : Coseq-UU l) (n : ℕ) →
   type-Coseq A (succ-ℕ n) → type-Coseq A n
-map-hom-shift-Coseq = map-Coseq
+map-counit-shift-Coseq = map-Coseq
 
-naturality-map-hom-shift-Coseq :
+naturality-map-counit-shift-Coseq :
   {l : Level} (A : Coseq-UU l) →
-  Naturality-hom-Coseq (shift-Coseq A) A (map-hom-shift-Coseq A)
-naturality-map-hom-shift-Coseq A n = refl-htpy
+  Naturality-hom-Coseq (shift-Coseq A) A (map-counit-shift-Coseq A)
+naturality-map-counit-shift-Coseq A n = refl-htpy
 
-hom-shift-Coseq : {l : Level} (A : Coseq-UU l) → hom-Coseq (shift-Coseq A) A
-hom-shift-Coseq A =
-  pair (map-hom-shift-Coseq A) (naturality-map-hom-shift-Coseq A)
+counit-shift-Coseq : {l : Level} (A : Coseq-UU l) → hom-Coseq (shift-Coseq A) A
+counit-shift-Coseq A =
+  pair (map-counit-shift-Coseq A) (naturality-map-counit-shift-Coseq A)
 
 cone-limit-shift-Coseq :
   {l : Level} (A : Coseq-UU l) → cone-Coseq A (limit-shift-Coseq A)
@@ -1015,7 +1041,7 @@ cone-limit-shift-Coseq A =
     ( constant-Coseq (limit-Coseq (shift-Coseq A)))
     ( shift-Coseq A)
     ( A)
-    ( hom-shift-Coseq A)
+    ( counit-shift-Coseq A)
     ( cone-limit-Coseq (shift-Coseq A))
 
 map-limit-shift-Coseq' :
@@ -1027,7 +1053,7 @@ map-limit-shift-Coseq :
   {l : Level} (A : Coseq-UU l) →
   limit-Coseq (shift-Coseq A) → limit-Coseq A
 map-limit-shift-Coseq A =
-  map-limit-Coseq (shift-Coseq A) A (hom-shift-Coseq A)
+  map-limit-Coseq (shift-Coseq A) A (counit-shift-Coseq A)
 
 htpy-map-limit-shift-Coseq :
   {l : Level} (A : Coseq-UU l) →
@@ -1071,6 +1097,83 @@ equiv-limit-shift-Coseq A =
 
 --------------------------------------------------------------------------------
 
+map-hom-shift-Coseq :
+  {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) (f : hom-Coseq A B) →
+  (n : ℕ) → type-Coseq (shift-Coseq A) n → type-Coseq (shift-Coseq B) n
+map-hom-shift-Coseq A B f n = map-hom-Coseq A B f (succ-ℕ n)
+
+naturality-map-hom-shift-Coseq :
+  {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) (f : hom-Coseq A B) →
+  Naturality-hom-Coseq
+    ( shift-Coseq A)
+    ( shift-Coseq B)
+    ( map-hom-shift-Coseq A B f)
+naturality-map-hom-shift-Coseq A B f n =
+  naturality-map-hom-Coseq A B f (succ-ℕ n)
+
+hom-shift-Coseq :
+  {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) →
+  hom-Coseq A B → hom-Coseq (shift-Coseq A) (shift-Coseq B)
+hom-shift-Coseq A B f =
+  pair ( map-hom-shift-Coseq A B f)
+       ( naturality-map-hom-shift-Coseq A B f)
+
+--------------------------------------------------------------------------------
+
+{- We prove the 2-out-of-6 property for equivalences -}
+
+is-equiv-left-factor-2-out-of-6 :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {D : UU l4} →
+  (f : A → B) (g : B → C) (h : C → D) {i : A → C} {j : B → D} →
+  (G : i ~ (g ∘ f)) (H : (h ∘ g) ~ j) →
+  is-equiv i → is-equiv j → is-equiv h
+is-equiv-left-factor-2-out-of-6 f g h {i} {j} G H is-equiv-i is-equiv-j =
+  is-equiv-has-inverse
+    ( g ∘ j⁻¹)
+    ( λ d →
+      ( H (map-inv-is-equiv is-equiv-j d)) ∙
+      ( issec-map-inv-is-equiv is-equiv-j d))
+    ( λ c →
+      ( ap
+        ( (g ∘ j⁻¹) ∘ h)
+        ( ( inv (issec-map-inv-is-equiv is-equiv-i c)) ∙
+          ( G (i⁻¹ c)))) ∙
+      ( ( ap
+          ( g ∘ j⁻¹)
+          ( H (f (i⁻¹ c)))) ∙
+        ( ( ap g (isretr-map-inv-is-equiv is-equiv-j (f (i⁻¹ c)))) ∙
+          ( ( inv (G (i⁻¹ c))) ∙
+            ( issec-map-inv-is-equiv is-equiv-i c)))))
+  where
+  i⁻¹ = map-inv-is-equiv is-equiv-i
+  j⁻¹ = map-inv-is-equiv is-equiv-j
+
+is-equiv-middle-factor-2-out-of-6 :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {D : UU l4} →
+  (f : A → B) (g : B → C) (h : C → D) {i : A → C} {j : B → D} →
+  (G : i ~ (g ∘ f)) (H : (h ∘ g) ~ j) →
+  is-equiv i → is-equiv j → is-equiv g
+is-equiv-middle-factor-2-out-of-6 f g h {i} {j} G H is-equiv-i is-equiv-j =
+  is-equiv-right-factor j h g
+    ( inv-htpy H)
+    ( is-equiv-left-factor-2-out-of-6 f g h G H is-equiv-i is-equiv-j)
+    ( is-equiv-j)
+
+is-equiv-right-factor-2-out-of-6 :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {D : UU l4} →
+  (f : A → B) (g : B → C) (h : C → D) {i : A → C} {j : B → D} →
+  (G : i ~ (g ∘ f)) (H : (h ∘ g) ~ j) →
+  is-equiv i → is-equiv j → is-equiv f
+is-equiv-right-factor-2-out-of-6 f g h {i} {j} G H is-equiv-i is-equiv-j =
+  is-equiv-right-factor i g f G
+    ( is-equiv-middle-factor-2-out-of-6 f g h G H is-equiv-i is-equiv-j)
+    ( is-equiv-i)
+
+--------------------------------------------------------------------------------
+
+{- We show that any morphism of cosequences equipped with a diagonal filler
+   induces an equivalence on limits. -}
+
 map-hom-has-filler-hom-Coseq :
   {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) (f : hom-Coseq A B) →
   (J : has-filler-hom-Coseq A B f) (n : ℕ) →
@@ -1100,7 +1203,7 @@ htpy-right-triangle-hom-has-filler-hom-Coseq :
   {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) (f : hom-Coseq A B) →
   (J : has-filler-hom-Coseq A B f) (n : ℕ) →
   ( map-hom-Coseq A B f n ∘ map-hom-has-filler-hom-Coseq A B f J n) ~
-  ( map-hom-shift-Coseq B n)
+  ( map-counit-shift-Coseq B n)
 htpy-right-triangle-hom-has-filler-hom-Coseq A B f J n =
   inv-htpy (lower-triangle-has-filler-hom-Coseq A B f J n)
 
@@ -1116,7 +1219,7 @@ naturality-right-triangle-hom-has-filler-hom-Coseq :
   naturality-htpy-hom-Coseq (shift-Coseq B) B
     ( comp-hom-Coseq (shift-Coseq B) A B f
       ( hom-has-filler-hom-Coseq A B f J))
-    ( hom-shift-Coseq B)
+    ( counit-shift-Coseq B)
     ( htpy-right-triangle-hom-has-filler-hom-Coseq A B f J)
 naturality-right-triangle-hom-has-filler-hom-Coseq A B f J n b =
   ( right-unit ∙ ( ap-inv (pr2 B n) (K (succ-ℕ n) b))) ∙
@@ -1204,17 +1307,143 @@ right-triangle-hom-has-filler-hom-Coseq :
   (J : has-filler-hom-Coseq A B f) →
   htpy-hom-Coseq (shift-Coseq B) B
     ( comp-hom-Coseq (shift-Coseq B) A B f (hom-has-filler-hom-Coseq A B f J))
-    ( hom-shift-Coseq B)
+    ( counit-shift-Coseq B)
 right-triangle-hom-has-filler-hom-Coseq A B f J =
   pair ( htpy-right-triangle-hom-has-filler-hom-Coseq A B f J)
        ( naturality-right-triangle-hom-has-filler-hom-Coseq A B f J)
 
-{-
 htpy-left-triangle-hom-has-filler-hom-Coseq :
   {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) (f : hom-Coseq A B) →
+  (J : has-filler-hom-Coseq A B f) (n : ℕ) → 
+  ( map-counit-shift-Coseq A n) ~
+  ( ( map-hom-has-filler-hom-Coseq A B f J n) ∘ (map-hom-shift-Coseq A B f n))  
+htpy-left-triangle-hom-has-filler-hom-Coseq A B f J n =
+  inv-htpy (upper-triangle-has-filler-hom-Coseq A B f J n)
+
+naturality-left-triangle-hom-has-filler-hom-Coseq :
+  {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) (f : hom-Coseq A B) →
   (J : has-filler-hom-Coseq A B f) →
--}
-  
+  naturality-htpy-hom-Coseq (shift-Coseq A) A
+    ( counit-shift-Coseq A)
+    ( comp-hom-Coseq (shift-Coseq A) (shift-Coseq B) A
+      ( hom-has-filler-hom-Coseq A B f J)
+      ( hom-shift-Coseq A B f))
+    ( htpy-left-triangle-hom-has-filler-hom-Coseq A B f J)
+naturality-left-triangle-hom-has-filler-hom-Coseq A B f J n a =
+  ( ap
+    ( concat
+      ( ap (pr2 A n) (inv (H (succ-ℕ n) a)))
+      ( j n (pr1 f (succ-ℕ n) (pr2 A (succ-ℕ n) a))))
+    ( assoc
+      ( inv (H n (j (succ-ℕ n) (pr1 f (succ-ℕ (succ-ℕ n)) a))))
+      ( inv (ap (j n) (K (succ-ℕ n) (pr1 f (succ-ℕ (succ-ℕ n)) a))))
+      ( ap (j n) (pr2 f (succ-ℕ n) a)))) ∙
+  ( ( inv
+      ( assoc
+        ( ap (pr2 A n) (inv (H (succ-ℕ n) a)))
+        ( inv (H n (j (succ-ℕ n) (pr1 f (succ-ℕ (succ-ℕ n)) a))))
+        ( ( inv (ap (j n) (K (succ-ℕ n) (pr1 f (succ-ℕ (succ-ℕ n)) a)))) ∙
+          ( ap (j n) (pr2 f (succ-ℕ n) a))))) ∙
+    ( ( ap
+        ( concat'
+          ( pr2 A n (pr2 A (succ-ℕ n) a))
+          ( ( inv (ap (j n) (K (succ-ℕ n) (pr1 f (succ-ℕ (succ-ℕ n)) a)))) ∙ 
+            ( ap (j n) (pr2 f (succ-ℕ n) a))))
+        ( inv
+          ( interchange-whisker-htpy
+            ( inv-htpy (H (succ-ℕ n)))
+            ( inv-htpy (H n))
+            ( a)))) ∙
+      ( ( assoc
+          ( inv (H n (pr2 A (succ-ℕ n) a)))
+          ( ap ((j n) ∘ (pr1 f (succ-ℕ n))) (inv (H (succ-ℕ n) a)))
+          ( ( inv (ap (j n) (K (succ-ℕ n) (pr1 f (succ-ℕ (succ-ℕ n)) a)))) ∙ 
+            ( ap (j n) (pr2 f (succ-ℕ n) a)))) ∙
+        ( ( ap
+            ( concat
+              ( inv (H n (pr2 A (succ-ℕ n) a)))
+              ( j n (pr1 f (succ-ℕ n) (pr2 A (succ-ℕ n) a))))
+            ( ( ap
+                ( concat'
+                  ( j n (pr1 f (succ-ℕ n) (pr2 A (succ-ℕ n) a)))
+                  ( ( inv
+                      ( ap
+                        ( j n)
+                        ( K (succ-ℕ n) (pr1 f (succ-ℕ (succ-ℕ n)) a)))) ∙ 
+                    ( ap (j n) (pr2 f (succ-ℕ n) a))))
+                ( ap-inv ((j n) ∘ (pr1 f (succ-ℕ n))) (H (succ-ℕ n) a))) ∙
+              ( inv
+                ( inv-con
+                  ( ap ((j n) ∘ (pr1 f (succ-ℕ n))) (H (succ-ℕ n) a))
+                  ( refl)
+                  ( ( inv
+                      ( ap
+                        ( j n)
+                        ( K (succ-ℕ n) (pr1 f (succ-ℕ (succ-ℕ n)) a)))) ∙ 
+                    ( ap (j n) (pr2 f (succ-ℕ n) a)))
+                  ( ( ( right-unit) ∙
+                      ( ap-comp (j n) (pr1 f (succ-ℕ n)) (H (succ-ℕ n) a))) ∙
+                    ( inv-con
+                      ( ap (j n) (K (succ-ℕ n) (pr1 f (succ-ℕ (succ-ℕ n)) a)))
+                      ( ap (j n) (ap (pr1 f (succ-ℕ n)) (H (succ-ℕ n) a)))
+                      ( ap (j n) (pr2 f (succ-ℕ n) a))
+                      ( ( inv
+                          ( ap-concat
+                            ( j n)
+                            ( K (succ-ℕ n) (pr1 f (succ-ℕ (succ-ℕ n)) a))
+                            ( ap (pr1 f (succ-ℕ n)) (H (succ-ℕ n) a)))) ∙
+                        ( ap ( ap (j n)) ( M (succ-ℕ n) a))))))))) ∙
+          ( right-unit))))) 
+  where
+  j = map-has-filler-hom-Coseq A B f J
+  H = upper-triangle-has-filler-hom-Coseq A B f J
+  K = lower-triangle-has-filler-hom-Coseq A B f J
+  M = coherence-has-filler-hom-Coseq A B f J
+
+left-triangle-hom-has-filler-hom-Coseq :
+  {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) (f : hom-Coseq A B) →
+  (J : has-filler-hom-Coseq A B f) →
+  htpy-hom-Coseq (shift-Coseq A) A
+    ( counit-shift-Coseq A)
+    ( comp-hom-Coseq (shift-Coseq A) (shift-Coseq B) A
+      ( hom-has-filler-hom-Coseq A B f J)
+      ( hom-shift-Coseq A B f))
+left-triangle-hom-has-filler-hom-Coseq A B f J =
+  pair ( htpy-left-triangle-hom-has-filler-hom-Coseq A B f J)
+       ( naturality-left-triangle-hom-has-filler-hom-Coseq A B f J)
+
+is-equiv-map-limit-has-filler-hom-Coseq :
+  {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) (f : hom-Coseq A B) →
+  has-filler-hom-Coseq A B f → is-equiv (map-limit-Coseq A B f)
+is-equiv-map-limit-has-filler-hom-Coseq A B f J =
+  is-equiv-left-factor-2-out-of-6
+    ( map-limit-Coseq (shift-Coseq A) (shift-Coseq B) (hom-shift-Coseq A B f))
+    ( map-limit-Coseq (shift-Coseq B) A (hom-has-filler-hom-Coseq A B f J))
+    ( map-limit-Coseq A B f)
+    ( ( htpy-eq
+        ( ap
+          ( map-limit-Coseq (shift-Coseq A) A)
+          ( eq-htpy-hom-Coseq (shift-Coseq A) A
+            ( counit-shift-Coseq A)
+            ( comp-hom-Coseq (shift-Coseq A) (shift-Coseq B) A
+              ( hom-has-filler-hom-Coseq A B f J)
+              ( hom-shift-Coseq A B f))
+            ( left-triangle-hom-has-filler-hom-Coseq A B f J)))) ∙h
+      ( comp-map-limit-Coseq
+        ( shift-Coseq A)
+        ( shift-Coseq B)
+        ( A)
+        ( hom-has-filler-hom-Coseq A B f J)
+        ( hom-shift-Coseq A B f)))
+    ( inv-htpy
+      ( comp-map-limit-Coseq
+        ( shift-Coseq B)
+        ( A)
+        ( B)
+        ( f)
+        ( hom-has-filler-hom-Coseq A B f J)))
+    ( is-limit-cone-limit-shift-Coseq A)
+    {!!} 
 
 --------------------------------------------------------------------------------
 
