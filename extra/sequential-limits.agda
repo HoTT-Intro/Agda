@@ -1096,12 +1096,12 @@ hom-has-filler-hom-Coseq A B f J =
   pair ( map-hom-has-filler-hom-Coseq A B f J)
        ( naturality-map-hom-has-filler-hom-Coseq A B f J)
 
-htpy-triangle-hom-has-filler-hom-Coseq :
+htpy-right-triangle-hom-has-filler-hom-Coseq :
   {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) (f : hom-Coseq A B) →
   (J : has-filler-hom-Coseq A B f) (n : ℕ) →
   ( map-hom-Coseq A B f n ∘ map-hom-has-filler-hom-Coseq A B f J n) ~
   ( map-hom-shift-Coseq B n)
-htpy-triangle-hom-has-filler-hom-Coseq A B f J n =
+htpy-right-triangle-hom-has-filler-hom-Coseq A B f J n =
   inv-htpy (lower-triangle-has-filler-hom-Coseq A B f J n)
 
 interchange-whisker-htpy :
@@ -1110,15 +1110,15 @@ interchange-whisker-htpy :
   ((H ·r f) ∙h (k ·l G)) ~ ((h ·l G) ∙h (H ·r g))
 interchange-whisker-htpy G H a = htpy-nat H (G a)
 
-naturality-triangle-hom-has-filler-hom-Coseq :
+naturality-right-triangle-hom-has-filler-hom-Coseq :
   {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) (f : hom-Coseq A B) →
   (J : has-filler-hom-Coseq A B f) →
   naturality-htpy-hom-Coseq (shift-Coseq B) B
     ( comp-hom-Coseq (shift-Coseq B) A B f
       ( hom-has-filler-hom-Coseq A B f J))
     ( hom-shift-Coseq B)
-    ( htpy-triangle-hom-has-filler-hom-Coseq A B f J)
-naturality-triangle-hom-has-filler-hom-Coseq A B f J n b =
+    ( htpy-right-triangle-hom-has-filler-hom-Coseq A B f J)
+naturality-right-triangle-hom-has-filler-hom-Coseq A B f J n b =
   ( right-unit ∙ ( ap-inv (pr2 B n) (K (succ-ℕ n) b))) ∙
   ( inv
     ( ( ap
@@ -1198,6 +1198,23 @@ naturality-triangle-hom-has-filler-hom-Coseq A B f J n b =
   H = upper-triangle-has-filler-hom-Coseq A B f J
   K = lower-triangle-has-filler-hom-Coseq A B f J
   M = coherence-has-filler-hom-Coseq A B f J
+
+right-triangle-hom-has-filler-hom-Coseq :
+  {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) (f : hom-Coseq A B) →
+  (J : has-filler-hom-Coseq A B f) →
+  htpy-hom-Coseq (shift-Coseq B) B
+    ( comp-hom-Coseq (shift-Coseq B) A B f (hom-has-filler-hom-Coseq A B f J))
+    ( hom-shift-Coseq B)
+right-triangle-hom-has-filler-hom-Coseq A B f J =
+  pair ( htpy-right-triangle-hom-has-filler-hom-Coseq A B f J)
+       ( naturality-right-triangle-hom-has-filler-hom-Coseq A B f J)
+
+{-
+htpy-left-triangle-hom-has-filler-hom-Coseq :
+  {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) (f : hom-Coseq A B) →
+  (J : has-filler-hom-Coseq A B f) →
+-}
+  
 
 --------------------------------------------------------------------------------
 
