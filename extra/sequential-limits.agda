@@ -121,21 +121,50 @@ naturality-section-Coseq A B f = pr2 f
    of the following definition of homotopies of section is that we can iterate 
    the definition to consider homotopies of homotopies. -}
 
+type-Eq-section-Coseq :
+  {l1 l2 : Level} (A : Coseq-UU l1) (B : dependent-Coseq-UU l2 A)
+  (f g : section-Coseq A B) (n : ℕ) (x : type-Coseq A n) → UU l2
+type-Eq-section-Coseq A B f g n x = Id (pr1 f n x) (pr1 g n x)
+
+map-Eq-section-Coseq :
+  {l1 l2 : Level} (A : Coseq-UU l1) (B : dependent-Coseq-UU l2 A)
+  (f g : section-Coseq A B) (n : ℕ) (x : type-Coseq A (succ-ℕ n)) →
+  type-Eq-section-Coseq A B f g (succ-ℕ n) x →
+  type-Eq-section-Coseq A B f g n (map-Coseq A n x)
+map-Eq-section-Coseq A B f g n x p =
+  ( inv (pr2 f n x)) ∙
+  ( ( ap (map-dependent-Coseq A B n x) p) ∙
+    ( pr2 g n x))
+
 Eq-section-Coseq :
   {l1 l2 : Level} (A : Coseq-UU l1) (B : dependent-Coseq-UU l2 A)
   (f g : section-Coseq A B) → dependent-Coseq-UU l2 A
 Eq-section-Coseq A B f g =
   pair
-    ( λ n x → Id (pr1 f n x) (pr1 g n x))
-    ( λ n x p →
-      ( inv (pr2 f n x)) ∙
-      ( ( ap (map-dependent-Coseq A B n x) p) ∙
-        ( pr2 g n x)))
+    ( type-Eq-section-Coseq A B f g)
+    ( map-Eq-section-Coseq A B f g)
 
 htpy-Coseq :
   {l1 l2 : Level} (A : Coseq-UU l1) (B : dependent-Coseq-UU l2 A)
   (f g : section-Coseq A B) → UU (l1 ⊔ l2)
 htpy-Coseq A B f g = section-Coseq A (Eq-section-Coseq A B f g)
+
+value-htpy-Coseq :
+  {l1 l2 : Level} (A : Coseq-UU l1) (B : dependent-Coseq-UU l2 A)
+  (f g : section-Coseq A B) → htpy-Coseq A B f g →
+  (n : ℕ) → (x : type-Coseq A n) →
+  Id (value-section-Coseq A B f n x) (value-section-Coseq A B g n x)
+value-htpy-Coseq A B f g = value-section-Coseq A (Eq-section-Coseq A B f g)
+
+naturality-htpy-Coseq :
+  {l1 l2 : Level} (A : Coseq-UU l1) (B : dependent-Coseq-UU l2 A)
+  (f g : section-Coseq A B) (H : htpy-Coseq A B f g)
+  (n : ℕ) (x : type-Coseq A (succ-ℕ n)) →
+  Id ( map-Eq-section-Coseq A B f g n x
+       ( value-htpy-Coseq A B f g H (succ-ℕ n) x))
+     ( value-htpy-Coseq A B f g H n (map-Coseq A n x))
+naturality-htpy-Coseq A B f g =
+  naturality-section-Coseq A (Eq-section-Coseq A B f g)
 
 {- We show that htpy-Coseq characterizes the identity type of section-Coseq -}
 
@@ -217,6 +246,45 @@ naturality-hom-Coseq :
   Naturality-hom-Coseq A B (value-hom-Coseq A B h)
 naturality-hom-Coseq A B h = pr2 h
 
+{- We define homotopies of morphisms of cosequences -}
+
+htpy-hom-Coseq :
+  {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2)
+  (f g : hom-Coseq A B) → UU (l1 ⊔ l2)
+htpy-hom-Coseq A B f g = htpy-Coseq A (weaken-Coseq A B) f g
+
+refl-htpy-hom-Coseq :
+  {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) (f : hom-Coseq A B) →
+  htpy-hom-Coseq A B f f
+refl-htpy-hom-Coseq A B f =
+  refl-htpy-Coseq A (weaken-Coseq A B) f
+
+htpy-eq-hom-Coseq :
+  {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2)
+  (f g : hom-Coseq A B) → Id f g → htpy-hom-Coseq A B f g
+htpy-eq-hom-Coseq A B f .f refl = refl-htpy-hom-Coseq A B f
+
+is-contr-total-htpy-hom-Coseq :
+  {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) (f : hom-Coseq A B) →
+  is-contr (Σ (hom-Coseq A B) (htpy-hom-Coseq A B f))
+is-contr-total-htpy-hom-Coseq A B f =
+  is-contr-total-htpy-Coseq A (weaken-Coseq A B) f
+
+is-equiv-htpy-eq-hom-Coseq :
+  {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) →
+  (f g : hom-Coseq A B) → is-equiv (htpy-eq-hom-Coseq A B f g)
+is-equiv-htpy-eq-hom-Coseq A B f =
+  fundamental-theorem-id f
+    ( refl-htpy-hom-Coseq A B f)
+    ( is-contr-total-htpy-hom-Coseq A B f)
+    ( htpy-eq-hom-Coseq A B f)
+
+eq-htpy-hom-Coseq :
+  {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) →
+  (f g : hom-Coseq A B) → htpy-hom-Coseq A B f g → Id f g
+eq-htpy-hom-Coseq A B f g =
+  map-inv-is-equiv (is-equiv-htpy-eq-hom-Coseq A B f g)
+
 {- We define composition of morphisms of cosequences -}
 
 value-comp-hom-Coseq :
@@ -246,7 +314,7 @@ associative-comp-hom-Coseq' :
   {l1 l2 l3 l4 : Level}
   (A : Coseq-UU l1) (B : Coseq-UU l2) (C : Coseq-UU l3) (D : Coseq-UU l4)
   (h : hom-Coseq C D) (g : hom-Coseq B C) (f : hom-Coseq A B) →
-  htpy-Coseq A (weaken-Coseq A D)
+  htpy-hom-Coseq A D
     ( comp-hom-Coseq A B D (comp-hom-Coseq B C D h g) f)
     ( comp-hom-Coseq A C D h (comp-hom-Coseq A B C g f))
 associative-comp-hom-Coseq' A B C D h g f =
@@ -291,64 +359,64 @@ associative-comp-hom-Coseq :
   Id ( comp-hom-Coseq A B D (comp-hom-Coseq B C D h g) f)
      ( comp-hom-Coseq A C D h (comp-hom-Coseq A B C g f))
 associative-comp-hom-Coseq A B C D h g f =
-  eq-htpy-Coseq A (weaken-Coseq A D)
+  eq-htpy-hom-Coseq A D
     ( comp-hom-Coseq A B D (comp-hom-Coseq B C D h g) f)
     ( comp-hom-Coseq A C D h (comp-hom-Coseq A B C g f))
     ( associative-comp-hom-Coseq' A B C D h g f)
 
-{- We introduce natural homotopies of morphism between cosequences -}
+{- We introduce simpler homotopies of morphism between cosequences -}
 
-Naturality-htpy-hom-Coseq :
+Naturality-simple-htpy-hom-Coseq :
   {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) (f g : hom-Coseq A B)
   (H : (n : ℕ) → (value-hom-Coseq A B f n) ~ (value-hom-Coseq A B g n))
   → UU (l1 ⊔ l2)
-Naturality-htpy-hom-Coseq A B f g H =
+Naturality-simple-htpy-hom-Coseq A B f g H =
   (n : ℕ) →
   ( ( (map-Coseq B n) ·l (H (succ-ℕ n))) ∙h
     ( naturality-hom-Coseq A B g n)) ~
   ( ( naturality-hom-Coseq A B f n) ∙h
     ( (H n) ·r (map-Coseq A n)))
 
-htpy-hom-Coseq :
+simple-htpy-hom-Coseq :
   {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) →
   hom-Coseq A B → hom-Coseq A B → UU (l1 ⊔ l2)
-htpy-hom-Coseq A B f g =
+simple-htpy-hom-Coseq A B f g =
   Σ ( (n : ℕ) → (value-hom-Coseq A B f n) ~ (value-hom-Coseq A B g n))
-    ( Naturality-htpy-hom-Coseq A B f g)
+    ( Naturality-simple-htpy-hom-Coseq A B f g)
 
-value-htpy-hom-Coseq :
+value-simple-htpy-hom-Coseq :
   {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2)
-  (f g : hom-Coseq A B) → htpy-hom-Coseq A B f g → (n : ℕ) →
+  (f g : hom-Coseq A B) → simple-htpy-hom-Coseq A B f g → (n : ℕ) →
   (value-hom-Coseq A B f n) ~ (value-hom-Coseq A B g n)
-value-htpy-hom-Coseq A B f g H = pr1 H
+value-simple-htpy-hom-Coseq A B f g H = pr1 H
 
-naturality-htpy-hom-Coseq :
+naturality-simple-htpy-hom-Coseq :
   {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2)
-  (f g : hom-Coseq A B) (H : htpy-hom-Coseq A B f g) →
-  Naturality-htpy-hom-Coseq A B f g (value-htpy-hom-Coseq A B f g H)
-naturality-htpy-hom-Coseq A B f g H = pr2 H
+  (f g : hom-Coseq A B) (H : simple-htpy-hom-Coseq A B f g) →
+  Naturality-simple-htpy-hom-Coseq A B f g (value-simple-htpy-hom-Coseq A B f g H)
+naturality-simple-htpy-hom-Coseq A B f g H = pr2 H
 
 --------------------------------------------------------------------------------
 
 {- We characterize the identity type of hom-Coseq. -}
 
-refl-htpy-hom-Coseq :
+refl-simple-htpy-hom-Coseq :
   {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) (f : hom-Coseq A B) →
-  htpy-hom-Coseq A B f f
-refl-htpy-hom-Coseq A B f =
+  simple-htpy-hom-Coseq A B f f
+refl-simple-htpy-hom-Coseq A B f =
   pair ((λ n → refl-htpy)) (λ n → inv-htpy right-unit-htpy)
 
-htpy-hom-Coseq-eq :
+simple-htpy-hom-Coseq-eq :
   {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2)
-  (f g : hom-Coseq A B) → Id f g → htpy-hom-Coseq A B f g
-htpy-hom-Coseq-eq A B f .f refl = refl-htpy-hom-Coseq A B f
+  (f g : hom-Coseq A B) → Id f g → simple-htpy-hom-Coseq A B f g
+simple-htpy-hom-Coseq-eq A B f .f refl = refl-simple-htpy-hom-Coseq A B f
 
-is-contr-total-htpy-hom-Coseq :
+is-contr-total-simple-htpy-hom-Coseq :
   {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) (f : hom-Coseq A B) →
-  is-contr (Σ (hom-Coseq A B) (htpy-hom-Coseq A B f))
-is-contr-total-htpy-hom-Coseq A B f =
+  is-contr (Σ (hom-Coseq A B) (simple-htpy-hom-Coseq A B f))
+is-contr-total-simple-htpy-hom-Coseq A B f =
   is-contr-total-Eq-structure
-    ( λ g G → Naturality-htpy-hom-Coseq A B f (pair g G))
+    ( λ g G → Naturality-simple-htpy-hom-Coseq A B f (pair g G))
     ( is-contr-total-Eq-Π
       ( λ n gn → value-hom-Coseq A B f n ~ gn)
       ( λ n → is-contr-total-htpy (value-hom-Coseq A B f n)))
@@ -365,28 +433,28 @@ is-contr-total-htpy-hom-Coseq A B f =
           ( equiv-tot ((λ Gn → equiv-concat-htpy' Gn right-unit-htpy)))
           ( is-contr-total-htpy' (naturality-hom-Coseq A B f n))))
 
-is-equiv-htpy-hom-Coseq-eq :
+is-equiv-simple-htpy-hom-Coseq-eq :
   {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2)
-  (f g : hom-Coseq A B) → is-equiv (htpy-hom-Coseq-eq A B f g)
-is-equiv-htpy-hom-Coseq-eq A B f =
+  (f g : hom-Coseq A B) → is-equiv (simple-htpy-hom-Coseq-eq A B f g)
+is-equiv-simple-htpy-hom-Coseq-eq A B f =
   fundamental-theorem-id f
-    ( refl-htpy-hom-Coseq A B f)
-    ( is-contr-total-htpy-hom-Coseq A B f)
-    ( htpy-hom-Coseq-eq A B f)
+    ( refl-simple-htpy-hom-Coseq A B f)
+    ( is-contr-total-simple-htpy-hom-Coseq A B f)
+    ( simple-htpy-hom-Coseq-eq A B f)
 
-equiv-htpy-hom-Coseq-eq :
+equiv-simple-htpy-hom-Coseq-eq :
   { l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) (f g : hom-Coseq A B) →
-  Id f g ≃ (htpy-hom-Coseq A B f g)
-equiv-htpy-hom-Coseq-eq A B f g =
+  Id f g ≃ (simple-htpy-hom-Coseq A B f g)
+equiv-simple-htpy-hom-Coseq-eq A B f g =
   pair
-    ( htpy-hom-Coseq-eq A B f g)
-    ( is-equiv-htpy-hom-Coseq-eq A B f g)
+    ( simple-htpy-hom-Coseq-eq A B f g)
+    ( is-equiv-simple-htpy-hom-Coseq-eq A B f g)
 
-eq-htpy-hom-Coseq :
+eq-simple-htpy-hom-Coseq :
   {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2)
-  (f g : hom-Coseq A B) → htpy-hom-Coseq A B f g → Id f g
-eq-htpy-hom-Coseq A B f g =
-  map-inv-is-equiv (is-equiv-htpy-hom-Coseq-eq A B f g)
+  (f g : hom-Coseq A B) → simple-htpy-hom-Coseq A B f g → Id f g
+eq-simple-htpy-hom-Coseq A B f g =
+  map-inv-is-equiv (is-equiv-simple-htpy-hom-Coseq-eq A B f g)
 
 --------------------------------------------------------------------------------
 
@@ -420,45 +488,45 @@ naturality-htpy-cone-Coseq :
   ( H : (n : ℕ) → (map-cone-Coseq A c n) ~ (map-cone-Coseq A c' n)) →
   UU (l1 ⊔ l2)
 naturality-htpy-cone-Coseq A {X} =
-  Naturality-htpy-hom-Coseq (constant-Coseq X) A
+  Naturality-simple-htpy-hom-Coseq (constant-Coseq X) A
 
 htpy-cone-Coseq :
   { l1 l2 : Level} (A : Coseq-UU l1) {X : UU l2} →
   ( c c' : cone-Coseq A X) → UU (l1 ⊔ l2)
-htpy-cone-Coseq A {X} = htpy-hom-Coseq (constant-Coseq X) A
+htpy-cone-Coseq A {X} = simple-htpy-hom-Coseq (constant-Coseq X) A
 
 refl-htpy-cone-Coseq :
   { l1 l2 : Level} (A : Coseq-UU l1) {X : UU l2} (c : cone-Coseq A X) →
   htpy-cone-Coseq A c c
-refl-htpy-cone-Coseq A {X} = refl-htpy-hom-Coseq (constant-Coseq X) A
+refl-htpy-cone-Coseq A {X} = refl-simple-htpy-hom-Coseq (constant-Coseq X) A
 
 htpy-cone-Coseq-eq :
   { l1 l2 : Level} (A : Coseq-UU l1) {X : UU l2} (c c' : cone-Coseq A X) →
   Id c c' → htpy-cone-Coseq A c c'
-htpy-cone-Coseq-eq A {X} = htpy-hom-Coseq-eq (constant-Coseq X) A
+htpy-cone-Coseq-eq A {X} = simple-htpy-hom-Coseq-eq (constant-Coseq X) A
 
 is-contr-total-htpy-cone-Coseq :
   { l1 l2 : Level} (A : Coseq-UU l1) {X : UU l2} (c : cone-Coseq A X) →
   is-contr (Σ (cone-Coseq A X) (htpy-cone-Coseq A c))
 is-contr-total-htpy-cone-Coseq A {X} =
-  is-contr-total-htpy-hom-Coseq (constant-Coseq X) A
+  is-contr-total-simple-htpy-hom-Coseq (constant-Coseq X) A
 
 is-equiv-htpy-cone-Coseq-eq :
   { l1 l2 : Level} (A : Coseq-UU l1) {X : UU l2} (c c' : cone-Coseq A X) →
   is-equiv (htpy-cone-Coseq-eq A c c')
 is-equiv-htpy-cone-Coseq-eq A {X} =
-  is-equiv-htpy-hom-Coseq-eq (constant-Coseq X) A
+  is-equiv-simple-htpy-hom-Coseq-eq (constant-Coseq X) A
 
 eq-htpy-cone-Coseq :
   { l1 l2 : Level} (A : Coseq-UU l1) {X : UU l2} (c c' : cone-Coseq A X) →
   htpy-cone-Coseq A c c' → Id c c'
-eq-htpy-cone-Coseq A {X} = eq-htpy-hom-Coseq (constant-Coseq X) A
+eq-htpy-cone-Coseq A {X} = eq-simple-htpy-hom-Coseq (constant-Coseq X) A
 
 equiv-htpy-cone-Coseq-eq :
   { l1 l2 : Level} (A : Coseq-UU l1) {X : UU l2} (c c' : cone-Coseq A X) →
   Id c c' ≃ (htpy-cone-Coseq A c c')
 equiv-htpy-cone-Coseq-eq A {X} =
-  equiv-htpy-hom-Coseq-eq (constant-Coseq X) A
+  equiv-simple-htpy-hom-Coseq-eq (constant-Coseq X) A
 
 --------------------------------------------------------------------------------
 
@@ -1489,7 +1557,7 @@ interchange-whisker-htpy G H a = htpy-nat H (G a)
 naturality-right-triangle-hom-has-filler-hom-Coseq :
   {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) (f : hom-Coseq A B) →
   (J : has-filler-hom-Coseq A B f) →
-  Naturality-htpy-hom-Coseq (shift-Coseq B) B
+  Naturality-simple-htpy-hom-Coseq (shift-Coseq B) B
     ( comp-hom-Coseq (shift-Coseq B) A B f
       ( hom-has-filler-hom-Coseq A B f J))
     ( counit-shift-Coseq B)
@@ -1578,7 +1646,7 @@ naturality-right-triangle-hom-has-filler-hom-Coseq A B f J n b =
 right-triangle-hom-has-filler-hom-Coseq :
   {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) (f : hom-Coseq A B) →
   (J : has-filler-hom-Coseq A B f) →
-  htpy-hom-Coseq (shift-Coseq B) B
+  simple-htpy-hom-Coseq (shift-Coseq B) B
     ( comp-hom-Coseq (shift-Coseq B) A B f (hom-has-filler-hom-Coseq A B f J))
     ( counit-shift-Coseq B)
 right-triangle-hom-has-filler-hom-Coseq A B f J =
@@ -1596,7 +1664,7 @@ htpy-left-triangle-hom-has-filler-hom-Coseq A B f J n =
 naturality-left-triangle-hom-has-filler-hom-Coseq :
   {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) (f : hom-Coseq A B) →
   (J : has-filler-hom-Coseq A B f) →
-  Naturality-htpy-hom-Coseq (shift-Coseq A) A
+  Naturality-simple-htpy-hom-Coseq (shift-Coseq A) A
     ( counit-shift-Coseq A)
     ( comp-hom-Coseq (shift-Coseq A) (shift-Coseq B) A
       ( hom-has-filler-hom-Coseq A B f J)
@@ -1676,7 +1744,7 @@ naturality-left-triangle-hom-has-filler-hom-Coseq A B f J n a =
 left-triangle-hom-has-filler-hom-Coseq :
   {l1 l2 : Level} (A : Coseq-UU l1) (B : Coseq-UU l2) (f : hom-Coseq A B) →
   (J : has-filler-hom-Coseq A B f) →
-  htpy-hom-Coseq (shift-Coseq A) A
+  simple-htpy-hom-Coseq (shift-Coseq A) A
     ( counit-shift-Coseq A)
     ( comp-hom-Coseq (shift-Coseq A) (shift-Coseq B) A
       ( hom-has-filler-hom-Coseq A B f J)
@@ -1696,7 +1764,7 @@ is-equiv-map-limit-has-filler-hom-Coseq A B f J =
     ( ( htpy-eq
         ( ap
           ( map-limit-Coseq (shift-Coseq A) A)
-          ( eq-htpy-hom-Coseq (shift-Coseq A) A
+          ( eq-simple-htpy-hom-Coseq (shift-Coseq A) A
             ( counit-shift-Coseq A)
             ( comp-hom-Coseq (shift-Coseq A) (shift-Coseq B) A
               ( hom-has-filler-hom-Coseq A B f J)
@@ -1718,7 +1786,7 @@ is-equiv-map-limit-has-filler-hom-Coseq A B f J =
       ( htpy-eq
         ( ap
           ( map-limit-Coseq (shift-Coseq B) B)
-          ( eq-htpy-hom-Coseq (shift-Coseq B) B
+          ( eq-simple-htpy-hom-Coseq (shift-Coseq B) B
             ( comp-hom-Coseq (shift-Coseq B) A B f
               ( hom-has-filler-hom-Coseq A B f J))
             ( counit-shift-Coseq B)
