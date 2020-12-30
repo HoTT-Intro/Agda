@@ -242,6 +242,60 @@ comp-hom-Coseq A B C g f =
   pair ( value-comp-hom-Coseq A B C g f)
        ( naturality-comp-hom-Coseq A B C g f)
 
+associative-comp-hom-Coseq' :
+  {l1 l2 l3 l4 : Level}
+  (A : Coseq-UU l1) (B : Coseq-UU l2) (C : Coseq-UU l3) (D : Coseq-UU l4)
+  (h : hom-Coseq C D) (g : hom-Coseq B C) (f : hom-Coseq A B) →
+  htpy-Coseq A (weaken-Coseq A D)
+    ( comp-hom-Coseq A B D (comp-hom-Coseq B C D h g) f)
+    ( comp-hom-Coseq A C D h (comp-hom-Coseq A B C g f))
+associative-comp-hom-Coseq' A B C D h g f =
+  pair
+    ( λ n → refl-htpy)
+    ( λ n x →
+      inv
+        ( inv-con
+          ( ( ( pr2 h n (pr1 g (succ-ℕ n) (pr1 f (succ-ℕ n) x))) ∙
+              ( ap (pr1 h n) (pr2 g n (pr1 f (succ-ℕ n) x)))) ∙ 
+            ( ap (λ a → pr1 h n (pr1 g n a)) (pr2 f n x)))
+          ( refl)
+          ( ( pr2 h n (pr1 g (succ-ℕ n) (pr1 f (succ-ℕ n) x))) ∙
+            ( ap 
+              ( pr1 h n)
+              ( ( pr2 g n (pr1 f (succ-ℕ n) x)) ∙ 
+                ( ap (pr1 g n) (pr2 f n x)))))
+          ( ( right-unit) ∙
+            ( ( assoc
+                ( pr2 h n (pr1 g (succ-ℕ n) (pr1 f (succ-ℕ n) x)))
+                ( ap (pr1 h n) (pr2 g n (pr1 f (succ-ℕ n) x)))
+                ( ap (pr1 h n ∘ pr1 g n) (pr2 f n x))) ∙
+              ( ap
+                ( concat
+                  ( pr2 h n (pr1 g (succ-ℕ n) (pr1 f (succ-ℕ n) x)))
+                  ( pr1 h n (pr1 g n (pr1 f n (pr2 A n x)))))
+                ( ( ap
+                    ( concat
+                      ( ap (pr1 h n) (pr2 g n (pr1 f (succ-ℕ n) x)))
+                      ( pr1 h n (pr1 g n (pr1 f n (pr2 A n x)))))
+                    ( ap-comp (pr1 h n) (pr1 g n) (pr2 f n x))) ∙
+                  ( inv
+                    ( ap-concat
+                      ( pr1 h n)
+                      ( pr2 g n (pr1 f (succ-ℕ n) x))
+                      ( ap (pr1 g n) (pr2 f n x))))))))))
+
+associative-comp-hom-Coseq :
+  {l1 l2 l3 l4 : Level}
+  (A : Coseq-UU l1) (B : Coseq-UU l2) (C : Coseq-UU l3) (D : Coseq-UU l4)
+  (h : hom-Coseq C D) (g : hom-Coseq B C) (f : hom-Coseq A B) →
+  Id ( comp-hom-Coseq A B D (comp-hom-Coseq B C D h g) f)
+     ( comp-hom-Coseq A C D h (comp-hom-Coseq A B C g f))
+associative-comp-hom-Coseq A B C D h g f =
+  eq-htpy-Coseq A (weaken-Coseq A D)
+    ( comp-hom-Coseq A B D (comp-hom-Coseq B C D h g) f)
+    ( comp-hom-Coseq A C D h (comp-hom-Coseq A B C g f))
+    ( associative-comp-hom-Coseq' A B C D h g f)
+
 {- We introduce natural homotopies of morphism between cosequences -}
 
 Naturality-htpy-hom-Coseq :
