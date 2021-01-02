@@ -586,16 +586,16 @@ limit-Coseq A =
   Σ ( (n : ℕ) → type-Coseq A n)
     ( λ a → (n : ℕ) → Id (map-Coseq A n (a (succ-ℕ n))) (a n))
 
-value-limit-Coseq :
+map-cone-limit-Coseq :
   {l : Level} (A : Coseq-UU l) (x : limit-Coseq A) (n : ℕ) →
   type-Coseq A n
-value-limit-Coseq A x = pr1 x
+map-cone-limit-Coseq A x = pr1 x
 
-path-limit-Coseq :
+triangle-cone-limit-Coseq :
   {l : Level} (A : Coseq-UU l) (x : limit-Coseq A) (n : ℕ) →
-  Id ( map-Coseq A n (value-limit-Coseq A x (succ-ℕ n)))
-     ( value-limit-Coseq A x n)
-path-limit-Coseq A x = pr2 x
+  Id ( map-Coseq A n (map-cone-limit-Coseq A x (succ-ℕ n)))
+     ( map-cone-limit-Coseq A x n)
+triangle-cone-limit-Coseq A x = pr2 x
 
 {- We introduce a second canonical sequential limit. -}
 
@@ -621,12 +621,12 @@ equiv-limit-Coseq A =
 Eq-limit-Coseq :
   { l1 : Level} (A : Coseq-UU l1) (x y : limit-Coseq A) → UU l1
 Eq-limit-Coseq A x y =
-  Σ ( ( value-limit-Coseq A x) ~
-      ( value-limit-Coseq A y))
+  Σ ( ( map-cone-limit-Coseq A x) ~
+      ( map-cone-limit-Coseq A y))
     ( λ H → (n : ℕ) →
       Id ( ( ap (map-Coseq A n) (H (succ-ℕ n))) ∙
-           ( path-limit-Coseq A y n))
-         ( ( path-limit-Coseq A x n) ∙
+           ( triangle-cone-limit-Coseq A y n))
+         ( ( triangle-cone-limit-Coseq A x n) ∙
            ( H n)))
 
 refl-Eq-limit-Coseq :
@@ -682,17 +682,17 @@ type-coseq-Eq-limit-Coseq' :
   {l : Level} (A : Coseq-UU l) (x y : limit-Coseq A) →
   (n : ℕ) → UU l
 type-coseq-Eq-limit-Coseq' A x y n =
-  Id ( value-limit-Coseq A x n)
-     ( value-limit-Coseq A y n)
+  Id ( map-cone-limit-Coseq A x n)
+     ( map-cone-limit-Coseq A y n)
 
 map-coseq-Eq-limit-Coseq' :
   {l : Level} (A : Coseq-UU l) (x y : limit-Coseq A) (n : ℕ) →
   type-coseq-Eq-limit-Coseq' A x y (succ-ℕ n) →
   type-coseq-Eq-limit-Coseq' A x y n
 map-coseq-Eq-limit-Coseq' A x y n p =
-  ( inv (path-limit-Coseq A x n)) ∙
+  ( inv (triangle-cone-limit-Coseq A x n)) ∙
   ( ( ap (map-Coseq A n) p) ∙
-    ( path-limit-Coseq A y n))
+    ( triangle-cone-limit-Coseq A y n))
 
 coseq-Eq-limit-Coseq' :
   {l : Level} (A : Coseq-UU l) (x y : limit-Coseq A) → Coseq-UU l
@@ -709,7 +709,7 @@ refl-Eq-limit-Coseq' :
   {l : Level} (A : Coseq-UU l) (x : limit-Coseq A) →
   Eq-limit-Coseq' A x x
 refl-Eq-limit-Coseq' A x =
-  pair (λ n → refl) (λ n → left-inv (path-limit-Coseq A x n))
+  pair (λ n → refl) (λ n → left-inv (triangle-cone-limit-Coseq A x n))
 
 Eq-limit-Coseq-eq' :
   {l : Level} (A : Coseq-UU l) (x y : limit-Coseq A) →
@@ -723,21 +723,21 @@ is-contr-total-Eq-limit-Coseq' :
     ( Σ (limit-Coseq A) (Eq-limit-Coseq' A x))
 is-contr-total-Eq-limit-Coseq' A x =
   is-contr-total-Eq-structure
-    ( λ a H (p : (n : ℕ) → Id (value-limit-Coseq A x n) (a n)) →
+    ( λ a H (p : (n : ℕ) → Id (map-cone-limit-Coseq A x n) (a n)) →
       (n : ℕ) →
       Id ( inv
-           ( path-limit-Coseq A x n) ∙
+           ( triangle-cone-limit-Coseq A x n) ∙
            ( ( ap (map-Coseq A n) (p (succ-ℕ n))) ∙ (H n)))
          ( p n))
-    ( is-contr-total-htpy (value-limit-Coseq A x))
-    ( pair (value-limit-Coseq A x) refl-htpy)
+    ( is-contr-total-htpy (map-cone-limit-Coseq A x))
+    ( pair (map-cone-limit-Coseq A x) refl-htpy)
     ( is-contr-equiv'
       ( Σ ( (n : ℕ) →
             Id ( map-Coseq A n
-                 ( value-limit-Coseq A x (succ-ℕ n)))
-               ( value-limit-Coseq A x n))
+                 ( map-cone-limit-Coseq A x (succ-ℕ n)))
+               ( map-cone-limit-Coseq A x n))
           ( λ p →
-            (n : ℕ) → Id (path-limit-Coseq A x n) (p n)))
+            (n : ℕ) → Id (triangle-cone-limit-Coseq A x n) (p n)))
       ( equiv-tot
         ( λ p →
           equiv-postcomp-Π
@@ -745,7 +745,7 @@ is-contr-total-Eq-limit-Coseq' A x =
               ( equiv-inv refl (inv (pr2 x n) ∙ p n)) ∘e
               ( ( equiv-inv-con (pr2 x n) refl (p n)) ∘e
                 ( equiv-concat right-unit (p n))))))
-      ( is-contr-total-htpy (path-limit-Coseq A x)))
+      ( is-contr-total-htpy (triangle-cone-limit-Coseq A x)))
 
 is-equiv-Eq-limit-Coseq-eq' :
   {l : Level} (A : Coseq-UU l) (x y : limit-Coseq A) →
@@ -763,8 +763,8 @@ is-equiv-Eq-limit-Coseq-eq' A x =
 cone-limit-Coseq :
   {l1 : Level} (A : Coseq-UU l1) → cone-Coseq A (limit-Coseq A)
 cone-limit-Coseq A =
-  pair ( λ n a → value-limit-Coseq A a n)
-       ( λ n a → path-limit-Coseq A a n)
+  pair ( λ n a → map-cone-limit-Coseq A a n)
+       ( λ n a → triangle-cone-limit-Coseq A a n)
 
 --------------------------------------------------------------------------------
 
@@ -1998,17 +1998,6 @@ is-equiv-htpy-hom-dependent-Coseq-eq A B C D f g =
 
 {- We define composition of morphisms of dependent cosequences -}
 
-tr-concat :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {x y z : A} (p : Id x y)
-  (q : Id y z) (b : B x) → Id (tr B (p ∙ q) b) (tr B q (tr B p b))
-tr-concat refl q b = refl
-
-tr-ap :
-  {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} {D : C → UU l4}
-  (f : A → C) (g : (x : A) → B x → D (f x)) {x y : A} (p : Id x y) (z : B x) →
-  Id (tr D (ap f p) (g x z)) (g y (tr B p z))
-tr-ap f g refl z = refl
-
 comp-hom-dependent-Coseq :
   {l1 l2 l3 l4 l5 l6 : Level} (A : Coseq-UU l1) (B : dependent-Coseq-UU l2 A)
   (C : Coseq-UU l3) (D : dependent-Coseq-UU l4 C) (E : Coseq-UU l5)
@@ -2103,18 +2092,53 @@ universal-property-limit-dependent-Coseq l l' A B {X} {Y} c d =
 {- We define the canonical limit of a dependent cosequence -}
 
 type-limit-dependent-Coseq :
+  {l1 l2 l3 : Level} (A : Coseq-UU l1) {X : UU l2} (c : cone-Coseq A X) →
+  (B : dependent-Coseq-UU l3 A) → X → UU l3
+type-limit-dependent-Coseq A c B x =
+  Σ ( (n : ℕ) → type-dependent-Coseq A B n (map-cone-Coseq A c n x))
+    ( λ y →
+      (n : ℕ) → Id ( tr
+                     ( type-dependent-Coseq A B n)
+                     ( triangle-cone-Coseq A c n x)
+                     ( map-dependent-Coseq A B n
+                       ( map-cone-Coseq A c (succ-ℕ n) x) (y (succ-ℕ n))))
+                   ( y n))
+
+type-limit-dependent-Coseq' :
   {l1 l2 : Level} (A : Coseq-UU l1) (B : dependent-Coseq-UU l2 A) →
   limit-Coseq A → UU l2
-type-limit-dependent-Coseq A B x =
-  Σ ( ( n : ℕ) → type-dependent-Coseq A B n (value-limit-Coseq A x n))
-    ( λ y →
-      ( n : ℕ) → Id ( tr
-                      ( type-dependent-Coseq A B n)
-                      ( path-limit-Coseq A x n)
-                      ( map-dependent-Coseq A B n
-                        ( value-limit-Coseq A x (succ-ℕ n))
-                        ( y (succ-ℕ n))))
-                    ( y n) )
+type-limit-dependent-Coseq' A =
+  type-limit-dependent-Coseq A (cone-limit-Coseq A)
+
+map-cone-limit-dependent-Coseq :
+  {l1 l2 l3 : Level} (A : Coseq-UU l1) {X : UU l2} (c : cone-Coseq A X) →
+  (B : dependent-Coseq-UU l3 A) (n : ℕ) (x : X) →
+  type-limit-dependent-Coseq A c B x →
+  type-dependent-Coseq A B n (map-cone-Coseq A c n x)
+map-cone-limit-dependent-Coseq A c B n x y = pr1 y n
+
+triangle-cone-limit-dependent-Coseq :
+  {l1 l2 l3 : Level} (A : Coseq-UU l1) {X : UU l2} (c : cone-Coseq A X) →
+  (B : dependent-Coseq-UU l3 A) (n : ℕ) (x : X) →
+  (y : type-limit-dependent-Coseq A c B x) →
+  Id ( tr
+       ( type-dependent-Coseq A B n)
+       ( triangle-cone-Coseq A c n x)
+       ( map-dependent-Coseq A B n
+         ( map-cone-Coseq A c (succ-ℕ n) x)
+         ( map-cone-limit-dependent-Coseq A c B (succ-ℕ n) x y)))
+     ( map-cone-limit-dependent-Coseq A c B n x y)
+triangle-cone-limit-dependent-Coseq A c B n x y = pr2 y n
+
+cone-limit-dependent-Coseq :
+  {l1 l2 l3 : Level} (A : Coseq-UU l1) {X : UU l2} (c : cone-Coseq A X) →
+  (B : dependent-Coseq-UU l3 A) →
+  cone-dependent-Coseq A X B (type-limit-dependent-Coseq A c B) c
+cone-limit-dependent-Coseq A c B =
+  pair ( map-cone-limit-dependent-Coseq A c B)
+       ( triangle-cone-limit-dependent-Coseq A c B)
+
+{- The universal property of the canonical limit of a dependent cosequence -}
 
 {- We introduce the total cosequence of a dependent cosequence -}
 

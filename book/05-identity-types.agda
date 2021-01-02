@@ -167,6 +167,19 @@ refl-path-over :
   path-over B refl y y
 refl-path-over B x y = refl
 
+-- Some laws for transport
+
+tr-concat :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {x y z : A} (p : Id x y)
+  (q : Id y z) (b : B x) → Id (tr B (p ∙ q) b) (tr B q (tr B p b))
+tr-concat refl q b = refl
+
+tr-ap :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} {D : C → UU l4}
+  (f : A → C) (g : (x : A) → B x → D (f x)) {x y : A} (p : Id x y) (z : B x) →
+  Id (tr D (ap f p) (g x z)) (g y (tr B p z))
+tr-ap f g refl z = refl
+
 --------------------------------------------------------------------------------
 
 -- Section 5.5 The uniqueness of refl
