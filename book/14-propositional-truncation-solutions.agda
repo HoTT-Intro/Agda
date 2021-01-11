@@ -415,20 +415,26 @@ image-weakly-constant-map-Prop B f H =
     ( Σ (type-Set B) (λ b → type-trunc-Prop (fib f b)))
     ( is-prop-image-is-weakly-constant-map B f H)
 
-map-extension-weakly-constant-map :
+map-universal-property-set-quotient-trunc-Prop :
   {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B) →
   is-weakly-constant-map f → type-trunc-Prop A → type-Set B
-map-extension-weakly-constant-map B f H =
+map-universal-property-set-quotient-trunc-Prop B f H =
   ( pr1) ∘
   ( map-universal-property-trunc-Prop
     ( image-weakly-constant-map-Prop B f H)
     ( λ a → pair (f a) (unit-trunc-Prop (pair a refl))))
 
-htpy-extension-weakly-constant-map :
+map-universal-property-set-quotient-trunc-Prop' :
+  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) →
+  Σ (A → type-Set B) is-weakly-constant-map → type-trunc-Prop A → type-Set B
+map-universal-property-set-quotient-trunc-Prop' B (pair f H) =
+  map-universal-property-set-quotient-trunc-Prop B f H
+
+htpy-universal-property-set-quotient-trunc-Prop :
   {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B) →
   (H : is-weakly-constant-map f) →
-  ( map-extension-weakly-constant-map B f H ∘ unit-trunc-Prop) ~ f
-htpy-extension-weakly-constant-map B f H a =
+  ( map-universal-property-set-quotient-trunc-Prop B f H ∘ unit-trunc-Prop) ~ f
+htpy-universal-property-set-quotient-trunc-Prop B f H a =
   ap ( pr1)
      ( eq-is-prop
        ( is-prop-image-is-weakly-constant-map B f H)
@@ -438,64 +444,48 @@ htpy-extension-weakly-constant-map B f H a =
          ( unit-trunc-Prop a))
        ( pair (f a) (unit-trunc-Prop (pair a refl))))
 
-htpy-extension-trunc-Prop :
+issec-map-universal-property-set-quotient-trunc-Prop :
+  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) →
+  ( ( precomp-universal-property-set-quotient-trunc-Prop {A = A} B) ∘
+    ( map-universal-property-set-quotient-trunc-Prop' B)) ~ id
+issec-map-universal-property-set-quotient-trunc-Prop B (pair f H) =
+  eq-subtype
+    ( is-prop-is-weakly-constant-map-Set B)
+    ( eq-htpy (htpy-universal-property-set-quotient-trunc-Prop B f H))
+
+is-prop-total-extension-trunc-Prop :
   {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) {f : A → type-Set B} →
   (g h : type-trunc-Prop A → type-Set B)
   (G : (g ∘ unit-trunc-Prop) ~ f) (H : (h ∘ unit-trunc-Prop) ~ f) → g ~ h
-htpy-extension-trunc-Prop B g h G H =
+is-prop-total-extension-trunc-Prop B g h G H =
   ind-trunc-Prop
     ( λ x → Id-Prop B (g x) (h x))
     ( λ a → (G a) ∙ (inv (H a)))
 
-total-extension-trunc-Prop :
-  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B) →
-  UU (l1 ⊔ l2)
-total-extension-trunc-Prop {A = A} B f =
-  Σ ( type-trunc-Prop A → type-Set B)
-    ( λ g → (g ∘ unit-trunc-Prop) ~ f)
-
-is-contr-total-extension-trunc-Prop :
-  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B) →
-  is-weakly-constant-map f → is-contr (total-extension-trunc-Prop B f)
-is-contr-total-extension-trunc-Prop B f H =
-  pair
-    ( pair
-      ( map-extension-weakly-constant-map B f H)
-      ( htpy-extension-weakly-constant-map B f H))
-    ( λ u →
-      eq-subtype
-        ( λ g →
-          is-prop-Π (λ x → is-set-type-Set B (g (unit-trunc-Prop x)) (f x)))
-        ( eq-htpy
-          ( htpy-extension-trunc-Prop B
-            ( map-extension-weakly-constant-map B f H)
-            ( pr1 u)
-            ( htpy-extension-weakly-constant-map B f H)
-            ( pr2 u))))
+isretr-map-universal-property-set-quotient-trunc-Prop :
+  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) →
+  ( ( map-universal-property-set-quotient-trunc-Prop' B) ∘
+    ( precomp-universal-property-set-quotient-trunc-Prop {A = A} B)) ~ id
+isretr-map-universal-property-set-quotient-trunc-Prop B g =
+  eq-htpy
+    ( ind-trunc-Prop
+      ( λ x →
+        Id-Prop B
+          ( map-universal-property-set-quotient-trunc-Prop' B
+            ( precomp-universal-property-set-quotient-trunc-Prop B g)
+            ( x))
+          ( g x))
+      ( λ x →
+        htpy-universal-property-set-quotient-trunc-Prop B
+          ( g ∘ unit-trunc-Prop)
+          ( is-weakly-constant-map-precomp-unit-trunc-Prop g)
+          ( x)))
 
 universal-property-set-quotient-trunc-Prop :
   {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) →
   is-equiv (precomp-universal-property-set-quotient-trunc-Prop {A = A} B)
 universal-property-set-quotient-trunc-Prop {A = A} B =
-  is-equiv-is-contr-map
-    ( λ f →
-      is-contr-equiv
-        ( total-extension-trunc-Prop B (pr1 f))
-        ( equiv-tot
-          ( λ g →
-            equiv-prop
-              ( is-set-subtype
-                ( is-prop-is-weakly-constant-map-Set B)
-                ( is-set-function-type (is-set-type-Set B))
-                ( pair
-                  ( g ∘ unit-trunc-Prop)
-                  ( is-weakly-constant-map-precomp-unit-trunc-Prop g))
-                ( f))
-              ( is-prop-Π
-                ( λ x → is-set-type-Set B (g (unit-trunc-Prop x)) (pr1 f x)))
-              ( λ p → htpy-eq (ap pr1 p))
-              ( λ G →
-                eq-subtype
-                  ( is-prop-is-weakly-constant-map-Set B)
-                  ( eq-htpy G))))
-        ( is-contr-total-extension-trunc-Prop B (pr1 f) (pr2 f)))
+  is-equiv-has-inverse
+    ( map-universal-property-set-quotient-trunc-Prop' B)
+    ( issec-map-universal-property-set-quotient-trunc-Prop B)
+    ( isretr-map-universal-property-set-quotient-trunc-Prop B)
