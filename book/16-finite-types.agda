@@ -175,16 +175,39 @@ number-of-elements-count-coprod :
      ( add-ℕ (number-of-elements-count e) (number-of-elements-count f))
 number-of-elements-count-coprod (pair k e) (pair l f) = refl
 
---------------------------------------------------------------------------------
-
-{- Types equipped with a count are closed under Σ-types -}
+{- We introduce finite sums and sums indexed by counted types -}
 
 sum-Fin-ℕ : {k : ℕ} → (Fin k → ℕ) → ℕ
 sum-Fin-ℕ {zero-ℕ} f = zero-ℕ
 sum-Fin-ℕ {succ-ℕ k} f = add-ℕ (sum-Fin-ℕ (λ x → f (inl x))) (f (inr star))
 
+htpy-sum-Fin-ℕ :
+  {k : ℕ} {f g : Fin k → ℕ} (H : f ~ g) → Id (sum-Fin-ℕ f) (sum-Fin-ℕ g)
+htpy-sum-Fin-ℕ {zero-ℕ} H = refl
+htpy-sum-Fin-ℕ {succ-ℕ k} H =
+  ap-add-ℕ
+    ( htpy-sum-Fin-ℕ (λ x → H (inl x)))
+    ( H (inr star))
+
+constant-sum-Fin-ℕ :
+  (m n : ℕ) → Id (sum-Fin-ℕ (const (Fin m) ℕ n)) (mul-ℕ m n)
+constant-sum-Fin-ℕ zero-ℕ n = refl
+constant-sum-Fin-ℕ (succ-ℕ m) n = ap (add-ℕ' n) (constant-sum-Fin-ℕ m n)
+
 sum-count-ℕ : {l : Level} {A : UU l} (e : count A) → (f : A → ℕ) → ℕ
 sum-count-ℕ (pair k e) f = sum-Fin-ℕ (f ∘ (map-equiv e))
+
+htpy-sum-count-ℕ :
+  {l : Level} {A : UU l} (e : count A) {f g : A → ℕ} (H : f ~ g) →
+  Id (sum-count-ℕ e f) (sum-count-ℕ e g)
+htpy-sum-count-ℕ (pair k e) H = htpy-sum-Fin-ℕ (H ·r (map-equiv e))
+
+constant-sum-count-ℕ :
+  {l : Level} {A : UU l} (e : count A) (n : ℕ) →
+  Id (sum-count-ℕ e (const A ℕ n)) (mul-ℕ (number-of-elements-count e) n)
+constant-sum-count-ℕ (pair m e) n = constant-sum-Fin-ℕ m n
+
+{- Types equipped with a count are closed under Σ-types -}
 
 count-Σ' :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
@@ -388,6 +411,16 @@ count-prod (pair k e) (pair l f) =
     ( mul-ℕ k l)
     ( ( equiv-prod e f) ∘e
       ( inv-equiv (prod-Fin k l)))
+
+number-of-elements-count-prod :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (count-A : count A)
+  (count-B : count B) →
+  Id ( number-of-elements-count
+       ( count-prod count-A count-B))
+     ( mul-ℕ
+       ( number-of-elements-count count-A)
+       ( number-of-elements-count count-B))
+number-of-elements-count-prod (pair k e) (pair l f) = refl
 
 equiv-left-factor :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (y : Y) →
@@ -1049,24 +1082,20 @@ sum-number-of-elements-coprod e =
   ( inv
     ( double-counting-coprod (count-left-coprod e) (count-right-coprod e) e))
 
-number-of-elements-prod :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (count-A : count A)
-  (count-B : count B) →
-  Id ( number-of-elements-count
-       ( count-prod count-A count-B))
-     ( mul-ℕ
-       ( number-of-elements-count count-A)
-       ( number-of-elements-count count-B))
-number-of-elements-prod count-A count-B = {!!}
-
 product-number-of-elements-prod :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : count (A × B)) →
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (count-AB : count (A × B)) →
   (a : A) (b : B) →
-  Id ( mul-ℕ ( number-of-elements-count (count-left-factor e b))
-             ( number-of-elements-count (count-right-factor e a)))
-     ( number-of-elements-count e)
-product-number-of-elements-prod e a b =
-  {! number-of-elements-count-prod!}
+  Id ( mul-ℕ ( number-of-elements-count (count-left-factor count-AB b))
+             ( number-of-elements-count (count-right-factor count-AB a)))
+     ( number-of-elements-count count-AB)
+product-number-of-elements-prod count-AB a b =
+  ( inv
+    ( number-of-elements-count-prod
+      ( count-left-factor count-AB b)
+      ( count-right-factor count-AB a))) ∙
+  ( double-counting
+    ( count-prod (count-left-factor count-AB b) (count-right-factor count-AB a))
+    ( count-AB))
 
 
 --------------------------------------------------------------------------------
@@ -1936,3 +1965,26 @@ restrict-injective-map-Maybe' :
 restrict-injective-map-Maybe' f is-inj-f x (inl x₁) p = {!!}
 restrict-injective-map-Maybe' f is-inj-f x (inr x₁) p = {!!}
 -}
+
+--------------------------------------------------------------------------------
+
+associative-sum-count-ℕ :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (count-A : count A)
+  (count-B : (x : A) → count (B x)) (f : (x : A) → B x → ℕ) →
+  Id ( sum-count-ℕ count-A (λ x → sum-count-ℕ (count-B x) (f x)))
+     ( sum-count-ℕ (count-Σ count-A count-B) (ind-Σ f))
+associative-sum-count-ℕ {l1} {l2} {A} {B} count-A count-B f =
+   ( ( htpy-sum-count-ℕ count-A
+       ( λ x →
+         inv
+         ( number-of-elements-count-Σ (count-B x) (λ y → count-Fin (f x y))))) ∙
+     ( inv
+       ( number-of-elements-count-Σ count-A
+         ( λ x → count-Σ (count-B x) (λ y → count-Fin (f x y)))))) ∙
+   ( ( double-counting-equiv
+       ( count-Σ count-A (λ x → count-Σ (count-B x) (λ y → count-Fin (f x y))))
+       ( count-Σ (count-Σ count-A count-B) (λ x → count-Fin (ind-Σ f x)))
+       ( inv-assoc-Σ A B (λ x → Fin (ind-Σ f x)))) ∙
+     ( number-of-elements-count-Σ
+       ( count-Σ count-A count-B)
+       ( λ x → (count-Fin (ind-Σ f x)))))
