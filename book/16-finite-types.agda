@@ -175,6 +175,8 @@ number-of-elements-count-coprod :
      ( add-ℕ (number-of-elements-count e) (number-of-elements-count f))
 number-of-elements-count-coprod (pair k e) (pair l f) = refl
 
+--------------------------------------------------------------------------------
+
 {- Types equipped with a count are closed under Σ-types -}
 
 sum-Fin-ℕ : {k : ℕ} → (Fin k → ℕ) → ℕ
@@ -238,6 +240,10 @@ number-of-elements-count-Σ :
      ( sum-count-ℕ e (λ x → number-of-elements-count (f x)))
 number-of-elements-count-Σ (pair k e) f = number-of-elements-count-Σ' k e f
 
+--------------------------------------------------------------------------------
+
+{- We show that if A and Σ A B can be counted, then each B x can be counted -}
+
 count-fiber-count-Σ :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
   count A → count (Σ A B) → (x : A) → count (B x)
@@ -246,6 +252,20 @@ count-fiber-count-Σ {B = B} e f x =
     ( equiv-fib-pr1 x)
     ( count-Σ f
       ( λ z → count-eq (has-decidable-equality-count e) (pr1 z) x))
+
+{- As a corollary we obtain that if A and B can be counted, then the fibers of
+   a map f : A → B can be counted. -}
+
+count-fib :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  count A → count B → (y : B) → count (fib f y)
+count-fib f count-A count-B =
+  count-fiber-count-Σ count-B (count-equiv' (equiv-total-fib f) count-A)
+
+--------------------------------------------------------------------------------
+
+{- If Σ A B and each B x can be counted, and if B has a section, then A can be
+   counted. -}
 
 equiv-total-fib-map-section :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
@@ -274,6 +294,18 @@ count-base-count-Σ b e f =
   count-equiv
     ( equiv-total-fib-map-section b)
     ( count-Σ e (count-fib-map-section b e f))
+
+{- More generally, if Σ A B and each B x can be counted, then A can be counted
+   if and only if the type Σ A (¬ ∘ B) can be counted. However, to avoid having
+   to invoke function extensionality, we show that if Σ A B and each B x can be
+   counted, then A can be counted if and only if
+
+   count (Σ A (λ x → is-zero-ℕ (number-of-elements-count (f x)))),
+
+   where f : (x : A) → count (B x). 
+
+   Thus, we have a precise characterization of when A can be counted, if it is 
+   given that Σ A B and each B x can be counted. -}
 
 section-count-base-count-Σ' :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → count (Σ A B) →
@@ -322,9 +354,9 @@ count-is-left :
 count-is-left (inl x) = count-unit
 count-is-left (inr x) = count-empty
 
-count-left-summand :
+count-left-coprod :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → count (coprod X Y) → count X
-count-left-summand e = count-equiv equiv-left-summand (count-Σ e count-is-left)
+count-left-coprod e = count-equiv equiv-left-summand (count-Σ e count-is-left)
 
 is-right : {l1 l2 : Level} {X : UU l1} {Y : UU l2} → coprod X Y → UU lzero
 is-right (inl x) = empty
@@ -342,9 +374,9 @@ count-is-right :
 count-is-right (inl x) = count-empty
 count-is-right (inr x) = count-unit
 
-count-right-summand :
+count-right-coprod :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → count (coprod X Y) → count Y
-count-right-summand e =
+count-right-coprod e =
   count-equiv equiv-right-summand (count-Σ e count-is-right)
 
 {- X × Y has a count if and only if Y → count X and X → count Y -}
@@ -385,12 +417,16 @@ count-right-factor :
 count-right-factor e x =
   count-left-factor (count-equiv commutative-prod e) x
 
+{- Any decidable proposition can be counted -}
+
 count-decidable-Prop :
   {l1 : Level} (P : UU-Prop l1) →
   is-decidable (type-Prop P) → count (type-Prop P)
 count-decidable-Prop P (inl p) =
   count-is-contr (is-proof-irrelevant-is-prop (is-prop-type-Prop P) p)
 count-decidable-Prop P (inr f) = count-is-empty f
+
+{- A decidable subtype of a type that can be counted can be counted -}
 
 count-decidable-subtype :
   {l1 l2 : Level} {X : UU l1} (P : X → UU-Prop l2) →
@@ -399,12 +435,17 @@ count-decidable-subtype :
 count-decidable-subtype P d e =
   count-Σ e (λ x → count-decidable-Prop (P x) (d x))
 
+{- Any type that can be counted is decidable -}
+
 is-decidable-count :
   {l : Level} {X : UU l} → count X → is-decidable X
 is-decidable-count (pair zero-ℕ e) =
   inr (is-empty-is-zero-number-of-elements-count (pair zero-ℕ e) refl)
 is-decidable-count (pair (succ-ℕ k) e) =
   inl (map-equiv e zero-Fin)
+
+{- If A can be counted and Σ A P can be counted for a subtype of A, then P is
+   decidable -}
 
 is-decidable-count-Σ :
   {l1 l2 : Level} {X : UU l1} {P : X → UU l2} →
@@ -843,17 +884,18 @@ is-injective-Fin {succ-ℕ k} {zero-ℕ} e = ex-falso (map-equiv e zero-Fin)
 is-injective-Fin {succ-ℕ k} {succ-ℕ l} e =
   ap succ-ℕ (is-injective-Fin (equiv-equiv-Maybe e))
 
-double-counting :
+double-counting-equiv :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (count-A : count A)
   (count-B : count B) (e : A ≃ B) →
   Id (number-of-elements-count count-A) (number-of-elements-count count-B)
-double-counting (pair k f) (pair l g) e =
+double-counting-equiv (pair k f) (pair l g) e =
   is-injective-Fin ((inv-equiv g ∘e e) ∘e f)
 
-double-counting' :
+double-counting :
   {l : Level} {A : UU l} (count-A count-A' : count A) →
   Id (number-of-elements-count count-A) (number-of-elements-count count-A')
-double-counting' count-A count-A' = double-counting count-A count-A' equiv-id
+double-counting count-A count-A' =
+  double-counting-equiv count-A count-A' equiv-id
 
 {- Maybe X has a count if and only if X has a count -}
 
@@ -890,7 +932,7 @@ double-counting-coprod :
        ( number-of-elements-count count-A)
        ( number-of-elements-count count-B))
 double-counting-coprod count-A count-B count-C =
-  ( double-counting' count-C (count-coprod count-A count-B)) ∙
+  ( double-counting count-C (count-coprod count-A count-B)) ∙
   ( number-of-elements-count-coprod count-A count-B)
 
 double-counting-Σ :
@@ -899,7 +941,7 @@ double-counting-Σ :
   Id ( number-of-elements-count count-C)
      ( sum-count-ℕ count-A (λ x → number-of-elements-count (count-B x)))
 double-counting-Σ count-A count-B count-C =
-  ( double-counting' count-C (count-Σ count-A count-B)) ∙
+  ( double-counting count-C (count-Σ count-A count-B)) ∙
   ( number-of-elements-count-Σ count-A count-B)
 
 sum-number-of-elements-count-fiber-count-Σ :
@@ -910,7 +952,7 @@ sum-number-of-elements-count-fiber-count-Σ :
      ( number-of-elements-count f)
 sum-number-of-elements-count-fiber-count-Σ e f =
   ( inv (number-of-elements-count-Σ e (λ x → count-fiber-count-Σ e f x))) ∙
-  ( double-counting' (count-Σ e (λ x → count-fiber-count-Σ e f x)) f)
+  ( double-counting (count-Σ e (λ x → count-fiber-count-Σ e f x)) f)
 
 double-counting-fiber-count-Σ :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (count-A : count A)
@@ -918,7 +960,114 @@ double-counting-fiber-count-Σ :
   Id ( number-of-elements-count (count-B x))
      ( number-of-elements-count (count-fiber-count-Σ count-A count-C x))
 double-counting-fiber-count-Σ count-A count-B count-C x =
-  double-counting' (count-B x) (count-fiber-count-Σ count-A count-C x)
+  double-counting (count-B x) (count-fiber-count-Σ count-A count-C x)
+
+sum-number-of-elements-count-fib :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  (count-A : count A) (count-B : count B) →
+  Id ( sum-count-ℕ count-B
+       ( λ x → number-of-elements-count (count-fib f count-A count-B x)))
+     ( number-of-elements-count count-A)
+sum-number-of-elements-count-fib f count-A count-B =
+  sum-number-of-elements-count-fiber-count-Σ count-B
+    ( count-equiv' (equiv-total-fib f) count-A)
+
+double-counting-fib :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) (count-A : count A) →
+  (count-B : count B) (count-fib-f : (y : B) → count (fib f y)) (y : B) →
+  Id ( number-of-elements-count (count-fib-f y))
+     ( number-of-elements-count (count-fib f count-A count-B y))
+double-counting-fib f count-A count-B count-fib-f y =
+  double-counting (count-fib-f y) (count-fib f count-A count-B y)
+
+sum-number-of-elements-count-base-count-Σ :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
+  (count-ΣAB : count (Σ A B)) (count-B : (x : A) → count (B x)) →
+  Id ( sum-count-ℕ
+       ( count-base-count-Σ b count-ΣAB count-B)
+       ( λ x → number-of-elements-count (count-B x)))
+     ( number-of-elements-count count-ΣAB)
+sum-number-of-elements-count-base-count-Σ b count-ΣAB count-B =
+  ( inv
+    ( number-of-elements-count-Σ
+      ( count-base-count-Σ b count-ΣAB count-B)
+      ( count-B))) ∙
+  ( double-counting
+    ( count-Σ (count-base-count-Σ b count-ΣAB count-B) count-B)
+    ( count-ΣAB))
+
+double-counting-base-count-Σ :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
+  (count-A : count A) (count-B : (x : A) → count (B x))
+  (count-ΣAB : count (Σ A B)) →
+  Id ( number-of-elements-count (count-base-count-Σ b count-ΣAB count-B))
+     ( number-of-elements-count count-A)
+double-counting-base-count-Σ b count-A count-B count-ΣAB =
+  double-counting (count-base-count-Σ b count-ΣAB count-B) count-A
+
+sum-number-of-elements-count-base-count-Σ' :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (count-ΣAB : count (Σ A B)) →
+  ( count-B : (x : A) → count (B x)) →
+  ( count-nB :
+    count (Σ A (λ x → is-zero-ℕ (number-of-elements-count (count-B x))))) →
+  Id ( sum-count-ℕ
+       ( count-base-count-Σ' count-ΣAB count-B count-nB)
+       ( λ x → number-of-elements-count (count-B x)))
+     ( number-of-elements-count count-ΣAB)
+sum-number-of-elements-count-base-count-Σ' count-ΣAB count-B count-nB =
+  ( inv
+    ( number-of-elements-count-Σ
+      ( count-base-count-Σ' count-ΣAB count-B count-nB)
+      ( count-B))) ∙
+  ( double-counting
+    ( count-Σ
+      ( count-base-count-Σ' count-ΣAB count-B count-nB)
+      ( count-B))
+    ( count-ΣAB))
+
+double-counting-base-count-Σ' :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (count-A : count A)
+  ( count-B : (x : A) → count (B x)) (count-ΣAB : count (Σ A B)) →
+  ( count-nB :
+    count (Σ A (λ x → is-zero-ℕ (number-of-elements-count (count-B x))))) →
+  Id ( number-of-elements-count
+       ( count-base-count-Σ' count-ΣAB count-B count-nB))
+     ( number-of-elements-count count-A)
+double-counting-base-count-Σ' count-A count-B count-ΣAB count-nB =
+  double-counting (count-base-count-Σ' count-ΣAB count-B count-nB) count-A
+
+sum-number-of-elements-coprod :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : count (coprod A B)) →
+  Id ( add-ℕ ( number-of-elements-count (count-left-coprod e))
+             ( number-of-elements-count (count-right-coprod e)))
+     ( number-of-elements-count e)
+sum-number-of-elements-coprod e =
+  ( inv
+    ( number-of-elements-count-coprod
+      ( count-left-coprod e)
+      ( count-right-coprod e))) ∙
+  ( inv
+    ( double-counting-coprod (count-left-coprod e) (count-right-coprod e) e))
+
+number-of-elements-prod :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (count-A : count A)
+  (count-B : count B) →
+  Id ( number-of-elements-count
+       ( count-prod count-A count-B))
+     ( mul-ℕ
+       ( number-of-elements-count count-A)
+       ( number-of-elements-count count-B))
+number-of-elements-prod count-A count-B = {!!}
+
+product-number-of-elements-prod :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : count (A × B)) →
+  (a : A) (b : B) →
+  Id ( mul-ℕ ( number-of-elements-count (count-left-factor e b))
+             ( number-of-elements-count (count-right-factor e a)))
+     ( number-of-elements-count e)
+product-number-of-elements-prod e a b =
+  {! number-of-elements-count-prod!}
+
 
 --------------------------------------------------------------------------------
 
@@ -1203,15 +1352,15 @@ is-finite-coprod {X = X} {Y} is-finite-X is-finite-Y =
         ( is-finite-Prop (coprod X Y))
         ( is-finite-count ∘ (count-coprod e)))
 
-is-finite-left-summand :
+is-finite-left-coprod :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → is-finite (coprod X Y) → is-finite X
-is-finite-left-summand =
-  functor-trunc-Prop count-left-summand
+is-finite-left-coprod =
+  functor-trunc-Prop count-left-coprod
 
-is-finite-right-summand :
+is-finite-right-coprod :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → is-finite (coprod X Y) → is-finite Y
-is-finite-right-summand =
-  functor-trunc-Prop count-right-summand
+is-finite-right-coprod =
+  functor-trunc-Prop count-right-coprod
 
 {- Finiteness and products -}
 

@@ -782,8 +782,7 @@ abstract
           ( is-contr-total-Eq-substructure
             ( is-contr-total-Eq-Π
               ( λ x m → (y : type-Ring R) → Id (mul-Ring R x y) (m y))
-              ( λ x → is-contr-total-htpy (mul-Ring R x))
-              ( mul-Ring R))
+              ( λ x → is-contr-total-htpy (mul-Ring R x)))
             ( λ μ → is-prop-Π (λ x → is-prop-Π (λ y → is-prop-Π (λ z →
               is-set-type-Ring R (μ (μ x y) z) (μ x (μ y z))))))
             ( mul-Ring R)
