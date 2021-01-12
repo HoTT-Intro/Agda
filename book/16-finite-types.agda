@@ -197,10 +197,10 @@ constant-sum-Fin-ℕ (succ-ℕ m) n = ap (add-ℕ' n) (constant-sum-Fin-ℕ m n)
 sum-count-ℕ : {l : Level} {A : UU l} (e : count A) → (f : A → ℕ) → ℕ
 sum-count-ℕ (pair k e) f = sum-Fin-ℕ (f ∘ (map-equiv e))
 
-htpy-sum-count-ℕ :
+ap-sum-count-ℕ :
   {l : Level} {A : UU l} (e : count A) {f g : A → ℕ} (H : f ~ g) →
   Id (sum-count-ℕ e f) (sum-count-ℕ e g)
-htpy-sum-count-ℕ (pair k e) H = htpy-sum-Fin-ℕ (H ·r (map-equiv e))
+ap-sum-count-ℕ (pair k e) H = htpy-sum-Fin-ℕ (H ·r (map-equiv e))
 
 constant-sum-count-ℕ :
   {l : Level} {A : UU l} (e : count A) (n : ℕ) →
@@ -1968,13 +1968,15 @@ restrict-injective-map-Maybe' f is-inj-f x (inr x₁) p = {!!}
 
 --------------------------------------------------------------------------------
 
+-- A combinatorial proof that finite sums are associative
+
 associative-sum-count-ℕ :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (count-A : count A)
   (count-B : (x : A) → count (B x)) (f : (x : A) → B x → ℕ) →
   Id ( sum-count-ℕ count-A (λ x → sum-count-ℕ (count-B x) (f x)))
      ( sum-count-ℕ (count-Σ count-A count-B) (ind-Σ f))
 associative-sum-count-ℕ {l1} {l2} {A} {B} count-A count-B f =
-   ( ( htpy-sum-count-ℕ count-A
+   ( ( ap-sum-count-ℕ count-A
        ( λ x →
          inv
          ( number-of-elements-count-Σ (count-B x) (λ y → count-Fin (f x y))))) ∙
@@ -1988,3 +1990,92 @@ associative-sum-count-ℕ {l1} {l2} {A} {B} count-A count-B f =
      ( number-of-elements-count-Σ
        ( count-Σ count-A count-B)
        ( λ x → (count-Fin (ind-Σ f x)))))
+
+--------------------------------------------------------------------------------
+
+-- Unital magmas
+
+Magma-UU : (l : Level) → UU (lsuc l)
+Magma-UU l = Σ (UU l) (λ A → A → A → A)
+
+type-Magma : {l : Level} → Magma-UU l → UU l
+type-Magma M = pr1 M
+
+μ-Magma :
+  {l : Level} (M : Magma-UU l) → type-Magma M → type-Magma M → type-Magma M
+μ-Magma M = pr2 M
+
+fold-Fin-μ-Magma :
+  {l : Level} (M : Magma-UU l) → type-Magma M →
+  {k : ℕ} → (Fin k → type-Magma M) → type-Magma M
+fold-Fin-μ-Magma M m {zero-ℕ} f = m
+fold-Fin-μ-Magma M m {succ-ℕ k} f =
+  μ-Magma M (fold-Fin-μ-Magma M m (f ∘ inl)) (f (inr star))
+
+fold-count-μ-Magma' :
+  {l1 l2 : Level} (M : Magma-UU l1) → type-Magma M →
+  {A : UU l2} {k : ℕ} → (Fin k ≃ A) → (A → type-Magma M) → type-Magma M
+fold-count-μ-Magma' M m e f = fold-Fin-μ-Magma M m (f ∘ map-equiv e)
+
+fold-count-μ-Magma :
+  {l1 l2 : Level} (M : Magma-UU l1) → type-Magma M →
+  {A : UU l2} → count A → (A → type-Magma M) → type-Magma M
+fold-count-μ-Magma M m e f = fold-Fin-μ-Magma M m (f ∘ map-equiv-count e)
+
+is-unital-Magma : {l : Level} (M : Magma-UU l) → UU l
+is-unital-Magma M =
+  Σ ( type-Magma M)
+    ( λ e →
+      ( (x : type-Magma M) → Id (μ-Magma M e x) x) ×
+      ( (x : type-Magma M) → Id (μ-Magma M x e) x))
+
+Unital-Magma-UU : (l : Level) → UU (lsuc l)
+Unital-Magma-UU l = Σ (Magma-UU l) is-unital-Magma
+
+magma-Unital-Magma :
+  {l : Level} → Unital-Magma-UU l → Magma-UU l
+magma-Unital-Magma M = pr1 M
+  
+is-unital-magma-Unital-Magma :
+  {l : Level} (M : Unital-Magma-UU l) → is-unital-Magma (magma-Unital-Magma M)
+is-unital-magma-Unital-Magma M = pr2 M
+
+is-semigroup-Magma : {l : Level} → Magma-UU l → UU l
+is-semigroup-Magma M =
+  (x y z : type-Magma M) →
+  Id (μ-Magma M (μ-Magma M x y) z) (μ-Magma M x (μ-Magma M y z))
+
+is-commutative-Magma : {l : Level} → Magma-UU l → UU l
+is-commutative-Magma M =
+  (x y : type-Magma M) → Id (μ-Magma M x y) (μ-Magma M y x)
+
+is-commutative-monoid-Magma : {l : Level} → Magma-UU l → UU l
+is-commutative-monoid-Magma M =
+  ((is-semigroup-Magma M) × (is-unital-Magma M)) × (is-commutative-Magma M)
+
+unit-is-commutative-monoid-Magma :
+  {l : Level} (M : Magma-UU l) → is-commutative-monoid-Magma M → type-Magma M
+unit-is-commutative-monoid-Magma M H = pr1 (pr2 (pr1 H))
+
+swap-with-Fin : {k : ℕ} (x y : Fin k) → Fin k → Fin k
+swap-with-Fin {k} x y z
+  with has-decidable-equality-Fin x z | has-decidable-equality-Fin y z
+... | inl p | d = y
+... | inr f | inl q = x
+... | inr f | inr g = z
+
+permutation-fold-Fin-μ-is-commutative-monoid-Magma :
+  {l1 l2 : Level} (M : Magma-UU l1) (H : is-commutative-monoid-Magma M) →
+  {k : ℕ} (e : Fin k ≃ Fin k) (f : Fin k → type-Magma M) →
+  Id ( fold-Fin-μ-Magma M
+       ( unit-is-commutative-monoid-Magma M H)
+       ( f ∘ map-equiv e))
+     ( fold-Fin-μ-Magma M (unit-is-commutative-monoid-Magma M H) f)
+permutation-fold-Fin-μ-is-commutative-monoid-Magma M H {k} e f = {!!}
+
+is-weakly-constant-map-fold-count-μ-is-commutative-monoid-Magma :
+  {l1 l2 : Level} (M : Magma-UU l1) (H : is-commutative-monoid-Magma M)
+  {A : UU l2} {k : ℕ} →
+  is-weakly-constant-map
+    ( fold-count-μ-Magma' M (unit-is-commutative-monoid-Magma M H) {A} {k = k})
+is-weakly-constant-map-fold-count-μ-is-commutative-monoid-Magma M H {k} e f = {!!}

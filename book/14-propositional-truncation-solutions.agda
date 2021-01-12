@@ -6,7 +6,7 @@ import book.14-propositional-truncation
 open book.14-propositional-truncation public
 
 --------------------------------------------------------------------------------
-{-
+
 -- Exercises
 
 -- Exercise 13.1
@@ -29,12 +29,12 @@ is-propositional-truncation-prod :
   {A' : UU l3} (P' : UU-Prop l4) (f' : A' → type-Prop P') →
   ({l : Level} → is-propositional-truncation l P f) →
   ({l : Level} → is-propositional-truncation l P' f') →
-  {l : Level} → is-propositional-truncation l (prod-Prop P P') (functor-prod f f')
+  {l : Level} → is-propositional-truncation l (prod-Prop P P') (map-prod f f')
 is-propositional-truncation-prod P f P' f' is-ptr-f is-ptr-f' Q =
   is-equiv-top-is-equiv-bottom-square
     ( ev-pair)
     ( ev-pair)
-    ( precomp (functor-prod f f') (type-Prop Q))
+    ( precomp (map-prod f f') (type-Prop Q))
     ( λ h a a' → h (f a) (f' a'))
     ( refl-htpy)
     ( is-equiv-ev-pair)
@@ -56,14 +56,14 @@ equiv-prod-trunc-Prop A A' =
       ( is-uniquely-unique-propositional-truncation
         ( trunc-Prop (A × A'))
         ( prod-Prop (trunc-Prop A) (trunc-Prop A'))
-        ( unit-trunc-Prop (A × A'))
-        ( functor-prod (unit-trunc-Prop A) (unit-trunc-Prop A'))
+        ( unit-trunc-Prop)
+        ( map-prod unit-trunc-Prop unit-trunc-Prop)
         ( is-propositional-truncation-trunc-Prop (A × A'))
         ( is-propositional-truncation-prod
           ( trunc-Prop A)
-          ( unit-trunc-Prop A)
+          ( unit-trunc-Prop)
           ( trunc-Prop A')
-          ( unit-trunc-Prop A')
+          ( unit-trunc-Prop)
           ( is-propositional-truncation-trunc-Prop A)
           ( is-propositional-truncation-trunc-Prop A'))))
 
@@ -79,7 +79,7 @@ map-dn-trunc-Prop A =
 inv-map-dn-trunc-Prop :
   {l : Level} (A : UU l) → ¬¬ A → ¬¬ (type-trunc-Prop A)
 inv-map-dn-trunc-Prop A =
-  dn-extend (λ a → intro-dn (unit-trunc-Prop A a))
+  dn-extend (λ a → intro-dn (unit-trunc-Prop a))
 
 equiv-dn-trunc-Prop :
   {l : Level} (A : UU l) → ¬¬ (type-trunc-Prop A) ≃ ¬¬ A
@@ -119,7 +119,7 @@ inv-map-impredicative-trunc-Prop :
   {l : Level} (A : UU l) →
   type-impredicative-trunc-Prop A → type-trunc-Prop A
 inv-map-impredicative-trunc-Prop A H =
-  H (trunc-Prop A) (unit-trunc-Prop A)
+  H (trunc-Prop A) unit-trunc-Prop
 
 equiv-impredicative-trunc-Prop :
   {l : Level} (A : UU l) →
@@ -274,7 +274,7 @@ inv-map-impredicative-exists-Prop :
   type-impredicative-exists-Prop P → exists P
 inv-map-impredicative-exists-Prop {A = A} P H =
   H ( exists-Prop P)
-    ( λ x y → unit-trunc-Prop (Σ A (λ x → type-Prop (P x))) (pair x y))
+    ( λ x y → unit-trunc-Prop (pair x y))
 
 equiv-impredicative-exists-Prop :
   {l1 l2 : Level} {A : UU l1} (P : A → UU-Prop l2) →
@@ -355,4 +355,128 @@ equiv-impredicative-id-Prop A x y =
     ( pair
       ( map-impredicative-id-Prop A x y)
       ( inv-map-impredicative-id-Prop A x y))
--}
+
+--------------------------------------------------------------------------------
+
+is-weakly-constant-map :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} → (A → B) → UU (l1 ⊔ l2)
+is-weakly-constant-map {A = A} f = (x y : A) → Id (f x) (f y)
+
+is-prop-is-weakly-constant-map-Set :
+  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B) →
+  is-prop (is-weakly-constant-map f)
+is-prop-is-weakly-constant-map-Set B f =
+  is-prop-Π (λ x → is-prop-Π (λ y → is-set-type-Set B (f x) (f y)))
+
+is-weakly-constant-map-precomp-unit-trunc-Prop :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (g : type-trunc-Prop A → B) →
+  is-weakly-constant-map (g ∘ unit-trunc-Prop)
+is-weakly-constant-map-precomp-unit-trunc-Prop g x y =
+  ap ( g)
+     ( eq-is-prop
+       ( is-prop-type-trunc-Prop)
+       ( unit-trunc-Prop x)
+       ( unit-trunc-Prop y))
+
+precomp-universal-property-set-quotient-trunc-Prop :
+  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) →
+  (type-trunc-Prop A → type-Set B) → Σ (A → type-Set B) is-weakly-constant-map
+precomp-universal-property-set-quotient-trunc-Prop B g =
+  pair
+    ( g ∘ unit-trunc-Prop)
+    ( is-weakly-constant-map-precomp-unit-trunc-Prop g)
+
+is-prop-image-is-weakly-constant-map' :
+  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B) →
+  is-weakly-constant-map f →
+  is-prop' (Σ (type-Set B) (λ b → type-trunc-Prop (fib f b)))
+is-prop-image-is-weakly-constant-map' B f H (pair x s) (pair y t) =
+  eq-subtype
+    ( λ b → is-prop-type-trunc-Prop)
+    ( apply-universal-property-trunc-Prop s
+      ( Id-Prop B x y)
+      ( λ u →
+        apply-universal-property-trunc-Prop t
+          ( Id-Prop B x y)
+          ( λ v → inv (pr2 u) ∙ (H (pr1 u) (pr1 v) ∙ pr2 v))))
+
+is-prop-image-is-weakly-constant-map :
+  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B) →
+  is-weakly-constant-map f →
+  is-prop (Σ (type-Set B) (λ b → type-trunc-Prop (fib f b)))
+is-prop-image-is-weakly-constant-map B f H =
+  is-prop-is-prop' (is-prop-image-is-weakly-constant-map' B f H)
+
+image-weakly-constant-map-Prop :
+  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B) →
+  is-weakly-constant-map f → UU-Prop (l1 ⊔ l2)
+image-weakly-constant-map-Prop B f H =
+  pair
+    ( Σ (type-Set B) (λ b → type-trunc-Prop (fib f b)))
+    ( is-prop-image-is-weakly-constant-map B f H)
+
+map-universal-property-set-quotient-trunc-Prop :
+  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B) →
+  is-weakly-constant-map f → type-trunc-Prop A → type-Set B
+map-universal-property-set-quotient-trunc-Prop B f H =
+  ( pr1) ∘
+  ( map-universal-property-trunc-Prop
+    ( image-weakly-constant-map-Prop B f H)
+    ( λ a → pair (f a) (unit-trunc-Prop (pair a refl))))
+
+map-universal-property-set-quotient-trunc-Prop' :
+  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) →
+  Σ (A → type-Set B) is-weakly-constant-map → type-trunc-Prop A → type-Set B
+map-universal-property-set-quotient-trunc-Prop' B (pair f H) =
+  map-universal-property-set-quotient-trunc-Prop B f H
+
+htpy-universal-property-set-quotient-trunc-Prop :
+  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B) →
+  (H : is-weakly-constant-map f) →
+  ( map-universal-property-set-quotient-trunc-Prop B f H ∘ unit-trunc-Prop) ~ f
+htpy-universal-property-set-quotient-trunc-Prop B f H a =
+  ap ( pr1)
+     ( eq-is-prop
+       ( is-prop-image-is-weakly-constant-map B f H)
+       ( map-universal-property-trunc-Prop
+         ( image-weakly-constant-map-Prop B f H)
+         ( λ x → pair (f x) (unit-trunc-Prop (pair x refl)))
+         ( unit-trunc-Prop a))
+       ( pair (f a) (unit-trunc-Prop (pair a refl))))
+
+issec-map-universal-property-set-quotient-trunc-Prop :
+  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) →
+  ( ( precomp-universal-property-set-quotient-trunc-Prop {A = A} B) ∘
+    ( map-universal-property-set-quotient-trunc-Prop' B)) ~ id
+issec-map-universal-property-set-quotient-trunc-Prop B (pair f H) =
+  eq-subtype
+    ( is-prop-is-weakly-constant-map-Set B)
+    ( eq-htpy (htpy-universal-property-set-quotient-trunc-Prop B f H))
+
+isretr-map-universal-property-set-quotient-trunc-Prop :
+  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) →
+  ( ( map-universal-property-set-quotient-trunc-Prop' B) ∘
+    ( precomp-universal-property-set-quotient-trunc-Prop {A = A} B)) ~ id
+isretr-map-universal-property-set-quotient-trunc-Prop B g =
+  eq-htpy
+    ( ind-trunc-Prop
+      ( λ x →
+        Id-Prop B
+          ( map-universal-property-set-quotient-trunc-Prop' B
+            ( precomp-universal-property-set-quotient-trunc-Prop B g)
+            ( x))
+          ( g x))
+      ( λ x →
+        htpy-universal-property-set-quotient-trunc-Prop B
+          ( g ∘ unit-trunc-Prop)
+          ( is-weakly-constant-map-precomp-unit-trunc-Prop g)
+          ( x)))
+
+universal-property-set-quotient-trunc-Prop :
+  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) →
+  is-equiv (precomp-universal-property-set-quotient-trunc-Prop {A = A} B)
+universal-property-set-quotient-trunc-Prop {A = A} B =
+  is-equiv-has-inverse
+    ( map-universal-property-set-quotient-trunc-Prop' B)
+    ( issec-map-universal-property-set-quotient-trunc-Prop B)
+    ( isretr-map-universal-property-set-quotient-trunc-Prop B)
