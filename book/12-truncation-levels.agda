@@ -519,9 +519,19 @@ zero-𝕋 = succ-𝕋 (neg-one-𝕋)
 one-𝕋 : 𝕋
 one-𝕋 = succ-𝕋 (zero-𝕋)
 
-ℕ-in-𝕋 : ℕ → 𝕋
-ℕ-in-𝕋 zero-ℕ = zero-𝕋
-ℕ-in-𝕋 (succ-ℕ n) = succ-𝕋 (ℕ-in-𝕋 n)
+truncation-level-ℕ : ℕ → 𝕋
+truncation-level-ℕ zero-ℕ = zero-𝕋
+truncation-level-ℕ (succ-ℕ k) = succ-𝕋 (truncation-level-ℕ k)
+
+truncation-level-minus-one-ℕ : ℕ → 𝕋
+truncation-level-minus-one-ℕ zero-ℕ = neg-one-𝕋
+truncation-level-minus-one-ℕ (succ-ℕ k) =
+  succ-𝕋 (truncation-level-minus-one-ℕ k)
+
+truncation-level-minus-two-ℕ : ℕ → 𝕋
+truncation-level-minus-two-ℕ zero-ℕ = neg-two-𝕋
+truncation-level-minus-two-ℕ (succ-ℕ k) =
+  succ-𝕋 (truncation-level-minus-two-ℕ k)
 
 -- Probably it is better to define this where we first need it.
 add-𝕋 : 𝕋 → 𝕋 → 𝕋
