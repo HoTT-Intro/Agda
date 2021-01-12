@@ -453,15 +453,6 @@ issec-map-universal-property-set-quotient-trunc-Prop B (pair f H) =
     ( is-prop-is-weakly-constant-map-Set B)
     ( eq-htpy (htpy-universal-property-set-quotient-trunc-Prop B f H))
 
-is-prop-total-extension-trunc-Prop :
-  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) {f : A → type-Set B} →
-  (g h : type-trunc-Prop A → type-Set B)
-  (G : (g ∘ unit-trunc-Prop) ~ f) (H : (h ∘ unit-trunc-Prop) ~ f) → g ~ h
-is-prop-total-extension-trunc-Prop B g h G H =
-  ind-trunc-Prop
-    ( λ x → Id-Prop B (g x) (h x))
-    ( λ a → (G a) ∙ (inv (H a)))
-
 isretr-map-universal-property-set-quotient-trunc-Prop :
   {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) →
   ( ( map-universal-property-set-quotient-trunc-Prop' B) ∘
