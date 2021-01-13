@@ -98,3 +98,5 @@ is-division-Ring R =
 is-field-Comm-Ring :
   { l : Level} → Comm-Ring l → UU l
 is-field-Comm-Ring R = is-division-Ring (ring-Comm-Ring R)
+
+
