@@ -373,10 +373,7 @@ is-weakly-constant-map-precomp-unit-trunc-Prop :
   is-weakly-constant-map (g ∘ unit-trunc-Prop)
 is-weakly-constant-map-precomp-unit-trunc-Prop g x y =
   ap ( g)
-     ( eq-is-prop
-       ( is-prop-type-trunc-Prop)
-       ( unit-trunc-Prop x)
-       ( unit-trunc-Prop y))
+     ( eq-is-prop (is-prop-type-trunc-Prop))
 
 precomp-universal-property-set-quotient-trunc-Prop :
   {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) →
@@ -436,7 +433,7 @@ htpy-universal-property-set-quotient-trunc-Prop :
   ( map-universal-property-set-quotient-trunc-Prop B f H ∘ unit-trunc-Prop) ~ f
 htpy-universal-property-set-quotient-trunc-Prop B f H a =
   ap ( pr1)
-     ( eq-is-prop
+     ( eq-is-prop'
        ( is-prop-image-is-weakly-constant-map B f H)
        ( map-universal-property-trunc-Prop
          ( image-weakly-constant-map-Prop B f H)

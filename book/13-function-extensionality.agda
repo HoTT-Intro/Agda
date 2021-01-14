@@ -210,6 +210,21 @@ abstract
   is-prop-Π = is-trunc-Π neg-one-𝕋
 
 abstract
+  is-prop-Π' :
+    {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+    is-subtype B → is-prop ({x : A} → B x)
+  is-prop-Π' {l1} {l2} {A} {B} H =
+    is-prop-equiv
+      ( (x : A) → B x)
+      ( pair
+        ( λ f x → f {x})
+        ( is-equiv-has-inverse
+          ( λ g {x} → g x)
+          ( refl-htpy)
+          ( refl-htpy)))
+      ( is-prop-Π H)
+
+abstract
   is-set-Π :
     {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
     ((x : A) → is-set (B x)) → is-set ((x : A) → (B x))
@@ -996,7 +1011,7 @@ cases-htpy-succ-strong-ind-ℕ :
     ( cases-succ-strong-ind-ℕ P pS k H m c)
     ( H m q)
 cases-htpy-succ-strong-ind-ℕ P pS k H m (inl p) q =
-  ap (H m) (eq-is-prop (is-prop-leq-ℕ m k) p q)
+  ap (H m) (eq-is-prop (is-prop-leq-ℕ m k))
 cases-htpy-succ-strong-ind-ℕ P pS k H m (inr α) q =
   ex-falso
     ( neg-succ-leq-ℕ k (leq-eq-left-ℕ α k q))
@@ -1023,7 +1038,7 @@ cases-eq-succ-strong-ind-ℕ :
 cases-eq-succ-strong-ind-ℕ P pS k H (inl p) = ex-falso (neg-succ-leq-ℕ k p)
 cases-eq-succ-strong-ind-ℕ P pS k H (inr α) =
   ap ( (cases-succ-strong-ind-ℕ P pS k H (succ-ℕ k)) ∘ inr)
-     ( eq-is-prop (is-set-ℕ (succ-ℕ k) (succ-ℕ k)) α refl)
+     ( eq-is-prop' (is-set-ℕ (succ-ℕ k) (succ-ℕ k)) α refl)
 
 eq-succ-strong-ind-ℕ :
   { l : Level} (P : ℕ → UU l) →
@@ -1308,7 +1323,7 @@ is-prop-le-ℕ (succ-ℕ a) zero-ℕ = is-prop-empty
 is-prop-le-ℕ (succ-ℕ a) (succ-ℕ b) = is-prop-le-ℕ a b
 
 is-prop'-le-ℕ : (a b : ℕ) → is-prop' (le-ℕ a b)
-is-prop'-le-ℕ a b = eq-is-prop (is-prop-le-ℕ a b)
+is-prop'-le-ℕ a b = eq-is-prop' (is-prop-le-ℕ a b)
 
 -- We show that induction on ℕ implies ordinal induction.
 

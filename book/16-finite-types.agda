@@ -1326,7 +1326,7 @@ compute-number-of-elements-is-finite e f =
     ( λ g →
       ( is-injective-Fin ((inv-equiv (equiv-count g)) ∘e (equiv-count e))) ∙
       ( ap pr1
-        ( eq-is-prop is-prop-has-finite-cardinality
+        ( eq-is-prop' is-prop-has-finite-cardinality
           ( has-finite-cardinality-count g)
           ( has-finite-cardinality-is-finite (unit-trunc-Prop g)))))
     ( f)

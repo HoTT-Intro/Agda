@@ -71,9 +71,14 @@ abstract
         ( left-inv (H x x)) y)
 
 abstract
-  eq-is-prop :
+  eq-is-prop' :
     {i : Level} {A : UU i} → is-prop A → is-prop' A
-  eq-is-prop H x y = pr1 (H x y)
+  eq-is-prop' H x y = pr1 (H x y)
+
+abstract
+  eq-is-prop :
+    {i : Level} {A : UU i} → is-prop A → {x y : A} → Id x y
+  eq-is-prop H {x} {y} = eq-is-prop' H x y
 
 abstract
   is-proof-irrelevant-is-prop' :
@@ -84,7 +89,7 @@ abstract
   is-proof-irrelevant-is-prop :
     {i : Level} {A : UU i} → is-prop A → is-proof-irrelevant A
   is-proof-irrelevant-is-prop =
-    is-proof-irrelevant-is-prop' ∘ eq-is-prop
+    is-proof-irrelevant-is-prop' ∘ eq-is-prop'
 
 abstract
   is-prop-is-proof-irrelevant :
@@ -95,7 +100,7 @@ abstract
   eq-is-proof-irrelevant :
     {l1 : Level} {A : UU l1} → is-proof-irrelevant A → is-prop' A
   eq-is-proof-irrelevant H =
-    eq-is-prop (is-prop-is-proof-irrelevant H)
+    eq-is-prop' (is-prop-is-proof-irrelevant H)
 
 is-emb-is-emb :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
@@ -122,7 +127,7 @@ abstract
   is-subterminal-is-prop :
     {l1 : Level} {A : UU l1} → is-prop A → is-subterminal A
   is-subterminal-is-prop =
-    is-subterminal-is-prop' ∘ eq-is-prop
+    is-subterminal-is-prop' ∘ eq-is-prop'
 
 abstract
   is-prop-is-subterminal :
@@ -137,7 +142,7 @@ abstract
 abstract
   eq-is-subterminal :
     {l1 : Level} {A : UU l1} → is-subterminal A → is-prop' A
-  eq-is-subterminal = eq-is-prop ∘ is-prop-is-subterminal
+  eq-is-subterminal = eq-is-prop' ∘ is-prop-is-subterminal
 
 abstract
   is-proof-irrelevant-is-subterminal :
@@ -408,7 +413,7 @@ abstract
     fundamental-theorem-id-retr x (i x)
       (λ y → pair
         (ind-Id x (λ z p → R x z) (ρ x) y)
-        ((λ r → eq-is-prop (p x y) _ r)))
+        ((λ r → eq-is-prop (p x y))))
 
 abstract
   is-set-prop-in-id :
@@ -1043,7 +1048,7 @@ has-decidable-equality-Σ dA dB (pair x y) (pair x' y') with dA x x'
 
 has-decidable-equality-is-prop :
   {l1 : Level} {A : UU l1} → is-prop A → has-decidable-equality A
-has-decidable-equality-is-prop H x y = inl (eq-is-prop H x y)
+has-decidable-equality-is-prop H x y = inl (eq-is-prop H)
 
 has-decidable-equality-equiv :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
@@ -1113,8 +1118,8 @@ abstract
   is-prop-coprod f is-prop-P is-prop-Q =
     is-prop-is-prop'
       ( is-prop'-coprod f
-        ( eq-is-prop is-prop-P)
-        ( eq-is-prop is-prop-Q))
+        ( eq-is-prop' is-prop-P)
+        ( eq-is-prop' is-prop-Q))
 
 abstract
   is-trunc-succ-empty : (k : 𝕋) → is-trunc (succ-𝕋 k) empty

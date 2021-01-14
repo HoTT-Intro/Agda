@@ -442,7 +442,7 @@ case-paths-induction-principle-propositional-truncation-is-prop :
   case-paths-induction-principle-propositional-truncation P α f B
 case-paths-induction-principle-propositional-truncation-is-prop
   P α f B is-prop-B p q x y =
-  eq-is-prop (is-prop-B q) (tr B (α p q) x) y
+  eq-is-prop (is-prop-B q)
 
 -- Theorem 14.2.3
 
@@ -452,7 +452,7 @@ abstract
     ( {l : Level} →
       dependent-universal-property-propositional-truncation l P f) →
     ( {l : Level} → induction-principle-propositional-truncation l P
-      ( eq-is-prop (is-prop-type-Prop P)) f)
+      ( eq-is-prop' (is-prop-type-Prop P)) f)
   induction-principle-dependent-universal-property-propositional-truncation
     P f dup-f B g α =
     tot
@@ -465,7 +465,7 @@ abstract
                 ( B p)
                 ( is-prop-case-paths-induction-principle-propositional-truncation
                   ( P)
-                  ( eq-is-prop (is-prop-type-Prop P))
+                  ( eq-is-prop' (is-prop-type-Prop P))
                   f B α p)))
           ( g)))
 
@@ -480,7 +480,7 @@ abstract
   dependent-universal-property-induction-principle-propositional-truncation :
     { l1 l2 : Level} {A : UU l1} (P : UU-Prop l2) (f : A → type-Prop P) →
     ( {l : Level} → induction-principle-propositional-truncation l P
-      ( eq-is-prop (is-prop-type-Prop P)) f) →
+      ( eq-is-prop' (is-prop-type-Prop P)) f) →
     ( {l : Level} → dependent-universal-property-propositional-truncation l P f)
   dependent-universal-property-induction-principle-propositional-truncation
     P f ind-f Q =
@@ -494,7 +494,7 @@ abstract
             ( g)
             ( case-paths-induction-principle-propositional-truncation-is-prop
               ( P)
-              ( eq-is-prop (is-prop-type-Prop P))
+              ( eq-is-prop' (is-prop-type-Prop P))
               ( f)
               ( λ p → type-Prop (Q p))
               ( λ p → is-prop-type-Prop (Q p)))))
