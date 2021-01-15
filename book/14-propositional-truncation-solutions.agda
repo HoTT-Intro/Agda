@@ -88,7 +88,7 @@ elim-trunc-Prop-is-decidable A (inl a) x = a
 elim-trunc-Prop-is-decidable A (inr f) x =
   ex-falso (apply-universal-property-trunc-Prop x empty-Prop f)
 
--- Exercise 14.1 (d)
+-- Exercise 14.1 (d) 
 
 dn-dn-type-trunc-Prop :
   {l : Level} (A : UU l) → ¬¬ (type-trunc-Prop A) → ¬¬ A
