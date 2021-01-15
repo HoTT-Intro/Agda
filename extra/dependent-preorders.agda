@@ -534,3 +534,81 @@ yoneda-PreOrd A =
   pair
     ( map-yoneda-PreOrd A)
     ( λ {a} {b} p x q → transitive-leq-PreOrd A p q)
+
+type-poset-reflection-PreOrd :
+  {l1 l2 : Level} (A : PreOrd l1 l2) → UU (l1 ⊔ lsuc l2)
+type-poset-reflection-PreOrd A = im (map-yoneda-PreOrd A)
+
+--------------------------------------------------------------------------------
+
+{- We construct the image of an order preserving map as a preorder -}
+
+type-im-hom-PreOrd :
+  {l1 l2 l3 l4 : Level} (A : PreOrd l1 l2) (B : PreOrd l3 l4)
+  (f : type-hom-PreOrd A B) → UU (l1 ⊔ l3)
+type-im-hom-PreOrd A B f = im (map-hom-PreOrd A B f)
+
+leq-im-hom-PreOrd-Prop :
+  {l1 l2 l3 l4 : Level} (A : PreOrd l1 l2) (B : PreOrd l3 l4)
+  (f : type-hom-PreOrd A B) →
+  (x y : type-im-hom-PreOrd A B f) → UU-Prop l4
+leq-im-hom-PreOrd-Prop A B f x y =
+  leq-PreOrd-Prop B ( inclusion-im (map-hom-PreOrd A B f) x)
+                    ( inclusion-im (map-hom-PreOrd A B f) y)
+
+leq-im-hom-PreOrd :
+  {l1 l2 l3 l4 : Level} (A : PreOrd l1 l2) (B : PreOrd l3 l4)
+  (f : type-hom-PreOrd A B) →
+  (x y : type-im-hom-PreOrd A B f) → UU l4
+leq-im-hom-PreOrd A B f x y = type-Prop (leq-im-hom-PreOrd-Prop A B f x y)
+
+is-prop-leq-im-hom-PreOrd :
+  {l1 l2 l3 l4 : Level} (A : PreOrd l1 l2) (B : PreOrd l3 l4)
+  (f : type-hom-PreOrd A B) (x y : type-im-hom-PreOrd A B f) →
+  is-prop (leq-im-hom-PreOrd A B f x y)
+is-prop-leq-im-hom-PreOrd A B f x y =
+  is-prop-type-Prop (leq-im-hom-PreOrd-Prop A B f x y)
+
+refl-leq-im-hom-PreOrd :
+  {l1 l2 l3 l4 : Level} (A : PreOrd l1 l2) (B : PreOrd l3 l4)
+  (f : type-hom-PreOrd A B) {x : type-im-hom-PreOrd A B f} →
+  leq-im-hom-PreOrd A B f x x
+refl-leq-im-hom-PreOrd A B f = refl-leq-PreOrd B
+
+transitive-leq-im-hom-PreOrd :
+  {l1 l2 l3 l4 : Level} (A : PreOrd l1 l2) (B : PreOrd l3 l4)
+  (f : type-hom-PreOrd A B) {x y z : type-im-hom-PreOrd A B f} →
+  leq-im-hom-PreOrd A B f y z → leq-im-hom-PreOrd A B f x y →
+  leq-im-hom-PreOrd A B f x z
+transitive-leq-im-hom-PreOrd A B f q p = transitive-leq-PreOrd B q p
+
+im-hom-PreOrd :
+  {l1 l2 l3 l4 : Level} (A : PreOrd l1 l2) (B : PreOrd l3 l4)
+  (f : type-hom-PreOrd A B) → PreOrd (l1 ⊔ l3) l4
+im-hom-PreOrd A B f =
+  construct-PreOrd
+    ( type-im-hom-PreOrd A B f)
+    ( leq-im-hom-PreOrd-Prop A B f)
+    ( λ {x} → refl-leq-im-hom-PreOrd A B f {x})
+    ( λ {x} {y} {z} → transitive-leq-im-hom-PreOrd A B f {x} {y} {z})
+
+map-inclusion-im-hom-PreOrd :
+  {l1 l2 l3 l4 : Level} (A : PreOrd l1 l2) (B : PreOrd l3 l4)
+  (f : type-hom-PreOrd A B) → type-im-hom-PreOrd A B f → type-PreOrd B
+map-inclusion-im-hom-PreOrd A B f = inclusion-im (map-hom-PreOrd A B f)
+
+is-order-preserving-map-inclusion-im-hom-PreOrd :
+  {l1 l2 l3 l4 : Level} (A : PreOrd l1 l2) (B : PreOrd l3 l4)
+  (f : type-hom-PreOrd A B)
+  {x y : type-im-hom-PreOrd A B f} (p : leq-im-hom-PreOrd A B f x y) →
+  leq-PreOrd B ( map-inclusion-im-hom-PreOrd A B f x)
+               ( map-inclusion-im-hom-PreOrd A B f y)
+is-order-preserving-map-inclusion-im-hom-PreOrd A B f p = p
+
+inclusion-im-hom-PreOrd :
+  {l1 l2 l3 l4 : Level} (A : PreOrd l1 l2) (B : PreOrd l3 l4)
+  (f : type-hom-PreOrd A B) → type-hom-PreOrd (im-hom-PreOrd A B f) B
+inclusion-im-hom-PreOrd A B f =
+  pair ( map-inclusion-im-hom-PreOrd A B f)
+       ( λ {x} {y} →
+         is-order-preserving-map-inclusion-im-hom-PreOrd A B f {x} {y})

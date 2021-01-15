@@ -108,6 +108,18 @@ is-propositional-truncation-terminal-map A a =
     ( terminal-map)
     ( λ l P f → const unit (type-Prop P) (f a))
 
+-- Example
+
+is-propositional-truncation-retract :
+  {l l1 l2 : Level} {A : UU l1} (P : UU-Prop l2) →
+  (R : (type-Prop P) retract-of A) →
+  is-propositional-truncation l P (retraction-retract-of R)
+is-propositional-truncation-retract {A = A} P R Q =
+  is-equiv-is-prop
+    ( is-prop-function-type (is-prop-type-Prop Q))
+    ( is-prop-function-type (is-prop-type-Prop Q))
+    ( λ g → g ∘ (section-retract-of R))
+
 -- Example 14.1.4
 
 is-propositional-truncation-id :

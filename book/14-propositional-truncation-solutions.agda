@@ -9,19 +9,123 @@ open book.14-propositional-truncation public
 
 -- Exercises
 
--- Exercise 13.1
+-- Exercise 14.1
 
-is-propositional-truncation-retract :
-  {l l1 l2 : Level} {A : UU l1} (P : UU-Prop l2) →
-  (R : (type-Prop P) retract-of A) →
-  is-propositional-truncation l P (retraction-retract-of R)
-is-propositional-truncation-retract {A = A} P R Q =
+-- Exercise 14.1 (a)
+
+map-trunc-trunc-Prop :
+  {l : Level} (A : UU l) →
+  type-trunc-Prop (type-trunc-Prop A) → type-trunc-Prop A
+map-trunc-trunc-Prop A = map-universal-property-trunc-Prop (trunc-Prop A) id
+
+is-equiv-map-trunc-trunc-Prop :
+  {l : Level} (A : UU l) → is-equiv (map-trunc-trunc-Prop A)
+is-equiv-map-trunc-trunc-Prop A =
   is-equiv-is-prop
-    ( is-prop-function-type (is-prop-type-Prop Q))
-    ( is-prop-function-type (is-prop-type-Prop Q))
-    ( λ g → g ∘ (section-retract-of R))
+    ( is-prop-type-trunc-Prop)
+    ( is-prop-type-trunc-Prop)
+    ( unit-trunc-Prop)
 
--- Exercise 13.2
+is-equiv-unit-trunc-trunc-Prop :
+  {l : Level} (A : UU l) → is-equiv (unit-trunc-Prop {A = type-trunc-Prop A})
+is-equiv-unit-trunc-trunc-Prop A =
+  is-equiv-is-prop
+    ( is-prop-type-trunc-Prop)
+    ( is-prop-type-trunc-Prop)
+    ( map-trunc-trunc-Prop A)
+
+-- Exercise 14.1 (b)
+
+is-merely-decidable-Prop :
+  {l : Level} → UU l → UU-Prop l
+is-merely-decidable-Prop A = trunc-Prop (is-decidable A)
+
+is-merely-decidable : {l : Level} → UU l → UU l
+is-merely-decidable A = type-trunc-Prop (is-decidable A)
+
+is-prop-is-decidable-type-trunc-Prop :
+  {l : Level} (A : UU l) → is-prop (is-decidable (type-trunc-Prop A))
+is-prop-is-decidable-type-trunc-Prop A =
+  is-prop-coprod
+    ( map-universal-property-trunc-Prop
+      ( dn-Prop (trunc-Prop A))
+      ( intro-dn ∘ unit-trunc-Prop))
+    ( is-prop-type-trunc-Prop)
+    ( is-prop-neg)
+
+is-decidable-type-trunc-Prop : {l : Level} → UU l → UU-Prop l
+is-decidable-type-trunc-Prop A =
+  pair ( is-decidable (type-trunc-Prop A))
+       ( is-prop-is-decidable-type-trunc-Prop A)
+
+is-decidable-type-trunc-Prop-is-merely-decidable :
+  {l : Level} (A : UU l) →
+  is-merely-decidable A → is-decidable (type-trunc-Prop A)
+is-decidable-type-trunc-Prop-is-merely-decidable A =
+  map-universal-property-trunc-Prop
+    ( is-decidable-type-trunc-Prop A)
+    ( f)
+  where
+  f : is-decidable A → type-Prop (is-decidable-type-trunc-Prop A)
+  f (inl a) = inl (unit-trunc-Prop a)
+  f (inr f) = inr (map-universal-property-trunc-Prop empty-Prop f)
+
+is-merely-decidable-is-decidable-type-trunc-Prop :
+  {l : Level} (A : UU l) →
+  is-decidable (type-trunc-Prop A) → is-merely-decidable A
+is-merely-decidable-is-decidable-type-trunc-Prop A (inl x) =
+   apply-universal-property-trunc-Prop x
+     ( is-merely-decidable-Prop A)
+     ( unit-trunc-Prop ∘ inl)
+is-merely-decidable-is-decidable-type-trunc-Prop A (inr f) =
+  unit-trunc-Prop (inr (f ∘ unit-trunc-Prop))
+
+-- Exercise 14.1 (c)
+
+elim-trunc-Prop-is-decidable :
+  {l : Level} (A : UU l) → is-decidable A → type-trunc-Prop A → A
+elim-trunc-Prop-is-decidable A (inl a) x = a
+elim-trunc-Prop-is-decidable A (inr f) x =
+  ex-falso (apply-universal-property-trunc-Prop x empty-Prop f)
+
+-- Exercise 14.1 (d)
+
+dn-dn-type-trunc-Prop :
+  {l : Level} (A : UU l) → ¬¬ (type-trunc-Prop A) → ¬¬ A
+dn-dn-type-trunc-Prop A =
+  dn-extend (map-universal-property-trunc-Prop (dn-Prop' A) intro-dn)
+
+dn-type-trunc-Prop-dn :
+  {l : Level} {A : UU l} → ¬¬ A → ¬¬ (type-trunc-Prop A)
+dn-type-trunc-Prop-dn = functor-dn unit-trunc-Prop
+
+-- Exercise 14.2
+
+merely-Id-Prop :
+  {l : Level} {A : UU l} → A → A → UU-Prop l
+merely-Id-Prop x y = trunc-Prop (Id x y)
+
+merely-Id : {l : Level} {A : UU l} → A → A → UU l
+merely-Id x y = type-trunc-Prop (Id x y)
+
+refl-merely-Id :
+  {l : Level} {A : UU l} (x : A) → merely-Id x x
+refl-merely-Id x = unit-trunc-Prop refl
+
+symmetric-merely-Id :
+  {l : Level} {A : UU l} {x y : A} → merely-Id x y → merely-Id y x
+symmetric-merely-Id {x = x} {y} =
+  functor-trunc-Prop inv
+
+transitive-merely-Id :
+  {l : Level} {A : UU l} {x y z : A} →
+  merely-Id y z → merely-Id x y → merely-Id x z
+transitive-merely-Id {x = x} {y} {z} p =
+  apply-universal-property-trunc-Prop p
+    ( hom-Prop (merely-Id-Prop x y) (merely-Id-Prop x z))
+    ( λ q → functor-trunc-Prop (λ p → p ∙ q))
+
+-- Exercise 14.3
 
 is-propositional-truncation-prod :
   {l1 l2 l3 l4 : Level}
@@ -67,31 +171,11 @@ equiv-prod-trunc-Prop A A' =
           ( is-propositional-truncation-trunc-Prop A)
           ( is-propositional-truncation-trunc-Prop A'))))
 
--- Exercise 13.3
+-- Exercise 14.4
 
--- Exercise 13.9
+-- Exercise 14.5
 
-map-dn-trunc-Prop :
-  {l : Level} (A : UU l) → ¬¬ (type-trunc-Prop A) → ¬¬ A
-map-dn-trunc-Prop A =
-  dn-extend (map-universal-property-trunc-Prop (dn-Prop' A) intro-dn)
-
-inv-map-dn-trunc-Prop :
-  {l : Level} (A : UU l) → ¬¬ A → ¬¬ (type-trunc-Prop A)
-inv-map-dn-trunc-Prop A =
-  dn-extend (λ a → intro-dn (unit-trunc-Prop a))
-
-equiv-dn-trunc-Prop :
-  {l : Level} (A : UU l) → ¬¬ (type-trunc-Prop A) ≃ ¬¬ A
-equiv-dn-trunc-Prop A =
-  equiv-iff
-    ( dn-Prop (trunc-Prop A))
-    ( dn-Prop' A)
-    ( pair
-      ( map-dn-trunc-Prop A)
-      ( inv-map-dn-trunc-Prop A))
-
--- Exercise 13.10
+-- Exercise 14.6
 
 -- The impredicative encoding of the propositional truncation --
 
@@ -356,7 +440,7 @@ equiv-impredicative-id-Prop A x y =
       ( map-impredicative-id-Prop A x y)
       ( inv-map-impredicative-id-Prop A x y))
 
---------------------------------------------------------------------------------
+-- Exercise 14.7
 
 is-weakly-constant-map :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} → (A → B) → UU (l1 ⊔ l2)
