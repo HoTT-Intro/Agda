@@ -453,7 +453,7 @@ eq-false-equiv' e p (inr x) =
   ind-empty
     ( Eq-𝟚-eq true false
       ( ap pr1
-        ( eq-is-contr
+        ( eq-is-contr'
           ( is-contr-map-is-equiv (is-equiv-map-equiv e) true)
           ( pair true p)
           ( pair false (eq-true (map-equiv e false) x)))))

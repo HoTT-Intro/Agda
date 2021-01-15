@@ -111,7 +111,7 @@ is-one-number-of-elements-count-is-contr (pair (succ-ℕ (succ-ℕ k)) e) H =
   ex-falso
     ( Eq-Fin-eq
       ( is-injective-map-equiv e
-        ( eq-is-contr H (map-equiv e zero-Fin) (map-equiv e neg-one-Fin))))
+        ( eq-is-contr' H (map-equiv e zero-Fin) (map-equiv e neg-one-Fin))))
 
 count-unit : count unit
 count-unit = count-is-contr is-contr-unit

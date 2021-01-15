@@ -630,9 +630,9 @@ issec-inv-gap-prod A B (pair a (pair b p)) =
   eq-Eq-canonical-pullback
     ( const A unit star)
     ( const B unit star)
-    refl
-    refl
-    ( eq-is-contr (is-prop-is-contr is-contr-unit star star) p refl)
+    ( refl)
+    ( refl)
+    ( eq-is-contr (is-prop-is-contr is-contr-unit star star))
 
 isretr-inv-gap-prod :
   {i j : Level} (A : UU i) (B : UU j) →

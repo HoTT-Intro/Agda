@@ -25,15 +25,19 @@ abstract
   center (pair c is-contr-A) = c
   
 -- We make sure that the contraction is coherent in a straightforward way
-eq-is-contr :
+eq-is-contr' :
   {l : Level} {A : UU l} → is-contr A → (x y : A) → Id x y
-eq-is-contr (pair c C) x y = (inv (C x)) ∙ (C y)
+eq-is-contr' (pair c C) x y = (inv (C x)) ∙ (C y)
+
+eq-is-contr :
+  {l : Level} {A : UU l} → is-contr A → {x y : A} → Id x y
+eq-is-contr (pair c C) {x} {y} = (inv (C x)) ∙ (C y)
 
 abstract
   contraction :
     {l : Level} {A : UU l} (is-contr-A : is-contr A) →
     (const A A (center is-contr-A) ~ id)
-  contraction (pair c C) x = eq-is-contr (pair c C) c x
+  contraction (pair c C) x = eq-is-contr (pair c C)
   
   coh-contraction :
     {l : Level} {A : UU l} (is-contr-A : is-contr A) →
@@ -429,7 +433,7 @@ abstract
 
 contraction-is-prop-is-contr :
   {i : Level} {A : UU i} (H : is-contr A) {x y : A} →
-  (p : Id x y) → Id (eq-is-contr H x y) p
+  (p : Id x y) → Id (eq-is-contr H) p
 contraction-is-prop-is-contr (pair c C) {x} refl = left-inv (C x)
 
 abstract
@@ -437,7 +441,7 @@ abstract
     (x y : A) → is-contr (Id x y)
   is-prop-is-contr {i} {A} is-contr-A x y =
     pair
-      ( eq-is-contr is-contr-A x y)
+      ( eq-is-contr is-contr-A)
       ( contraction-is-prop-is-contr is-contr-A)
 
 -- Exercise 10.2
@@ -567,7 +571,7 @@ is-not-contractible-Fin :
 is-not-contractible-Fin zero-ℕ f = is-not-contractible-empty
 is-not-contractible-Fin (succ-ℕ zero-ℕ) f C = f refl
 is-not-contractible-Fin (succ-ℕ (succ-ℕ k)) f C =
-  Eq-Fin-eq (eq-is-contr C neg-two-Fin neg-one-Fin)
+  Eq-Fin-eq (eq-is-contr' C neg-two-Fin neg-one-Fin)
 
 -- Exercise 10.5
 

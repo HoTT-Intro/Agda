@@ -238,10 +238,12 @@ abstract
     is-equiv-has-inverse
       ( pr1 sec-f)
       ( htpy-eq (pr2 sec-f))
-      ( htpy-eq (ap pr1 (eq-is-contr
-        ( is-contr-map-is-equiv (post-comp-equiv-f X) f)
-        ( pair ((pr1 sec-f) ∘ f) (ap (λ t → t ∘ f) (pr2 sec-f)))
-        ( pair id refl))))
+      ( htpy-eq
+        ( ap ( pr1)
+             ( eq-is-contr'
+               ( is-contr-map-is-equiv (post-comp-equiv-f X) f)
+               ( pair ((pr1 sec-f) ∘ f) (ap (λ t → t ∘ f) (pr2 sec-f)))
+               ( pair id refl))))
 
 {- The following version of the same theorem works when X and Y are in the same
    universe. The condition of inducing equivalences by postcomposition is 
@@ -257,10 +259,12 @@ is-equiv-is-equiv-postcomp'
   is-equiv-has-inverse
     ( pr1 sec-f)
     ( htpy-eq (pr2 sec-f))
-    ( htpy-eq (ap pr1 (eq-is-contr
-      ( is-contr-map-is-equiv (is-equiv-postcomp-f X) f)
-      ( pair ((pr1 sec-f) ∘ f) (ap (λ t → t ∘ f) (pr2 sec-f)))
-      ( pair id refl))))
+    ( htpy-eq
+      ( ap ( pr1)
+           ( eq-is-contr'
+             ( is-contr-map-is-equiv (is-equiv-postcomp-f X) f)
+             ( pair ((pr1 sec-f) ∘ f) (ap (λ t → t ∘ f) (pr2 sec-f)))
+             ( pair id refl))))
 
 abstract
   is-equiv-postcomp-is-equiv :
@@ -409,9 +413,7 @@ is-contr-equiv-is-contr :
 is-contr-equiv-is-contr is-contr-A is-contr-B =
   pair
     ( equiv-is-contr is-contr-A is-contr-B)
-    ( λ e → eq-htpy-equiv
-      ( λ x →
-        eq-is-contr is-contr-B (center is-contr-B) (map-equiv e x)))
+    ( λ e → eq-htpy-equiv (λ x → eq-is-contr is-contr-B))
 
 is-trunc-is-contr :
   { l : Level} (k : 𝕋) {A : UU l} → is-contr A → is-trunc k A
@@ -505,8 +507,7 @@ abstract
   is-prop-is-contr-endomaps :
     {l : Level} (P : UU l) → is-contr (P → P) → is-prop P
   is-prop-is-contr-endomaps P H =
-    is-prop-is-prop'
-      ( λ x → htpy-eq (eq-is-contr H (const P P x) id))
+    is-prop-is-prop' (λ x → htpy-eq (eq-is-contr H))
 
 abstract
   is-contr-endomaps-is-prop :

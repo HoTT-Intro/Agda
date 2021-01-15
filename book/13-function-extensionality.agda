@@ -897,12 +897,14 @@ abstract
     let retr-f = center (is-contr-map-is-equiv (is-equiv-precomp-f _ A) id) in
     is-equiv-has-inverse
       ( pr1 retr-f)
-      ( htpy-eq (ap pr1 (eq-is-contr
-        ( is-contr-map-is-equiv (is-equiv-precomp-f _ B) f)
-          ( pair
-            ( f ∘ (pr1 retr-f))
-            ( ap (λ (g : pr1 A → pr1 A) → f ∘ g) (pr2 retr-f)))
-        ( pair id refl))))
+      ( htpy-eq
+        ( ap ( pr1)
+             ( eq-is-contr'
+               ( is-contr-map-is-equiv (is-equiv-precomp-f _ B) f)
+                 ( pair
+                   ( f ∘ (pr1 retr-f))
+                   ( ap (λ (g : pr1 A → pr1 A) → f ∘ g) (pr2 retr-f)))
+                 ( pair id refl))))
       ( htpy-eq (pr2 retr-f))
 
 abstract

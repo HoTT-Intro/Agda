@@ -2,7 +2,7 @@
 
 module book.15-image where
 
-open import book.14-propositional-truncation-solutions public
+open import book.14-propositional-truncation public
 
 --------------------------------------------------------------------------------
 

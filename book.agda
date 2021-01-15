@@ -20,7 +20,6 @@ open import book.12-truncation-levels public
 open import book.13-function-extensionality public
 open import book.13-function-extensionality-solutions public
 open import book.14-propositional-truncation public
-open import book.14-propositional-truncation-solutions public
 open import book.15-image public
 open import book.16-finite-types public
 open import book.17-univalence public

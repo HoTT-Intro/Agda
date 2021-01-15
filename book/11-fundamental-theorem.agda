@@ -404,10 +404,9 @@ abstract
     (is-contr-AB : is-contr (Σ A B)) (P : (x : A) → B x → UU k) →
     P a b → (x : A) (y : B x) → P x y
   ind-identity-system a b is-contr-AB P p x y =
-    tr
-      ( fam-Σ P)
-      ( eq-is-contr is-contr-AB (pair a b) (pair x y))
-      ( p)
+    tr ( fam-Σ P)
+       ( eq-is-contr is-contr-AB)
+       ( p)
 
   comp-identity-system :
     {i j k : Level} {A : UU i} {B : A → UU j} (a : A) (b : B a) →
@@ -415,12 +414,11 @@ abstract
     (P : (x : A) → B x → UU k) (p : P a b) →
     Id (ind-identity-system a b is-contr-AB P p a b) p
   comp-identity-system a b is-contr-AB P p =
-    ap
-      ( λ t → tr (fam-Σ P) t p)
-      ( eq-is-contr
-        ( is-prop-is-contr is-contr-AB (pair a b) (pair a b))
-        ( eq-is-contr is-contr-AB (pair a b) (pair a b))
-        ( refl))
+    ap ( λ t → tr (fam-Σ P) t p)
+       ( eq-is-contr'
+         ( is-prop-is-contr is-contr-AB (pair a b) (pair a b))
+         ( eq-is-contr is-contr-AB)
+         ( refl))
 
   Ind-identity-system :
     {i j : Level} (k : Level) {A : UU i} {B : A → UU j} (a : A) (b : B a) →
