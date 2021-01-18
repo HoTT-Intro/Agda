@@ -176,6 +176,8 @@ postulate unit-trunc-Prop : {l : Level} {A : UU l} → A → type-trunc-Prop A
 
 postulate is-prop-type-trunc-Prop' : {l : Level} {A : UU l} → is-prop' (type-trunc-Prop A)
 
+-- Lemma 14.2.1
+
 is-prop-type-trunc-Prop : {l : Level} {A : UU l} → is-prop (type-trunc-Prop A)
 is-prop-type-trunc-Prop {l} {A} = is-prop-is-prop' is-prop-type-trunc-Prop'
 
