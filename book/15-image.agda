@@ -6,11 +6,11 @@ open import book.14-propositional-truncation public
 
 --------------------------------------------------------------------------------
 
--- Section 14.4 The image of a map
+-- Section 15 The image of a map
 
 --------------------------------------------------------------------------------
 
--- The universal property of the image
+-- Section 15.1 The universal property of the image
 
 -- Definition 14.4.1
 
