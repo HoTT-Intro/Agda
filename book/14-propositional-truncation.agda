@@ -446,6 +446,23 @@ intro-exists-Prop :
   (x : A) → type-Prop (P x) → exists P
 intro-exists-Prop {A = A} P x p = unit-trunc-Prop (pair x p)
 
+∃-Prop :
+  {l1 l2 : Level} {A : UU l1} (B : A → UU l2) → UU-Prop (l1 ⊔ l2)
+∃-Prop {A = A} B = trunc-Prop (Σ A B)
+
+∃ :
+  {l1 l2 : Level} {A : UU l1} (B : A → UU l2) → UU (l1 ⊔ l2)
+∃ B = type-Prop (∃-Prop B)
+
+is-prop-∃ :
+  {l1 l2 : Level} {A : UU l1} (B : A → UU l2) → is-prop (∃ B)
+is-prop-∃ B = is-prop-type-Prop (∃-Prop B)
+
+intro-∃ :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (a : A) (b : B a) →
+  ∃ B
+intro-∃ a b = unit-trunc-Prop (pair a b)
+
 -- Proposition
 
 ev-intro-exists-Prop :
