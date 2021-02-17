@@ -1142,6 +1142,18 @@ is-equiv-map-reduce-Π-fib f C =
     ( issec-inv-map-reduce-Π-fib f C)
     ( isretr-inv-map-reduce-Π-fib f C)
 
+reduce-Π-fib' :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  (C : (y : B) (z : fib f y) → UU l3) →
+  ((y : B) (z : fib f y) → C y z) ≃ ((x : A) → C (f x) (pair x refl))
+reduce-Π-fib' f C =
+  pair (map-reduce-Π-fib f C) (is-equiv-map-reduce-Π-fib f C)
+
+reduce-Π-fib :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  (C : B → UU l3) → ((y : B) → fib f y → C y) ≃ ((x : A) → C (f x))
+reduce-Π-fib f C = reduce-Π-fib' f (λ y z → C y)
+
 -- Exercise 13.16
 
 hom-slice :
@@ -1164,7 +1176,7 @@ triangle-hom-slice f g h = pr2 h
 
 htpy-hom-slice :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
-  (f : A → X) (g : B → X) (h h' : hom-slice f g) → UU _
+  (f : A → X) (g : B → X) (h h' : hom-slice f g) → UU (l1 ⊔ l2 ⊔ l3)
 htpy-hom-slice f g h h' =
   Σ ( map-hom-slice f g h ~ map-hom-slice f g h')
     ( λ K →
