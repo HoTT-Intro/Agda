@@ -5,6 +5,62 @@ module book.14-propositional-truncation where
 import book.13-function-extensionality-solutions
 open book.13-function-extensionality-solutions public
 
+-- Exercise 13.6
+
+_⇔_ :
+  {l1 l2 : Level} → UU-Prop l1 → UU-Prop l2 → UU (l1 ⊔ l2)
+P ⇔ Q = (pr1 P → pr1 Q) × (pr1 Q → pr1 P)
+
+equiv-iff :
+  {l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) →
+  (P ⇔ Q) → (pr1 P ≃ pr1 Q)
+equiv-iff P Q t = pair (pr1 t) (is-equiv-is-prop (pr2 P) (pr2 Q) (pr2 t))
+
+iff-equiv :
+  {l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) →
+  (pr1 P ≃ pr1 Q) → (P ⇔ Q)
+iff-equiv P Q equiv-PQ = pair (pr1 equiv-PQ) (map-inv-is-equiv (pr2 equiv-PQ))
+
+abstract
+  is-prop-iff :
+    {l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) → is-prop (P ⇔ Q)
+  is-prop-iff P Q =
+    is-prop-prod
+      ( is-prop-function-type (pr2 Q))
+      ( is-prop-function-type (pr2 P))
+
+equiv-Prop :
+  { l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) → UU (l1 ⊔ l2)
+equiv-Prop P Q = (type-Prop P) ≃ (type-Prop Q)
+
+abstract
+  is-prop-equiv-Prop :
+    {l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) →
+    is-prop ((pr1 P) ≃ (pr1 Q))
+  is-prop-equiv-Prop P Q =
+    is-prop-equiv-is-prop (pr2 P) (pr2 Q)
+
+abstract
+  is-equiv-equiv-iff :
+    {l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) → is-equiv (equiv-iff P Q)
+  is-equiv-equiv-iff P Q =
+    is-equiv-is-prop
+      ( is-prop-iff P Q)
+      ( is-prop-equiv-Prop P Q)
+      ( iff-equiv P Q)
+
+abstract
+  is-prop-is-contr-endomaps :
+    {l : Level} (P : UU l) → is-contr (P → P) → is-prop P
+  is-prop-is-contr-endomaps P H =
+    is-prop-is-prop' (λ x → htpy-eq (eq-is-contr H))
+
+abstract
+  is-contr-endomaps-is-prop :
+    {l : Level} (P : UU l) → is-prop P → is-contr (P → P)
+  is-contr-endomaps-is-prop P is-prop-P =
+    is-proof-irrelevant-is-prop (is-prop-function-type is-prop-P) id
+
 --------------------------------------------------------------------------------
 
 -- Section 14 Propositional truncations and the image of a map
