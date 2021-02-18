@@ -80,8 +80,7 @@ is-contr-total-htpy-hom-ℍ {join-ℍ m x} {join-ℍ n y} (pair f F) =
     ( pair f refl-htpy)
     ( is-contr-total-Eq-Π
       ( λ i G → htpy-hom-ℍ (F i) G)
-      ( λ i → is-contr-total-htpy-hom-ℍ (F i))
-      ( λ i → F i))
+      ( λ i → is-contr-total-htpy-hom-ℍ (F i)))
 
 is-equiv-htpy-hom-ℍ-eq : {x y : ℍ} (f g : hom-ℍ x y) →
   is-equiv (htpy-hom-ℍ-eq {x} {y} {f} {g})

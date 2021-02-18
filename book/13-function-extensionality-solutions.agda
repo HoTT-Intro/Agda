@@ -399,20 +399,52 @@ set-equiv A B =
     ( type-Set A ≃ type-Set B)
     ( is-set-equiv-is-set (is-set-type-Set A) (is-set-type-Set B))
 
--- Exercise 13.9
+-- Exercise 13.4
+
+dependent-universal-property-empty :
+  (l : Level) {l1 : Level} (A : UU l1) → UU (l1 ⊔ lsuc l)
+dependent-universal-property-empty l A =
+  (P : A → UU l) → is-contr ((x : A) → P x)
+
+universal-property-empty :
+  (l : Level) {l1 : Level} (A : UU l1) → UU (l1 ⊔ lsuc l)
+universal-property-empty l A =
+  (X : UU l) → is-contr (A → X)
+
+universal-property-dependent-universal-property-empty :
+  {l1 : Level} (A : UU l1) →
+  ({l : Level} → dependent-universal-property-empty l A) →
+  ({l : Level} → universal-property-empty l A)
+universal-property-dependent-universal-property-empty A dup-empty {l} X =
+  dup-empty {l} (λ a → X)
+
+is-empty-universal-property-empty :
+  {l1 : Level} (A : UU l1) →
+  ({l : Level} → universal-property-empty l A) → is-empty A
+is-empty-universal-property-empty A up-empty =
+  center (up-empty empty)
+
+dependent-universal-property-empty-is-empty :
+  {l1 : Level} (A : UU l1) (H : is-empty A) →
+  {l : Level} → dependent-universal-property-empty l A
+dependent-universal-property-empty-is-empty A H {l} P =
+  pair
+    ( λ x → ex-falso (H x))
+    ( λ f → eq-htpy (λ x → ex-falso (H x)))
 
 abstract
-  dependent-universal-property-empty :
+  dependent-universal-property-empty' :
     {l : Level} (P : empty → UU l) → is-contr ((x : empty) → P x)
-  dependent-universal-property-empty P =
+  dependent-universal-property-empty' P =
     pair
       ( ind-empty {P = P})
       ( λ f → eq-htpy ind-empty)
 
 abstract
-  universal-property-empty :
+  universal-property-empty' :
     {l : Level} (X : UU l) → is-contr (empty → X)
-  universal-property-empty X = dependent-universal-property-empty (λ t → X)
+  universal-property-empty' X =
+    dependent-universal-property-empty' (λ t → X)
 
 abstract
   uniqueness-empty :
@@ -423,7 +455,7 @@ abstract
       ( λ l X → is-equiv-is-contr
         ( λ g → g ∘ ind-empty)
         ( H _ X)
-        ( universal-property-empty X))
+        ( universal-property-empty' X))
 
 abstract
   universal-property-empty-is-equiv-ind-empty :
@@ -434,46 +466,152 @@ abstract
       ( empty → Y)
       ( λ f → f ∘ ind-empty)
       ( is-equiv-precomp-is-equiv ind-empty is-equiv-ind-empty Y)
-      ( universal-property-empty Y)
+      ( universal-property-empty' Y)
 
--- Exercise 13.10
+-- Exercise 13.5
 
--- Exercise 13.10 (a)
+ev-point :
+  {l1 l2 : Level} {A : UU l1} (a : A) {P : A → UU l2} →
+  ((x : A) → P x) → P a
+ev-point a f = f a
+
+ev-point' :
+  {l1 l2 : Level} {A : UU l1} (a : A) {X : UU l2} → (A → X) → X
+ev-point' a f = f a
+
+dependent-universal-property-contr :
+  (l : Level) {l1 : Level} {A : UU l1} (a : A) → UU (l1 ⊔ lsuc l)
+dependent-universal-property-contr l {l1} {A} a =
+  (P : A → UU l) → is-equiv (ev-point a {P})
+
+universal-property-contr :
+  (l : Level) {l1 : Level} {A : UU l1} (a : A) → UU (l1 ⊔ lsuc l)
+universal-property-contr l {l1} {A} a =
+  (X : UU l) → is-equiv (ev-point' a {X})
+
+universal-property-dependent-universal-property-contr :
+  {l1 : Level} {A : UU l1} (a : A) →
+  ({l : Level} → dependent-universal-property-contr l a) →
+  ({l : Level} → universal-property-contr l a)
+universal-property-dependent-universal-property-contr a dup-contr {l} X =
+  dup-contr {l} (λ x → X)
+
+is-equiv-ev-point-universal-property-contr :
+  {l1 : Level} {A : UU l1} (a : A) →
+  ({l : Level} → universal-property-contr l a) →
+  is-equiv (ev-point' a {A})
+is-equiv-ev-point-universal-property-contr {l1} {A} a up-contr =
+  up-contr A
+
+is-contr-is-equiv-ev-point :
+  {l1 : Level} {A : UU l1} (a : A) →
+  is-equiv (ev-point' a {A}) → is-contr A
+is-contr-is-equiv-ev-point a H =
+  pair a ( htpy-eq
+           ( ap
+             ( pr1)
+             ( eq-is-contr'
+               ( is-contr-map-is-equiv H a)
+               ( pair (λ x → a) refl)
+               ( pair id refl))))
+
+is-contr-universal-property-contr :
+  {l1 : Level} {A : UU l1} (a : A) →
+  ({l : Level} → universal-property-contr l a) → is-contr A
+is-contr-universal-property-contr {l1} {A} a up-contr =
+  is-contr-is-equiv-ev-point a
+    ( is-equiv-ev-point-universal-property-contr a up-contr)
+
+is-contr-dependent-universal-property-contr :
+  {l1 : Level} {A : UU l1} (a : A) →
+  ({l : Level} → dependent-universal-property-contr l a) → is-contr A
+is-contr-dependent-universal-property-contr a dup-contr =
+  is-contr-universal-property-contr a
+    ( universal-property-dependent-universal-property-contr a dup-contr)
+
+dependent-universal-property-contr-is-contr :
+  {l1 : Level} {A : UU l1} (a : A) → is-contr A →
+  {l : Level} → dependent-universal-property-contr l a
+dependent-universal-property-contr-is-contr a H {l} P =
+  is-equiv-has-inverse
+    ( ind-singleton-is-contr a H P)
+    ( comp-singleton-is-contr a H P)
+    ( λ f →
+      eq-htpy
+        ( ind-singleton-is-contr a H
+          ( λ x → Id (ind-singleton-is-contr a H P (f a) x) (f x))
+          ( comp-singleton-is-contr a H P (f a))))
+
+is-equiv-self-diagonal-is-equiv-diagonal :
+  {l1 : Level} {A : UU l1} →
+  ({l : Level} (X : UU l) → is-equiv (λ x → const A X x)) →
+  is-equiv (λ x → const A A x)
+is-equiv-self-diagonal-is-equiv-diagonal {l1} {A} H = H A
+
+is-contr-is-equiv-self-diagonal :
+  {l1 : Level} {A : UU l1} → is-equiv (λ x → const A A x) → is-contr A
+is-contr-is-equiv-self-diagonal H =
+  tot (λ x → htpy-eq) (center (is-contr-map-is-equiv H id))
+
+is-contr-is-equiv-diagonal :
+  {l1 : Level} {A : UU l1} →
+  ({l : Level} (X : UU l) → is-equiv (λ x → const A X x)) → is-contr A
+is-contr-is-equiv-diagonal H =
+  is-contr-is-equiv-self-diagonal
+    ( is-equiv-self-diagonal-is-equiv-diagonal H)
+
+is-equiv-diagonal-is-contr :
+  {l1 : Level} {A : UU l1} → is-contr A →
+  {l : Level} (X : UU l) → is-equiv (λ x → const A X x)
+is-equiv-diagonal-is-contr {l1} {A} H X =
+  is-equiv-has-inverse
+    ( ev-point' (center H))
+    ( λ f → eq-htpy (λ x → ap f (contraction H x)))
+    ( λ x → refl)
+
+-- We conclude that the properties in the exercise hold for the unit type
 
 ev-star :
   {l : Level} (P : unit → UU l) → ((x : unit) → P x) → P star
 ev-star P f = f star
 
+ev-star' :
+  {l : Level} (Y : UU l) → (unit → Y) → Y
+ev-star' Y = ev-star (λ t → Y)
+
+pt : {l1 : Level} {X : UU l1} (x : X) → unit → X
+pt x y = x
+
 abstract
   dependent-universal-property-unit :
     {l : Level} (P : unit → UU l) → is-equiv (ev-star P)
-  dependent-universal-property-unit P =
-    is-equiv-has-inverse
-      ( ind-unit)
-      ( λ p → refl)
-      ( λ f → eq-htpy (ind-unit refl))
+  dependent-universal-property-unit =
+    dependent-universal-property-contr-is-contr star is-contr-unit
+
+equiv-dependent-universal-property-unit :
+  {l : Level} (P : unit → UU l) → ((x : unit) → P x) ≃ P star
+equiv-dependent-universal-property-unit P =
+  pair (ev-star P) (dependent-universal-property-unit P)
 
 equiv-ev-star :
   {l : Level} (P : unit → UU l) → ((x : unit) → P x) ≃ P star
 equiv-ev-star P = pair (ev-star P) (dependent-universal-property-unit P)
-
-ev-star' :
-  {l : Level} (Y : UU l) → (unit → Y) → Y
-ev-star' Y = ev-star (λ t → Y)
 
 abstract
   universal-property-unit :
     {l : Level} (Y : UU l) → is-equiv (ev-star' Y)
   universal-property-unit Y = dependent-universal-property-unit (λ t → Y)
 
+equiv-universal-property-unit :
+  {l : Level} (Y : UU l) → (unit → Y) ≃ Y
+equiv-universal-property-unit Y =
+  pair (ev-star' Y) (universal-property-unit Y)
+
 equiv-ev-star' :
   {l : Level} (Y : UU l) → (unit → Y) ≃ Y
 equiv-ev-star' Y = pair (ev-star' Y) (universal-property-unit Y)
 
 -- Exercise 13.10 (b)
-
-pt : {l1 : Level} {X : UU l1} (x : X) → unit → X
-pt x y = x
 
 abstract
   is-equiv-pt-is-contr :
@@ -528,15 +666,7 @@ abstract
     is-equiv-is-section-is-equiv
       ( universal-property-unit-is-equiv-pt x is-equiv-pt Y)
       ( refl-htpy)
-
-abstract
-  is-equiv-diagonal-is-contr :
-    {l1 : Level} {X : UU l1} (x : X) →
-    is-contr X →
-    ({l2 : Level} (Y : UU l2) → is-equiv (λ y → const X Y y))
-  is-equiv-diagonal-is-contr x is-contr-X =
-    is-equiv-diagonal-is-equiv-pt x (is-equiv-pt-is-contr x is-contr-X)
-    
+  
 -- Exercise 13.11
 
 ev-inl-inr :
@@ -1680,7 +1810,7 @@ function-Fin :
   (k l : ℕ) → (Fin k → Fin l) ≃ Fin (exp-ℕ l k)
 function-Fin zero-ℕ l =
   ( inv-left-unit-law-coprod unit) ∘e
-  ( equiv-is-contr (universal-property-empty (Fin l)) is-contr-unit)
+  ( equiv-is-contr (universal-property-empty' (Fin l)) is-contr-unit)
 function-Fin (succ-ℕ k) l =
   ( ( prod-Fin (exp-ℕ l k) l) ∘e
     ( equiv-prod (function-Fin k l) (equiv-ev-star' (Fin l)))) ∘e

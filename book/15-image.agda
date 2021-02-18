@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --exact-split #-}
+{-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
 module book.15-image where
 
@@ -383,7 +383,6 @@ dependent-universal-property-surj-is-surjective f is-surj-f P =
         ( λ y p z → p)
         ( λ y →
           is-equiv-diagonal-is-contr
-            ( is-surj-f y)
             ( is-proof-irrelevant-is-prop
               ( is-prop-type-trunc-Prop)
               ( is-surj-f y))

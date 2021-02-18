@@ -543,25 +543,13 @@ contraction-total-Eq-ℤ :
 contraction-total-Eq-ℤ (inl x) (pair (inl y) e) =
   eq-pair-Σ
     ( ap inl (eq-Eq-ℕ x y e))
-    ( eq-is-prop
-      ( is-prop-Eq-ℕ x y)
-      ( tr
-        ( Eq-ℤ (inl x))
-        ( ap inl (eq-Eq-ℕ x y e))
-        ( refl-Eq-ℤ (inl x)))
-      ( e))
+    ( eq-is-prop (is-prop-Eq-ℕ x y))
 contraction-total-Eq-ℤ (inr (inl star)) (pair (inr (inl star)) e) =
-  eq-pair-Σ refl (eq-is-prop is-prop-unit (refl-Eq-ℤ zero-ℤ) e)
+  eq-pair-Σ refl (eq-is-prop is-prop-unit)
 contraction-total-Eq-ℤ (inr (inr x)) (pair (inr (inr y)) e) =
   eq-pair-Σ
     ( ap (inr ∘ inr) (eq-Eq-ℕ x y e))
-    ( eq-is-prop
-      ( is-prop-Eq-ℕ x y)
-      ( tr
-        ( Eq-ℤ (inr (inr x)))
-        ( ap (inr ∘ inr) (eq-Eq-ℕ x y e))
-        ( refl-Eq-ℤ (inr (inr x))))
-      ( e))
+    ( eq-is-prop (is-prop-Eq-ℕ x y))
 
 is-contr-total-Eq-ℤ :
   (x : ℤ) → is-contr (Σ ℤ (Eq-ℤ x))

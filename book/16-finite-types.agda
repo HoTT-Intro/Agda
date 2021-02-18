@@ -1914,7 +1914,7 @@ count-Π-Fin :
   {l1 : Level} {k : ℕ} {B : Fin k → UU l1} →
   ((x : Fin k) → count (B x)) → count ((x : Fin k) → B x)
 count-Π-Fin {l1} {zero-ℕ} {B} e =
-  count-is-contr (dependent-universal-property-empty B)
+  count-is-contr (dependent-universal-property-empty' B)
 count-Π-Fin {l1} {succ-ℕ k} {B} e =
   count-equiv'
     ( equiv-dependent-universal-property-coprod B)

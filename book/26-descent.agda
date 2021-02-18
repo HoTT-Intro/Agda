@@ -987,7 +987,7 @@ htpy-equiv-eq-ap-fam :
   {l1 l2 : Level} {A : UU l1} (B : A → UU l2) {x y : A} (p : Id x y) →
   htpy-equiv (equiv-tr B p) (equiv-eq (ap B p))
 htpy-equiv-eq-ap-fam B {x} {.x} refl =
-  reflexive-htpy-equiv equiv-id
+  refl-htpy-equiv equiv-id
 
 triangle-desc-fam :
   {l1 l2 l3 l4 l : Level} {S : UU l1} {A : UU l2} {B : UU l3} {X : UU l4}
