@@ -509,6 +509,55 @@ is-set-has-decidable-equality d =
     ( λ x → reflexive-Eq-has-decidable-equality d x)
     ( λ x y → eq-Eq-has-decidable-equality d)
 
+{- We also prove a unary version of Hedberg's theorem -}
+
+Eq-unary-Hedberg' :
+  {l : Level} {A : UU l} {x y : A} → is-decidable (Id x y) → UU lzero
+Eq-unary-Hedberg' (inl p) = unit 
+Eq-unary-Hedberg' (inr f) = empty
+
+Eq-unary-Hedberg :
+  {l : Level} {A : UU l} {x : A} (d : (y : A) → is-decidable (Id x y)) →
+  A → UU lzero
+Eq-unary-Hedberg d y = Eq-unary-Hedberg' (d y)
+
+is-prop-Eq-unary-Hedberg' :
+  {l : Level} {A : UU l} {x y : A} (d : is-decidable (Id x y)) →
+  is-prop (Eq-unary-Hedberg' d)
+is-prop-Eq-unary-Hedberg' (inl p) = is-prop-unit
+is-prop-Eq-unary-Hedberg' (inr f) = is-prop-empty
+
+is-prop-Eq-unary-Hedberg :
+  {l : Level} {A : UU l} {x : A} (d : (y : A) → is-decidable (Id x y)) →
+  (y : A) → is-prop (Eq-unary-Hedberg d y)
+is-prop-Eq-unary-Hedberg d y = is-prop-Eq-unary-Hedberg' (d y)
+
+refl-Eq-unary-Hedberg :
+  {l : Level} {A : UU l} {x : A} (d : (y : A) → is-decidable (Id x y)) →
+  Eq-unary-Hedberg d x
+refl-Eq-unary-Hedberg {x = x} d with (d x)
+... | inl p = star
+... | inr f = f refl
+
+{-
+contraction-total-Eq-unary-Hedberg' :
+  {l : Level} {A : UU l} {x : A} (d : (y : A) → is-decidable (Id x y)) →
+  (t : Σ A (Eq-unary-Hedberg d)) →
+  (u : is-decidable (Id x (pr1 t))) (v : Id (d (pr1 t)) u) →
+  Id (pair x (refl-Eq-unary-Hedberg d)) t
+contraction-total-Eq-unary-Hedberg' {l} {A} {x} d (pair y t) (inl x₁) v =
+  eq-pair-Σ {!map-inv-is-equiv (is-emb-inl (Id x y) (¬ (Id x y)) ? ?!} {!!}
+contraction-total-Eq-unary-Hedberg' {l} {A} {x} d (pair y t) (inr x₁) v = {!!}
+
+is-contr-total-Eq-unary-Hedberg :
+  {l : Level} {A : UU l} {x : A} (d : (y : A) → is-decidable (Id x y)) →
+  is-contr (Σ A (Eq-unary-Hedberg d))
+is-contr-total-Eq-unary-Hedberg {l} {A} {x} d =
+  pair
+    ( pair x (refl-Eq-unary-Hedberg d))
+    {! α!}
+-}
+
 -- Section 12.3 General truncation levels
 
 data 𝕋 : UU lzero where

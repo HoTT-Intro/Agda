@@ -427,6 +427,18 @@ is-surjective-universal-property-image :
 is-surjective-universal-property-image f i q up-i b = {!!}
 -}
 
+is-surjective-map-im :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  is-surjective (map-im f)
+is-surjective-map-im f (pair y z) =
+  apply-universal-property-trunc-Prop z
+    ( trunc-Prop (fib (map-im f) (pair y z)))
+    ( α)
+  where
+  α : fib f y → type-Prop (trunc-Prop (fib (map-im f) (pair y z)))
+  α (pair x p) =
+    unit-trunc-Prop (pair x (eq-subtype (λ z → is-prop-type-trunc-Prop) p))
+
 --------------------------------------------------------------------------------
 
 -- Section 14.6 Cantor's diagonal argument

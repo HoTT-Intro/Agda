@@ -2064,6 +2064,8 @@ swap-with-Fin {k} x y z
 ... | inr f | inl q = x
 ... | inr f | inr g = z
 
+
+{-
 permutation-fold-Fin-μ-is-commutative-monoid-Magma :
   {l1 l2 : Level} (M : Magma-UU l1) (H : is-commutative-monoid-Magma M) →
   {k : ℕ} (e : Fin k ≃ Fin k) (f : Fin k → type-Magma M) →
@@ -2079,3 +2081,27 @@ is-weakly-constant-map-fold-count-μ-is-commutative-monoid-Magma :
   is-weakly-constant-map
     ( fold-count-μ-Magma' M (unit-is-commutative-monoid-Magma M H) {A} {k = k})
 is-weakly-constant-map-fold-count-μ-is-commutative-monoid-Magma M H {k} e f = {!!}
+-}
+
+--------------------------------------------------------------------------------
+
+{- Finiteness of the image of a map -}
+
+{- We characterize when im(f) is finite, given that the domain of f is finite -}
+
+is-prop-Π-is-decidable-Id :
+  {l : Level} {A : UU l} (x : A) → is-prop ((y : A) → is-decidable (Id x y))
+is-prop-Π-is-decidable-Id {l} {A} x =
+  is-prop-is-proof-irrelevant (λ H → is-contr-Π (λ y → is-proof-irrelevant-is-prop (is-prop-coprod intro-dn {!is-set-has-decidable-equality!} {!!}) (H y)))
+
+is-finite-im :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  (e : is-finite A) → (d : (x : A) (y : B) → is-decidable (Id (f x) y)) →
+  is-finite (im f)
+is-finite-im f e d =
+  is-finite-base-is-finite-Σ-merely-inhabited
+    ( is-set-has-decidable-equality
+      {!!})
+    {!!}
+    {!!}
+    {!!}
