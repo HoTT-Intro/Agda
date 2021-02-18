@@ -1142,6 +1142,18 @@ is-equiv-map-reduce-Π-fib f C =
     ( issec-inv-map-reduce-Π-fib f C)
     ( isretr-inv-map-reduce-Π-fib f C)
 
+reduce-Π-fib' :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  (C : (y : B) (z : fib f y) → UU l3) →
+  ((y : B) (z : fib f y) → C y z) ≃ ((x : A) → C (f x) (pair x refl))
+reduce-Π-fib' f C =
+  pair (map-reduce-Π-fib f C) (is-equiv-map-reduce-Π-fib f C)
+
+reduce-Π-fib :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  (C : B → UU l3) → ((y : B) → fib f y → C y) ≃ ((x : A) → C (f x))
+reduce-Π-fib f C = reduce-Π-fib' f (λ y z → C y)
+
 -- Exercise 13.16
 
 hom-slice :
@@ -1164,7 +1176,7 @@ triangle-hom-slice f g h = pr2 h
 
 htpy-hom-slice :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
-  (f : A → X) (g : B → X) (h h' : hom-slice f g) → UU _
+  (f : A → X) (g : B → X) (h h' : hom-slice f g) → UU (l1 ⊔ l2 ⊔ l3)
 htpy-hom-slice f g h h' =
   Σ ( map-hom-slice f g h ~ map-hom-slice f g h')
     ( λ K →
@@ -1525,7 +1537,75 @@ abstract
 
 -- Exercise 13.19
 
+-- We first characterize the identity type of sec f
+
+htpy-sec :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B)
+  (s t : sec f) → UU (l1 ⊔ l2)
+htpy-sec f s t = Σ (pr1 s ~ pr1 t) (λ H → pr2 s ~ ((f ·l H) ∙h pr2 t))
+
+refl-htpy-sec :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  (s : sec f) → htpy-sec f s s
+refl-htpy-sec f s = pair refl-htpy refl-htpy
+
+htpy-eq-sec :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  (s t : sec f) → Id s t → htpy-sec f s t
+htpy-eq-sec f s .s refl = refl-htpy-sec f s
+
+is-contr-total-htpy-sec :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) (s : sec f) →
+  is-contr (Σ (sec f) (htpy-sec f s))
+is-contr-total-htpy-sec f s =
+  is-contr-total-Eq-structure
+    ( λ g G H → pr2 s ~ ((f ·l H) ∙h G))
+    ( is-contr-total-htpy (pr1 s))
+    ( pair (pr1 s) refl-htpy)
+    ( is-contr-total-htpy (pr2 s))
+
+is-equiv-htpy-eq-sec :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  (s t : sec f) → is-equiv (htpy-eq-sec f s t)
+is-equiv-htpy-eq-sec f s =
+  fundamental-theorem-id s
+    ( refl-htpy-sec f s)
+    ( is-contr-total-htpy-sec f s)
+    ( htpy-eq-sec f s)
+
+eq-htpy-sec :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} (s t : sec f) →
+  (H : (pr1 s) ~ (pr1 t)) (K : (pr2 s) ~ ((f ·l H) ∙h (pr2 t))) →
+  Id s t
+eq-htpy-sec {f = f} s t H K =
+  map-inv-is-equiv (is-equiv-htpy-eq-sec f s t) (pair H K)
+
+sec-pr1-Π :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  ((x : A) → B x) → sec (pr1 {B = B})
+sec-pr1-Π f = pair (λ x → pair x (f x)) refl-htpy
+
+map-inv-sec-pr1-Π :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  sec (pr1 {B = B}) → ((x : A) → B x)
+map-inv-sec-pr1-Π {B = B} s x = tr B (pr2 s x) (pr2 (pr1 s x))
+
+issec-map-inv-sec-pr1-Π :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  (sec-pr1-Π {B = B} ∘ map-inv-sec-pr1-Π {B = B}) ~ id
+issec-map-inv-sec-pr1-Π {A = A} {B = B} s =
+  eq-htpy-sec
+    { A = Σ A B}
+    { A}
+    { pr1}
+    ( sec-pr1-Π (map-inv-sec-pr1-Π s))
+    ( s)
+    ( λ x → inv (eq-pair-Σ (pr2 s x) refl))
+    ( λ x → inv {x = (ap pr1 (inv (eq-pair-Σ (pr2 s x) refl))) ∙ pr2 s x} {y = refl} (ap (concat' x (pr2 s x)) (ap-inv pr1 (eq-pair-Σ (pr2 s x) refl)) ∙ {!!}))
+
 -- Exercise 13.20
+
+-- Exercise 13.21
 
 
 --------------------------------------------------------------------------------

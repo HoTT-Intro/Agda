@@ -12,9 +12,9 @@ open import book.14-propositional-truncation public
 
 -- Section 15.1 The universal property of the image
 
--- Definition 14.4.1
+-- Definition 15.1.1
 
--- We introduce the image inclusion of a map.
+-- Morphisms from f to g over X were introduced in Exercise 13.16
 
 comp-hom-slice :
   {l1 l2 l3 l4 : Level} {X : UU l1} {A : UU l2} {B : UU l3} {C : UU l4}
@@ -35,7 +35,7 @@ is-equiv-hom-slice :
   (f : A → X) (g : B → X) → hom-slice f g → UU (l2 ⊔ l3)
 is-equiv-hom-slice f g h = is-equiv (map-hom-slice f g h)
 
--- Definition 14.4.2
+-- Definition 15.1.2 The universal property of the image
 
 precomp-emb :
   { l1 l2 l3 l4 : Level} {X : UU l1} {A : UU l2} (f : A → X)
@@ -57,7 +57,7 @@ universal-property-image :
 universal-property-image l {X = X} f i q =
   ( C : UU l) (j : C ↪ X) → is-equiv (precomp-emb f i q j)
 
--- Lemma 14.4.3
+-- Lemma 15.1.3
 
 is-prop-hom-slice :
   { l1 l2 l3 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
@@ -71,9 +71,9 @@ is-prop-hom-slice {X = X} f i =
       ( λ x → is-prop-Π
         ( λ p → is-prop-map-is-emb (is-emb-map-emb i) x)))
 
--- Proposition 14.4.4
+-- Proposition 15.1.4
 
--- Proposition 14.4.4 condition (ii)
+-- Proposition 15.1.4 condition (ii)
 
 universal-property-image' :
   ( l : Level) {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
@@ -97,34 +97,11 @@ universal-property-image-universal-property-image' l f i q up' C j =
     ( is-prop-hom-slice f j)
     ( up' C j)
 
--- Example 14.4.5
-
-universal-property-image-has-section :
-  (l : Level) {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
-  sec f → universal-property-image l f emb-id (pair f refl-htpy)
-universal-property-image-has-section l f (pair g H) =
-  universal-property-image-universal-property-image'
-    l f emb-id (pair f refl-htpy)
-    ( λ B m h → pair ((pr1 h) ∘ g) ( λ x → (inv (H x)) ∙ (pr2 h (g x))))
-
-universal-property-image-is-emb :
-  (l : Level) {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
-  (H : is-emb f) → universal-property-image l f (pair f H) (pair id refl-htpy)
-universal-property-image-is-emb l f H =
-  universal-property-image-universal-property-image'
-    l f (pair f H) (pair id refl-htpy)
-    ( λ B m h → h)
-
--- Example 14.4.6
-
-{- We show that a map A → P into a proposition P is a propositional truncation
-   if and only if P is the image of A in 1. -}
-
 --------------------------------------------------------------------------------
 
 -- The existence of the image
 
--- Definition 14.4.7
+-- Definition 15.1.5
 
 im :
   {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) → UU (l1 ⊔ l2)
@@ -148,7 +125,7 @@ hom-slice-im :
   hom-slice f (inclusion-im f)
 hom-slice-im f = pair (map-im f) (triangle-im f)
 
--- Proposition 14.4.8
+-- Proposition 15.1.6
 
 is-emb-inclusion-im :
   {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
@@ -160,7 +137,7 @@ emb-im :
   {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) → im f ↪ X
 emb-im f = pair (inclusion-im f) (is-emb-inclusion-im f)
 
--- Theorem 14.4.9
+-- Theorem 15.1.7
 
 fiberwise-map-universal-property-im :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3} (f : A → X) →
@@ -245,7 +222,7 @@ im-1-Type A = im-1-Type' (type-1-Type A)
 
 -- The uniqueness of the image
 
--- Proposition 14.4.10
+-- Proposition 15.1.8
 
 is-equiv-hom-slice-emb :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
@@ -339,17 +316,31 @@ up-image-is-equiv-up-image f i q i' q' h p up-i' is-equiv-h {l} =
 
 --------------------------------------------------------------------------------
 
--- Section 14.5 Surjective maps
+-- Section 15.2 Surjective maps
 
--- Definition 14.5.1
+-- Definition 15.2.1
 
 is-surjective :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} → (A → B) → UU (l1 ⊔ l2)
 is-surjective {B = B} f = (y : B) → type-trunc-Prop (fib f y)
 
--- Example 14.5.2
+-- Example 15.2.2
 
--- Proposition 14.5.3
+is-surjective-has-section :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
+  sec f → is-surjective f
+is-surjective-has-section (pair g G) b = unit-trunc-Prop (pair (g b) (G b))
+
+is-split-epimorphism :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) → UU (l1 ⊔ l2)
+is-split-epimorphism f = sec f
+
+is-surjective-is-equiv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
+  is-equiv f → is-surjective f
+is-surjective-is-equiv H = is-surjective-has-section (pr1 H)
+
+-- Proposition 15.2.3
 
 dependent-universal-property-surj :
   (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
@@ -402,7 +393,7 @@ dependent-universal-property-surj-is-surjective f is-surj-f P =
         ( λ b → is-propositional-truncation-trunc-Prop (fib f b) (P b))))
     ( is-equiv-map-reduce-Π-fib f ( λ y z → type-Prop (P y)))
 
--- Corollary 14.5.4
+-- Corollary 15.2.4
 
 is-surjective-is-propositional-truncation :
   {l1 l2 : Level} {A : UU l1} {P : UU-Prop l2} (f : A → type-Prop P) →
@@ -416,16 +407,21 @@ is-propsitional-truncation-is-surjective :
 is-propsitional-truncation-is-surjective f is-surj-f =
   dependent-universal-property-surj-is-surjective f is-surj-f
 
--- Theorem 14.5.5
+-- Theorem 15.2.3
 
-{-
 is-surjective-universal-property-image :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
   (f : A → X) (i : B ↪ X) (q : hom-slice f (map-emb i)) →
   ({l : Level} → universal-property-image l f i q) →
   is-surjective (map-hom-slice f (map-emb i) q)
-is-surjective-universal-property-image f i q up-i b = {!!}
--}
+is-surjective-universal-property-image {A = A} {B} {X} f i q up-i = {!!}
+  where
+  g : Σ B (λ b → type-trunc-Prop (fib (map-hom-slice f (map-emb i) q) b)) → X
+  g = map-emb i ∘ pr1
+  is-emb-g : is-emb g
+  is-emb-g = is-emb-comp' (map-emb i) pr1
+    ( is-emb-map-emb i)
+    ( is-emb-pr1-is-subtype (λ x → is-prop-type-trunc-Prop))
 
 is-surjective-map-im :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
@@ -472,3 +468,42 @@ cantor X f H =
     ( H (map-cantor X f))
     ( empty-Prop)
     ( not-in-image-map-cantor X f))
+
+fixed-point-theorem-Lawvere :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → A → B} →
+  is-surjective f → (h : B → B) → ∃ (λ b → Id (h b) b)
+fixed-point-theorem-Lawvere {A = A} {B} {f} H h =
+  apply-universal-property-trunc-Prop
+    ( H g)
+    ( ∃-Prop (λ b → Id (h b) b))
+    ( λ p → intro-∃ (f (pr1 p) (pr1 p)) (inv (htpy-eq (pr2 p) (pr1 p))))
+  where
+  g : A → B
+  g a = h (f a a)
+
+--------------------------------------------------------------------------------
+
+-- Moved to end of file
+
+-- Example 14.4.5
+
+universal-property-image-has-section :
+  (l : Level) {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
+  sec f → universal-property-image l f emb-id (pair f refl-htpy)
+universal-property-image-has-section l f (pair g H) =
+  universal-property-image-universal-property-image'
+    l f emb-id (pair f refl-htpy)
+    ( λ B m h → pair ((pr1 h) ∘ g) ( λ x → (inv (H x)) ∙ (pr2 h (g x))))
+
+universal-property-image-is-emb :
+  (l : Level) {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
+  (H : is-emb f) → universal-property-image l f (pair f H) (pair id refl-htpy)
+universal-property-image-is-emb l f H =
+  universal-property-image-universal-property-image'
+    l f (pair f H) (pair id refl-htpy)
+    ( λ B m h → h)
+
+-- Example 14.4.6
+
+{- We show that a map A → P into a proposition P is a propositional truncation
+   if and only if P is the image of A in 1. -}

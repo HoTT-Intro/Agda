@@ -582,3 +582,5 @@ inner-eckmann-hilton-connection-y-z-concat-Ω³ β γ =
     ( j-concat-Id⁴
       ( left-unit-law-z-concat-Ω³ γ)
       ( right-unit-law-z-concat-Ω³ β)))
+
+--------------------------------------------------------------------------------
