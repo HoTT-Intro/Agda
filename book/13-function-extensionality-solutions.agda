@@ -767,12 +767,6 @@ htpy-map-Π' :
   ((i : I) → (f i) ~ (f' i)) → (map-Π' α f ~ map-Π' α f')
 htpy-map-Π' α H = htpy-map-Π (λ j → H (α j))
 
-postcomp-Π :
-  {l1 l2 l3 l4 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
-  (X : I → UU l4) →
-  ((i : I) → A i → B i) → ((i : I) → X i → A i) → ((i : I) → X i → B i)
-postcomp-Π X f = map-Π (λ i → postcomp (X i) (f i))
-
 -- Exercise 13.9 (a)
 
 -- We compute the fiber of map-Π and then solve the exercise
@@ -784,28 +778,25 @@ equiv-fib-map-Π :
 equiv-fib-map-Π f h =
   equiv-tot (λ x → equiv-eq-htpy) ∘e equiv-choice-∞
 
-is-trunc-map-Π-is-trunc :
+is-trunc-map-Π :
   (k : 𝕋) {l1 l2 l3 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
   (f : (i : I) → A i → B i) →
   ((i : I) → is-trunc-map k (f i)) → is-trunc-map k (map-Π f)
-is-trunc-map-Π-is-trunc k {I = I} f H h =
+is-trunc-map-Π k {I = I} f H h =
   is-trunc-equiv' k
     ( (i : I) → fib (f i) (h i))
     ( equiv-fib-map-Π f h)
     ( is-trunc-Π k (λ i → H i (h i)))
-  
--- We also prove the special case about equivalences
 
 abstract
   is-equiv-map-Π :
     {l1 l2 l3 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
-    (e : (i : I) → A i → B i) (is-equiv-e : is-fiberwise-equiv e) →
-    is-equiv (map-Π e)
-  is-equiv-map-Π e is-equiv-e =
-    is-equiv-has-inverse
-      ( λ g i → map-inv-is-equiv (is-equiv-e i) (g i))
-      ( λ g → eq-htpy (λ i → issec-map-inv-is-equiv (is-equiv-e i) (g i)))
-      ( λ f → eq-htpy (λ i → isretr-map-inv-is-equiv (is-equiv-e i) (f i)))
+    (f : (i : I) → A i → B i) (is-equiv-f : is-fiberwise-equiv f) →
+    is-equiv (map-Π f)
+  is-equiv-map-Π f is-equiv-f =
+    is-equiv-is-contr-map
+      ( is-trunc-map-Π neg-two-𝕋 f
+        ( λ i → is-contr-map-is-equiv (is-equiv-f i)))
 
 equiv-map-Π :
   {l1 l2 l3 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
@@ -814,8 +805,6 @@ equiv-map-Π e =
   pair
     ( map-Π (λ i → map-equiv (e i)))
     ( is-equiv-map-Π _ (λ i → is-equiv-map-equiv (e i)))
-
--- We conclude this part with some bureaucracy
 
 map-equiv-Π :
   { l1 l2 l3 l4 : Level}
