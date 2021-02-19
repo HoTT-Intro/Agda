@@ -702,7 +702,7 @@ is-propositional-truncation-prod P f P' f' is-ptr-f is-ptr-f' Q =
       ( λ h a a' → h a (f' a'))
       ( λ h a p' → h (f a) p')
       ( is-ptr-f (pair (type-hom-Prop P' Q) (is-prop-type-hom-Prop P' Q)))
-      ( is-equiv-postcomp-Π
+      ( is-equiv-map-Π
         ( λ a g a' → g (f' a'))
         ( λ a → is-ptr-f' Q)))
 

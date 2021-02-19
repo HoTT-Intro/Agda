@@ -134,94 +134,6 @@ is-1-type-Prop :
   {l : Level} → UU l → UU-Prop l
 is-1-type-Prop A = pair (is-1-type A) (is-prop-is-1-type A)
 
--- Later exercise
-
-successor-preserving-map-ℕ : UU lzero
-successor-preserving-map-ℕ = 
-  Σ (ℕ → ℕ) (λ f → (f ∘ succ-ℕ) ~ (succ-ℕ ∘ f))
-
--- We characterize the identity type of successor-preserving-map-ℕ
-
-htpy-successor-preserving-map-ℕ :
-  (f g : successor-preserving-map-ℕ) → UU lzero
-htpy-successor-preserving-map-ℕ f g = pr1 f ~ pr1 g
-
-refl-htpy-successor-preserving-map-ℕ :
-  (f : successor-preserving-map-ℕ) → htpy-successor-preserving-map-ℕ f f
-refl-htpy-successor-preserving-map-ℕ f = refl-htpy
-
-is-contr-total-htpy-successor-preserving-map-ℕ :
-  (f : successor-preserving-map-ℕ) →
-  is-contr (Σ successor-preserving-map-ℕ (htpy-successor-preserving-map-ℕ f))
-is-contr-total-htpy-successor-preserving-map-ℕ f =
-  is-contr-total-Eq-substructure
-    ( is-contr-total-htpy (pr1 f))
-    ( λ g → is-prop-Π (λ n → is-set-ℕ (g (succ-ℕ n)) (succ-ℕ (g n))))
-    ( pr1 f)
-    ( refl-htpy)
-    ( pr2 f) 
-
-htpy-successor-preserving-map-ℕ-eq :
-  (f g : successor-preserving-map-ℕ) →
-  Id f g → htpy-successor-preserving-map-ℕ f g
-htpy-successor-preserving-map-ℕ-eq f .f refl =
-  refl-htpy-successor-preserving-map-ℕ f
-
-is-equiv-htpy-successor-preserving-map-ℕ-eq :
-  (f g : successor-preserving-map-ℕ) →
-  is-equiv (htpy-successor-preserving-map-ℕ-eq f g)
-is-equiv-htpy-successor-preserving-map-ℕ-eq f =
-  fundamental-theorem-id f
-    ( refl-htpy-successor-preserving-map-ℕ f)
-    ( is-contr-total-htpy-successor-preserving-map-ℕ f)
-    ( htpy-successor-preserving-map-ℕ-eq f)
-
-eq-htpy-successor-preserving-map-ℕ :
-  {f g : successor-preserving-map-ℕ} →
-  htpy-successor-preserving-map-ℕ f g → Id f g
-eq-htpy-successor-preserving-map-ℕ {f} {g} =
-  map-inv-is-equiv (is-equiv-htpy-successor-preserving-map-ℕ-eq f g)
-
--- We solve the exercise now
-
-ev-zero-successor-preserving-map-ℕ :
-  successor-preserving-map-ℕ → ℕ
-ev-zero-successor-preserving-map-ℕ (pair f H) = f zero-ℕ
-
-inv-ev-zero-successor-preserving-map-ℕ :
-  ℕ → successor-preserving-map-ℕ
-inv-ev-zero-successor-preserving-map-ℕ n =
-  pair (add-ℕ n) refl-htpy
-
-issec-inv-ev-zero-successor-preserving-map-ℕ :
-  ( ev-zero-successor-preserving-map-ℕ ∘
-    inv-ev-zero-successor-preserving-map-ℕ) ~ id
-issec-inv-ev-zero-successor-preserving-map-ℕ n = refl
-
-htpy-isretr-inv-ev-zero-successor-preserving-map-ℕ :
-  ( f : ℕ → ℕ) (H : (f ∘ succ-ℕ) ~ (succ-ℕ ∘ f)) →
-  ( add-ℕ (f zero-ℕ)) ~ f
-htpy-isretr-inv-ev-zero-successor-preserving-map-ℕ f H zero-ℕ =
-  refl
-htpy-isretr-inv-ev-zero-successor-preserving-map-ℕ f H (succ-ℕ n) =
-  ( ap succ-ℕ (htpy-isretr-inv-ev-zero-successor-preserving-map-ℕ f H n)) ∙
-  ( inv (H n))
-
-isretr-inv-ev-zero-successor-preserving-map-ℕ :
-  ( inv-ev-zero-successor-preserving-map-ℕ ∘
-    ev-zero-successor-preserving-map-ℕ) ~ id
-isretr-inv-ev-zero-successor-preserving-map-ℕ (pair f H) =
-  eq-htpy-successor-preserving-map-ℕ
-    ( htpy-isretr-inv-ev-zero-successor-preserving-map-ℕ f H)
-
-is-equiv-ev-zero-successor-preserving-map-ℕ :
-  is-equiv ev-zero-successor-preserving-map-ℕ
-is-equiv-ev-zero-successor-preserving-map-ℕ =
-  is-equiv-has-inverse
-    inv-ev-zero-successor-preserving-map-ℕ
-    issec-inv-ev-zero-successor-preserving-map-ℕ
-    isretr-inv-ev-zero-successor-preserving-map-ℕ
-
 -- Exercise 13.3
 
 -- Exercise 13.3 (a)
@@ -611,8 +523,6 @@ equiv-ev-star' :
   {l : Level} (Y : UU l) → (unit → Y) ≃ Y
 equiv-ev-star' Y = pair (ev-star' Y) (universal-property-unit Y)
 
--- Exercise 13.10 (b)
-
 abstract
   is-equiv-pt-is-contr :
     {l1 : Level} {X : UU l1} (x : X) →
@@ -667,7 +577,7 @@ abstract
       ( universal-property-unit-is-equiv-pt x is-equiv-pt Y)
       ( refl-htpy)
   
--- Exercise 13.11
+-- Exercise 13.6
 
 ev-inl-inr :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (P : coprod A B → UU l3) →
@@ -736,12 +646,244 @@ abstract
         ( Y))
       ( universal-property-coprod Y)
 
--- Exercise 13.4
+-- Exercise 13.7
+
+successor-preserving-map-ℕ : UU lzero
+successor-preserving-map-ℕ = 
+  Σ (ℕ → ℕ) (λ f → (f ∘ succ-ℕ) ~ (succ-ℕ ∘ f))
+
+-- We characterize the identity type of successor-preserving-map-ℕ
+
+htpy-successor-preserving-map-ℕ :
+  (f g : successor-preserving-map-ℕ) → UU lzero
+htpy-successor-preserving-map-ℕ f g = pr1 f ~ pr1 g
+
+refl-htpy-successor-preserving-map-ℕ :
+  (f : successor-preserving-map-ℕ) → htpy-successor-preserving-map-ℕ f f
+refl-htpy-successor-preserving-map-ℕ f = refl-htpy
+
+is-contr-total-htpy-successor-preserving-map-ℕ :
+  (f : successor-preserving-map-ℕ) →
+  is-contr (Σ successor-preserving-map-ℕ (htpy-successor-preserving-map-ℕ f))
+is-contr-total-htpy-successor-preserving-map-ℕ f =
+  is-contr-total-Eq-substructure
+    ( is-contr-total-htpy (pr1 f))
+    ( λ g → is-prop-Π (λ n → is-set-ℕ (g (succ-ℕ n)) (succ-ℕ (g n))))
+    ( pr1 f)
+    ( refl-htpy)
+    ( pr2 f) 
+
+htpy-successor-preserving-map-ℕ-eq :
+  (f g : successor-preserving-map-ℕ) →
+  Id f g → htpy-successor-preserving-map-ℕ f g
+htpy-successor-preserving-map-ℕ-eq f .f refl =
+  refl-htpy-successor-preserving-map-ℕ f
+
+is-equiv-htpy-successor-preserving-map-ℕ-eq :
+  (f g : successor-preserving-map-ℕ) →
+  is-equiv (htpy-successor-preserving-map-ℕ-eq f g)
+is-equiv-htpy-successor-preserving-map-ℕ-eq f =
+  fundamental-theorem-id f
+    ( refl-htpy-successor-preserving-map-ℕ f)
+    ( is-contr-total-htpy-successor-preserving-map-ℕ f)
+    ( htpy-successor-preserving-map-ℕ-eq f)
+
+eq-htpy-successor-preserving-map-ℕ :
+  {f g : successor-preserving-map-ℕ} →
+  htpy-successor-preserving-map-ℕ f g → Id f g
+eq-htpy-successor-preserving-map-ℕ {f} {g} =
+  map-inv-is-equiv (is-equiv-htpy-successor-preserving-map-ℕ-eq f g)
+
+-- We solve the exercise now
+
+ev-zero-successor-preserving-map-ℕ :
+  successor-preserving-map-ℕ → ℕ
+ev-zero-successor-preserving-map-ℕ (pair f H) = f zero-ℕ
+
+inv-ev-zero-successor-preserving-map-ℕ :
+  ℕ → successor-preserving-map-ℕ
+inv-ev-zero-successor-preserving-map-ℕ n =
+  pair (add-ℕ n) refl-htpy
+
+issec-inv-ev-zero-successor-preserving-map-ℕ :
+  ( ev-zero-successor-preserving-map-ℕ ∘
+    inv-ev-zero-successor-preserving-map-ℕ) ~ id
+issec-inv-ev-zero-successor-preserving-map-ℕ n = refl
+
+htpy-isretr-inv-ev-zero-successor-preserving-map-ℕ :
+  ( f : ℕ → ℕ) (H : (f ∘ succ-ℕ) ~ (succ-ℕ ∘ f)) →
+  ( add-ℕ (f zero-ℕ)) ~ f
+htpy-isretr-inv-ev-zero-successor-preserving-map-ℕ f H zero-ℕ =
+  refl
+htpy-isretr-inv-ev-zero-successor-preserving-map-ℕ f H (succ-ℕ n) =
+  ( ap succ-ℕ (htpy-isretr-inv-ev-zero-successor-preserving-map-ℕ f H n)) ∙
+  ( inv (H n))
+
+isretr-inv-ev-zero-successor-preserving-map-ℕ :
+  ( inv-ev-zero-successor-preserving-map-ℕ ∘
+    ev-zero-successor-preserving-map-ℕ) ~ id
+isretr-inv-ev-zero-successor-preserving-map-ℕ (pair f H) =
+  eq-htpy-successor-preserving-map-ℕ
+    ( htpy-isretr-inv-ev-zero-successor-preserving-map-ℕ f H)
+
+is-equiv-ev-zero-successor-preserving-map-ℕ :
+  is-equiv ev-zero-successor-preserving-map-ℕ
+is-equiv-ev-zero-successor-preserving-map-ℕ =
+  is-equiv-has-inverse
+    inv-ev-zero-successor-preserving-map-ℕ
+    issec-inv-ev-zero-successor-preserving-map-ℕ
+    isretr-inv-ev-zero-successor-preserving-map-ℕ
+
+-- Exercise 13.9
+
+-- Definition of the postcomposition functions
 
 postcomp :
   {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (A : UU l3) →
   (X → Y) → (A → X) → (A → Y)
 postcomp A f h = f ∘ h
+
+map-Π :
+  {l1 l2 l3 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
+  (f : (i : I) → A i → B i) →
+  ((i : I) → A i) → ((i : I) → B i)
+map-Π f h i = f i (h i)
+
+htpy-map-Π :
+  {l1 l2 l3 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
+  {f f' : (i : I) → A i → B i} (H : (i : I) → (f i) ~ (f' i)) →
+  (map-Π f) ~ (map-Π f')
+htpy-map-Π H h = eq-htpy (λ i → H i (h i))
+
+map-Π' :
+  {l1 l2 l3 l4 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
+  {J : UU l4} (α : J → I) → 
+  ((i : I) → A i → B i) → ((j : J) → A (α j)) → ((j : J) → B (α j))
+map-Π' α f = map-Π (λ j → f (α j))
+
+htpy-map-Π' :
+  {l1 l2 l3 l4 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
+  {J : UU l4} (α : J → I) {f f' : (i : I) → A i → B i} →
+  ((i : I) → (f i) ~ (f' i)) → (map-Π' α f ~ map-Π' α f')
+htpy-map-Π' α H = htpy-map-Π (λ j → H (α j))
+
+postcomp-Π :
+  {l1 l2 l3 l4 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
+  (X : I → UU l4) →
+  ((i : I) → A i → B i) → ((i : I) → X i → A i) → ((i : I) → X i → B i)
+postcomp-Π X f = map-Π (λ i → postcomp (X i) (f i))
+
+-- Exercise 13.9 (a)
+
+-- We compute the fiber of map-Π and then solve the exercise
+
+equiv-fib-map-Π :
+  {l1 l2 l3 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
+  (f : (i : I) → A i → B i) (h : (i : I) → B i) →
+  ((i : I) → fib (f i) (h i)) ≃ fib (map-Π f) h
+equiv-fib-map-Π f h =
+  equiv-tot (λ x → equiv-eq-htpy) ∘e equiv-choice-∞
+
+is-trunc-map-Π-is-trunc :
+  (k : 𝕋) {l1 l2 l3 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
+  (f : (i : I) → A i → B i) →
+  ((i : I) → is-trunc-map k (f i)) → is-trunc-map k (map-Π f)
+is-trunc-map-Π-is-trunc k {I = I} f H h =
+  is-trunc-equiv' k
+    ( (i : I) → fib (f i) (h i))
+    ( equiv-fib-map-Π f h)
+    ( is-trunc-Π k (λ i → H i (h i)))
+  
+-- We also prove the special case about equivalences
+
+abstract
+  is-equiv-map-Π :
+    {l1 l2 l3 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
+    (e : (i : I) → A i → B i) (is-equiv-e : is-fiberwise-equiv e) →
+    is-equiv (map-Π e)
+  is-equiv-map-Π e is-equiv-e =
+    is-equiv-has-inverse
+      ( λ g i → map-inv-is-equiv (is-equiv-e i) (g i))
+      ( λ g → eq-htpy (λ i → issec-map-inv-is-equiv (is-equiv-e i) (g i)))
+      ( λ f → eq-htpy (λ i → isretr-map-inv-is-equiv (is-equiv-e i) (f i)))
+
+equiv-map-Π :
+  {l1 l2 l3 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
+  (e : (i : I) → (A i) ≃ (B i)) → ((i : I) → A i) ≃ ((i : I) → B i)
+equiv-map-Π e =
+  pair
+    ( map-Π (λ i → map-equiv (e i)))
+    ( is-equiv-map-Π _ (λ i → is-equiv-map-equiv (e i)))
+
+-- We conclude this part with some bureaucracy
+
+map-equiv-Π :
+  { l1 l2 l3 l4 : Level}
+  { A' : UU l1} {B' : A' → UU l2} {A : UU l3} (B : A → UU l4)
+  ( e : A' ≃ A) (f : (a' : A') → B' a' ≃ B (map-equiv e a')) →
+  ( (a' : A') → B' a') → ( (a : A) → B a)
+map-equiv-Π {B' = B'} B e f =
+  ( map-Π (λ a →
+    ( tr B (issec-map-inv-is-equiv (is-equiv-map-equiv e) a)) ∘
+    ( map-equiv (f (map-inv-is-equiv (is-equiv-map-equiv e) a))))) ∘
+  ( precomp-Π (map-inv-is-equiv (is-equiv-map-equiv e)) B')
+
+id-map-equiv-Π :
+  { l1 l2 : Level} {A : UU l1} (B : A → UU l2) →
+  ( map-equiv-Π B (equiv-id {A = A}) (λ a → equiv-id {A = B a})) ~ id
+id-map-equiv-Π B = refl-htpy
+
+abstract
+  is-equiv-map-equiv-Π :
+    { l1 l2 l3 l4 : Level}
+    { A' : UU l1} {B' : A' → UU l2} {A : UU l3} (B : A → UU l4)
+    ( e : A' ≃ A) (f : (a' : A') → B' a' ≃ B (map-equiv e a')) →
+    is-equiv (map-equiv-Π B e f)
+  is-equiv-map-equiv-Π {B' = B'} B e f =
+    is-equiv-comp'
+      ( map-Π (λ a →
+        ( tr B (issec-map-inv-is-equiv (is-equiv-map-equiv e) a)) ∘
+        ( map-equiv (f (map-inv-is-equiv (is-equiv-map-equiv e) a)))))
+      ( precomp-Π (map-inv-is-equiv (is-equiv-map-equiv e)) B')
+      ( is-equiv-precomp-Π-is-equiv
+        ( map-inv-is-equiv (is-equiv-map-equiv e))
+        ( is-equiv-map-inv-is-equiv (is-equiv-map-equiv e))
+        ( B'))
+      ( is-equiv-map-Π _
+        ( λ a → is-equiv-comp'
+          ( tr B (issec-map-inv-is-equiv (is-equiv-map-equiv e) a))
+          ( map-equiv (f (map-inv-is-equiv (is-equiv-map-equiv e) a)))
+          ( is-equiv-map-equiv (f (map-inv-is-equiv (is-equiv-map-equiv e) a)))
+          ( is-equiv-tr B (issec-map-inv-is-equiv (is-equiv-map-equiv e) a))))
+
+equiv-Π :
+  { l1 l2 l3 l4 : Level}
+  { A' : UU l1} {B' : A' → UU l2} {A : UU l3} (B : A → UU l4)
+  ( e : A' ≃ A) (f : (a' : A') → B' a' ≃ B (map-equiv e a')) →
+  ( (a' : A') → B' a') ≃ ( (a : A) → B a)
+equiv-Π B e f = pair (map-equiv-Π B e f) (is-equiv-map-equiv-Π B e f)
+
+-- Exercise 13.9 (b)
+
+equiv-fib-map-Π' :
+  {l1 l2 l3 l4 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
+  {J : UU l4} (α : J → I) (f : (i : I) → A i → B i)
+  (h : (j : J) → B (α j)) →
+  ((j : J) → fib (f (α j)) (h j)) ≃ fib (map-Π' α f) h
+equiv-fib-map-Π' α f h =
+  equiv-tot (λ x → equiv-eq-htpy) ∘e equiv-choice-∞
+
+is-trunc-map-Π-is-trunc' :
+  (k : 𝕋) {l1 l2 l3 l4 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
+  {J : UU l4} (α : J → I) (f : (i : I) → A i → B i) →
+  ((i : I) → is-trunc-map k (f i)) → is-trunc-map k (map-Π' α f)
+is-trunc-map-Π-is-trunc' k {J = J} α f H h =
+  is-trunc-equiv' k
+    ( (j : J) → fib (f (α j)) (h j))
+    ( equiv-fib-map-Π' α f h)
+    ( is-trunc-Π k (λ j → H (α j) (h j)))
+
+-- Exercise 13.9 (c)
 
 {- We first show that a map f is an equivalence if and only if postcomposition
    by that map is an equivalence. This is the base case of the more general
@@ -850,85 +992,6 @@ is-emb-is-emb-postcomp f is-emb-post-f =
 -- Exercise 13.5
 
 -- Exercise 13.13
-
-postcomp-Π :
-  {l1 l2 l3 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
-  (e : (i : I) → A i → B i) →
-  ((i : I) → A i) → ((i : I) → B i)
-postcomp-Π e f i = e i (f i)
-
-htpy-postcomp-Π :
-  {l1 l2 l3 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
-  {f f' : (i : I) → A i → B i} (H : (i : I) → (f i) ~ (f' i)) →
-  (postcomp-Π f) ~ (postcomp-Π f')
-htpy-postcomp-Π H h = eq-htpy (λ i → H i (h i))
-
-abstract
-  is-equiv-postcomp-Π :
-    {l1 l2 l3 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
-    (e : (i : I) → A i → B i) (is-equiv-e : is-fiberwise-equiv e) →
-    is-equiv (postcomp-Π e)
-  is-equiv-postcomp-Π e is-equiv-e =
-    is-equiv-has-inverse
-      ( λ g i → map-inv-is-equiv (is-equiv-e i) (g i))
-      ( λ g → eq-htpy (λ i → issec-map-inv-is-equiv (is-equiv-e i) (g i)))
-      ( λ f → eq-htpy (λ i → isretr-map-inv-is-equiv (is-equiv-e i) (f i)))
-
-equiv-postcomp-Π :
-  {l1 l2 l3 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
-  (e : (i : I) → (A i) ≃ (B i)) → ((i : I) → A i) ≃ ((i : I) → B i)
-equiv-postcomp-Π e =
-  pair
-    ( postcomp-Π (λ i → map-equiv (e i)))
-    ( is-equiv-postcomp-Π _ (λ i → is-equiv-map-equiv (e i)))
-
--- We conclude this exercise with some bureaucracy
-
-map-equiv-Π :
-  { l1 l2 l3 l4 : Level}
-  { A' : UU l1} {B' : A' → UU l2} {A : UU l3} (B : A → UU l4)
-  ( e : A' ≃ A) (f : (a' : A') → B' a' ≃ B (map-equiv e a')) →
-  ( (a' : A') → B' a') → ( (a : A) → B a)
-map-equiv-Π {B' = B'} B e f =
-  ( postcomp-Π (λ a →
-    ( tr B (issec-map-inv-is-equiv (is-equiv-map-equiv e) a)) ∘
-    ( map-equiv (f (map-inv-is-equiv (is-equiv-map-equiv e) a))))) ∘
-  ( precomp-Π (map-inv-is-equiv (is-equiv-map-equiv e)) B')
-
-id-map-equiv-Π :
-  { l1 l2 : Level} {A : UU l1} (B : A → UU l2) →
-  ( map-equiv-Π B (equiv-id {A = A}) (λ a → equiv-id {A = B a})) ~ id
-id-map-equiv-Π B = refl-htpy
-
-abstract
-  is-equiv-map-equiv-Π :
-    { l1 l2 l3 l4 : Level}
-    { A' : UU l1} {B' : A' → UU l2} {A : UU l3} (B : A → UU l4)
-    ( e : A' ≃ A) (f : (a' : A') → B' a' ≃ B (map-equiv e a')) →
-    is-equiv (map-equiv-Π B e f)
-  is-equiv-map-equiv-Π {B' = B'} B e f =
-    is-equiv-comp'
-      ( postcomp-Π (λ a →
-        ( tr B (issec-map-inv-is-equiv (is-equiv-map-equiv e) a)) ∘
-        ( map-equiv (f (map-inv-is-equiv (is-equiv-map-equiv e) a)))))
-      ( precomp-Π (map-inv-is-equiv (is-equiv-map-equiv e)) B')
-      ( is-equiv-precomp-Π-is-equiv
-        ( map-inv-is-equiv (is-equiv-map-equiv e))
-        ( is-equiv-map-inv-is-equiv (is-equiv-map-equiv e))
-        ( B'))
-      ( is-equiv-postcomp-Π _
-        ( λ a → is-equiv-comp'
-          ( tr B (issec-map-inv-is-equiv (is-equiv-map-equiv e) a))
-          ( map-equiv (f (map-inv-is-equiv (is-equiv-map-equiv e) a)))
-          ( is-equiv-map-equiv (f (map-inv-is-equiv (is-equiv-map-equiv e) a)))
-          ( is-equiv-tr B (issec-map-inv-is-equiv (is-equiv-map-equiv e) a))))
-
-equiv-Π :
-  { l1 l2 l3 l4 : Level}
-  { A' : UU l1} {B' : A' → UU l2} {A : UU l3} (B : A → UU l4)
-  ( e : A' ≃ A) (f : (a' : A') → B' a' ≃ B (map-equiv e a')) →
-  ( (a' : A') → B' a') ≃ ( (a : A) → B a)
-equiv-Π B e f = pair (map-equiv-Π B e f) (is-equiv-map-equiv-Π B e f)
 
 -- Exercise 13.14
 
@@ -1704,7 +1767,7 @@ abstract
     ( H : f ~ g) (K : g ~ h) (L : f ~ h) →
     is-equiv (inv-htpy-con H K L)
   is-equiv-inv-htpy-con H K L =
-    is-equiv-postcomp-Π _ (λ x → is-equiv-inv-con (H x) (K x) (L x))
+    is-equiv-map-Π _ (λ x → is-equiv-inv-con (H x) (K x) (L x))
 
 equiv-inv-htpy-con :
   { l1 l2 : Level} {A : UU l1} {B : A → UU l2} {f g h : (x : A) → B x}
@@ -1721,7 +1784,7 @@ abstract
     ( H : f ~ g) (K : g ~ h) (L : f ~ h) →
     is-equiv (htpy-con-inv H K L)
   is-equiv-htpy-con-inv H K L =
-    is-equiv-postcomp-Π _ (λ x → is-equiv-con-inv (H x) (K x) (L x))
+    is-equiv-map-Π _ (λ x → is-equiv-con-inv (H x) (K x) (L x))
 
 equiv-htpy-con-inv :
   { l1 l2 : Level} {A : UU l1} {B : A → UU l2} {f g h : (x : A) → B x}
@@ -1749,7 +1812,7 @@ htpy-map-equiv-Π-refl-htpy :
   ( e : A' ≃ A) →
   HTPY-map-equiv-Π B' B e e (refl-htpy-equiv e)
 htpy-map-equiv-Π-refl-htpy {B' = B'} B e f f' K =
-  ( htpy-postcomp-Π
+  ( htpy-map-Π
     ( λ a →
       ( tr B (issec-map-inv-is-equiv (is-equiv-map-equiv e) a)) ·l
       ( K (map-inv-is-equiv (is-equiv-map-equiv e) a)))) ·r
@@ -1783,7 +1846,7 @@ map-automorphism-Π :
   ( e : A ≃ A) (f : (a : A) → B a ≃ B (map-equiv e a)) →
   ( (a : A) → B a) → ((a : A) → B a)
 map-automorphism-Π {B = B} e f =
-  ( postcomp-Π (λ a → (map-inv-is-equiv (is-equiv-map-equiv (f a))))) ∘
+  ( map-Π (λ a → (map-inv-is-equiv (is-equiv-map-equiv (f a))))) ∘
   ( precomp-Π (map-equiv e) B)
 
 abstract
@@ -1794,7 +1857,7 @@ abstract
   is-equiv-map-automorphism-Π {B = B} e f =
     is-equiv-comp' _ _
       ( is-equiv-precomp-Π-is-equiv _ (is-equiv-map-equiv e) B)
-      ( is-equiv-postcomp-Π _
+      ( is-equiv-map-Π _
         ( λ a → is-equiv-map-inv-is-equiv (is-equiv-map-equiv (f a))))
 
 automorphism-Π :

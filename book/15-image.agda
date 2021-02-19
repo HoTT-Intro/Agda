@@ -379,7 +379,7 @@ dependent-universal-property-surj-is-surjective f is-surj-f P =
     ( is-equiv-comp'
       ( λ h y → (h y) ∘ unit-trunc-Prop)
       ( λ h y → const (type-trunc-Prop (fib f y)) (type-Prop (P y)) (h y))
-      ( is-equiv-postcomp-Π
+      ( is-equiv-map-Π
         ( λ y p z → p)
         ( λ y →
           is-equiv-diagonal-is-contr
@@ -387,7 +387,7 @@ dependent-universal-property-surj-is-surjective f is-surj-f P =
               ( is-prop-type-trunc-Prop)
               ( is-surj-f y))
             ( type-Prop (P y))))
-      ( is-equiv-postcomp-Π
+      ( is-equiv-map-Π
         ( λ b g → g ∘ unit-trunc-Prop)
         ( λ b → is-propositional-truncation-trunc-Prop (fib f b) (P b))))
     ( is-equiv-map-reduce-Π-fib f ( λ y z → type-Prop (P y)))

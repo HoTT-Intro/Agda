@@ -979,7 +979,7 @@ is-equiv-Fam-pushout-cocone-UU :
 is-equiv-Fam-pushout-cocone-UU l {f = f} {g} =
   is-equiv-tot-is-fiberwise-equiv
     ( λ PA → is-equiv-tot-is-fiberwise-equiv
-      ( λ PB → is-equiv-postcomp-Π
+      ( λ PB → is-equiv-map-Π
         ( λ s → equiv-eq)
         ( λ s → univalence (PA (f s)) (PB (g s)))))
 
@@ -1185,12 +1185,12 @@ flattening-pushout' :
     ( cocone-flattening-pushout f g c P Q e)
 flattening-pushout' f g c P Q e l T =
   is-pullback-top-is-pullback-bottom-cube-is-equiv
-    ( ( postcomp-Π (λ x → precomp-Π (map-equiv (pr1 e x)) (λ q → T))) ∘
+    ( ( map-Π (λ x → precomp-Π (map-equiv (pr1 e x)) (λ q → T))) ∘
       ( precomp-Π (pr1 c) (λ x → (Q x) → T)))
-    ( ( postcomp-Π (λ x → precomp-Π (map-equiv (pr1 (pr2 e) x)) (λ q → T))) ∘
+    ( ( map-Π (λ x → precomp-Π (map-equiv (pr1 (pr2 e) x)) (λ q → T))) ∘
       ( precomp-Π (pr1 (pr2 c)) (λ x → (Q x) → T)))
     ( precomp-Π f (λ a → (pr1 P a) → T))
-    ( ( postcomp-Π (λ s → precomp (map-equiv (pr2 (pr2 P) s)) T)) ∘
+    ( ( map-Π (λ s → precomp (map-equiv (pr2 (pr2 P) s)) T)) ∘
       ( precomp-Π g (λ b → (pr1 (pr2 P) b) → T)))
     ( precomp (map-Σ Q (pr1 c) (λ a → map-equiv (pr1 e a))) T)
     ( precomp (map-Σ Q (pr1 (pr2 c)) (λ b → map-equiv (pr1 (pr2 e) b))) T)

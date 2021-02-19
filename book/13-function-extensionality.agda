@@ -141,6 +141,11 @@ abstract
     (f : (x : A) → B x) → Id (eq-htpy (refl-htpy {f = f})) refl
   eq-htpy-refl-htpy f = isretr-eq-htpy refl
 
+equiv-eq-htpy :
+  {i j : Level} {A : UU i} {B : A → UU j} {f g : (x : A) → B x} →
+  (f ~ g) ≃ Id f g
+equiv-eq-htpy {f = f} {g} = pair eq-htpy (is-equiv-eq-htpy f g)
+
 {-
 The immediate proof of the following theorem would be
 

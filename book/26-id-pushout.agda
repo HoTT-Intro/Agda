@@ -148,7 +148,7 @@ hom-Fam-pushout-dep-cocone :
   hom-Fam-pushout (desc-fam c P) (desc-fam c Q)
 hom-Fam-pushout-dep-cocone {f = f} {g} c P Q =
   tot (λ hA → tot (λ hB →
-    postcomp-Π (λ s →
+    map-Π (λ s →
       square-path-over-fam-maps (pr2 (pr2 c) s) (hA (f s)) (hB (g s)))))
 
 is-equiv-square-path-over-fam-maps :
@@ -166,7 +166,7 @@ is-equiv-hom-Fam-pushout-dep-cocone :
 is-equiv-hom-Fam-pushout-dep-cocone {f = f} {g} c P Q =
   is-equiv-tot-is-fiberwise-equiv (λ hA →
     is-equiv-tot-is-fiberwise-equiv (λ hB →
-      is-equiv-postcomp-Π _
+      is-equiv-map-Π _
         ( λ s → is-equiv-square-path-over-fam-maps
           ( pr2 (pr2 c) s)
           ( hA (f s))

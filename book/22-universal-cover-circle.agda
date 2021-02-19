@@ -175,19 +175,19 @@ coherence-square-functor-dependent-free-loops :
   ( h : (x : X) → P x) →
   Id ( ( naturality-tr-fiberwise-transformation f α (h x)) ∙
        ( ap (f y) (apd h α)))
-     ( apd (postcomp-Π f h) α)
+     ( apd (map-Π f h) α)
 coherence-square-functor-dependent-free-loops f refl h = refl
   
 square-functor-dependent-free-loops :
   { l1 l2 l3 : Level} {X : UU l1} (l : free-loops X)
   { P : X → UU l2} {Q : X → UU l3} (f : (x : X) → P x → Q x) →
   ( (functor-dependent-free-loops l f) ∘ (ev-free-loop' l P)) ~
-  ( (ev-free-loop' l Q) ∘ (postcomp-Π f))
+  ( (ev-free-loop' l Q) ∘ (map-Π f))
 square-functor-dependent-free-loops (pair x l) {P} {Q} f h =
   eq-Eq-dependent-free-loops (pair x l) Q
     ( functor-dependent-free-loops (pair x l) f
       ( ev-free-loop' (pair x l) P h))
-    ( ev-free-loop' (pair x l) Q (postcomp-Π f h))
+    ( ev-free-loop' (pair x l) Q (map-Π f h))
     ( pair refl
       ( right-unit ∙ (coherence-square-functor-dependent-free-loops f l h)))
 
@@ -224,10 +224,10 @@ abstract
     is-equiv-left-is-equiv-right-square
       ( ev-free-loop' l P)
       ( ev-free-loop' l (λ x → raise l2 (P x)))
-      ( postcomp-Π (λ x → map-raise))
+      ( map-Π (λ x → map-raise))
       ( functor-dependent-free-loops l (λ x → map-raise))
       ( square-functor-dependent-free-loops l (λ x → map-raise))
-      ( is-equiv-postcomp-Π _ (λ x → is-equiv-map-raise l2 (P x)))
+      ( is-equiv-map-Π _ (λ x → is-equiv-map-raise l2 (P x)))
       ( is-equiv-functor-dependent-free-loops-is-fiberwise-equiv l
         ( λ x → is-equiv-map-raise l2 (P x)))
       ( dup-circle (λ x → raise l2 (P x)))
@@ -340,7 +340,7 @@ equiv-tr-contraction-total-space' :
   ( H : ((map-equiv e') ∘ (map-equiv f)) ~ ((tr B p) ∘ (map-equiv e))) →
   ( contraction-total-space' c x' e') ≃ (contraction-total-space' c x e)
 equiv-tr-contraction-total-space' c p f e e' H =
-  ( equiv-postcomp-Π
+  ( equiv-map-Π
     ( λ y → equiv-concat' c (inv (segment-Σ p f e e' H y)))) ∘e
   ( equiv-precomp-Π f _)
 
@@ -387,7 +387,7 @@ path-over-contraction-total-space' :
   (h' : (y' : F') → Id c (pair x' (map-equiv e' y'))) →
   UU _
 path-over-contraction-total-space' c {x} {x'} p {F} {F'} f e e' H h h' =
-  ( postcomp-Π
+  ( map-Π
     ( λ y → concat' c (segment-Σ p f e e' H y)) h) ~
   ( precomp-Π
     ( map-equiv f)
