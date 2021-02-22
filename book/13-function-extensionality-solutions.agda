@@ -778,11 +778,11 @@ equiv-fib-map-Π :
 equiv-fib-map-Π f h =
   equiv-tot (λ x → equiv-eq-htpy) ∘e equiv-choice-∞
 
-is-trunc-map-Π :
+is-trunc-map-map-Π :
   (k : 𝕋) {l1 l2 l3 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
   (f : (i : I) → A i → B i) →
   ((i : I) → is-trunc-map k (f i)) → is-trunc-map k (map-Π f)
-is-trunc-map-Π k {I = I} f H h =
+is-trunc-map-map-Π k {I = I} f H h =
   is-trunc-equiv' k
     ( (i : I) → fib (f i) (h i))
     ( equiv-fib-map-Π f h)
@@ -795,7 +795,7 @@ abstract
     is-equiv (map-Π f)
   is-equiv-map-Π f is-equiv-f =
     is-equiv-is-contr-map
-      ( is-trunc-map-Π neg-two-𝕋 f
+      ( is-trunc-map-map-Π neg-two-𝕋 f
         ( λ i → is-contr-map-is-equiv (is-equiv-f i)))
 
 equiv-map-Π :
@@ -862,37 +862,62 @@ equiv-fib-map-Π' :
 equiv-fib-map-Π' α f h =
   equiv-tot (λ x → equiv-eq-htpy) ∘e equiv-choice-∞
 
-is-trunc-map-Π-is-trunc' :
+is-trunc-map-map-Π-is-trunc-map' :
   (k : 𝕋) {l1 l2 l3 l4 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
   {J : UU l4} (α : J → I) (f : (i : I) → A i → B i) →
   ((i : I) → is-trunc-map k (f i)) → is-trunc-map k (map-Π' α f)
-is-trunc-map-Π-is-trunc' k {J = J} α f H h =
+is-trunc-map-map-Π-is-trunc-map' k {J = J} α f H h =
   is-trunc-equiv' k
     ( (j : J) → fib (f (α j)) (h j))
     ( equiv-fib-map-Π' α f h)
     ( is-trunc-Π k (λ j → H (α j) (h j)))
 
+is-trunc-map-is-trunc-map-map-Π' :
+  (k : 𝕋) {l1 l2 l3 : Level} {I : UU l1} {A : I → UU l2} {B : I → UU l3}
+  (f : (i : I) → A i → B i) →
+  ({l : Level} {J : UU l} (α : J → I) → is-trunc-map k (map-Π' α f)) →
+  (i : I) → is-trunc-map k (f i)
+is-trunc-map-is-trunc-map-map-Π' k {A = A} {B} f H i b =
+  is-trunc-equiv' k
+    ( fib (map-Π (λ (x : unit) → f i)) (const unit (B i) b))
+    ( equiv-Σ
+      ( λ a → Id (f i a) b)
+      ( equiv-universal-property-unit (A i))
+      ( λ h → equiv-ap
+        ( equiv-universal-property-unit (B i))
+        ( map-Π (λ x → f i) h)
+        ( const unit (B i) b)))
+    ( H (λ x → i) (const unit (B i) b))
+
 -- Exercise 13.9 (c)
 
-{- We first show that a map f is an equivalence if and only if postcomposition
-   by that map is an equivalence. This is the base case of the more general
-   claim. -}
+is-trunc-map-postcomp-is-trunc-map :
+  {l1 l2 l3 : Level} (k : 𝕋) (A : UU l3) {X : UU l1} {Y : UU l2} (f : X → Y) →
+  is-trunc-map k f → is-trunc-map k (postcomp A f)
+is-trunc-map-postcomp-is-trunc-map k A {X} {Y} f is-trunc-f =
+  is-trunc-map-map-Π-is-trunc-map' k
+    ( const A unit star)
+    ( const unit (X → Y) f)
+    ( const unit (is-trunc-map k f) is-trunc-f)
+
+is-trunc-map-is-trunc-map-postcomp :
+  {l1 l2 : Level} (k : 𝕋) {X : UU l1} {Y : UU l2} (f : X → Y) →
+  ( {l3 : Level} (A : UU l3) → is-trunc-map k (postcomp A f)) →
+  is-trunc-map k f
+is-trunc-map-is-trunc-map-postcomp k {X} {Y} f is-trunc-post-f =
+  is-trunc-map-is-trunc-map-map-Π' k
+    ( const unit (X → Y) f)
+    ( λ {l} {J} α → is-trunc-post-f {l} J)
+    ( star)
 
 abstract
   is-equiv-is-equiv-postcomp :
     {l1 l2 : Level} {X : UU l1} {Y : UU l2} (f : X → Y) →
     ({l3 : Level} (A : UU l3) → is-equiv (postcomp A f)) → is-equiv f
   is-equiv-is-equiv-postcomp {X = X} {Y = Y} f post-comp-equiv-f =
-    let sec-f = center (is-contr-map-is-equiv (post-comp-equiv-f Y) id) in
-    is-equiv-has-inverse
-      ( pr1 sec-f)
-      ( htpy-eq (pr2 sec-f))
-      ( htpy-eq
-        ( ap ( pr1)
-             ( eq-is-contr'
-               ( is-contr-map-is-equiv (post-comp-equiv-f X) f)
-               ( pair ((pr1 sec-f) ∘ f) (ap (λ t → t ∘ f) (pr2 sec-f)))
-               ( pair id refl))))
+    is-equiv-is-contr-map
+      ( is-trunc-map-is-trunc-map-postcomp neg-two-𝕋 f
+        ( λ {l} A → is-contr-map-is-equiv (post-comp-equiv-f A)))
 
 {- The following version of the same theorem works when X and Y are in the same
    universe. The condition of inducing equivalences by postcomposition is 
@@ -932,35 +957,6 @@ equiv-postcomp A e =
   pair
     ( postcomp A (map-equiv e))
     ( is-equiv-postcomp-is-equiv (map-equiv e) (is-equiv-map-equiv e) A)
-
-{- We now give the solution to the general claim -}
-
-equiv-fiber-postcomp :
-  {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (f : X → Y)
-  (A : UU l3) (g : A → Y) →
-  ( fib (postcomp A f) g) ≃ ((a : A) → (fib f (g a)))
-equiv-fiber-postcomp f A g =
-  ( equiv-inv-choice-∞ (λ a x → Id (f x) (g a))) ∘e
-  ( equiv-tot (λ h → equiv-funext))
-
-is-trunc-map-postcomp-is-trunc-map :
-  {l1 l2 l3 : Level} (k : 𝕋) (A : UU l3) {X : UU l1} {Y : UU l2} (f : X → Y) →
-  is-trunc-map k f → is-trunc-map k (postcomp A f)
-is-trunc-map-postcomp-is-trunc-map k A f is-trunc-f y =
-  is-trunc-equiv k _
-    ( equiv-fiber-postcomp f A y)
-    ( is-trunc-Π k (λ x → is-trunc-f (y x)))
-
-is-trunc-map-is-trunc-map-postcomp :
-  {l1 l2 : Level} (k : 𝕋) {X : UU l1} {Y : UU l2} (f : X → Y) →
-  ( {l3 : Level} (A : UU l3) → is-trunc-map k (postcomp A f)) →
-  is-trunc-map k f
-is-trunc-map-is-trunc-map-postcomp k {X} f is-trunc-post-f y = 
-  is-trunc-equiv k _
-    ( inv-equiv
-      ( ( equiv-ev-star (λ x → fib f y)) ∘e
-        ( equiv-fiber-postcomp f unit (λ x → y))))
-    ( is-trunc-post-f unit (λ x → y))
 
 is-emb-postcomp-is-emb :
   {l1 l2 l3 : Level} (A : UU l3) {X : UU l1} {Y : UU l2} (f : X → Y) →
