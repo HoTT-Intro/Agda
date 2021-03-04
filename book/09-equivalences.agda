@@ -1274,6 +1274,12 @@ abstract
       ( Σ-swap-swap B A (λ y x → C x y))
       ( Σ-swap-swap A B C)
 
+equiv-Σ-swap :
+  {i j k : Level} (A : UU i) (B : UU j) (C : A → B → UU k) →
+  Σ A (λ a → Σ B (C a)) ≃ Σ B (λ b → Σ A (λ a → C a b))
+equiv-Σ-swap A B C =
+  pair (Σ-swap A B C) (is-equiv-Σ-swap A B C)
+
 --------------------------------------------------------------------------------
 
 -- Section 9.3 The identity type of a Σ-type

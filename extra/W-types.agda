@@ -58,6 +58,9 @@ module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
       ( refl-Eq-𝕎 v)
       ( is-contr-total-Eq-𝕎 v)
       ( Eq-𝕎-eq v)
+
+  equiv-Eq-𝕎-eq : (v w : 𝕎) → Id v w ≃ Eq-𝕎 v w
+  equiv-Eq-𝕎-eq v w = pair (Eq-𝕎-eq v w) (is-equiv-Eq-𝕎-eq v w)
   
   is-trunc-𝕎 : (k : 𝕋) → is-trunc (succ-𝕋 k) A → is-trunc (succ-𝕋 k) 𝕎
   is-trunc-𝕎 k is-trunc-A (sup-𝕎 x α) (sup-𝕎 y β) =
@@ -194,6 +197,39 @@ module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
 
   𝕎-Alg : algebra-polynomial-endofunctor-UU (l1 ⊔ l2)
   𝕎-Alg = pair 𝕎 structure-𝕎-Alg
+
+  map-inv-structure-𝕎-Alg : 𝕎 → type-polynomial-endofunctor 𝕎
+  map-inv-structure-𝕎-Alg (sup-𝕎 x α) = pair x α
+
+  issec-map-inv-structure-𝕎-Alg :
+    (structure-𝕎-Alg ∘ map-inv-structure-𝕎-Alg) ~ id
+  issec-map-inv-structure-𝕎-Alg (sup-𝕎 x α) = refl
+
+  isretr-map-inv-structure-𝕎-Alg :
+    (map-inv-structure-𝕎-Alg ∘ structure-𝕎-Alg) ~ id
+  isretr-map-inv-structure-𝕎-Alg (pair x α) = refl
+
+  is-equiv-structure-𝕎-Alg : is-equiv (structure-𝕎-Alg)
+  is-equiv-structure-𝕎-Alg =
+    is-equiv-has-inverse
+      map-inv-structure-𝕎-Alg
+      issec-map-inv-structure-𝕎-Alg
+      isretr-map-inv-structure-𝕎-Alg
+
+  equiv-structure-𝕎-Alg : type-polynomial-endofunctor 𝕎 ≃ 𝕎
+  equiv-structure-𝕎-Alg =
+    pair structure-𝕎-Alg is-equiv-structure-𝕎-Alg
+
+  is-equiv-map-inv-structure-𝕎-Alg : is-equiv (map-inv-structure-𝕎-Alg)
+  is-equiv-map-inv-structure-𝕎-Alg =
+    is-equiv-has-inverse
+      structure-𝕎-Alg
+      isretr-map-inv-structure-𝕎-Alg
+      issec-map-inv-structure-𝕎-Alg
+
+  inv-equiv-structure-𝕎-Alg : 𝕎 ≃ type-polynomial-endofunctor 𝕎
+  inv-equiv-structure-𝕎-Alg =
+    pair map-inv-structure-𝕎-Alg is-equiv-map-inv-structure-𝕎-Alg
 
   -- Morphisms of algebras for polynomial endofunctors
   
@@ -414,6 +450,7 @@ module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
   open W-Initial public
 
 open Container public
+  
 
 --------------------------------------------------------------------------------
 
@@ -426,19 +463,118 @@ data i𝕎 {l1 l2 l3 : Level} (I : UU l1) (A : I → UU l2) (B : (i : I) → A i
 
 -- Functoriality of 𝕎
 
-map-𝕎 :
+map-𝕎' :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
   (f : A → C) (g : (x : A) → D (f x) → B x) →
   𝕎 A B → 𝕎 C D
-map-𝕎 D f g (sup-𝕎 a α) = sup-𝕎 (f a) (map-𝕎 D f g ∘ (α ∘ g a))
+map-𝕎' D f g (sup-𝕎 a α) = sup-𝕎 (f a) (map-𝕎' D f g ∘ (α ∘ g a))
 
-map-fam-equiv-𝕎 :
+map-𝕎 :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
   (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
   𝕎 A B → 𝕎 C D
-map-fam-equiv-𝕎 D f e = map-𝕎 D f (λ x → map-inv-equiv (e x))
+map-𝕎 D f e = map-𝕎' D f (λ x → map-inv-equiv (e x))
 
 fib-map-𝕎 :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
-  (f : A → C) (g : (x : A) → D (f x) → B x) → 𝕎 C D → UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
-fib-map-𝕎 D f g y = ?
+  (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
+  𝕎 C D → UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+fib-map-𝕎 D f e (sup-𝕎 c γ) =
+  Σ (fib f c) (λ t → (d : D c) → fib (map-𝕎 D f e) (γ d))
+
+abstract
+  equiv-fib-map-𝕎 :
+    {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3}
+    (D : C → UU l4) (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
+    (y : 𝕎 C D) → fib (map-𝕎 D f e) y ≃ fib-map-𝕎 D f e y
+  equiv-fib-map-𝕎 {A = A} {B} {C} D f e (sup-𝕎 c γ) =
+    ( ( ( inv-equiv
+          ( assoc-Σ A
+            ( λ a → Id (f a) c)
+            ( λ t → (d : D c) → fib (map-𝕎 D f e) (γ d)))) ∘e
+        ( equiv-tot
+          ( λ a →
+            ( ( equiv-tot
+                ( λ p →
+                  ( ( equiv-Π
+                      ( λ (d : D c) → fib (map-𝕎 D f e) (γ d))
+                      ( (equiv-tr D p) ∘e (e a))
+                      ( λ b → equiv-id)) ∘e
+                    ( equiv-inv-choice-∞
+                      ( λ b w →
+                        Id ( map-𝕎 D f e w)
+                           ( γ (tr D p (map-equiv (e a) b)))))) ∘e 
+                  ( equiv-tot
+                    ( λ α →
+                      equiv-Π
+                        ( λ (b : B a) →
+                          Id ( map-𝕎 D f e (α b))
+                             ( γ (tr D p (map-equiv (e a) b))))
+                        ( inv-equiv (e a))
+                        ( λ d →
+                          ( equiv-concat'
+                            ( map-𝕎 D f e
+                              ( α (map-inv-equiv (e a) d)))
+                            ( ap ( γ ∘ (tr D p))
+                                 ( inv (issec-map-inv-equiv (e a) d)))) ∘e
+                          ( inv-equiv
+                            ( equiv-Eq-𝕎-eq C D
+                              ( map-𝕎 D f e
+                                ( α (map-inv-equiv (e a) d)))
+                              ( γ (tr D p d))))))))) ∘e
+              ( equiv-Σ-swap
+                ( B a → 𝕎 A B)
+                ( Id (f a) c)
+                ( λ α p →
+                  ( x : D (f a)) →
+                  Eq-𝕎 C D
+                    ( map-𝕎 D f e (α (map-inv-equiv (e a) x)))
+                    ( γ (tr D p x))))) ∘e
+            ( equiv-tot
+              ( λ α →
+                equiv-Eq-𝕎-eq C D
+                  ( sup-𝕎
+                    ( f a)
+                    ( ( map-𝕎 D f e) ∘
+                      ( α ∘ map-inv-equiv (e a)))) (sup-𝕎 c γ)))))) ∘e
+      ( assoc-Σ A
+        ( λ a → B a → 𝕎 A B)
+        ( λ t →
+          Id (map-𝕎 D f e (structure-𝕎-Alg A B t)) (sup-𝕎 c γ)))) ∘e
+    ( equiv-Σ
+      ( λ t → Id (map-𝕎 D f e (structure-𝕎-Alg A B t)) (sup-𝕎 c γ))
+      ( inv-equiv-structure-𝕎-Alg A B)
+      ( λ x →
+        equiv-concat
+          ( ap (map-𝕎 D f e) (issec-map-inv-structure-𝕎-Alg A B x))
+          ( sup-𝕎 c γ)))
+
+is-trunc-map-map-𝕎 :
+  {l1 l2 l3 l4 : Level} (k : 𝕋)
+  {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
+  (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
+  is-trunc-map k f → is-trunc-map k (map-𝕎 D f e)
+is-trunc-map-map-𝕎 k D f e H (sup-𝕎 c γ) =
+  is-trunc-equiv k
+    ( fib-map-𝕎 D f e (sup-𝕎 c γ))
+    ( equiv-fib-map-𝕎 D f e (sup-𝕎 c γ))
+    ( is-trunc-Σ k
+      ( H c)
+      ( λ t → is-trunc-Π k (λ d → is-trunc-map-map-𝕎 k D f e H (γ d))))
+
+is-equiv-map-𝕎 :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
+  (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
+  is-equiv f → is-equiv (map-𝕎 D f e)
+is-equiv-map-𝕎 D f e H =
+  is-equiv-is-contr-map
+    ( is-trunc-map-map-𝕎 neg-two-𝕋 D f e (is-contr-map-is-equiv H))
+
+equiv-𝕎 :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
+  (f : A ≃ C) (e : (x : A) → B x ≃ D (map-equiv f x)) →
+  𝕎 A B ≃ 𝕎 C D
+equiv-𝕎 D f e =
+  pair
+    ( map-𝕎 D (map-equiv f) e)
+    ( is-equiv-map-𝕎 D (map-equiv f) e (is-equiv-map-equiv f))
