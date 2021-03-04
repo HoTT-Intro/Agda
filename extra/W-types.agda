@@ -10,6 +10,15 @@ module Container {l1 l2 : Level} (A : UU l1) (B : A → UU l2) where
   data 𝕎 : UU (l1 ⊔ l2) where
     sup-𝕎 : (x : A) (α : B x → 𝕎) → 𝕎
 
+  arity-𝕎 : 𝕎 → A
+  arity-𝕎 (sup-𝕎 x α) = x
+  
+  component-𝕎 : (x : 𝕎) → B (arity-𝕎 x) → 𝕎
+  component-𝕎 (sup-𝕎 x α) = α
+
+  η-𝕎 : (x : 𝕎) → Id (sup-𝕎 (arity-𝕎 x) (component-𝕎 x)) x
+  η-𝕎 (sup-𝕎 A α) = refl
+  
   Eq-𝕎 : 𝕎 → 𝕎 → UU (l1 ⊔ l2)
   Eq-𝕎 (sup-𝕎 x α) (sup-𝕎 y β) =
     Σ (Id x y) (λ p → (z : B x) → Eq-𝕎 (α z) (β (tr B p z))) 
@@ -412,3 +421,24 @@ open Container public
 
 data i𝕎 {l1 l2 l3 : Level} (I : UU l1) (A : I → UU l2) (B : (i : I) → A i → UU l3) (f : (i : I) (x : A i) → B i x → I) (i : I) : UU (l2 ⊔ l3) where
   sup-i𝕎 : (x : A i) (α : (y : B i x) → i𝕎 I A B f (f i x y)) → i𝕎 I A B f i
+
+--------------------------------------------------------------------------------
+
+-- Functoriality of 𝕎
+
+map-𝕎 :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
+  (f : A → C) (g : (x : A) → D (f x) → B x) →
+  𝕎 A B → 𝕎 C D
+map-𝕎 D f g (sup-𝕎 a α) = sup-𝕎 (f a) (map-𝕎 D f g ∘ (α ∘ g a))
+
+map-fam-equiv-𝕎 :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
+  (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
+  𝕎 A B → 𝕎 C D
+map-fam-equiv-𝕎 D f e = map-𝕎 D f (λ x → map-inv-equiv (e x))
+
+fib-map-𝕎 :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
+  (f : A → C) (g : (x : A) → D (f x) → B x) → 𝕎 C D → UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+fib-map-𝕎 D f g y = ?

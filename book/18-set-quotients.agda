@@ -174,6 +174,22 @@ is-small :
   (l : Level) {l1 : Level} (A : UU l1) → UU (lsuc l ⊔ l1)
 is-small l A = Σ (UU l) (λ X → A ≃ X)
 
+type-is-small :
+  {l l1 : Level} {A : UU l1} → is-small l A → UU l
+type-is-small = pr1
+
+equiv-is-small :
+  {l l1 : Level} {A : UU l1} (H : is-small l A) → A ≃ type-is-small H
+equiv-is-small = pr2
+
+map-equiv-is-small :
+  {l l1 : Level} {A : UU l1} (H : is-small l A) → A → type-is-small H
+map-equiv-is-small H = map-equiv (equiv-is-small H)
+
+map-inv-equiv-is-small :
+  {l l1 : Level} {A : UU l1} (H : is-small l A) → type-is-small H → A
+map-inv-equiv-is-small H = map-inv-equiv (equiv-is-small H)
+
 is-small-map :
   (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} →
   (A → B) → UU (lsuc l ⊔ (l1 ⊔ l2))
