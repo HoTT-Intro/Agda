@@ -578,3 +578,19 @@ equiv-𝕎 D f e =
   pair
     ( map-𝕎 D (map-equiv f) e)
     ( is-equiv-map-𝕎 D (map-equiv f) e (is-equiv-map-equiv f))
+
+is-emb-map-𝕎 :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
+  (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
+  is-emb f → is-emb (map-𝕎 D f e)
+is-emb-map-𝕎 D f e H =
+  is-emb-is-prop-map
+    (is-trunc-map-map-𝕎 neg-one-𝕋 D f e (is-prop-map-is-emb H))
+
+emb-𝕎 :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
+  (f : A ↪ C) (e : (x : A) → B x ≃ D (map-emb f x)) → 𝕎 A B ↪ 𝕎 C D
+emb-𝕎 D f e =
+  pair
+    ( map-𝕎 D (map-emb f) e)
+    ( is-emb-map-𝕎 D (map-emb f) e (is-emb-map-emb f))
