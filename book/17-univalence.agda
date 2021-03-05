@@ -88,6 +88,10 @@ postulate univalence : {i : Level} (A B : UU i) → UNIVALENCE A B
 eq-equiv : {i : Level} (A B : UU i) → (A ≃ B) → Id A B
 eq-equiv A B = map-inv-is-equiv (univalence A B)
 
+equiv-univalence :
+  {i : Level} {A B : UU i} → Id A B ≃ (A ≃ B)
+equiv-univalence = pair equiv-eq (univalence _ _)
+
 abstract
   is-contr-total-equiv : {i : Level} (A : UU i) →
     is-contr (Σ (UU i) (λ X → A ≃ X))
@@ -321,6 +325,86 @@ tr-equiv-eq-ap : {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {x y : A}
 tr-equiv-eq-ap refl = refl-htpy
 
 -- Exercise 15.2
+
+is-small :
+  (l : Level) {l1 : Level} (A : UU l1) → UU (lsuc l ⊔ l1)
+is-small l A = Σ (UU l) (λ X → A ≃ X)
+
+type-is-small :
+  {l l1 : Level} {A : UU l1} → is-small l A → UU l
+type-is-small = pr1
+
+equiv-is-small :
+  {l l1 : Level} {A : UU l1} (H : is-small l A) → A ≃ type-is-small H
+equiv-is-small = pr2
+
+map-equiv-is-small :
+  {l l1 : Level} {A : UU l1} (H : is-small l A) → A → type-is-small H
+map-equiv-is-small H = map-equiv (equiv-is-small H)
+
+map-inv-equiv-is-small :
+  {l l1 : Level} {A : UU l1} (H : is-small l A) → type-is-small H → A
+map-inv-equiv-is-small H = map-inv-equiv (equiv-is-small H)
+
+is-small-map :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  (A → B) → UU (lsuc l ⊔ (l1 ⊔ l2))
+is-small-map l {B = B} f = (b : B) → is-small l (fib f b)
+
+is-locally-small :
+  (l : Level) {l1 : Level} (A : UU l1) → UU (lsuc l ⊔ l1)
+is-locally-small l A = (x y : A) → is-small l (Id x y)
+
+total-subtype :
+  {l1 l2 : Level} {A : UU l1} (P : A → UU-Prop l2) → UU (l1 ⊔ l2)
+total-subtype {A = A} P = Σ A (λ x → pr1 (P x))
+
+equiv-subtype-equiv :
+  {l1 l2 l3 l4 : Level}
+  {A : UU l1} {B : UU l2} (e : A ≃ B)
+  (C : A → UU-Prop l3) (D : B → UU-Prop l4) →
+  ((x : A) → (C x) ⇔ (D (map-equiv e x))) →
+  total-subtype C ≃ total-subtype D
+equiv-subtype-equiv e C D H =
+  equiv-Σ (λ y → type-Prop (D y)) e
+    ( λ x → equiv-iff (C x) (D (map-equiv e x)) (H x))
+
+equiv-comp-equiv' :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} →
+  (A ≃ B) → (C : UU l3) → (B ≃ C) ≃ (A ≃ C)
+equiv-comp-equiv' e C =
+  equiv-subtype-equiv
+    ( equiv-precomp-equiv e C)
+    ( is-equiv-Prop)
+    ( is-equiv-Prop)
+    ( λ g →
+      pair
+        ( is-equiv-comp' g (map-equiv e) (is-equiv-map-equiv e))
+        ( λ is-equiv-eg →
+          is-equiv-left-factor'
+            g (map-equiv e) is-equiv-eg (is-equiv-map-equiv e)))
+
+is-prop-is-small :
+  (l : Level) {l1 : Level} (A : UU l1) → is-prop (is-small l A)
+is-prop-is-small l A =
+  is-prop-is-proof-irrelevant
+    ( λ Xe →
+      is-contr-equiv'
+        ( Σ (UU l) (λ Y → (pr1 Xe) ≃ Y))
+        ( equiv-tot ((λ Y → equiv-comp-equiv' (pr2 Xe) Y)))
+        ( is-contr-total-equiv (pr1 Xe)))
+
+is-prop-is-locally-small :
+  (l : Level) {l1 : Level} (A : UU l1) → is-prop (is-locally-small l A)
+is-prop-is-locally-small l A =
+  is-prop-Π (λ x → is-prop-Π (λ y → is-prop-is-small l (Id x y)))
+
+is-emb-raise :
+  (l1 l2 : Level) → is-emb (raise l2 {l1})
+is-emb-raise l1 l2 =
+  is-emb-is-prop-map (λ X → is-prop-equiv (is-small l1 X) (equiv-tot (λ Y → (equiv-inv-equiv ∘e {!equiv-precomp-equiv (equiv-raise l2 Y) X!}) ∘e equiv-univalence)) {!!})
+
+-- Exercise 15.3
 
 subuniverse-is-contr :
   {i : Level} → subuniverse i i

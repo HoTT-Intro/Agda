@@ -480,7 +480,7 @@ fib-map-𝕎 :
   (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
   𝕎 C D → UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
 fib-map-𝕎 D f e (sup-𝕎 c γ) =
-  Σ (fib f c) (λ t → (d : D c) → fib (map-𝕎 D f e) (γ d))
+  (fib f c) × ((d : D c) → fib (map-𝕎 D f e) (γ d))
 
 abstract
   equiv-fib-map-𝕎 :

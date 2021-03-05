@@ -957,11 +957,52 @@ abstract
         ( is-trunc-A (pr1 s) (pr1 t))
         ( λ p → is-trunc-B (pr1 t) (tr B p (pr2 s)) (pr2 t)))
 
+-- Exercise 12.3 (b)
+
+-- Exercise 12.3 (c)
+
 abstract
-  is-trunc-prod : {l1 l2 : Level} (k : 𝕋) {A : UU l1} {B : UU l2} →
+  is-trunc-prod :
+    {l1 l2 : Level} (k : 𝕋) {A : UU l1} {B : UU l2} →
     is-trunc k A → is-trunc k B → is-trunc k (A × B)
   is-trunc-prod k is-trunc-A is-trunc-B =
     is-trunc-Σ k is-trunc-A (λ x → is-trunc-B)
+
+is-trunc-prod' :
+  {l1 l2 : Level} (k : 𝕋) {A : UU l1} {B : UU l2} →
+  (B → is-trunc (succ-𝕋 k) A) → (A → is-trunc (succ-𝕋 k) B) →
+  is-trunc (succ-𝕋 k) (A × B)
+is-trunc-prod' k f g (pair a b) (pair a' b') =
+  is-trunc-equiv k
+    ( Eq-prod (pair a b) (pair a' b'))
+    ( equiv-pair-eq (pair a b) (pair a' b'))
+    ( is-trunc-prod k (f b a a') (g a b b'))
+
+is-trunc-left-factor-prod :
+  {l1 l2 : Level} (k : 𝕋) {A : UU l1} {B : UU l2} →
+  is-trunc k (A × B) → B → is-trunc k A
+is-trunc-left-factor-prod neg-two-𝕋 {A} {B} H b =
+  is-contr-left-factor-prod A B H
+is-trunc-left-factor-prod (succ-𝕋 k) H b a a' =
+  is-trunc-left-factor-prod k {A = Id a a'} {B = Id b b}
+    ( is-trunc-equiv' k
+      ( Id (pair a b) (pair a' b))
+      ( equiv-pair-eq (pair a b) (pair a' b))
+      ( H (pair a b) (pair a' b)))
+    ( refl)
+
+is-trunc-right-factor-prod :
+  {l1 l2 : Level} (k : 𝕋) {A : UU l1} {B : UU l2} →
+  is-trunc k (A × B) → A → is-trunc k B
+is-trunc-right-factor-prod neg-two-𝕋 {A} {B} H a =
+  is-contr-right-factor-prod A B H
+is-trunc-right-factor-prod (succ-𝕋 k) {A} {B} H a b b' =
+  is-trunc-right-factor-prod k {A = Id a a} {B = Id b b'}
+    ( is-trunc-equiv' k
+      ( Id (pair a b) (pair a b'))
+      ( equiv-pair-eq (pair a b) (pair a b'))
+      ( H (pair a b) (pair a b')))
+    ( refl)
 
 abstract
   is-prop-Σ : {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
