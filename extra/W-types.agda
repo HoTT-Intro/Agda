@@ -798,4 +798,4 @@ x ∈-𝕎 (collect-𝕎 y g) = fib g x
 data _le-𝕎_ {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (x : 𝕎 A B) :
   𝕎 A B → UU (l1 ⊔ l2) where
   le-∈-𝕎 : (y : 𝕎 A B) → x ∈-𝕎 y → x le-𝕎 y
-  propagate-le-𝕎 : (y z : 𝕎 A B) → x ∈-𝕎 y → y le-𝕎 z → x le-𝕎 z
+  propagate-le-𝕎 : (y z : 𝕎 A B) → y ∈-𝕎 z → x le-𝕎 y → x le-𝕎 z
