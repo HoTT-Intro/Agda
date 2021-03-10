@@ -69,10 +69,10 @@ Nat-𝕎-ℕ (succ-ℕ x) = succ-Nat-𝕎 (Nat-𝕎-ℕ x)
 issec-ℕ-Nat-𝕎 : (Nat-𝕎-ℕ ∘ ℕ-Nat-𝕎) ~ id
 issec-ℕ-Nat-𝕎 (collect-𝕎 true α) =
   ap ( collect-𝕎 true)
-     ( eq-htpy
-       ( ind-unit
-           { P = λ z → Id (Nat-𝕎-ℕ (ℕ-Nat-𝕎 (α star))) (α z)}
-           ( issec-ℕ-Nat-𝕎 (α star))))
+     ( eq-htpy H)
+  where
+  H : (z : unit) → Id (Nat-𝕎-ℕ (ℕ-Nat-𝕎 (α star))) (α z)
+  H star = issec-ℕ-Nat-𝕎 (α star)
 issec-ℕ-Nat-𝕎 (collect-𝕎 false α) =
   ap (collect-𝕎 false) (eq-is-contr (universal-property-empty' Nat-𝕎))
 
