@@ -14,20 +14,71 @@ open book public
 -- Section B.1 W-types
 
 data 𝕎 {l1 l2 : Level} (A : UU l1) (B : A → UU l2) : UU (l1 ⊔ l2) where
-  sup-𝕎 : (x : A) (α : B x → 𝕎 A B) → 𝕎 A B
+  collect-𝕎 : (x : A) (α : B x → 𝕎 A B) → 𝕎 A B
 
 arity-𝕎 : {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → 𝕎 A B → A
-arity-𝕎 (sup-𝕎 x α) = x
+arity-𝕎 (collect-𝕎 x α) = x
   
 component-𝕎 :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (x : 𝕎 A B) →
   B (arity-𝕎 x) → 𝕎 A B
-component-𝕎 (sup-𝕎 x α) = α
+component-𝕎 (collect-𝕎 x α) = α
 
 η-𝕎 :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (x : 𝕎 A B) →
-  Id (sup-𝕎 (arity-𝕎 x) (component-𝕎 x)) x
-η-𝕎 (sup-𝕎 A α) = refl
+  Id (collect-𝕎 (arity-𝕎 x) (component-𝕎 x)) x
+η-𝕎 (collect-𝕎 A α) = refl
+
+-- Example B.1.3
+
+constant-𝕎 :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  (x : A) → is-empty (B x) → 𝕎 A B
+constant-𝕎 x h = collect-𝕎 x (ex-falso ∘ h)
+
+-- Proposition B.1.4
+
+is-empty-𝕎 :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  ((x : A) → type-trunc-Prop (B x)) → is-empty (𝕎 A B)
+is-empty-𝕎 H (collect-𝕎 x α) =
+  apply-universal-property-trunc-Prop
+    ( H x)
+    ( empty-Prop)
+    ( λ y → is-empty-𝕎 H (α y))
+
+-- Example B.1.5
+
+Nat-𝕎 : UU lzero
+Nat-𝕎 = 𝕎 bool (Eq-𝟚 true)
+
+zero-Nat-𝕎 : Nat-𝕎
+zero-Nat-𝕎 = constant-𝕎 false id
+
+succ-Nat-𝕎 : Nat-𝕎 → Nat-𝕎
+succ-Nat-𝕎 x = collect-𝕎 true (λ y → x)
+
+Nat-𝕎-ℕ : ℕ → Nat-𝕎
+Nat-𝕎-ℕ zero-ℕ = zero-Nat-𝕎
+Nat-𝕎-ℕ (succ-ℕ x) = succ-Nat-𝕎 (Nat-𝕎-ℕ x)
+
+ℕ-Nat-𝕎 : Nat-𝕎 → ℕ
+ℕ-Nat-𝕎 (collect-𝕎 true α) = succ-ℕ (ℕ-Nat-𝕎 (α star))
+ℕ-Nat-𝕎 (collect-𝕎 false α) = zero-ℕ
+
+issec-ℕ-Nat-𝕎 : (Nat-𝕎-ℕ ∘ ℕ-Nat-𝕎) ~ id
+issec-ℕ-Nat-𝕎 (collect-𝕎 true α) =
+  ap ( collect-𝕎 true)
+     ( eq-htpy
+       ( ind-unit
+           { P = λ z → Id (Nat-𝕎-ℕ (ℕ-Nat-𝕎 (α star))) (α z)}
+           ( issec-ℕ-Nat-𝕎 (α star))))
+issec-ℕ-Nat-𝕎 (collect-𝕎 false α) =
+  ap (collect-𝕎 false) (eq-is-contr (universal-property-empty' Nat-𝕎))
+
+isretr-ℕ-Nat-𝕎 : (ℕ-Nat-𝕎 ∘ Nat-𝕎-ℕ) ~ id
+isretr-ℕ-Nat-𝕎 zero-ℕ = refl
+isretr-ℕ-Nat-𝕎 (succ-ℕ x) = ap succ-ℕ (isretr-ℕ-Nat-𝕎 x)
 
 --------------------------------------------------------------------------------
 
@@ -35,12 +86,12 @@ component-𝕎 (sup-𝕎 x α) = α
   
 Eq-𝕎 :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
-Eq-𝕎 {A = A} {B = B} (sup-𝕎 x α) (sup-𝕎 y β) =
+Eq-𝕎 {A = A} {B = B} (collect-𝕎 x α) (collect-𝕎 y β) =
   Σ (Id x y) (λ p → (z : B x) → Eq-𝕎 (α z) (β (tr B p z))) 
 
 refl-Eq-𝕎 :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (w : 𝕎 A B) → Eq-𝕎 w w
-refl-Eq-𝕎 (sup-𝕎 x α) = pair refl (λ z → refl-Eq-𝕎 (α z))
+refl-Eq-𝕎 (collect-𝕎 x α) = pair refl (λ z → refl-Eq-𝕎 (α z))
 
 center-total-Eq-𝕎 :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (w : 𝕎 A B) → Σ (𝕎 A B) (Eq-𝕎 w)
@@ -49,14 +100,14 @@ center-total-Eq-𝕎 w = pair w (refl-Eq-𝕎 w)
 aux-total-Eq-𝕎 :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (x : A) (α : B x → 𝕎 A B) →
   Σ (B x → 𝕎 A B) (λ β → (y : B x) → Eq-𝕎 (α y) (β y)) →
-  Σ (𝕎 A B) (Eq-𝕎 (sup-𝕎 x α))
-aux-total-Eq-𝕎 x α (pair β e) = pair (sup-𝕎 x β) (pair refl e)
+  Σ (𝕎 A B) (Eq-𝕎 (collect-𝕎 x α))
+aux-total-Eq-𝕎 x α (pair β e) = pair (collect-𝕎 x β) (pair refl e)
 
 contraction-total-Eq-𝕎 :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
   (w : 𝕎 A B) (t : Σ (𝕎 A B) (Eq-𝕎 w)) → Id (center-total-Eq-𝕎 w) t
 contraction-total-Eq-𝕎 {A = A} {B = B}
-  ( sup-𝕎 x α) (pair (sup-𝕎 .x β) (pair refl e)) =
+  ( collect-𝕎 x α) (pair (collect-𝕎 .x β) (pair refl e)) =
   ap ( ( aux-total-Eq-𝕎 x α) ∘
        ( choice-∞ {A = B x} {B = λ y → 𝕎 A B} {C = λ y → Eq-𝕎 (α y)}))
      { x = λ y → pair (α y) (refl-Eq-𝕎 (α y))}
@@ -91,11 +142,11 @@ equiv-Eq-𝕎-eq v w = pair (Eq-𝕎-eq v w) (is-equiv-Eq-𝕎-eq v w)
 is-trunc-𝕎 :
   {l1 l2 : Level} (k : 𝕋) {A : UU l1} {B : A → UU l2} →
   is-trunc (succ-𝕋 k) A → is-trunc (succ-𝕋 k) (𝕎 A B)
-is-trunc-𝕎 k {A} {B} is-trunc-A (sup-𝕎 x α) (sup-𝕎 y β) =
+is-trunc-𝕎 k {A} {B} is-trunc-A (collect-𝕎 x α) (collect-𝕎 y β) =
   is-trunc-is-equiv k
-    ( Eq-𝕎 (sup-𝕎 x α) (sup-𝕎 y β))
-    ( Eq-𝕎-eq (sup-𝕎 x α) (sup-𝕎 y β))
-    ( is-equiv-Eq-𝕎-eq (sup-𝕎 x α) (sup-𝕎 y β))
+    ( Eq-𝕎 (collect-𝕎 x α) (collect-𝕎 y β))
+    ( Eq-𝕎-eq (collect-𝕎 x α) (collect-𝕎 y β))
+    ( is-equiv-Eq-𝕎-eq (collect-𝕎 x α) (collect-𝕎 y β))
     ( is-trunc-Σ k
       ( is-trunc-A x y)
       ( λ p → is-trunc-Π k
@@ -239,7 +290,7 @@ structure-algebra-polynomial-endofunctor X = pr2 X
 structure-𝕎-Alg :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
   type-polynomial-endofunctor A B (𝕎 A B) → 𝕎 A B
-structure-𝕎-Alg (pair x α) = sup-𝕎 x α
+structure-𝕎-Alg (pair x α) = collect-𝕎 x α
 
 𝕎-Alg :
   {l1 l2 : Level} (A : UU l1) (B : A → UU l2) →
@@ -249,12 +300,12 @@ structure-𝕎-Alg (pair x α) = sup-𝕎 x α
 map-inv-structure-𝕎-Alg :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
   𝕎 A B → type-polynomial-endofunctor A B (𝕎 A B)
-map-inv-structure-𝕎-Alg (sup-𝕎 x α) = pair x α
+map-inv-structure-𝕎-Alg (collect-𝕎 x α) = pair x α
 
 issec-map-inv-structure-𝕎-Alg :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
   (structure-𝕎-Alg {B = B} ∘ map-inv-structure-𝕎-Alg {B = B}) ~ id
-issec-map-inv-structure-𝕎-Alg (sup-𝕎 x α) = refl
+issec-map-inv-structure-𝕎-Alg (collect-𝕎 x α) = refl
 
 isretr-map-inv-structure-𝕎-Alg :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
@@ -444,7 +495,7 @@ map-hom-𝕎-Alg :
   {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2}
   (X : algebra-polynomial-endofunctor-UU l3 A B) →
   𝕎 A B → type-algebra-polynomial-endofunctor X
-map-hom-𝕎-Alg X (sup-𝕎 x α) =
+map-hom-𝕎-Alg X (collect-𝕎 x α) =
   structure-algebra-polynomial-endofunctor X (pair x (map-hom-𝕎-Alg X ∘ α))
 
 structure-hom-𝕎-Alg :
@@ -467,7 +518,7 @@ htpy-htpy-hom-𝕎-Alg :
   (f : hom-algebra-polynomial-endofunctor (𝕎-Alg A B) X) →
   map-hom-𝕎-Alg X ~
   map-hom-algebra-polynomial-endofunctor (𝕎-Alg A B) X f
-htpy-htpy-hom-𝕎-Alg {A = A} {B} X f (sup-𝕎 x α) =
+htpy-htpy-hom-𝕎-Alg {A = A} {B} X f (collect-𝕎 x α) =
   ( ap ( λ t → structure-algebra-polynomial-endofunctor X (pair x t))
        ( eq-htpy (λ z → htpy-htpy-hom-𝕎-Alg X f (α z)))) ∙
   ( inv
@@ -552,7 +603,7 @@ map-𝕎' :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
   (f : A → C) (g : (x : A) → D (f x) → B x) →
   𝕎 A B → 𝕎 C D
-map-𝕎' D f g (sup-𝕎 a α) = sup-𝕎 (f a) (map-𝕎' D f g ∘ (α ∘ g a))
+map-𝕎' D f g (collect-𝕎 a α) = collect-𝕎 (f a) (map-𝕎' D f g ∘ (α ∘ g a))
 
 map-𝕎 :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
@@ -564,7 +615,7 @@ fib-map-𝕎 :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
   (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
   𝕎 C D → UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
-fib-map-𝕎 D f e (sup-𝕎 c γ) =
+fib-map-𝕎 D f e (collect-𝕎 c γ) =
   (fib f c) × ((d : D c) → fib (map-𝕎 D f e) (γ d))
 
 abstract
@@ -572,7 +623,7 @@ abstract
     {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3}
     (D : C → UU l4) (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
     (y : 𝕎 C D) → fib (map-𝕎 D f e) y ≃ fib-map-𝕎 D f e y
-  equiv-fib-map-𝕎 {A = A} {B} {C} D f e (sup-𝕎 c γ) =
+  equiv-fib-map-𝕎 {A = A} {B} {C} D f e (collect-𝕎 c γ) =
     ( ( ( inv-equiv
           ( assoc-Σ A
             ( λ a → Id (f a) c)
@@ -618,31 +669,31 @@ abstract
             ( equiv-tot
               ( λ α →
                 equiv-Eq-𝕎-eq
-                  ( sup-𝕎
+                  ( collect-𝕎
                     ( f a)
                     ( ( map-𝕎 D f e) ∘
-                      ( α ∘ map-inv-equiv (e a)))) (sup-𝕎 c γ)))))) ∘e
+                      ( α ∘ map-inv-equiv (e a)))) (collect-𝕎 c γ)))))) ∘e
       ( assoc-Σ A
         ( λ a → B a → 𝕎 A B)
         ( λ t →
-          Id (map-𝕎 D f e (structure-𝕎-Alg t)) (sup-𝕎 c γ)))) ∘e
+          Id (map-𝕎 D f e (structure-𝕎-Alg t)) (collect-𝕎 c γ)))) ∘e
     ( equiv-Σ
-      ( λ t → Id (map-𝕎 D f e (structure-𝕎-Alg t)) (sup-𝕎 c γ))
+      ( λ t → Id (map-𝕎 D f e (structure-𝕎-Alg t)) (collect-𝕎 c γ))
       ( inv-equiv-structure-𝕎-Alg)
       ( λ x →
         equiv-concat
           ( ap (map-𝕎 D f e) (issec-map-inv-structure-𝕎-Alg x))
-          ( sup-𝕎 c γ)))
+          ( collect-𝕎 c γ)))
 
 is-trunc-map-map-𝕎 :
   {l1 l2 l3 l4 : Level} (k : 𝕋)
   {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
   (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
   is-trunc-map k f → is-trunc-map k (map-𝕎 D f e)
-is-trunc-map-map-𝕎 k D f e H (sup-𝕎 c γ) =
+is-trunc-map-map-𝕎 k D f e H (collect-𝕎 c γ) =
   is-trunc-equiv k
-    ( fib-map-𝕎 D f e (sup-𝕎 c γ))
-    ( equiv-fib-map-𝕎 D f e (sup-𝕎 c γ))
+    ( fib-map-𝕎 D f e (collect-𝕎 c γ))
+    ( equiv-fib-map-𝕎 D f e (collect-𝕎 c γ))
     ( is-trunc-Σ k
       ( H c)
       ( λ t → is-trunc-Π k (λ d → is-trunc-map-map-𝕎 k D f e H (γ d))))
