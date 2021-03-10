@@ -483,8 +483,9 @@ compute-structure-htpy-hom-𝕎-Alg :
           ( htpy-polynomial-endofunctor A B H (pair x α)))
      ( ap ( λ t → structure-algebra-polynomial-endofunctor X (pair x t))
           ( eq-htpy (H ·r α)))
-compute-structure-htpy-hom-𝕎-Alg {A = A} {B} X x α {f}  H =
-  ind-htpy map-hom-𝕎-Alg
+compute-structure-htpy-hom-𝕎-Alg {A = A} {B} X x α = 
+  ind-htpy
+    ( map-hom-𝕎-Alg X)
     ( λ f H →
       Id ( ap ( structure-algebra-polynomial-endofunctor X)
               ( htpy-polynomial-endofunctor A B H (pair x α)))
@@ -492,197 +493,196 @@ compute-structure-htpy-hom-𝕎-Alg {A = A} {B} X x α {f}  H =
               ( eq-htpy (H ·r α))))
     ( ap ( ap (pr2 X))
          ( coh-refl-htpy-polynomial-endofunctor A B
-           ( map-hom-𝕎-Alg)
+           ( map-hom-𝕎-Alg X)
            ( pair x α)) ∙
     ( inv
       ( ap ( ap (λ t → pr2 X (pair x t)))
-           ( eq-htpy-refl-htpy (map-hom-𝕎-Alg ∘ α)))))
-    f H
+           ( eq-htpy-refl-htpy (map-hom-𝕎-Alg X ∘ α)))))
 
 structure-htpy-hom-𝕎-Alg :
   {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2}
   (X : algebra-polynomial-endofunctor-UU l3 A B) →
-  (f : hom-algebra-polynomial-endofunctor 𝕎-Alg X) →
-  ( structure-hom-𝕎-Alg ∙h
+  (f : hom-algebra-polynomial-endofunctor (𝕎-Alg A B) X) →
+  ( structure-hom-𝕎-Alg X ∙h
     ( ( structure-algebra-polynomial-endofunctor X) ·l
-      ( htpy-polynomial-endofunctor (htpy-htpy-hom-𝕎-Alg f)))) ~
-  ( ( (htpy-htpy-hom-𝕎-Alg f) ·r structure-𝕎-Alg) ∙h
-    ( structure-hom-algebra-polynomial-endofunctor 𝕎-Alg X f))
-structure-htpy-hom-𝕎-Alg X (pair f μ-f) (pair x α) =
-  ( ( ( compute-structure-htpy-hom-𝕎-Alg x α
-        ( htpy-htpy-hom-𝕎-Alg (pair f μ-f)))  ∙
+      ( htpy-polynomial-endofunctor A B (htpy-htpy-hom-𝕎-Alg X f)))) ~
+  ( ( (htpy-htpy-hom-𝕎-Alg X f) ·r structure-𝕎-Alg {B = B}) ∙h
+    ( structure-hom-algebra-polynomial-endofunctor (𝕎-Alg A B) X f))
+structure-htpy-hom-𝕎-Alg {A = A} {B} X (pair f μ-f) (pair x α) =
+  ( ( ( compute-structure-htpy-hom-𝕎-Alg X x α
+        ( htpy-htpy-hom-𝕎-Alg X (pair f μ-f)))  ∙
       ( inv right-unit)) ∙
     ( ap ( concat
            ( ap
              ( λ t → pr2 X (pair x t))
-             ( eq-htpy (htpy-htpy-hom-𝕎-Alg (pair f μ-f) ·r α)))
-         ( pr2 X (map-polynomial-endofunctor f (pair x α))))
+             ( eq-htpy (htpy-htpy-hom-𝕎-Alg X (pair f μ-f) ·r α)))
+         ( pr2 X (map-polynomial-endofunctor A B f (pair x α))))
          ( inv (left-inv ( μ-f (pair x α)))))) ∙
   ( inv
     ( assoc
       ( ap ( λ t → pr2 X (pair x t))
-           ( eq-htpy (htpy-htpy-hom-𝕎-Alg (pair f μ-f) ·r α)))
+           ( eq-htpy (htpy-htpy-hom-𝕎-Alg X (pair f μ-f) ·r α)))
       ( inv (μ-f (pair x α)))
       ( μ-f (pair x α))))
 
 htpy-hom-𝕎-Alg :
   {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2}
   (X : algebra-polynomial-endofunctor-UU l3 A B) →
-  (f : hom-algebra-polynomial-endofunctor 𝕎-Alg X) →
-  htpy-hom-algebra-polynomial-endofunctor 𝕎-Alg X hom-𝕎-Alg f
+  (f : hom-algebra-polynomial-endofunctor (𝕎-Alg A B) X) →
+  htpy-hom-algebra-polynomial-endofunctor (𝕎-Alg A B) X (hom-𝕎-Alg X) f
 htpy-hom-𝕎-Alg X f =
-  pair (htpy-htpy-hom-𝕎-Alg f) (structure-htpy-hom-𝕎-Alg f)
+  pair (htpy-htpy-hom-𝕎-Alg X f) (structure-htpy-hom-𝕎-Alg X f)
 
 is-initial-𝕎-Alg :
   {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2}
   (X : algebra-polynomial-endofunctor-UU l3 A B) →
-  is-contr (hom-algebra-polynomial-endofunctor 𝕎-Alg X)
-is-initial-𝕎-Alg X =
+  is-contr (hom-algebra-polynomial-endofunctor (𝕎-Alg A B) X)
+is-initial-𝕎-Alg {A = A} {B} X =
   pair
-    ( hom-𝕎-Alg)
+    ( hom-𝕎-Alg X)
     ( λ f →
-      eq-htpy-hom-algebra-polynomial-endofunctor 𝕎-Alg X hom-𝕎-Alg f
-        ( htpy-hom-𝕎-Alg f))
+      eq-htpy-hom-algebra-polynomial-endofunctor (𝕎-Alg A B) X (hom-𝕎-Alg X) f
+        ( htpy-hom-𝕎-Alg X f))
 
 --------------------------------------------------------------------------------
 
--- -- Section B.1.3 Functoriality of 𝕎
+-- Section B.1.3 Functoriality of 𝕎
 
--- map-𝕎' :
---   {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
---   (f : A → C) (g : (x : A) → D (f x) → B x) →
---   𝕎 A B → 𝕎 C D
--- map-𝕎' D f g (sup-𝕎 a α) = sup-𝕎 (f a) (map-𝕎' D f g ∘ (α ∘ g a))
+map-𝕎' :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
+  (f : A → C) (g : (x : A) → D (f x) → B x) →
+  𝕎 A B → 𝕎 C D
+map-𝕎' D f g (sup-𝕎 a α) = sup-𝕎 (f a) (map-𝕎' D f g ∘ (α ∘ g a))
 
--- map-𝕎 :
---   {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
---   (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
---   𝕎 A B → 𝕎 C D
--- map-𝕎 D f e = map-𝕎' D f (λ x → map-inv-equiv (e x))
+map-𝕎 :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
+  (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
+  𝕎 A B → 𝕎 C D
+map-𝕎 D f e = map-𝕎' D f (λ x → map-inv-equiv (e x))
 
--- fib-map-𝕎 :
---   {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
---   (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
---   𝕎 C D → UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
--- fib-map-𝕎 D f e (sup-𝕎 c γ) =
---   (fib f c) × ((d : D c) → fib (map-𝕎 D f e) (γ d))
+fib-map-𝕎 :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
+  (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
+  𝕎 C D → UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+fib-map-𝕎 D f e (sup-𝕎 c γ) =
+  (fib f c) × ((d : D c) → fib (map-𝕎 D f e) (γ d))
 
--- abstract
---   equiv-fib-map-𝕎 :
---     {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3}
---     (D : C → UU l4) (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
---     (y : 𝕎 C D) → fib (map-𝕎 D f e) y ≃ fib-map-𝕎 D f e y
---   equiv-fib-map-𝕎 {A = A} {B} {C} D f e (sup-𝕎 c γ) =
---     ( ( ( inv-equiv
---           ( assoc-Σ A
---             ( λ a → Id (f a) c)
---             ( λ t → (d : D c) → fib (map-𝕎 D f e) (γ d)))) ∘e
---         ( equiv-tot
---           ( λ a →
---             ( ( equiv-tot
---                 ( λ p →
---                   ( ( equiv-Π
---                       ( λ (d : D c) → fib (map-𝕎 D f e) (γ d))
---                       ( (equiv-tr D p) ∘e (e a))
---                       ( λ b → equiv-id)) ∘e
---                     ( equiv-inv-choice-∞
---                       ( λ b w →
---                         Id ( map-𝕎 D f e w)
---                            ( γ (tr D p (map-equiv (e a) b)))))) ∘e 
---                   ( equiv-tot
---                     ( λ α →
---                       equiv-Π
---                         ( λ (b : B a) →
---                           Id ( map-𝕎 D f e (α b))
---                              ( γ (tr D p (map-equiv (e a) b))))
---                         ( inv-equiv (e a))
---                         ( λ d →
---                           ( equiv-concat'
---                             ( map-𝕎 D f e
---                               ( α (map-inv-equiv (e a) d)))
---                             ( ap ( γ ∘ (tr D p))
---                                  ( inv (issec-map-inv-equiv (e a) d)))) ∘e
---                           ( inv-equiv
---                             ( equiv-Eq-𝕎-eq C D
---                               ( map-𝕎 D f e
---                                 ( α (map-inv-equiv (e a) d)))
---                               ( γ (tr D p d))))))))) ∘e
---               ( equiv-Σ-swap
---                 ( B a → 𝕎 A B)
---                 ( Id (f a) c)
---                 ( λ α p →
---                   ( x : D (f a)) →
---                   Eq-𝕎 C D
---                     ( map-𝕎 D f e (α (map-inv-equiv (e a) x)))
---                     ( γ (tr D p x))))) ∘e
---             ( equiv-tot
---               ( λ α →
---                 equiv-Eq-𝕎-eq C D
---                   ( sup-𝕎
---                     ( f a)
---                     ( ( map-𝕎 D f e) ∘
---                       ( α ∘ map-inv-equiv (e a)))) (sup-𝕎 c γ)))))) ∘e
---       ( assoc-Σ A
---         ( λ a → B a → 𝕎 A B)
---         ( λ t →
---           Id (map-𝕎 D f e (structure-𝕎-Alg A B t)) (sup-𝕎 c γ)))) ∘e
---     ( equiv-Σ
---       ( λ t → Id (map-𝕎 D f e (structure-𝕎-Alg A B t)) (sup-𝕎 c γ))
---       ( inv-equiv-structure-𝕎-Alg A B)
---       ( λ x →
---         equiv-concat
---           ( ap (map-𝕎 D f e) (issec-map-inv-structure-𝕎-Alg A B x))
---           ( sup-𝕎 c γ)))
+abstract
+  equiv-fib-map-𝕎 :
+    {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3}
+    (D : C → UU l4) (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
+    (y : 𝕎 C D) → fib (map-𝕎 D f e) y ≃ fib-map-𝕎 D f e y
+  equiv-fib-map-𝕎 {A = A} {B} {C} D f e (sup-𝕎 c γ) =
+    ( ( ( inv-equiv
+          ( assoc-Σ A
+            ( λ a → Id (f a) c)
+            ( λ t → (d : D c) → fib (map-𝕎 D f e) (γ d)))) ∘e
+        ( equiv-tot
+          ( λ a →
+            ( ( equiv-tot
+                ( λ p →
+                  ( ( equiv-Π
+                      ( λ (d : D c) → fib (map-𝕎 D f e) (γ d))
+                      ( (equiv-tr D p) ∘e (e a))
+                      ( λ b → equiv-id)) ∘e
+                    ( equiv-inv-choice-∞
+                      ( λ b w →
+                        Id ( map-𝕎 D f e w)
+                           ( γ (tr D p (map-equiv (e a) b)))))) ∘e 
+                  ( equiv-tot
+                    ( λ α →
+                      equiv-Π
+                        ( λ (b : B a) →
+                          Id ( map-𝕎 D f e (α b))
+                             ( γ (tr D p (map-equiv (e a) b))))
+                        ( inv-equiv (e a))
+                        ( λ d →
+                          ( equiv-concat'
+                            ( map-𝕎 D f e
+                              ( α (map-inv-equiv (e a) d)))
+                            ( ap ( γ ∘ (tr D p))
+                                 ( inv (issec-map-inv-equiv (e a) d)))) ∘e
+                          ( inv-equiv
+                            ( equiv-Eq-𝕎-eq
+                              ( map-𝕎 D f e
+                                ( α (map-inv-equiv (e a) d)))
+                              ( γ (tr D p d))))))))) ∘e
+              ( equiv-Σ-swap
+                ( B a → 𝕎 A B)
+                ( Id (f a) c)
+                ( λ α p →
+                  ( x : D (f a)) →
+                  Eq-𝕎
+                    ( map-𝕎 D f e (α (map-inv-equiv (e a) x)))
+                    ( γ (tr D p x))))) ∘e
+            ( equiv-tot
+              ( λ α →
+                equiv-Eq-𝕎-eq
+                  ( sup-𝕎
+                    ( f a)
+                    ( ( map-𝕎 D f e) ∘
+                      ( α ∘ map-inv-equiv (e a)))) (sup-𝕎 c γ)))))) ∘e
+      ( assoc-Σ A
+        ( λ a → B a → 𝕎 A B)
+        ( λ t →
+          Id (map-𝕎 D f e (structure-𝕎-Alg t)) (sup-𝕎 c γ)))) ∘e
+    ( equiv-Σ
+      ( λ t → Id (map-𝕎 D f e (structure-𝕎-Alg t)) (sup-𝕎 c γ))
+      ( inv-equiv-structure-𝕎-Alg)
+      ( λ x →
+        equiv-concat
+          ( ap (map-𝕎 D f e) (issec-map-inv-structure-𝕎-Alg x))
+          ( sup-𝕎 c γ)))
 
--- is-trunc-map-map-𝕎 :
---   {l1 l2 l3 l4 : Level} (k : 𝕋)
---   {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
---   (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
---   is-trunc-map k f → is-trunc-map k (map-𝕎 D f e)
--- is-trunc-map-map-𝕎 k D f e H (sup-𝕎 c γ) =
---   is-trunc-equiv k
---     ( fib-map-𝕎 D f e (sup-𝕎 c γ))
---     ( equiv-fib-map-𝕎 D f e (sup-𝕎 c γ))
---     ( is-trunc-Σ k
---       ( H c)
---       ( λ t → is-trunc-Π k (λ d → is-trunc-map-map-𝕎 k D f e H (γ d))))
+is-trunc-map-map-𝕎 :
+  {l1 l2 l3 l4 : Level} (k : 𝕋)
+  {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
+  (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
+  is-trunc-map k f → is-trunc-map k (map-𝕎 D f e)
+is-trunc-map-map-𝕎 k D f e H (sup-𝕎 c γ) =
+  is-trunc-equiv k
+    ( fib-map-𝕎 D f e (sup-𝕎 c γ))
+    ( equiv-fib-map-𝕎 D f e (sup-𝕎 c γ))
+    ( is-trunc-Σ k
+      ( H c)
+      ( λ t → is-trunc-Π k (λ d → is-trunc-map-map-𝕎 k D f e H (γ d))))
 
--- is-equiv-map-𝕎 :
---   {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
---   (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
---   is-equiv f → is-equiv (map-𝕎 D f e)
--- is-equiv-map-𝕎 D f e H =
---   is-equiv-is-contr-map
---     ( is-trunc-map-map-𝕎 neg-two-𝕋 D f e (is-contr-map-is-equiv H))
+is-equiv-map-𝕎 :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
+  (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
+  is-equiv f → is-equiv (map-𝕎 D f e)
+is-equiv-map-𝕎 D f e H =
+  is-equiv-is-contr-map
+    ( is-trunc-map-map-𝕎 neg-two-𝕋 D f e (is-contr-map-is-equiv H))
 
--- equiv-𝕎 :
---   {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
---   (f : A ≃ C) (e : (x : A) → B x ≃ D (map-equiv f x)) →
---   𝕎 A B ≃ 𝕎 C D
--- equiv-𝕎 D f e =
---   pair
---     ( map-𝕎 D (map-equiv f) e)
---     ( is-equiv-map-𝕎 D (map-equiv f) e (is-equiv-map-equiv f))
+equiv-𝕎 :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
+  (f : A ≃ C) (e : (x : A) → B x ≃ D (map-equiv f x)) →
+  𝕎 A B ≃ 𝕎 C D
+equiv-𝕎 D f e =
+  pair
+    ( map-𝕎 D (map-equiv f) e)
+    ( is-equiv-map-𝕎 D (map-equiv f) e (is-equiv-map-equiv f))
 
--- is-emb-map-𝕎 :
---   {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
---   (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
---   is-emb f → is-emb (map-𝕎 D f e)
--- is-emb-map-𝕎 D f e H =
---   is-emb-is-prop-map
---     (is-trunc-map-map-𝕎 neg-one-𝕋 D f e (is-prop-map-is-emb H))
+is-emb-map-𝕎 :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
+  (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
+  is-emb f → is-emb (map-𝕎 D f e)
+is-emb-map-𝕎 D f e H =
+  is-emb-is-prop-map
+    (is-trunc-map-map-𝕎 neg-one-𝕋 D f e (is-prop-map-is-emb H))
 
--- emb-𝕎 :
---   {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
---   (f : A ↪ C) (e : (x : A) → B x ≃ D (map-emb f x)) → 𝕎 A B ↪ 𝕎 C D
--- emb-𝕎 D f e =
---   pair
---     ( map-𝕎 D (map-emb f) e)
---     ( is-emb-map-𝕎 D (map-emb f) e (is-emb-map-emb f))
+emb-𝕎 :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
+  (f : A ↪ C) (e : (x : A) → B x ≃ D (map-emb f x)) → 𝕎 A B ↪ 𝕎 C D
+emb-𝕎 D f e =
+  pair
+    ( map-𝕎 D (map-emb f) e)
+    ( is-emb-map-𝕎 D (map-emb f) e (is-emb-map-emb f))
 
--- --------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
--- -- Section B.2 Indexed W-types
+-- Section B.2 Indexed W-types
 
--- data i𝕎 {l1 l2 l3 : Level} (I : UU l1) (A : I → UU l2) (B : (i : I) → A i → UU l3) (f : (i : I) (x : A i) → B i x → I) (i : I) : UU (l2 ⊔ l3) where
---   sup-i𝕎 : (x : A i) (α : (y : B i x) → i𝕎 I A B f (f i x y)) → i𝕎 I A B f i
+data i𝕎 {l1 l2 l3 : Level} (I : UU l1) (A : I → UU l2) (B : (i : I) → A i → UU l3) (f : (i : I) (x : A i) → B i x → I) (i : I) : UU (l2 ⊔ l3) where
+  sup-i𝕎 : (x : A i) (α : (y : B i x) → i𝕎 I A B f (f i x y)) → i𝕎 I A B f i
