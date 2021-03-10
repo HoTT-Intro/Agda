@@ -80,6 +80,56 @@ isretr-ℕ-Nat-𝕎 : (ℕ-Nat-𝕎 ∘ Nat-𝕎-ℕ) ~ id
 isretr-ℕ-Nat-𝕎 zero-ℕ = refl
 isretr-ℕ-Nat-𝕎 (succ-ℕ x) = ap succ-ℕ (isretr-ℕ-Nat-𝕎 x)
 
+is-equiv-Nat-𝕎-ℕ : is-equiv Nat-𝕎-ℕ
+is-equiv-Nat-𝕎-ℕ =
+  is-equiv-has-inverse
+    ℕ-Nat-𝕎
+    issec-ℕ-Nat-𝕎
+    isretr-ℕ-Nat-𝕎
+
+equiv-Nat-𝕎-ℕ : ℕ ≃ Nat-𝕎
+equiv-Nat-𝕎-ℕ = pair Nat-𝕎-ℕ is-equiv-Nat-𝕎-ℕ
+
+is-equiv-ℕ-Nat-𝕎 : is-equiv ℕ-Nat-𝕎
+is-equiv-ℕ-Nat-𝕎 =
+  is-equiv-has-inverse
+    Nat-𝕎-ℕ
+    isretr-ℕ-Nat-𝕎
+    issec-ℕ-Nat-𝕎
+
+equiv-ℕ-Nat-𝕎 : Nat-𝕎 ≃ ℕ
+equiv-ℕ-Nat-𝕎 = pair ℕ-Nat-𝕎 is-equiv-ℕ-Nat-𝕎
+
+-- Example B.1.6
+
+data Planar-Bin-Tree : UU lzero where
+  root-PBT : Planar-Bin-Tree
+  join-PBT : (x y : Planar-Bin-Tree) → Planar-Bin-Tree
+
+PBT-𝕎 : UU lzero
+PBT-𝕎 = 𝕎 bool P
+  where
+  P : bool → UU lzero
+  P true = bool
+  P false = empty
+
+root-PBT-𝕎 : PBT-𝕎
+root-PBT-𝕎 = constant-𝕎 false id
+
+join-PBT-𝕎 : (x y : PBT-𝕎) → PBT-𝕎
+join-PBT-𝕎 x y = collect-𝕎 true α
+  where
+  α : bool → PBT-𝕎
+  α true = x
+  α false = y
+
+Planar-Bin-Tree-PBT-𝕎 : PBT-𝕎 → Planar-Bin-Tree
+Planar-Bin-Tree-PBT-𝕎 (collect-𝕎 true α) =
+  join-PBT
+    ( Planar-Bin-Tree-PBT-𝕎 (α true))
+    ( Planar-Bin-Tree-PBT-𝕎 (α false))
+Planar-Bin-Tree-PBT-𝕎 (collect-𝕎 false α) = {!!}
+
 --------------------------------------------------------------------------------
 
 -- Section B.1.1 Observational equality of W-types
@@ -737,3 +787,15 @@ emb-𝕎 D f e =
 
 data i𝕎 {l1 l2 l3 : Level} (I : UU l1) (A : I → UU l2) (B : (i : I) → A i → UU l3) (f : (i : I) (x : A i) → B i x → I) (i : I) : UU (l2 ⊔ l3) where
   sup-i𝕎 : (x : A i) (α : (y : B i x) → i𝕎 I A B f (f i x y)) → i𝕎 I A B f i
+
+--------------------------------------------------------------------------------
+
+_∈-𝕎_ :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
+x ∈-𝕎 (collect-𝕎 y g) = fib g x
+  
+
+data _le-𝕎_ {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (x : 𝕎 A B) :
+  𝕎 A B → UU (l1 ⊔ l2) where
+  le-∈-𝕎 : (y : 𝕎 A B) → x ∈-𝕎 y → x le-𝕎 y
+  propagate-le-𝕎 : (y z : 𝕎 A B) → x ∈-𝕎 y → y le-𝕎 z → x le-𝕎 z
