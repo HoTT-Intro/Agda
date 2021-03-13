@@ -836,23 +836,26 @@ data _leq-𝕎_ {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (x : 𝕎 A B) :
   refl-leq-𝕎 : x leq-𝕎 x
   propagate-leq-𝕎 : {y z : 𝕎 A B} → y ∈-𝕎 z → x leq-𝕎 y → x leq-𝕎 z
 
-module _ {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} where
 
-  -- We define an operation □ on families over 𝕎 A B
+□-𝕎 :
+  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} →
+  (𝕎 A B → UU l3) → 𝕎 A B → UU (l1 ⊔ l2 ⊔ l3)
+□-𝕎 {A = A} {B} P x = (y : 𝕎 A B) → (y le-𝕎 x) → P y
 
-  □-𝕎 : (𝕎 A B → UU l3) → 𝕎 A B → UU (l1 ⊔ l2 ⊔ l3)
-  □-𝕎 P x = (y : 𝕎 A B) → (y le-𝕎 x) → P y
+module _
+  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {P : 𝕎 A B → UU l3}
+  where
 
   -- The unit of □-𝕎 takes sections of P to sections of □-𝕎 P
 
   unit-□-𝕎 :
-    {P : 𝕎 A B → UU l3} → ((x : 𝕎 A B) → P x) → ((x : 𝕎 A B) → □-𝕎 P x)
+    ((x : 𝕎 A B) → P x) → ((x : 𝕎 A B) → □-𝕎 P x)
   unit-□-𝕎 f x y p = f y
 
   -- The reflector (counit) of □-𝕎 is dual, with an extra hypothesis
 
   reflect-□-𝕎 :
-    {P : 𝕎 A B → UU l3} → ((x : 𝕎 A B) → □-𝕎 P x → P x) → 
+    ((x : 𝕎 A B) → □-𝕎 P x → P x) →
     ((x : 𝕎 A B) → □-𝕎 P x) → ((x : 𝕎 A B) → P x)
   reflect-□-𝕎 h f x = h x (f x)
 
@@ -860,7 +863,6 @@ module _ {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} where
      where we obtain sections of □-𝕎 P. -}
 
   □-strong-ind-𝕎 :
-    {P : 𝕎 A B → UU l3} →
     ((x : 𝕎 A B) → □-𝕎 P x → P x) → (x : 𝕎 A B) → □-𝕎 P x
   □-strong-ind-𝕎 h (collect-𝕎 x α) .(α b) (le-∈-𝕎 (pair b refl)) =
     h (α b) (□-strong-ind-𝕎 h (α b))
@@ -868,8 +870,8 @@ module _ {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} where
     □-strong-ind-𝕎 h (α b) y K
 
   □-strong-comp-𝕎 :
-    {P : 𝕎 A B → UU l3} (h : (x : 𝕎 A B) → □-𝕎 P x → P x) (x : 𝕎 A B)
-    (y : 𝕎 A B) (p : y le-𝕎 x) →
+    (h : (x : 𝕎 A B) → □-𝕎 P x → P x)
+    (x : 𝕎 A B) (y : 𝕎 A B) (p : y le-𝕎 x) →
     Id (□-strong-ind-𝕎 h x y p) (h y (□-strong-ind-𝕎 h y))
   □-strong-comp-𝕎 h (collect-𝕎 x α) .(α b) (le-∈-𝕎 (pair b refl)) =
     refl
@@ -880,11 +882,11 @@ module _ {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} where
      obtain sections of P. -}
 
   strong-ind-𝕎 :
-    {P : 𝕎 A B → UU l3} → ((x : 𝕎 A B) → □-𝕎 P x → P x) → (x : 𝕎 A B) → P x
+    ((x : 𝕎 A B) → □-𝕎 P x → P x) → (x : 𝕎 A B) → P x
   strong-ind-𝕎 h = reflect-□-𝕎 h (□-strong-ind-𝕎 h)
 
   strong-comp-𝕎 :
-    {P : 𝕎 A B → UU l3} (h : (x : 𝕎 A B) → □-𝕎 P x → P x) (x : 𝕎 A B) →
+    (h : (x : 𝕎 A B) → □-𝕎 P x → P x) (x : 𝕎 A B) →
     Id (strong-ind-𝕎 h x) (h x (unit-□-𝕎 (strong-ind-𝕎 h) x))
   strong-comp-𝕎 h x =
     ap (h x) (eq-htpy (λ y → eq-htpy (λ p → □-strong-comp-𝕎 h x y p)))
