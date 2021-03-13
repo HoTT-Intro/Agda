@@ -792,10 +792,103 @@ data i𝕎 {l1 l2 l3 : Level} (I : UU l1) (A : I → UU l2) (B : (i : I) → A i
 
 _∈-𝕎_ :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
-x ∈-𝕎 (collect-𝕎 y g) = fib g x
-  
+x ∈-𝕎 y = fib (component-𝕎 y) x
+
+_∉-𝕎_ :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
+x ∉-𝕎 y = is-empty (x ∈-𝕎 y)
+
+irreflexive-∈-𝕎 :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (x : 𝕎 A B) → x ∉-𝕎 x
+irreflexive-∈-𝕎 {A = A} {B = B} (collect-𝕎 x α) (pair y p) =
+  irreflexive-∈-𝕎 (α y) (tr (λ z → (α y) ∈-𝕎 z) (inv p) (pair y refl))
+
+-- We define the strict ordering on 𝕎 A B
 
 data _le-𝕎_ {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (x : 𝕎 A B) :
   𝕎 A B → UU (l1 ⊔ l2) where
-  le-∈-𝕎 : (y : 𝕎 A B) → x ∈-𝕎 y → x le-𝕎 y
-  propagate-le-𝕎 : (y z : 𝕎 A B) → y ∈-𝕎 z → x le-𝕎 y → x le-𝕎 z
+  le-∈-𝕎 : {y : 𝕎 A B} → x ∈-𝕎 y → x le-𝕎 y
+  propagate-le-𝕎 : {y z : 𝕎 A B} → y ∈-𝕎 z → x le-𝕎 y → x le-𝕎 z
+
+-- The strict ordering is transitive, irreflexive, and asymmetric
+
+transitive-le-𝕎 :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {x y z : 𝕎 A B} →
+  y le-𝕎 z → x le-𝕎 y → x le-𝕎 z
+transitive-le-𝕎 {x = x} {y} {z} (le-∈-𝕎 H) K =
+  propagate-le-𝕎 H K
+transitive-le-𝕎 {x = x} {y} {z} (propagate-le-𝕎 L H) K =
+  propagate-le-𝕎 L (transitive-le-𝕎 H K)
+
+irreflexive-le-𝕎 :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {x : 𝕎 A B} → ¬ (x le-𝕎 x)
+irreflexive-le-𝕎 {x = x} (le-∈-𝕎 H) = irreflexive-∈-𝕎 x H
+irreflexive-le-𝕎 {x = collect-𝕎 x α} (propagate-le-𝕎 (pair b refl) H) =
+  irreflexive-le-𝕎 {x = α b} (transitive-le-𝕎 H (le-∈-𝕎 (pair b refl)))
+
+asymmetric-le-𝕎 :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {x y : 𝕎 A B} →
+  x le-𝕎 y → y le-𝕎 x → empty
+asymmetric-le-𝕎 H K = irreflexive-le-𝕎 (transitive-le-𝕎 H K)
+
+data _leq-𝕎_ {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (x : 𝕎 A B) :
+  𝕎 A B → UU (l1 ⊔ l2) where
+  refl-leq-𝕎 : x leq-𝕎 x
+  propagate-leq-𝕎 : {y z : 𝕎 A B} → y ∈-𝕎 z → x leq-𝕎 y → x leq-𝕎 z
+
+-- We define an operation □ on families over 𝕎 A B
+
+□-𝕎 :
+  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} →
+  (𝕎 A B → UU l3) → 𝕎 A B → UU (l1 ⊔ l2 ⊔ l3)
+□-𝕎 {A = A} {B} P x = (y : 𝕎 A B) → (y le-𝕎 x) → P y
+
+-- The unit of □-𝕎 takes sections of P to sections of □-𝕎 P
+
+unit-□-𝕎 :
+  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {P : 𝕎 A B → UU l3} →
+  ((x : 𝕎 A B) → P x) → ((x : 𝕎 A B) → □-𝕎 P x)
+unit-□-𝕎 f x y p = f y
+
+-- The reflector (counit) of □-𝕎 is dual, with an extra hypothesis
+
+reflect-□-𝕎 :
+  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {P : 𝕎 A B → UU l3} →
+  ((x : 𝕎 A B) → □-𝕎 P x → P x) → 
+  ((x : 𝕎 A B) → □-𝕎 P x) → ((x : 𝕎 A B) → P x)
+reflect-□-𝕎 h f x = h x (f x)
+
+{- We first prove an intermediate induction principle with computation rule,
+   where we obtain sections of □-𝕎 P. -}
+
+□-strong-ind-𝕎 :
+  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {P : 𝕎 A B → UU l3} →
+  ((x : 𝕎 A B) → □-𝕎 P x → P x) → (x : 𝕎 A B) → □-𝕎 P x
+□-strong-ind-𝕎 h (collect-𝕎 x α) .(α b) (le-∈-𝕎 (pair b refl)) =
+  h (α b) (□-strong-ind-𝕎 h (α b))
+□-strong-ind-𝕎 h (collect-𝕎 x α) y (propagate-le-𝕎 (pair b refl) K) =
+  □-strong-ind-𝕎 h (α b) y K
+
+□-strong-comp-𝕎 :
+  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {P : 𝕎 A B → UU l3} →
+  (h : (x : 𝕎 A B) → □-𝕎 P x → P x) (x : 𝕎 A B) (y : 𝕎 A B) (p : y le-𝕎 x) →
+  Id (□-strong-ind-𝕎 h x y p) (h y (□-strong-ind-𝕎 h y))
+□-strong-comp-𝕎 h (collect-𝕎 x α) .(α b) (le-∈-𝕎 (pair b refl)) = refl
+□-strong-comp-𝕎 h (collect-𝕎 x α) y (propagate-le-𝕎 (pair b refl) K) =
+  □-strong-comp-𝕎 h (α b) y K
+
+{- Now we prove the actual induction principle with computation rule, where we
+   obtain sections of P. -}
+
+strong-ind-𝕎 :
+  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {P : 𝕎 A B → UU l3} →
+  ((x : 𝕎 A B) → □-𝕎 P x → P x) → (x : 𝕎 A B) → P x
+strong-ind-𝕎 h = reflect-□-𝕎 h (□-strong-ind-𝕎 h)
+
+strong-comp-𝕎 :
+  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {P : 𝕎 A B → UU l3} →
+  (h : (x : 𝕎 A B) → □-𝕎 P x → P x) (x : 𝕎 A B) →
+  Id (strong-ind-𝕎 h x) (h x (unit-□-𝕎 (strong-ind-𝕎 h) x))
+strong-comp-𝕎 h x =
+  ap (h x) (eq-htpy (λ y → eq-htpy (λ p → □-strong-comp-𝕎 h x y p)))
+
