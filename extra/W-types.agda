@@ -123,16 +123,18 @@ join-PBT-𝕎 x y = collect-𝕎 true α
   α true = x
   α false = y
 
+{-
 Planar-Bin-Tree-PBT-𝕎 : PBT-𝕎 → Planar-Bin-Tree
 Planar-Bin-Tree-PBT-𝕎 (collect-𝕎 true α) =
   join-PBT
     ( Planar-Bin-Tree-PBT-𝕎 (α true))
     ( Planar-Bin-Tree-PBT-𝕎 (α false))
 Planar-Bin-Tree-PBT-𝕎 (collect-𝕎 false α) = {!!}
+-}
 
 --------------------------------------------------------------------------------
 
--- Section B.1.1 Observational equality of W-types
+-- Section B.2 Observational equality of W-types
   
 Eq-𝕎 :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
@@ -209,7 +211,7 @@ is-trunc-𝕎 k {A} {B} is-trunc-A (collect-𝕎 x α) (collect-𝕎 y β) =
   
 ------------------------------------------------------------------------------
   
--- Section B.1.2 W-types as initial algebras
+-- Section B.3 W-types as initial algebras
 
 -- The polynomial endofunctor associated to a container
                                               
@@ -647,7 +649,7 @@ is-initial-𝕎-Alg {A = A} {B} X =
 
 --------------------------------------------------------------------------------
 
--- Section B.1.3 Functoriality of 𝕎
+-- Section B.4 Functoriality of 𝕎
 
 map-𝕎' :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
@@ -783,16 +785,58 @@ emb-𝕎 D f e =
 
 --------------------------------------------------------------------------------
 
--- Section B.2 Indexed W-types
+-- Section B.5 Indexed W-types
 
 data i𝕎 {l1 l2 l3 : Level} (I : UU l1) (A : I → UU l2) (B : (i : I) → A i → UU l3) (f : (i : I) (x : A i) → B i x → I) (i : I) : UU (l2 ⊔ l3) where
   sup-i𝕎 : (x : A i) (α : (y : B i x) → i𝕎 I A B f (f i x y)) → i𝕎 I A B f i
 
 --------------------------------------------------------------------------------
 
+-- Section B.6 Russel's paradox in type theory
+
+-- Definition B.6.1
+
 _∈-𝕎_ :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
 x ∈-𝕎 y = fib (component-𝕎 y) x
+
+extensional-Eq-eq-𝕎 : 
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {x y : 𝕎 A B} →
+  Id x y → (z : 𝕎 A B) → (z ∈-𝕎 y) ≃ (z ∈-𝕎 y)
+extensional-Eq-eq-𝕎 refl z = equiv-id
+
+is-extensional-𝕎 :
+  {l1 l2 : Level} (A : UU l1) (B : A → UU l2) → UU (l1 ⊔ l2)
+is-extensional-𝕎 A B =
+  (x y : 𝕎 A B) → is-equiv (extensional-Eq-eq-𝕎 {x = x} {y})
+
+-- Theorem B.6.2
+
+is-univalent :
+  {l1 l2 : Level} {A : UU l1} → (A → UU l2) → UU (l1 ⊔ l2)
+is-univalent {A = A} B = (x y : A) → is-equiv (λ (p : Id x y) → equiv-tr B p)
+
+module _
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
+  where
+
+{-
+  is-extensional-is-univalent-𝕎 :
+    is-univalent B → is-extensional-𝕎 A B
+  is-extensional-is-univalent-𝕎 H x =
+    fundamental-theorem-id x
+      ( λ z → equiv-id)
+      ( is-contr-equiv
+        ( Σ ( type-polynomial-endofunctor A B (𝕎 A B))
+            ( λ t → {!!}))
+        {!!}
+        {!!})
+      ( λ y → extensional-Eq-eq-𝕎)
+-}
+
+--------------------------------------------------------------------------------
+
+-- Exercises
 
 _∉-𝕎_ :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
@@ -803,48 +847,50 @@ irreflexive-∈-𝕎 :
 irreflexive-∈-𝕎 {A = A} {B = B} (collect-𝕎 x α) (pair y p) =
   irreflexive-∈-𝕎 (α y) (tr (λ z → (α y) ∈-𝕎 z) (inv p) (pair y refl))
 
--- We define the strict ordering on 𝕎 A B
+module _
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
+  where
 
-data _le-𝕎_ {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (x : 𝕎 A B) :
-  𝕎 A B → UU (l1 ⊔ l2) where
-  le-∈-𝕎 : {y : 𝕎 A B} → x ∈-𝕎 y → x le-𝕎 y
-  propagate-le-𝕎 : {y z : 𝕎 A B} → y ∈-𝕎 z → x le-𝕎 y → x le-𝕎 z
+  -- We define the strict ordering on 𝕎 A B
+  
+  data _le-𝕎_ (x : 𝕎 A B) : 𝕎 A B → UU (l1 ⊔ l2) where
+    le-∈-𝕎 : {y : 𝕎 A B} → x ∈-𝕎 y → x le-𝕎 y
+    propagate-le-𝕎 : {y z : 𝕎 A B} → y ∈-𝕎 z → x le-𝕎 y → x le-𝕎 z
 
--- The strict ordering is transitive, irreflexive, and asymmetric
+  -- The strict ordering is transitive, irreflexive, and asymmetric
+  
+  transitive-le-𝕎 : {x y z : 𝕎 A B} → y le-𝕎 z → x le-𝕎 y → x le-𝕎 z
+  transitive-le-𝕎 {x = x} {y} {z} (le-∈-𝕎 H) K =
+    propagate-le-𝕎 H K
+  transitive-le-𝕎 {x = x} {y} {z} (propagate-le-𝕎 L H) K =
+    propagate-le-𝕎 L (transitive-le-𝕎 H K)
 
-transitive-le-𝕎 :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {x y z : 𝕎 A B} →
-  y le-𝕎 z → x le-𝕎 y → x le-𝕎 z
-transitive-le-𝕎 {x = x} {y} {z} (le-∈-𝕎 H) K =
-  propagate-le-𝕎 H K
-transitive-le-𝕎 {x = x} {y} {z} (propagate-le-𝕎 L H) K =
-  propagate-le-𝕎 L (transitive-le-𝕎 H K)
+  irreflexive-le-𝕎 :
+    {x : 𝕎 A B} → ¬ (x le-𝕎 x)
+  irreflexive-le-𝕎 {x = x} (le-∈-𝕎 H) = irreflexive-∈-𝕎 x H
+  irreflexive-le-𝕎 {x = collect-𝕎 x α} (propagate-le-𝕎 (pair b refl) H) =
+    irreflexive-le-𝕎 {x = α b} (transitive-le-𝕎 H (le-∈-𝕎 (pair b refl)))
 
-irreflexive-le-𝕎 :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {x : 𝕎 A B} → ¬ (x le-𝕎 x)
-irreflexive-le-𝕎 {x = x} (le-∈-𝕎 H) = irreflexive-∈-𝕎 x H
-irreflexive-le-𝕎 {x = collect-𝕎 x α} (propagate-le-𝕎 (pair b refl) H) =
-  irreflexive-le-𝕎 {x = α b} (transitive-le-𝕎 H (le-∈-𝕎 (pair b refl)))
-
-asymmetric-le-𝕎 :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {x y : 𝕎 A B} →
-  x le-𝕎 y → y le-𝕎 x → empty
-asymmetric-le-𝕎 H K = irreflexive-le-𝕎 (transitive-le-𝕎 H K)
+  asymmetric-le-𝕎 :
+    {x y : 𝕎 A B} → x le-𝕎 y → y le-𝕎 x → empty
+  asymmetric-le-𝕎 H K = irreflexive-le-𝕎 (transitive-le-𝕎 H K)
 
 data _leq-𝕎_ {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (x : 𝕎 A B) :
   𝕎 A B → UU (l1 ⊔ l2) where
   refl-leq-𝕎 : x leq-𝕎 x
   propagate-leq-𝕎 : {y z : 𝕎 A B} → y ∈-𝕎 z → x leq-𝕎 y → x leq-𝕎 z
 
-
-□-𝕎 :
-  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} →
-  (𝕎 A B → UU l3) → 𝕎 A B → UU (l1 ⊔ l2 ⊔ l3)
-□-𝕎 {A = A} {B} P x = (y : 𝕎 A B) → (y le-𝕎 x) → P y
-
 module _
-  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {P : 𝕎 A B → UU l3}
+  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2}
   where
+  
+  -- We define an operation □-𝕎 that acts on families over 𝕎 A B.
+
+  □-𝕎 : (𝕎 A B → UU l3) → 𝕎 A B → UU (l1 ⊔ l2 ⊔ l3)
+  □-𝕎 P x = (y : 𝕎 A B) → (y le-𝕎 x) → P y
+
+  variable
+    P : 𝕎 A B → UU l3
 
   -- The unit of □-𝕎 takes sections of P to sections of □-𝕎 P
 
@@ -878,15 +924,85 @@ module _
   □-strong-comp-𝕎 h (collect-𝕎 x α) y (propagate-le-𝕎 (pair b refl) K) =
     □-strong-comp-𝕎 h (α b) y K
 
-  {- Now we prove the actual induction principle with computation rule, where we
-     obtain sections of P. -}
+{- Now we prove the actual induction principle with computation rule, where we
+   obtain sections of P. -}
 
-  strong-ind-𝕎 :
-    ((x : 𝕎 A B) → □-𝕎 P x → P x) → (x : 𝕎 A B) → P x
-  strong-ind-𝕎 h = reflect-□-𝕎 h (□-strong-ind-𝕎 h)
+strong-ind-𝕎 :
+  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} (P : 𝕎 A B → UU l3) → 
+  ((x : 𝕎 A B) → □-𝕎 P x → P x) → (x : 𝕎 A B) → P x
+strong-ind-𝕎 P h = reflect-□-𝕎 h (□-strong-ind-𝕎 h)
+                                               
+strong-comp-𝕎 :
+  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} (P : 𝕎 A B → UU l3) →
+  (h : (x : 𝕎 A B) → □-𝕎 P x → P x) (x : 𝕎 A B) →
+  Id (strong-ind-𝕎 P h x) (h x (unit-□-𝕎 (strong-ind-𝕎 P h) x))
+strong-comp-𝕎 P h x =
+  ap (h x) (eq-htpy (λ y → eq-htpy (λ p → □-strong-comp-𝕎 h x y p)))
 
-  strong-comp-𝕎 :
-    (h : (x : 𝕎 A B) → □-𝕎 P x → P x) (x : 𝕎 A B) →
-    Id (strong-ind-𝕎 h x) (h x (unit-□-𝕎 (strong-ind-𝕎 h) x))
-  strong-comp-𝕎 h x =
-    ap (h x) (eq-htpy (λ y → eq-htpy (λ p → □-strong-comp-𝕎 h x y p)))
+no-infinite-descent-𝕎 :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  (f : ℕ → 𝕎 A B) → ¬ ((n : ℕ) → (f (succ-ℕ n) le-𝕎 (f n)))
+no-infinite-descent-𝕎 {A = A} {B} f =
+  strong-ind-𝕎
+    ( λ x → (f : ℕ → 𝕎 A B) (p : Id (f zero-ℕ) x) →
+            ¬ ((n : ℕ) → (f (succ-ℕ n)) le-𝕎 (f n)))
+    ( λ x IH f p H →
+      IH ( f one-ℕ)
+         ( tr (λ t → (f one-ℕ) le-𝕎 t) p (H zero-ℕ))
+         ( f ∘ succ-ℕ)
+         ( refl)
+         ( λ n → H (succ-ℕ n)))
+    ( f zero-ℕ)
+    ( f)
+    ( refl)
+
+-- Exercise B.8
+
+-- Exercise B.9
+
+module _
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
+  where
+
+  _≲-𝕎-Prop_ : 𝕎 A B → 𝕎 A B → UU-Prop (l1 ⊔ l2)
+  (collect-𝕎 x α) ≲-𝕎-Prop (collect-𝕎 y β) =
+    Π-Prop (B x) (λ b → exists-Prop (λ c → (α b) ≲-𝕎-Prop (β c)))
+
+  _≲-𝕎_ : 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
+  x ≲-𝕎 y = type-Prop (x ≲-𝕎-Prop y)
+
+  refl-≲-𝕎 : (x : 𝕎 A B) → x ≲-𝕎 x
+  refl-≲-𝕎 (collect-𝕎 x α) b = unit-trunc-Prop (pair b (refl-≲-𝕎 (α b)))
+
+  transitive-≲-𝕎 : {x y z : 𝕎 A B} → (x ≲-𝕎 y) → (y ≲-𝕎 z) → (x ≲-𝕎 z)
+  transitive-≲-𝕎 {collect-𝕎 x α} {collect-𝕎 y β} {collect-𝕎 z γ} H K a =
+    apply-universal-property-trunc-Prop
+      ( H a)
+      ( exists-Prop (λ c → (α a) ≲-𝕎-Prop (γ c)))
+      ( λ t →
+        apply-universal-property-trunc-Prop
+          ( K (pr1 t))
+          ( exists-Prop (λ c → (α a) ≲-𝕎-Prop (γ c)))
+          ( λ s →
+            unit-trunc-Prop
+              ( pair
+                ( pr1 s)
+                ( transitive-≲-𝕎
+                  { α a}
+                  { β (pr1 t)}
+                  { γ (pr1 s)}
+                  ( pr2 t)
+                  ( pr2 s)))))
+
+  not-has-lower-rank-is-element-𝕎 :
+    {x y : 𝕎 A B} → x ∈-𝕎 y → ¬ (y ≲-𝕎 x)
+  not-has-lower-rank-is-element-𝕎 {.(α x)} {collect-𝕎 y α} (pair x refl) K  =
+    {!!}
+    where
+    K' = tr (λ t → collect-𝕎 y α ≲-𝕎 t) (inv (η-𝕎 (α x))) K
+
+  _≈-𝕎-Prop_ : 𝕎 A B → 𝕎 A B → UU-Prop (l1 ⊔ l2)
+  x ≈-𝕎-Prop y = prod-Prop (x ≲-𝕎-Prop y) (y ≲-𝕎-Prop x)
+
+  _≈-𝕎_ : 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
+  x ≈-𝕎 y = type-Prop (x ≈-𝕎-Prop y)
