@@ -834,6 +834,104 @@ module _
       ( λ y → extensional-Eq-eq-𝕎)
 -}
 
+𝕎-UU : (l : Level) → UU (lsuc l)
+𝕎-UU l = 𝕎 (UU l) (λ X → X)
+
+raise-𝕎-UU : (l : Level) {l1 : Level} → 𝕎-UU l1 → 𝕎-UU (l1 ⊔ l)
+raise-𝕎-UU l = map-𝕎 id (raise l) (equiv-raise l)
+
+is-small-𝕎-UU :
+  (l : Level) {l1 : Level} → 𝕎-UU l1 → UU (l1 ⊔ lsuc l)
+is-small-𝕎-UU l (collect-𝕎 A α) =
+  is-small l A × ((x : A) → is-small-𝕎-UU l (α x))
+
+arity-resize-𝕎-UU :
+  {l l1 : Level} (X : 𝕎-UU l1) → is-small-𝕎-UU l X → UU l
+arity-resize-𝕎-UU (collect-𝕎 A α) (pair (pair A' e) H) = A'
+
+equiv-arity-resize-𝕎-UU :
+  {l l1 : Level} (X : 𝕎-UU l1) (H : is-small-𝕎-UU l X) →
+  arity-𝕎 X ≃ arity-resize-𝕎-UU X H
+equiv-arity-resize-𝕎-UU (collect-𝕎 A α) (pair (pair A' e) H) = e
+
+resize-𝕎-UU :
+  {l1 l2 : Level} (X : 𝕎-UU l1) → is-small-𝕎-UU l2 X → 𝕎-UU l2
+resize-𝕎-UU (collect-𝕎 A α) (pair (pair A' e) H2) =
+  collect-𝕎 A'
+    ( λ x' → resize-𝕎-UU (α (map-inv-equiv e x')) (H2 (map-inv-equiv e x')))
+
+-- The componenthood relation on 𝕎-UU l is valued in 𝕎-UU (lsuc l)
+
+_∈-𝕎-UU_ : {l : Level} → 𝕎-UU l → 𝕎-UU l → UU (lsuc l)
+_∈-𝕎-UU_ {l} X (collect-𝕎 A α) = fib α X
+
+-- The condition that an component of 𝕎-UU l is empty
+
+is-empty-𝕎-UU : {l : Level} (X : 𝕎-UU l) → UU l
+is-empty-𝕎-UU (collect-𝕎 A α) = is-empty A
+
+-- The condition that an component of 𝕎-UU l has no components
+
+_∉-𝕎-UU_ : {l : Level} → 𝕎-UU l → 𝕎-UU l → UU (lsuc l)
+X ∉-𝕎-UU Y = is-empty (X ∈-𝕎-UU Y)
+
+has-no-components-𝕎-UU :
+  {l : Level} (X : 𝕎-UU l) → UU (lsuc l)
+has-no-components-𝕎-UU {l} X = (Y : 𝕎-UU l) → (Y ∉-𝕎-UU X)
+
+-- An object X of 𝕎-UU l is empty if and only if it has no components
+
+is-empty-has-no-components-𝕎-UU :
+  {l : Level} (X : 𝕎-UU l) → has-no-components-𝕎-UU X → is-empty-𝕎-UU X
+is-empty-has-no-components-𝕎-UU (collect-𝕎 A α) H a =
+  H (α a) (pair a refl)
+
+has-no-components-is-empty-𝕎-UU :
+  {l : Level} (X : 𝕎-UU l) → is-empty-𝕎-UU X → has-no-components-𝕎-UU X
+has-no-components-is-empty-𝕎-UU (collect-𝕎 A α) H (collect-𝕎 B β) t = H (pr1 t)
+
+fam-𝕎-UU :
+  (l : Level) {l1 : Level} (X : 𝕎-UU l1) → UU (l1 ⊔ lsuc l)
+fam-𝕎-UU l (collect-𝕎 A α) = A → 𝕎-UU l
+
+flatten-𝕎-UU : {l : Level} → 𝕎-UU l → 𝕎-UU l
+flatten-𝕎-UU {l} (collect-𝕎 A α) =
+  collect-𝕎
+    ( Σ A (λ x → arity-𝕎 (α x)))
+    ( ind-Σ (λ x → component-𝕎 (α x)))
+
+subtree-𝕎-UU :
+  {l : Level} (X : 𝕎-UU l) → (P : arity-𝕎 X → UU-Prop l) → 𝕎-UU l
+subtree-𝕎-UU X P =
+  collect-𝕎 (Σ (arity-𝕎 X) (λ x → type-Prop (P x))) ((component-𝕎 X) ∘ pr1)
+
+tree-of-trees-𝕎-UU :
+  (l : Level) → 𝕎-UU (lsuc l)
+tree-of-trees-𝕎-UU l = collect-𝕎 (𝕎-UU l) (raise-𝕎-UU (lsuc l))
+
+Russell : (l : Level) → 𝕎-UU (lsuc l)
+Russell l =
+  subtree-𝕎-UU
+    ( tree-of-trees-𝕎-UU l)
+    ( λ X → neg-Prop' (X ∈-𝕎-UU X))
+
+is-small-universe :
+  (l l1 : Level) → UU (lsuc l1 ⊔ lsuc l)
+is-small-universe l l1 = is-small l (UU l1) × ((X : UU l1) → is-small l X)
+
+is-small-tree-of-trees-𝕎-UU :
+  (l : Level) {l1 : Level} →
+  is-small-universe l l1 → is-small-𝕎-UU l (tree-of-trees-𝕎-UU l1)
+is-small-tree-of-trees-𝕎-UU l (pair (pair U e) H) =
+  pair
+    ( pair
+      ( 𝕎 U (λ x → pr1 (H (map-inv-equiv e x))))
+      {! equiv-𝕎!})
+    {!!}
+
+paradox-Russell : {l : Level} → ¬ (is-small l (UU l))
+paradox-Russell (pair A e) = {!!}
+
 --------------------------------------------------------------------------------
 
 -- Exercises
@@ -846,6 +944,10 @@ irreflexive-∈-𝕎 :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (x : 𝕎 A B) → x ∉-𝕎 x
 irreflexive-∈-𝕎 {A = A} {B = B} (collect-𝕎 x α) (pair y p) =
   irreflexive-∈-𝕎 (α y) (tr (λ z → (α y) ∈-𝕎 z) (inv p) (pair y refl))
+
+-- Exercise B.7
+
+-- Exercise B.7 (a)
 
 module _
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
@@ -875,10 +977,7 @@ module _
     {x y : 𝕎 A B} → x le-𝕎 y → y le-𝕎 x → empty
   asymmetric-le-𝕎 H K = irreflexive-le-𝕎 (transitive-le-𝕎 H K)
 
-data _leq-𝕎_ {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (x : 𝕎 A B) :
-  𝕎 A B → UU (l1 ⊔ l2) where
-  refl-leq-𝕎 : x leq-𝕎 x
-  propagate-leq-𝕎 : {y z : 𝕎 A B} → y ∈-𝕎 z → x leq-𝕎 y → x leq-𝕎 z
+-- Exercise B.7 (b)
 
 module _
   {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2}
@@ -938,6 +1037,8 @@ strong-comp-𝕎 :
   Id (strong-ind-𝕎 P h x) (h x (unit-□-𝕎 (strong-ind-𝕎 P h) x))
 strong-comp-𝕎 P h x =
   ap (h x) (eq-htpy (λ y → eq-htpy (λ p → □-strong-comp-𝕎 h x y p)))
+
+-- Exercise B.7 (c)
 
 no-infinite-descent-𝕎 :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
@@ -1006,3 +1107,10 @@ module _
 
   _≈-𝕎_ : 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
   x ≈-𝕎 y = type-Prop (x ≈-𝕎-Prop y)
+
+--------------------------------------------------------------------------------
+
+data _leq-𝕎_ {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (x : 𝕎 A B) :
+  𝕎 A B → UU (l1 ⊔ l2) where
+  refl-leq-𝕎 : x leq-𝕎 x
+  propagate-leq-𝕎 : {y z : 𝕎 A B} → y ∈-𝕎 z → x leq-𝕎 y → x leq-𝕎 z
