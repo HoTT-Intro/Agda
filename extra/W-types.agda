@@ -209,7 +209,7 @@ is-trunc-𝕎 k {A} {B} is-trunc-A (collect-𝕎 x α) (collect-𝕎 y β) =
           ( is-equiv-Eq-𝕎-eq (α z) (β (tr B p z)))
           ( is-trunc-𝕎 k is-trunc-A (α z) (β (tr B p z))))))
   
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
   
 -- Section B.3 W-types as initial algebras
 
@@ -287,7 +287,7 @@ coh-refl-eq-Eq-type-polynomial-endofunctor :
 coh-refl-eq-Eq-type-polynomial-endofunctor x =
   isretr-eq-Eq-type-polynomial-endofunctor x x refl
   
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 -- The action on morphisms of the polynomial endofunctor
 
@@ -429,7 +429,7 @@ structure-hom-algebra-polynomial-endofunctor :
       ( map-hom-algebra-polynomial-endofunctor X Y f)))
 structure-hom-algebra-polynomial-endofunctor X Y f = pr2 f
 
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 -- We characterize the identity type of the type of morphisms of algebras
                                                                  
@@ -539,7 +539,7 @@ eq-htpy-hom-algebra-polynomial-endofunctor :
 eq-htpy-hom-algebra-polynomial-endofunctor X Y f g =
   map-inv-is-equiv (is-equiv-htpy-hom-algebra-polynomial-endofunctor-eq X Y f g)
                                                                           
-------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 -- We show that 𝕎 A B is an initial algebra
   
@@ -1094,6 +1094,10 @@ module _
                   { γ (pr1 s)}
                   ( pr2 t)
                   ( pr2 s)))))
+
+  is-least-constant-≲-𝕎 :
+    {x : A} (h : is-empty (B x)) (w : 𝕎 A B) → constant-𝕎 x h ≲-𝕎 w
+  is-least-constant-≲-𝕎 h (collect-𝕎 y β) x = ex-falso (h x)
 
   not-has-lower-rank-is-element-𝕎 :
     {x y : 𝕎 A B} → x ∈-𝕎 y → ¬ (y ≲-𝕎 x)
