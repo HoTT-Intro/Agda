@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --exact-split #-}
+{-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
 module extra.W-types where
 
@@ -16,36 +16,43 @@ open book public
 data 𝕎 {l1 l2 : Level} (A : UU l1) (B : A → UU l2) : UU (l1 ⊔ l2) where
   collect-𝕎 : (x : A) (α : B x → 𝕎 A B) → 𝕎 A B
 
-arity-𝕎 : {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → 𝕎 A B → A
-arity-𝕎 (collect-𝕎 x α) = x
+module _
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
+  where
   
-component-𝕎 :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (x : 𝕎 A B) →
-  B (arity-𝕎 x) → 𝕎 A B
-component-𝕎 (collect-𝕎 x α) = α
+  arity-𝕎 : 𝕎 A B → A
+  arity-𝕎 (collect-𝕎 x α) = x
+  
+  component-𝕎 : (x : 𝕎 A B) → B (arity-𝕎 x) → 𝕎 A B
+  component-𝕎 (collect-𝕎 x α) = α
 
-η-𝕎 :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (x : 𝕎 A B) →
-  Id (collect-𝕎 (arity-𝕎 x) (component-𝕎 x)) x
-η-𝕎 (collect-𝕎 A α) = refl
+  η-𝕎 : (x : 𝕎 A B) → Id (collect-𝕎 (arity-𝕎 x) (component-𝕎 x)) x
+  η-𝕎 (collect-𝕎 x α) = refl
 
 -- Example B.1.3
 
-constant-𝕎 :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  (x : A) → is-empty (B x) → 𝕎 A B
-constant-𝕎 x h = collect-𝕎 x (ex-falso ∘ h)
+module _
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
+  where
+
+  constant-𝕎 : (x : A) → is-empty (B x) → 𝕎 A B
+  constant-𝕎 x h = collect-𝕎 x (ex-falso ∘ h)
+
+  is-constant-𝕎 : 𝕎 A B → UU l2
+  is-constant-𝕎 x = is-empty (B (arity-𝕎 x))
 
 -- Proposition B.1.4
 
-is-empty-𝕎 :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  ((x : A) → type-trunc-Prop (B x)) → is-empty (𝕎 A B)
-is-empty-𝕎 H (collect-𝕎 x α) =
-  apply-universal-property-trunc-Prop
-    ( H x)
-    ( empty-Prop)
-    ( λ y → is-empty-𝕎 H (α y))
+module _
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
+  where
+
+  is-empty-𝕎 : ((x : A) → type-trunc-Prop (B x)) → is-empty (𝕎 A B)
+  is-empty-𝕎 H (collect-𝕎 x α) =
+    apply-universal-property-trunc-Prop
+      ( H x)
+      ( empty-Prop)
+      ( λ y → is-empty-𝕎 H (α y))
 
 -- Example B.1.5
 
@@ -135,79 +142,69 @@ Planar-Bin-Tree-PBT-𝕎 (collect-𝕎 false α) = {!!}
 --------------------------------------------------------------------------------
 
 -- Section B.2 Observational equality of W-types
+
+module _
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
+  where
   
-Eq-𝕎 :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
-Eq-𝕎 {A = A} {B = B} (collect-𝕎 x α) (collect-𝕎 y β) =
-  Σ (Id x y) (λ p → (z : B x) → Eq-𝕎 (α z) (β (tr B p z))) 
+  Eq-𝕎 : 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
+  Eq-𝕎 (collect-𝕎 x α) (collect-𝕎 y β) =
+    Σ (Id x y) (λ p → (z : B x) → Eq-𝕎 (α z) (β (tr B p z))) 
 
-refl-Eq-𝕎 :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (w : 𝕎 A B) → Eq-𝕎 w w
-refl-Eq-𝕎 (collect-𝕎 x α) = pair refl (λ z → refl-Eq-𝕎 (α z))
+  refl-Eq-𝕎 : (w : 𝕎 A B) → Eq-𝕎 w w
+  refl-Eq-𝕎 (collect-𝕎 x α) = pair refl (λ z → refl-Eq-𝕎 (α z))
 
-center-total-Eq-𝕎 :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (w : 𝕎 A B) → Σ (𝕎 A B) (Eq-𝕎 w)
-center-total-Eq-𝕎 w = pair w (refl-Eq-𝕎 w)
+  center-total-Eq-𝕎 : (w : 𝕎 A B) → Σ (𝕎 A B) (Eq-𝕎 w)
+  center-total-Eq-𝕎 w = pair w (refl-Eq-𝕎 w)
 
-aux-total-Eq-𝕎 :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (x : A) (α : B x → 𝕎 A B) →
-  Σ (B x → 𝕎 A B) (λ β → (y : B x) → Eq-𝕎 (α y) (β y)) →
-  Σ (𝕎 A B) (Eq-𝕎 (collect-𝕎 x α))
-aux-total-Eq-𝕎 x α (pair β e) = pair (collect-𝕎 x β) (pair refl e)
+  aux-total-Eq-𝕎 :
+    (x : A) (α : B x → 𝕎 A B) →
+    Σ (B x → 𝕎 A B) (λ β → (y : B x) → Eq-𝕎 (α y) (β y)) →
+    Σ (𝕎 A B) (Eq-𝕎 (collect-𝕎 x α))
+  aux-total-Eq-𝕎 x α (pair β e) = pair (collect-𝕎 x β) (pair refl e)
 
-contraction-total-Eq-𝕎 :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
-  (w : 𝕎 A B) (t : Σ (𝕎 A B) (Eq-𝕎 w)) → Id (center-total-Eq-𝕎 w) t
-contraction-total-Eq-𝕎 {A = A} {B = B}
-  ( collect-𝕎 x α) (pair (collect-𝕎 .x β) (pair refl e)) =
-  ap ( ( aux-total-Eq-𝕎 x α) ∘
-       ( choice-∞ {A = B x} {B = λ y → 𝕎 A B} {C = λ y → Eq-𝕎 (α y)}))
-     { x = λ y → pair (α y) (refl-Eq-𝕎 (α y))}
-     { y = λ y → pair (β y) (e y)}
-     ( eq-htpy (λ y → contraction-total-Eq-𝕎 (α y) (pair (β y) (e y))))
+  contraction-total-Eq-𝕎 :
+    (w : 𝕎 A B) (t : Σ (𝕎 A B) (Eq-𝕎 w)) → Id (center-total-Eq-𝕎 w) t
+  contraction-total-Eq-𝕎
+    ( collect-𝕎 x α) (pair (collect-𝕎 .x β) (pair refl e)) =
+    ap ( ( aux-total-Eq-𝕎 x α) ∘
+         ( choice-∞ {A = B x} {B = λ y → 𝕎 A B} {C = λ y → Eq-𝕎 (α y)}))
+       { x = λ y → pair (α y) (refl-Eq-𝕎 (α y))}
+       { y = λ y → pair (β y) (e y)}
+       ( eq-htpy (λ y → contraction-total-Eq-𝕎 (α y) (pair (β y) (e y))))
 
-is-contr-total-Eq-𝕎 :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (w : 𝕎 A B) →
-  is-contr (Σ (𝕎 A B) (Eq-𝕎 w))
-is-contr-total-Eq-𝕎 w =
-  pair (center-total-Eq-𝕎 w) (contraction-total-Eq-𝕎 w)
+  is-contr-total-Eq-𝕎 : (w : 𝕎 A B) → is-contr (Σ (𝕎 A B) (Eq-𝕎 w))
+  is-contr-total-Eq-𝕎 w =
+    pair (center-total-Eq-𝕎 w) (contraction-total-Eq-𝕎 w)
 
-Eq-𝕎-eq :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (v w : 𝕎 A B) →
-  Id v w → Eq-𝕎 v w
-Eq-𝕎-eq v .v refl = refl-Eq-𝕎 v
+  Eq-𝕎-eq : (v w : 𝕎 A B) → Id v w → Eq-𝕎 v w
+  Eq-𝕎-eq v .v refl = refl-Eq-𝕎 v
 
-is-equiv-Eq-𝕎-eq :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
-  (v w : 𝕎 A B) → is-equiv (Eq-𝕎-eq v w)
-is-equiv-Eq-𝕎-eq v =
-  fundamental-theorem-id v
-    ( refl-Eq-𝕎 v)
-    ( is-contr-total-Eq-𝕎 v)
-    ( Eq-𝕎-eq v)
+  is-equiv-Eq-𝕎-eq : (v w : 𝕎 A B) → is-equiv (Eq-𝕎-eq v w)
+  is-equiv-Eq-𝕎-eq v =
+    fundamental-theorem-id v
+      ( refl-Eq-𝕎 v)
+      ( is-contr-total-Eq-𝕎 v)
+      ( Eq-𝕎-eq v)
 
-equiv-Eq-𝕎-eq :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
-  (v w : 𝕎 A B) → Id v w ≃ Eq-𝕎 v w
-equiv-Eq-𝕎-eq v w = pair (Eq-𝕎-eq v w) (is-equiv-Eq-𝕎-eq v w)
+  equiv-Eq-𝕎-eq : (v w : 𝕎 A B) → Id v w ≃ Eq-𝕎 v w
+  equiv-Eq-𝕎-eq v w = pair (Eq-𝕎-eq v w) (is-equiv-Eq-𝕎-eq v w)
   
-is-trunc-𝕎 :
-  {l1 l2 : Level} (k : 𝕋) {A : UU l1} {B : A → UU l2} →
-  is-trunc (succ-𝕋 k) A → is-trunc (succ-𝕋 k) (𝕎 A B)
-is-trunc-𝕎 k {A} {B} is-trunc-A (collect-𝕎 x α) (collect-𝕎 y β) =
-  is-trunc-is-equiv k
-    ( Eq-𝕎 (collect-𝕎 x α) (collect-𝕎 y β))
-    ( Eq-𝕎-eq (collect-𝕎 x α) (collect-𝕎 y β))
-    ( is-equiv-Eq-𝕎-eq (collect-𝕎 x α) (collect-𝕎 y β))
-    ( is-trunc-Σ k
-      ( is-trunc-A x y)
-      ( λ p → is-trunc-Π k
-        ( λ z →
-          is-trunc-is-equiv' k
-          ( Id (α z) (β (tr B p z)))
-          ( Eq-𝕎-eq (α z) (β (tr B p z)))
-          ( is-equiv-Eq-𝕎-eq (α z) (β (tr B p z)))
-          ( is-trunc-𝕎 k is-trunc-A (α z) (β (tr B p z))))))
+  is-trunc-𝕎 : (k : 𝕋) → is-trunc (succ-𝕋 k) A → is-trunc (succ-𝕋 k) (𝕎 A B)
+  is-trunc-𝕎 k is-trunc-A (collect-𝕎 x α) (collect-𝕎 y β) =
+    is-trunc-is-equiv k
+      ( Eq-𝕎 (collect-𝕎 x α) (collect-𝕎 y β))
+      ( Eq-𝕎-eq (collect-𝕎 x α) (collect-𝕎 y β))
+      ( is-equiv-Eq-𝕎-eq (collect-𝕎 x α) (collect-𝕎 y β))
+      ( is-trunc-Σ k
+        ( is-trunc-A x y)
+        ( λ p → is-trunc-Π k
+          ( λ z →
+            is-trunc-is-equiv' k
+            ( Id (α z) (β (tr B p z)))
+            ( Eq-𝕎-eq (α z) (β (tr B p z)))
+            ( is-equiv-Eq-𝕎-eq (α z) (β (tr B p z)))
+            ( is-trunc-𝕎 k is-trunc-A (α z) (β (tr B p z))))))
   
 --------------------------------------------------------------------------------
   
