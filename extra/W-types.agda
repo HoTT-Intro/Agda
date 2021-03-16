@@ -219,70 +219,66 @@ type-polynomial-endofunctor A B X = Σ A (λ x → B x → X)
 
 -- We characterize the identity type of type-polynomial-endofunctor
 
-Eq-type-polynomial-endofunctor :
-  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {X : UU l3} →
-  (x y : type-polynomial-endofunctor A B X) → UU (l1 ⊔ l2 ⊔ l3)
-Eq-type-polynomial-endofunctor {B = B} x y =
-  Σ (Id (pr1 x) (pr1 y)) (λ p → (pr2 x) ~ ((pr2 y) ∘ (tr B p)))
+module _
+  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {X : UU l3}
+  where
 
-refl-Eq-type-polynomial-endofunctor :
-  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {X : UU l3} →
-  (x : type-polynomial-endofunctor A B X) →
-  Eq-type-polynomial-endofunctor x x
-refl-Eq-type-polynomial-endofunctor (pair x α) = pair refl refl-htpy
+  Eq-type-polynomial-endofunctor :
+    (x y : type-polynomial-endofunctor A B X) → UU (l1 ⊔ l2 ⊔ l3)
+  Eq-type-polynomial-endofunctor x y =
+    Σ (Id (pr1 x) (pr1 y)) (λ p → (pr2 x) ~ ((pr2 y) ∘ (tr B p)))
 
-is-contr-total-Eq-type-polynomial-endofunctor :
-  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {X : UU l3} →
-  (x : type-polynomial-endofunctor A B X) →
-  is-contr
-    ( Σ ( type-polynomial-endofunctor A B X)
-        ( Eq-type-polynomial-endofunctor x))
-is-contr-total-Eq-type-polynomial-endofunctor {A = A} {B} {X} (pair x α) =
-  is-contr-total-Eq-structure
-    ( ( λ (y : A) (β : B y → X) (p : Id x y) → α ~ (β ∘ tr B p)))
-    ( is-contr-total-path x)
-    ( pair x refl)
-    ( is-contr-total-htpy α)
+  refl-Eq-type-polynomial-endofunctor :
+    (x : type-polynomial-endofunctor A B X) →
+    Eq-type-polynomial-endofunctor x x
+  refl-Eq-type-polynomial-endofunctor (pair x α) = pair refl refl-htpy
 
-Eq-type-polynomial-endofunctor-eq :
-  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {X : UU l3} →
-  (x y : type-polynomial-endofunctor A B X) →
-  Id x y → Eq-type-polynomial-endofunctor x y
-Eq-type-polynomial-endofunctor-eq x .x refl =
-  refl-Eq-type-polynomial-endofunctor x
+  is-contr-total-Eq-type-polynomial-endofunctor :
+    (x : type-polynomial-endofunctor A B X) →
+    is-contr
+      ( Σ ( type-polynomial-endofunctor A B X)
+          ( Eq-type-polynomial-endofunctor x))
+  is-contr-total-Eq-type-polynomial-endofunctor (pair x α) =
+    is-contr-total-Eq-structure
+      ( ( λ (y : A) (β : B y → X) (p : Id x y) → α ~ (β ∘ tr B p)))
+      ( is-contr-total-path x)
+      ( pair x refl)
+      ( is-contr-total-htpy α)
 
-is-equiv-Eq-type-polynomial-endofunctor-eq :
-  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {X : UU l3} →
-  (x y : type-polynomial-endofunctor A B X) →
-  is-equiv (Eq-type-polynomial-endofunctor-eq x y)
-is-equiv-Eq-type-polynomial-endofunctor-eq x =
-  fundamental-theorem-id x
-    ( refl-Eq-type-polynomial-endofunctor x)
-    ( is-contr-total-Eq-type-polynomial-endofunctor x)
-    ( Eq-type-polynomial-endofunctor-eq x)
+  Eq-type-polynomial-endofunctor-eq :
+    (x y : type-polynomial-endofunctor A B X) →
+    Id x y → Eq-type-polynomial-endofunctor x y
+  Eq-type-polynomial-endofunctor-eq x .x refl =
+    refl-Eq-type-polynomial-endofunctor x
 
-eq-Eq-type-polynomial-endofunctor :
-  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {X : UU l3} →
-  (x y : type-polynomial-endofunctor A B X) →
-  Eq-type-polynomial-endofunctor x y → Id x y
-eq-Eq-type-polynomial-endofunctor x y =
-  map-inv-is-equiv (is-equiv-Eq-type-polynomial-endofunctor-eq x y)
+  is-equiv-Eq-type-polynomial-endofunctor-eq :
+    (x y : type-polynomial-endofunctor A B X) →
+    is-equiv (Eq-type-polynomial-endofunctor-eq x y)
+  is-equiv-Eq-type-polynomial-endofunctor-eq x =
+    fundamental-theorem-id x
+      ( refl-Eq-type-polynomial-endofunctor x)
+      ( is-contr-total-Eq-type-polynomial-endofunctor x)
+      ( Eq-type-polynomial-endofunctor-eq x)
 
-isretr-eq-Eq-type-polynomial-endofunctor :
-  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {X : UU l3} →
-  (x y : type-polynomial-endofunctor A B X) →
-  ( ( eq-Eq-type-polynomial-endofunctor x y) ∘
-    ( Eq-type-polynomial-endofunctor-eq x y)) ~ id
-isretr-eq-Eq-type-polynomial-endofunctor x y =
-  isretr-map-inv-is-equiv (is-equiv-Eq-type-polynomial-endofunctor-eq x y)
+  eq-Eq-type-polynomial-endofunctor :
+    (x y : type-polynomial-endofunctor A B X) →
+    Eq-type-polynomial-endofunctor x y → Id x y
+  eq-Eq-type-polynomial-endofunctor x y =
+    map-inv-is-equiv (is-equiv-Eq-type-polynomial-endofunctor-eq x y)
 
-coh-refl-eq-Eq-type-polynomial-endofunctor :
-  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {X : UU l3} →
-  (x : type-polynomial-endofunctor A B X) →
-  Id ( eq-Eq-type-polynomial-endofunctor x x
+  isretr-eq-Eq-type-polynomial-endofunctor :
+    (x y : type-polynomial-endofunctor A B X) →
+    ( ( eq-Eq-type-polynomial-endofunctor x y) ∘
+      ( Eq-type-polynomial-endofunctor-eq x y)) ~ id
+  isretr-eq-Eq-type-polynomial-endofunctor x y =
+    isretr-map-inv-is-equiv (is-equiv-Eq-type-polynomial-endofunctor-eq x y)
+
+  coh-refl-eq-Eq-type-polynomial-endofunctor :
+    (x : type-polynomial-endofunctor A B X) →
+    Id ( eq-Eq-type-polynomial-endofunctor x x
        ( refl-Eq-type-polynomial-endofunctor x)) refl
-coh-refl-eq-Eq-type-polynomial-endofunctor x =
-  isretr-eq-Eq-type-polynomial-endofunctor x x refl
+  coh-refl-eq-Eq-type-polynomial-endofunctor x =
+    isretr-eq-Eq-type-polynomial-endofunctor x x refl
   
 --------------------------------------------------------------------------------
 
