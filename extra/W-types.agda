@@ -1062,49 +1062,52 @@ module _
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
   where
 
-  _≲-𝕎-Prop_ : 𝕎 A B → 𝕎 A B → UU-Prop (l1 ⊔ l2)
-  (collect-𝕎 x α) ≲-𝕎-Prop (collect-𝕎 y β) =
-    Π-Prop (B x) (λ b → exists-Prop (λ c → (α b) ≲-𝕎-Prop (β c)))
+  _≼-𝕎-Prop_ : 𝕎 A B → 𝕎 A B → UU-Prop (l1 ⊔ l2)
+  (collect-𝕎 x α) ≼-𝕎-Prop (collect-𝕎 y β) =
+    Π-Prop (B x) (λ b → exists-Prop (λ c → (α b) ≼-𝕎-Prop (β c)))
 
-  _≲-𝕎_ : 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
-  x ≲-𝕎 y = type-Prop (x ≲-𝕎-Prop y)
+  _≼-𝕎_ : 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
+  x ≼-𝕎 y = type-Prop (x ≼-𝕎-Prop y)
 
-  refl-≲-𝕎 : (x : 𝕎 A B) → x ≲-𝕎 x
-  refl-≲-𝕎 (collect-𝕎 x α) b = unit-trunc-Prop (pair b (refl-≲-𝕎 (α b)))
+  refl-≼-𝕎 : (x : 𝕎 A B) → x ≼-𝕎 x
+  refl-≼-𝕎 (collect-𝕎 x α) b = unit-trunc-Prop (pair b (refl-≼-𝕎 (α b)))
 
-  transitive-≲-𝕎 : {x y z : 𝕎 A B} → (x ≲-𝕎 y) → (y ≲-𝕎 z) → (x ≲-𝕎 z)
-  transitive-≲-𝕎 {collect-𝕎 x α} {collect-𝕎 y β} {collect-𝕎 z γ} H K a =
+  transitive-≼-𝕎 : {x y z : 𝕎 A B} → (x ≼-𝕎 y) → (y ≼-𝕎 z) → (x ≼-𝕎 z)
+  transitive-≼-𝕎 {collect-𝕎 x α} {collect-𝕎 y β} {collect-𝕎 z γ} H K a =
     apply-universal-property-trunc-Prop
       ( H a)
-      ( exists-Prop (λ c → (α a) ≲-𝕎-Prop (γ c)))
+      ( exists-Prop (λ c → (α a) ≼-𝕎-Prop (γ c)))
       ( λ t →
         apply-universal-property-trunc-Prop
           ( K (pr1 t))
-          ( exists-Prop (λ c → (α a) ≲-𝕎-Prop (γ c)))
+          ( exists-Prop (λ c → (α a) ≼-𝕎-Prop (γ c)))
           ( λ s →
             unit-trunc-Prop
               ( pair
                 ( pr1 s)
-                ( transitive-≲-𝕎
+                ( transitive-≼-𝕎
                   { α a}
                   { β (pr1 t)}
                   { γ (pr1 s)}
                   ( pr2 t)
                   ( pr2 s)))))
 
-  is-least-constant-≲-𝕎 :
-    {x : A} (h : is-empty (B x)) (w : 𝕎 A B) → constant-𝕎 x h ≲-𝕎 w
-  is-least-constant-≲-𝕎 h (collect-𝕎 y β) x = ex-falso (h x)
+  not-≼-∈-𝕎 : {x y : 𝕎 A B} → (x ∈-𝕎 y) → ¬ (y ≼-𝕎 x)
+  not-≼-∈-𝕎 {.(α y)} {collect-𝕎 x α} (pair y refl) H = {!!}
+
+  is-least-constant-≼-𝕎 :
+    {x : A} (h : is-empty (B x)) (w : 𝕎 A B) → constant-𝕎 x h ≼-𝕎 w
+  is-least-constant-≼-𝕎 h (collect-𝕎 y β) x = ex-falso (h x)
 
   not-has-lower-rank-is-element-𝕎 :
-    {x y : 𝕎 A B} → x ∈-𝕎 y → ¬ (y ≲-𝕎 x)
+    {x y : 𝕎 A B} → x ∈-𝕎 y → ¬ (y ≼-𝕎 x)
   not-has-lower-rank-is-element-𝕎 {.(α x)} {collect-𝕎 y α} (pair x refl) K  =
     {!!}
     where
-    K' = tr (λ t → collect-𝕎 y α ≲-𝕎 t) (inv (η-𝕎 (α x))) K
+    K' = tr (λ t → collect-𝕎 y α ≼-𝕎 t) (inv (η-𝕎 (α x))) K
 
   _≈-𝕎-Prop_ : 𝕎 A B → 𝕎 A B → UU-Prop (l1 ⊔ l2)
-  x ≈-𝕎-Prop y = prod-Prop (x ≲-𝕎-Prop y) (y ≲-𝕎-Prop x)
+  x ≈-𝕎-Prop y = prod-Prop (x ≼-𝕎-Prop y) (y ≼-𝕎-Prop x)
 
   _≈-𝕎_ : 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
   x ≈-𝕎 y = type-Prop (x ≈-𝕎-Prop y)
