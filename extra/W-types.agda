@@ -1088,6 +1088,67 @@ module _
                   ( pr2 t)
                   ( pr2 s)))))
 
+  _proxy-≼-𝕎-Prop_ : 𝕎 A B → 𝕎 A B → UU-Prop (l1 ⊔ l2)
+  x proxy-≼-𝕎-Prop y =
+    Π-Prop
+      ( 𝕎 A B)
+      ( λ u →
+        Π-Prop
+          ( u ∈-𝕎 x)
+          ( λ H →
+            exists-Prop
+              ( λ (v : 𝕎 A B) →
+                exists-Prop (λ (K : v ∈-𝕎 y) → u ≼-𝕎-Prop v))))
+
+  _proxy-≼-𝕎_ : 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
+  x proxy-≼-𝕎 y = type-Prop (x proxy-≼-𝕎-Prop y)
+
+  proxy-≼-≼-𝕎 : {x y : 𝕎 A B} → (x ≼-𝕎 y) → (x proxy-≼-𝕎 y)
+  proxy-≼-≼-𝕎 {collect-𝕎 x α} {collect-𝕎 y β} H .(α b) (pair b refl) =
+    apply-universal-property-trunc-Prop (H b)
+      ( exists-Prop ((λ v → exists-Prop (λ hv → (α b) ≼-𝕎-Prop v))))
+      ( f)
+      where
+      f : Σ (B y) (λ c → pr1 (α b ≼-𝕎-Prop β c)) →
+          exists (λ v → exists-Prop (λ hv → α b ≼-𝕎-Prop v))
+      f (pair c K) =
+        intro-exists
+          ( λ v → exists-Prop (λ hv → α b ≼-𝕎-Prop v))
+          ( β c)
+          ( intro-exists
+            ( λ hβc → α b ≼-𝕎-Prop β c)
+            ( pair c refl)
+            ( K))
+
+  ≼-proxy-≼-𝕎 : {x y : 𝕎 A B} → (x proxy-≼-𝕎 y) → (x ≼-𝕎 y)
+  ≼-proxy-≼-𝕎 {collect-𝕎 x α} {collect-𝕎 y β} H b =
+    apply-universal-property-trunc-Prop
+      ( H (α b) (pair b refl))
+      ( exists-Prop (λ c → α b ≼-𝕎-Prop β c))
+      ( f)
+    where
+    g : (v : 𝕎 A B) →
+        Σ (v ∈-𝕎 collect-𝕎 y β) (λ x₁ → pr1 (α b ≼-𝕎-Prop v)) →
+        type-Prop (exists-Prop (λ c → α b ≼-𝕎-Prop β c))
+    g v (pair K L) =
+        intro-exists
+          ( λ z → α b ≼-𝕎-Prop β z)
+          ( pr1 K)
+          ( ≼-proxy-≼-𝕎 {α b} {β (pr1 K)} {!!})
+    f : Σ ( 𝕎 A B) (λ v → exists (λ K → α b ≼-𝕎-Prop v)) →
+        exists (λ c → α b ≼-𝕎-Prop β c)
+    f (pair v K) =
+        apply-universal-property-trunc-Prop K
+          ( exists-Prop (λ c → α b ≼-𝕎-Prop β c))
+          ( g v)
+
+{-
+    intro-exists
+      ( λ c → α b ≼-𝕎-Prop β c)
+      {!!}
+      {!!}
+-}
+
   not-≼-∈-𝕎 : {x y : 𝕎 A B} → (x ∈-𝕎 y) → ¬ (y ≼-𝕎 x)
   not-≼-∈-𝕎 {.(α y)} {collect-𝕎 x α} (pair y refl) H = {!!}
 

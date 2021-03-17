@@ -514,10 +514,10 @@ is-prop-exists :
   {l1 l2 : Level} {A : UU l1} (P : A → UU-Prop l2) → is-prop (exists P)
 is-prop-exists P = is-prop-type-Prop (exists-Prop P)
 
-intro-exists-Prop :
+intro-exists :
   {l1 l2 : Level} {A : UU l1} (P : A → UU-Prop l2) →
   (x : A) → type-Prop (P x) → exists P
-intro-exists-Prop {A = A} P x p = unit-trunc-Prop (pair x p)
+intro-exists {A = A} P x p = unit-trunc-Prop (pair x p)
 
 ∃-Prop :
   {l1 l2 : Level} {A : UU l1} (B : A → UU l2) → UU-Prop (l1 ⊔ l2)
@@ -541,7 +541,7 @@ intro-∃ a b = unit-trunc-Prop (pair a b)
 ev-intro-exists-Prop :
   {l1 l2 l3 : Level} {A : UU l1} (P : A → UU-Prop l2) (Q : UU-Prop l3) →
   type-hom-Prop (exists-Prop P) Q → (x : A) → type-hom-Prop (P x) Q
-ev-intro-exists-Prop P Q H x p = H (intro-exists-Prop P x p)
+ev-intro-exists-Prop P Q H x p = H (intro-exists P x p)
 
 elim-exists-Prop :
   {l1 l2 l3 : Level} {A : UU l1} (P : A → UU-Prop l2) (Q : UU-Prop l3) →
