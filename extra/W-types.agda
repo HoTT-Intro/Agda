@@ -902,12 +902,6 @@ tree-of-trees-𝕎-UU :
   (l : Level) → 𝕎-UU (lsuc l)
 tree-of-trees-𝕎-UU l = collect-𝕎 (𝕎-UU l) (raise-𝕎-UU (lsuc l))
 
-Russell : (l : Level) → 𝕎-UU (lsuc l)
-Russell l =
-  subtree-𝕎-UU
-    ( tree-of-trees-𝕎-UU l)
-    ( λ X → neg-Prop' (X ∈-𝕎-UU X))
-
 is-small-universe :
   (l l1 : Level) → UU (lsuc l1 ⊔ lsuc l)
 is-small-universe l l1 = is-small l (UU l1) × ((X : UU l1) → is-small l X)
@@ -915,12 +909,32 @@ is-small-universe l l1 = is-small l (UU l1) × ((X : UU l1) → is-small l X)
 is-small-tree-of-trees-𝕎-UU :
   (l : Level) {l1 : Level} →
   is-small-universe l l1 → is-small-𝕎-UU l (tree-of-trees-𝕎-UU l1)
-is-small-tree-of-trees-𝕎-UU l (pair (pair U e) H) =
+is-small-tree-of-trees-𝕎-UU l {l1} (pair (pair U e) H) =
   pair
     ( pair
       ( 𝕎 U (λ x → pr1 (H (map-inv-equiv e x))))
-      {! equiv-𝕎!})
-    {!!}
+      ( equiv-𝕎
+        ( λ u → type-is-small (H (map-inv-equiv e u)))
+        ( e)
+        ( λ X →
+          tr ( λ t → X ≃ pr1 (H t))
+             ( inv (isretr-map-inv-equiv e X))
+             ( pr2 (H X)))))
+    ( f)
+    where
+    f : (X : 𝕎-UU l1) → is-small-𝕎-UU l (raise-𝕎-UU (lsuc l1) X)
+    f (collect-𝕎 A α) =
+      pair
+        ( pair
+          ( type-is-small (H A))
+          ( equiv-is-small (H A) ∘e inv-equiv (equiv-raise (lsuc l1) A)))
+        ( λ x → f (α (map-inv-raise x)))
+
+Russell : (l : Level) → 𝕎-UU (lsuc l)
+Russell l =
+  subtree-𝕎-UU
+    ( tree-of-trees-𝕎-UU l)
+    ( λ X → neg-Prop' (X ∈-𝕎-UU X))
 
 paradox-Russell : {l : Level} → ¬ (is-small l (UU l))
 paradox-Russell (pair A e) = {!!}
@@ -938,9 +952,9 @@ irreflexive-∈-𝕎 :
 irreflexive-∈-𝕎 {A = A} {B = B} (collect-𝕎 x α) (pair y p) =
   irreflexive-∈-𝕎 (α y) (tr (λ z → (α y) ∈-𝕎 z) (inv p) (pair y refl))
 
--- Exercise B.7
+-- Exercise B.5
 
--- Exercise B.7 (a)
+-- Exercise B.5 (a)
 
 module _
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
@@ -970,7 +984,7 @@ module _
     {x y : 𝕎 A B} → x le-𝕎 y → y le-𝕎 x → empty
   asymmetric-le-𝕎 H K = irreflexive-le-𝕎 (transitive-le-𝕎 H K)
 
--- Exercise B.7 (b)
+-- Exercise B.5 (b)
 
 module _
   {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2}
@@ -1031,7 +1045,7 @@ strong-comp-𝕎 :
 strong-comp-𝕎 P h x =
   ap (h x) (eq-htpy (λ y → eq-htpy (λ p → □-strong-comp-𝕎 h x y p)))
 
--- Exercise B.7 (c)
+-- Exercise B.5 (c)
 
 no-infinite-descent-𝕎 :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
@@ -1050,9 +1064,9 @@ no-infinite-descent-𝕎 {A = A} {B} f =
     ( f)
     ( refl)
 
--- Exercise B.8
+-- Exercise B.6
 
--- Exercise B.9
+-- Exercise B.7
 
 module _
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
@@ -1064,6 +1078,15 @@ module _
 
   _≼-𝕎_ : 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
   x ≼-𝕎 y = type-Prop (x ≼-𝕎-Prop y)
+
+  _≺-𝕎-Prop_ : 𝕎 A B → 𝕎 A B → UU-Prop (l1 ⊔ l2)
+  x ≺-𝕎-Prop y =
+    exists-Prop (λ (t : Σ (𝕎 A B) (λ w → w ∈-𝕎 y)) → x ≼-𝕎-Prop (pr1 t))
+
+  _≺-𝕎_ : 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
+  x ≺-𝕎 y = type-Prop (x ≺-𝕎-Prop y)
+
+  -- Exercise B.7 (a)
 
   refl-≼-𝕎 : (x : 𝕎 A B) → x ≼-𝕎 x
   refl-≼-𝕎 (collect-𝕎 x α) b = unit-trunc-Prop (pair b (refl-≼-𝕎 (α b)))
@@ -1088,8 +1111,10 @@ module _
                   ( pr2 t)
                   ( pr2 s)))))
 
-  _proxy-≼-𝕎-Prop_ : 𝕎 A B → 𝕎 A B → UU-Prop (l1 ⊔ l2)
-  x proxy-≼-𝕎-Prop y =
+  -- Exercise B.7 (a) (i)
+
+  _strong-≼-𝕎-Prop_ : 𝕎 A B → 𝕎 A B → UU-Prop (l1 ⊔ l2)
+  x strong-≼-𝕎-Prop y =
     Π-Prop
       ( 𝕎 A B)
       ( λ u →
@@ -1100,11 +1125,11 @@ module _
               ( λ (v : 𝕎 A B) →
                 exists-Prop (λ (K : v ∈-𝕎 y) → u ≼-𝕎-Prop v))))
 
-  _proxy-≼-𝕎_ : 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
-  x proxy-≼-𝕎 y = type-Prop (x proxy-≼-𝕎-Prop y)
+  _strong-≼-𝕎_ : 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
+  x strong-≼-𝕎 y = type-Prop (x strong-≼-𝕎-Prop y)
 
-  proxy-≼-≼-𝕎 : {x y : 𝕎 A B} → (x ≼-𝕎 y) → (x proxy-≼-𝕎 y)
-  proxy-≼-≼-𝕎 {collect-𝕎 x α} {collect-𝕎 y β} H .(α b) (pair b refl) =
+  strong-≼-≼-𝕎 : {x y : 𝕎 A B} → (x ≼-𝕎 y) → (x strong-≼-𝕎 y)
+  strong-≼-≼-𝕎 {collect-𝕎 x α} {collect-𝕎 y β} H .(α b) (pair b refl) =
     apply-universal-property-trunc-Prop (H b)
       ( exists-Prop ((λ v → exists-Prop (λ hv → (α b) ≼-𝕎-Prop v))))
       ( f)
@@ -1120,54 +1145,121 @@ module _
             ( pair c refl)
             ( K))
 
-  ≼-proxy-≼-𝕎 : {x y : 𝕎 A B} → (x proxy-≼-𝕎 y) → (x ≼-𝕎 y)
-  ≼-proxy-≼-𝕎 {collect-𝕎 x α} {collect-𝕎 y β} H b =
+  ≼-strong-≼-𝕎 : {x y : 𝕎 A B} → (x strong-≼-𝕎 y) → (x ≼-𝕎 y)
+  ≼-strong-≼-𝕎 {collect-𝕎 x α} {collect-𝕎 y β} H b =
     apply-universal-property-trunc-Prop
       ( H (α b) (pair b refl))
       ( exists-Prop (λ c → α b ≼-𝕎-Prop β c))
       ( f)
     where
-    g : (v : 𝕎 A B) →
-        Σ (v ∈-𝕎 collect-𝕎 y β) (λ x₁ → pr1 (α b ≼-𝕎-Prop v)) →
-        type-Prop (exists-Prop (λ c → α b ≼-𝕎-Prop β c))
-    g v (pair K L) =
-        intro-exists
-          ( λ z → α b ≼-𝕎-Prop β z)
-          ( pr1 K)
-          ( ≼-proxy-≼-𝕎 {α b} {β (pr1 K)} {!!})
     f : Σ ( 𝕎 A B) (λ v → exists (λ K → α b ≼-𝕎-Prop v)) →
         exists (λ c → α b ≼-𝕎-Prop β c)
     f (pair v K) =
         apply-universal-property-trunc-Prop K
           ( exists-Prop (λ c → α b ≼-𝕎-Prop β c))
-          ( g v)
+          ( g)
+      where
+      g : (v ∈-𝕎 collect-𝕎 y β) × (α b ≼-𝕎 v) → ∃ (λ c → α b ≼-𝕎 β c)
+      g (pair (pair c p) M) = intro-∃ c (tr (λ t → α b ≼-𝕎 t) (inv p) M)
 
-{-
+  -- Exercise B.7 (a) (ii)
+
+  ≼-∈-𝕎 : {x y : 𝕎 A B} → (x ∈-𝕎 y) → (x ≼-𝕎 y)
+  ≼-∈-𝕎 {collect-𝕎 x α} {collect-𝕎 y β} (pair v p) u =
     intro-exists
-      ( λ c → α b ≼-𝕎-Prop β c)
-      {!!}
-      {!!}
--}
+      ( λ z → α u ≼-𝕎-Prop β z)
+      ( v)
+      ( tr ( λ t → α u ≼-𝕎 t)
+           ( inv p)
+           ( ≼-∈-𝕎 {α u} {collect-𝕎 x α} (pair u refl)))
+
+  ≼-le-𝕎 : {x y : 𝕎 A B} → (x le-𝕎 y) → (x ≼-𝕎 y)
+  ≼-le-𝕎 {x} {y} (le-∈-𝕎 H) = ≼-∈-𝕎 H
+  ≼-le-𝕎 {x} {y} (propagate-le-𝕎 {y = y'} K H) =
+    transitive-≼-𝕎 {x} {y = y'} {y} (≼-le-𝕎 H) (≼-∈-𝕎 K)
+
+  -- Exercise B.7 (a) (iii)
 
   not-≼-∈-𝕎 : {x y : 𝕎 A B} → (x ∈-𝕎 y) → ¬ (y ≼-𝕎 x)
-  not-≼-∈-𝕎 {.(α y)} {collect-𝕎 x α} (pair y refl) H = {!!}
-
-  is-least-constant-≼-𝕎 :
-    {x : A} (h : is-empty (B x)) (w : 𝕎 A B) → constant-𝕎 x h ≼-𝕎 w
-  is-least-constant-≼-𝕎 h (collect-𝕎 y β) x = ex-falso (h x)
-
-  not-has-lower-rank-is-element-𝕎 :
-    {x y : 𝕎 A B} → x ∈-𝕎 y → ¬ (y ≼-𝕎 x)
-  not-has-lower-rank-is-element-𝕎 {.(α x)} {collect-𝕎 y α} (pair x refl) K  =
-    {!!}
+  not-≼-∈-𝕎 {collect-𝕎 x α} {collect-𝕎 y β} (pair b p) K =
+    apply-universal-property-trunc-Prop (K b) (empty-Prop) f
     where
-    K' = tr (λ t → collect-𝕎 y α ≼-𝕎 t) (inv (η-𝕎 (α x))) K
+    f : Σ (B x) (λ c → β b ≼-𝕎 α c) → empty
+    f (pair c L) =
+      not-≼-∈-𝕎 {α c} {β b} (tr (λ t → α c ∈-𝕎 t) (inv p) (pair c refl)) L
 
-  _≈-𝕎-Prop_ : 𝕎 A B → 𝕎 A B → UU-Prop (l1 ⊔ l2)
+  not-≼-le-𝕎 : {x y : 𝕎 A B} → (x le-𝕎 y) → ¬ (y ≼-𝕎 x)
+  not-≼-le-𝕎 {x} {y} (le-∈-𝕎 H) = not-≼-∈-𝕎 {x} {y} H
+  not-≼-le-𝕎 {x} {y} (propagate-le-𝕎 {y = y'} H K) L =
+    not-≼-∈-𝕎 {y'} {y} H (transitive-≼-𝕎 {y} {x} {y'} L (≼-le-𝕎 K))
+
+  -- Exercise B.7 (a) (iv)
+
+  is-least-≼-constant-𝕎 :
+    {x : A} (h : is-empty (B x)) (w : 𝕎 A B) → constant-𝕎 x h ≼-𝕎 w
+  is-least-≼-constant-𝕎 h (collect-𝕎 y β) x = ex-falso (h x)
+
+  is-least-≼-is-constant-𝕎 :
+    {x : 𝕎 A B} → is-constant-𝕎 x → (y : 𝕎 A B) → x ≼-𝕎 y
+  is-least-≼-is-constant-𝕎 {collect-𝕎 x α} H (collect-𝕎 y β) z =
+    ex-falso (H z)
+
+  is-constant-is-least-≼-𝕎 :
+    {x : 𝕎 A B} → ((y : 𝕎 A B) → x ≼-𝕎 y) → is-constant-𝕎 x
+  is-constant-is-least-≼-𝕎 {collect-𝕎 x α} H b =
+    not-≼-∈-𝕎 {α b} {collect-𝕎 x α} (pair b refl) (H (α b))
+
+  -- Exercise B.7 (b)
+
+  ≼-≺-𝕎 : {x y : 𝕎 A B} → (x ≺-𝕎 y) → (x ≼-𝕎 y)
+  ≼-≺-𝕎 {x} {y} H =
+    apply-universal-property-trunc-Prop H (x ≼-𝕎-Prop y) f
+    where
+    f : Σ (Σ (𝕎 A B) (λ w → w ∈-𝕎 y)) (λ t → x ≼-𝕎 pr1 t) → (x ≼-𝕎 y)
+    f (pair (pair w K) L) = transitive-≼-𝕎 {x} {w} {y} L (≼-∈-𝕎 K)
+
+  transitive-≺-𝕎 : {x y z : 𝕎 A B} → (x ≺-𝕎 y) → (y ≺-𝕎 z) → (x ≺-𝕎 z)
+  transitive-≺-𝕎 {x} {y} {z} H K =
+    apply-universal-property-trunc-Prop H (x ≺-𝕎-Prop z) f
+    where
+    f : Σ (Σ (𝕎 A B) (λ w → w ∈-𝕎 y)) (λ t → x ≼-𝕎 pr1 t) → x ≺-𝕎 z
+    f (pair (pair w L) M) =
+      apply-universal-property-trunc-Prop K (x ≺-𝕎-Prop z) g
+      where
+      g : Σ (Σ (𝕎 A B) (λ w → w ∈-𝕎 z)) (λ t → y ≼-𝕎 pr1 t) → x ≺-𝕎 z
+      g (pair (pair v P) Q) =
+        intro-exists
+          ( λ (t : Σ (𝕎 A B) (λ s → s ∈-𝕎 z)) → x ≼-𝕎-Prop (pr1 t))
+          ( pair v P)
+          ( transitive-≼-𝕎 {x} {w} {v} M
+            ( transitive-≼-𝕎 {w} {y} {v} (≼-∈-𝕎 L) Q))
+
+  irreflexive-≺-𝕎 : {x : 𝕎 A B} → ¬ (x ≺-𝕎 x)
+  irreflexive-≺-𝕎 {collect-𝕎 x α} H =
+    apply-universal-property-trunc-Prop H empty-Prop f
+    where
+    f : ¬ ( Σ ( Σ (𝕎 A B) (λ w → w ∈-𝕎 collect-𝕎 x α))
+              ( λ t → collect-𝕎 x α ≼-𝕎 pr1 t))
+    f (pair (pair w K) L) = not-≼-∈-𝕎 {w} {collect-𝕎 x α} K L
+
+  in-lower-set-≺-𝕎-Prop : (x y : 𝕎 A B) → UU-Prop (l1 ⊔ l2)
+  in-lower-set-≺-𝕎-Prop x y = y ≺-𝕎-Prop x
+
+  in-lower-set-≺-𝕎 : (x y : 𝕎 A B) → UU (l1 ⊔ l2)
+  in-lower-set-≺-𝕎 x y = y ≺-𝕎 x
+
+  has-same-lower-set-≺-𝕎 : (x y : 𝕎 A B) → UU (l1 ⊔ l2)
+  has-same-lower-set-≺-𝕎 x y = (z : 𝕎 A B) → (z ≺-𝕎 x) × (z ≺-𝕎 y)
+
+  _≈-𝕎-Prop_ : (x y : 𝕎 A B) → UU-Prop (l1 ⊔ l2)
   x ≈-𝕎-Prop y = prod-Prop (x ≼-𝕎-Prop y) (y ≼-𝕎-Prop x)
 
-  _≈-𝕎_ : 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
+  _≈-𝕎_ : (x y : 𝕎 A B) → UU (l1 ⊔ l2)
   x ≈-𝕎 y = type-Prop (x ≈-𝕎-Prop y)
+
+  ≈-has-same-lower-set-≺-𝕎 :
+    {x y : 𝕎 A B} → has-same-lower-set-≺-𝕎 x y → x ≈-𝕎 y
+  ≈-has-same-lower-set-≺-𝕎 {x} {y} H = {!!}
 
 --------------------------------------------------------------------------------
 
