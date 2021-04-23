@@ -14,20 +14,20 @@ open book public
 -- Section B.1 W-types
 
 data 𝕎 {l1 l2 : Level} (A : UU l1) (B : A → UU l2) : UU (l1 ⊔ l2) where
-  collect-𝕎 : (x : A) (α : B x → 𝕎 A B) → 𝕎 A B
+  tree-𝕎 : (x : A) (α : B x → 𝕎 A B) → 𝕎 A B
 
 module _
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
   where
   
-  arity-𝕎 : 𝕎 A B → A
-  arity-𝕎 (collect-𝕎 x α) = x
+  symbol-𝕎 : 𝕎 A B → A
+  symbol-𝕎 (tree-𝕎 x α) = x
   
-  component-𝕎 : (x : 𝕎 A B) → B (arity-𝕎 x) → 𝕎 A B
-  component-𝕎 (collect-𝕎 x α) = α
+  component-𝕎 : (x : 𝕎 A B) → B (symbol-𝕎 x) → 𝕎 A B
+  component-𝕎 (tree-𝕎 x α) = α
 
-  η-𝕎 : (x : 𝕎 A B) → Id (collect-𝕎 (arity-𝕎 x) (component-𝕎 x)) x
-  η-𝕎 (collect-𝕎 x α) = refl
+  η-𝕎 : (x : 𝕎 A B) → Id (tree-𝕎 (symbol-𝕎 x) (component-𝕎 x)) x
+  η-𝕎 (tree-𝕎 x α) = refl
 
 -- Example B.1.3
 
@@ -36,10 +36,10 @@ module _
   where
 
   constant-𝕎 : (x : A) → is-empty (B x) → 𝕎 A B
-  constant-𝕎 x h = collect-𝕎 x (ex-falso ∘ h)
+  constant-𝕎 x h = tree-𝕎 x (ex-falso ∘ h)
 
   is-constant-𝕎 : 𝕎 A B → UU l2
-  is-constant-𝕎 x = is-empty (B (arity-𝕎 x))
+  is-constant-𝕎 x = is-empty (B (symbol-𝕎 x))
 
 -- Proposition B.1.4
 
@@ -48,7 +48,7 @@ module _
   where
 
   is-empty-𝕎 : ((x : A) → type-trunc-Prop (B x)) → is-empty (𝕎 A B)
-  is-empty-𝕎 H (collect-𝕎 x α) =
+  is-empty-𝕎 H (tree-𝕎 x α) =
     apply-universal-property-trunc-Prop
       ( H x)
       ( empty-Prop)
@@ -63,25 +63,25 @@ zero-Nat-𝕎 : Nat-𝕎
 zero-Nat-𝕎 = constant-𝕎 false id
 
 succ-Nat-𝕎 : Nat-𝕎 → Nat-𝕎
-succ-Nat-𝕎 x = collect-𝕎 true (λ y → x)
+succ-Nat-𝕎 x = tree-𝕎 true (λ y → x)
 
 Nat-𝕎-ℕ : ℕ → Nat-𝕎
 Nat-𝕎-ℕ zero-ℕ = zero-Nat-𝕎
 Nat-𝕎-ℕ (succ-ℕ x) = succ-Nat-𝕎 (Nat-𝕎-ℕ x)
 
 ℕ-Nat-𝕎 : Nat-𝕎 → ℕ
-ℕ-Nat-𝕎 (collect-𝕎 true α) = succ-ℕ (ℕ-Nat-𝕎 (α star))
-ℕ-Nat-𝕎 (collect-𝕎 false α) = zero-ℕ
+ℕ-Nat-𝕎 (tree-𝕎 true α) = succ-ℕ (ℕ-Nat-𝕎 (α star))
+ℕ-Nat-𝕎 (tree-𝕎 false α) = zero-ℕ
 
 issec-ℕ-Nat-𝕎 : (Nat-𝕎-ℕ ∘ ℕ-Nat-𝕎) ~ id
-issec-ℕ-Nat-𝕎 (collect-𝕎 true α) =
-  ap ( collect-𝕎 true)
+issec-ℕ-Nat-𝕎 (tree-𝕎 true α) =
+  ap ( tree-𝕎 true)
      ( eq-htpy H)
   where
   H : (z : unit) → Id (Nat-𝕎-ℕ (ℕ-Nat-𝕎 (α star))) (α z)
   H star = issec-ℕ-Nat-𝕎 (α star)
-issec-ℕ-Nat-𝕎 (collect-𝕎 false α) =
-  ap (collect-𝕎 false) (eq-is-contr (universal-property-empty' Nat-𝕎))
+issec-ℕ-Nat-𝕎 (tree-𝕎 false α) =
+  ap (tree-𝕎 false) (eq-is-contr (universal-property-empty' Nat-𝕎))
 
 isretr-ℕ-Nat-𝕎 : (ℕ-Nat-𝕎 ∘ Nat-𝕎-ℕ) ~ id
 isretr-ℕ-Nat-𝕎 zero-ℕ = refl
@@ -124,7 +124,7 @@ root-PBT-𝕎 : PBT-𝕎
 root-PBT-𝕎 = constant-𝕎 false id
 
 join-PBT-𝕎 : (x y : PBT-𝕎) → PBT-𝕎
-join-PBT-𝕎 x y = collect-𝕎 true α
+join-PBT-𝕎 x y = tree-𝕎 true α
   where
   α : bool → PBT-𝕎
   α true = x
@@ -132,11 +132,11 @@ join-PBT-𝕎 x y = collect-𝕎 true α
 
 {-
 Planar-Bin-Tree-PBT-𝕎 : PBT-𝕎 → Planar-Bin-Tree
-Planar-Bin-Tree-PBT-𝕎 (collect-𝕎 true α) =
+Planar-Bin-Tree-PBT-𝕎 (tree-𝕎 true α) =
   join-PBT
     ( Planar-Bin-Tree-PBT-𝕎 (α true))
     ( Planar-Bin-Tree-PBT-𝕎 (α false))
-Planar-Bin-Tree-PBT-𝕎 (collect-𝕎 false α) = {!!}
+Planar-Bin-Tree-PBT-𝕎 (tree-𝕎 false α) = {!!}
 -}
 
 --------------------------------------------------------------------------------
@@ -148,11 +148,11 @@ module _
   where
   
   Eq-𝕎 : 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
-  Eq-𝕎 (collect-𝕎 x α) (collect-𝕎 y β) =
+  Eq-𝕎 (tree-𝕎 x α) (tree-𝕎 y β) =
     Σ (Id x y) (λ p → (z : B x) → Eq-𝕎 (α z) (β (tr B p z))) 
 
   refl-Eq-𝕎 : (w : 𝕎 A B) → Eq-𝕎 w w
-  refl-Eq-𝕎 (collect-𝕎 x α) = pair refl (λ z → refl-Eq-𝕎 (α z))
+  refl-Eq-𝕎 (tree-𝕎 x α) = pair refl (λ z → refl-Eq-𝕎 (α z))
 
   center-total-Eq-𝕎 : (w : 𝕎 A B) → Σ (𝕎 A B) (Eq-𝕎 w)
   center-total-Eq-𝕎 w = pair w (refl-Eq-𝕎 w)
@@ -160,13 +160,13 @@ module _
   aux-total-Eq-𝕎 :
     (x : A) (α : B x → 𝕎 A B) →
     Σ (B x → 𝕎 A B) (λ β → (y : B x) → Eq-𝕎 (α y) (β y)) →
-    Σ (𝕎 A B) (Eq-𝕎 (collect-𝕎 x α))
-  aux-total-Eq-𝕎 x α (pair β e) = pair (collect-𝕎 x β) (pair refl e)
+    Σ (𝕎 A B) (Eq-𝕎 (tree-𝕎 x α))
+  aux-total-Eq-𝕎 x α (pair β e) = pair (tree-𝕎 x β) (pair refl e)
 
   contraction-total-Eq-𝕎 :
     (w : 𝕎 A B) (t : Σ (𝕎 A B) (Eq-𝕎 w)) → Id (center-total-Eq-𝕎 w) t
   contraction-total-Eq-𝕎
-    ( collect-𝕎 x α) (pair (collect-𝕎 .x β) (pair refl e)) =
+    ( tree-𝕎 x α) (pair (tree-𝕎 .x β) (pair refl e)) =
     ap ( ( aux-total-Eq-𝕎 x α) ∘
          ( choice-∞ {A = B x} {B = λ y → 𝕎 A B} {C = λ y → Eq-𝕎 (α y)}))
        { x = λ y → pair (α y) (refl-Eq-𝕎 (α y))}
@@ -191,11 +191,11 @@ module _
   equiv-Eq-𝕎-eq v w = pair (Eq-𝕎-eq v w) (is-equiv-Eq-𝕎-eq v w)
   
   is-trunc-𝕎 : (k : 𝕋) → is-trunc (succ-𝕋 k) A → is-trunc (succ-𝕋 k) (𝕎 A B)
-  is-trunc-𝕎 k is-trunc-A (collect-𝕎 x α) (collect-𝕎 y β) =
+  is-trunc-𝕎 k is-trunc-A (tree-𝕎 x α) (tree-𝕎 y β) =
     is-trunc-is-equiv k
-      ( Eq-𝕎 (collect-𝕎 x α) (collect-𝕎 y β))
-      ( Eq-𝕎-eq (collect-𝕎 x α) (collect-𝕎 y β))
-      ( is-equiv-Eq-𝕎-eq (collect-𝕎 x α) (collect-𝕎 y β))
+      ( Eq-𝕎 (tree-𝕎 x α) (tree-𝕎 y β))
+      ( Eq-𝕎-eq (tree-𝕎 x α) (tree-𝕎 y β))
+      ( is-equiv-Eq-𝕎-eq (tree-𝕎 x α) (tree-𝕎 y β))
       ( is-trunc-Σ k
         ( is-trunc-A x y)
         ( λ p → is-trunc-Π k
@@ -335,7 +335,7 @@ structure-algebra-polynomial-endofunctor X = pr2 X
 structure-𝕎-Alg :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
   type-polynomial-endofunctor A B (𝕎 A B) → 𝕎 A B
-structure-𝕎-Alg (pair x α) = collect-𝕎 x α
+structure-𝕎-Alg (pair x α) = tree-𝕎 x α
 
 𝕎-Alg :
   {l1 l2 : Level} (A : UU l1) (B : A → UU l2) →
@@ -345,12 +345,12 @@ structure-𝕎-Alg (pair x α) = collect-𝕎 x α
 map-inv-structure-𝕎-Alg :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
   𝕎 A B → type-polynomial-endofunctor A B (𝕎 A B)
-map-inv-structure-𝕎-Alg (collect-𝕎 x α) = pair x α
+map-inv-structure-𝕎-Alg (tree-𝕎 x α) = pair x α
 
 issec-map-inv-structure-𝕎-Alg :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
   (structure-𝕎-Alg {B = B} ∘ map-inv-structure-𝕎-Alg {B = B}) ~ id
-issec-map-inv-structure-𝕎-Alg (collect-𝕎 x α) = refl
+issec-map-inv-structure-𝕎-Alg (tree-𝕎 x α) = refl
 
 isretr-map-inv-structure-𝕎-Alg :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
@@ -540,7 +540,7 @@ map-hom-𝕎-Alg :
   {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2}
   (X : algebra-polynomial-endofunctor-UU l3 A B) →
   𝕎 A B → type-algebra-polynomial-endofunctor X
-map-hom-𝕎-Alg X (collect-𝕎 x α) =
+map-hom-𝕎-Alg X (tree-𝕎 x α) =
   structure-algebra-polynomial-endofunctor X (pair x (map-hom-𝕎-Alg X ∘ α))
 
 structure-hom-𝕎-Alg :
@@ -563,7 +563,7 @@ htpy-htpy-hom-𝕎-Alg :
   (f : hom-algebra-polynomial-endofunctor (𝕎-Alg A B) X) →
   map-hom-𝕎-Alg X ~
   map-hom-algebra-polynomial-endofunctor (𝕎-Alg A B) X f
-htpy-htpy-hom-𝕎-Alg {A = A} {B} X f (collect-𝕎 x α) =
+htpy-htpy-hom-𝕎-Alg {A = A} {B} X f (tree-𝕎 x α) =
   ( ap ( λ t → structure-algebra-polynomial-endofunctor X (pair x t))
        ( eq-htpy (λ z → htpy-htpy-hom-𝕎-Alg X f (α z)))) ∙
   ( inv
@@ -648,7 +648,7 @@ map-𝕎' :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
   (f : A → C) (g : (x : A) → D (f x) → B x) →
   𝕎 A B → 𝕎 C D
-map-𝕎' D f g (collect-𝕎 a α) = collect-𝕎 (f a) (map-𝕎' D f g ∘ (α ∘ g a))
+map-𝕎' D f g (tree-𝕎 a α) = tree-𝕎 (f a) (map-𝕎' D f g ∘ (α ∘ g a))
 
 map-𝕎 :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
@@ -660,7 +660,7 @@ fib-map-𝕎 :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
   (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
   𝕎 C D → UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
-fib-map-𝕎 D f e (collect-𝕎 c γ) =
+fib-map-𝕎 D f e (tree-𝕎 c γ) =
   (fib f c) × ((d : D c) → fib (map-𝕎 D f e) (γ d))
 
 abstract
@@ -668,7 +668,7 @@ abstract
     {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3}
     (D : C → UU l4) (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
     (y : 𝕎 C D) → fib (map-𝕎 D f e) y ≃ fib-map-𝕎 D f e y
-  equiv-fib-map-𝕎 {A = A} {B} {C} D f e (collect-𝕎 c γ) =
+  equiv-fib-map-𝕎 {A = A} {B} {C} D f e (tree-𝕎 c γ) =
     ( ( ( inv-equiv
           ( assoc-Σ A
             ( λ a → Id (f a) c)
@@ -714,31 +714,31 @@ abstract
             ( equiv-tot
               ( λ α →
                 equiv-Eq-𝕎-eq
-                  ( collect-𝕎
+                  ( tree-𝕎
                     ( f a)
                     ( ( map-𝕎 D f e) ∘
-                      ( α ∘ map-inv-equiv (e a)))) (collect-𝕎 c γ)))))) ∘e
+                      ( α ∘ map-inv-equiv (e a)))) (tree-𝕎 c γ)))))) ∘e
       ( assoc-Σ A
         ( λ a → B a → 𝕎 A B)
         ( λ t →
-          Id (map-𝕎 D f e (structure-𝕎-Alg t)) (collect-𝕎 c γ)))) ∘e
+          Id (map-𝕎 D f e (structure-𝕎-Alg t)) (tree-𝕎 c γ)))) ∘e
     ( equiv-Σ
-      ( λ t → Id (map-𝕎 D f e (structure-𝕎-Alg t)) (collect-𝕎 c γ))
+      ( λ t → Id (map-𝕎 D f e (structure-𝕎-Alg t)) (tree-𝕎 c γ))
       ( inv-equiv-structure-𝕎-Alg)
       ( λ x →
         equiv-concat
           ( ap (map-𝕎 D f e) (issec-map-inv-structure-𝕎-Alg x))
-          ( collect-𝕎 c γ)))
+          ( tree-𝕎 c γ)))
 
 is-trunc-map-map-𝕎 :
   {l1 l2 l3 l4 : Level} (k : 𝕋)
   {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
   (f : A → C) (e : (x : A) → B x ≃ D (f x)) →
   is-trunc-map k f → is-trunc-map k (map-𝕎 D f e)
-is-trunc-map-map-𝕎 k D f e H (collect-𝕎 c γ) =
+is-trunc-map-map-𝕎 k D f e H (tree-𝕎 c γ) =
   is-trunc-equiv k
-    ( fib-map-𝕎 D f e (collect-𝕎 c γ))
-    ( equiv-fib-map-𝕎 D f e (collect-𝕎 c γ))
+    ( fib-map-𝕎 D f e (tree-𝕎 c γ))
+    ( equiv-fib-map-𝕎 D f e (tree-𝕎 c γ))
     ( is-trunc-Σ k
       ( H c)
       ( λ t → is-trunc-Π k (λ d → is-trunc-map-map-𝕎 k D f e H (γ d))))
@@ -785,18 +785,20 @@ data i𝕎 {l1 l2 l3 : Level} (I : UU l1) (A : I → UU l2) (B : (i : I) → A i
 
 --------------------------------------------------------------------------------
 
--- Section B.6 Russel's paradox in type theory
+-- Section B.4 Extensional W-types
 
 -- Definition B.6.1
 
-_∈-𝕎_ :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
-x ∈-𝕎 y = fib (component-𝕎 y) x
+module _
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
+  where
 
-extensional-Eq-eq-𝕎 : 
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {x y : 𝕎 A B} →
-  Id x y → (z : 𝕎 A B) → (z ∈-𝕎 y) ≃ (z ∈-𝕎 y)
-extensional-Eq-eq-𝕎 refl z = equiv-id
+  _∈-𝕎_ : 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
+  x ∈-𝕎 y = fib (component-𝕎 y) x
+  
+  extensional-Eq-eq-𝕎 : 
+    {x y : 𝕎 A B} → Id x y → (z : 𝕎 A B) → (z ∈-𝕎 y) ≃ (z ∈-𝕎 y)
+  extensional-Eq-eq-𝕎 refl z = equiv-id
 
 is-extensional-𝕎 :
   {l1 l2 : Level} (A : UU l1) (B : A → UU l2) → UU (l1 ⊔ l2)
@@ -813,10 +815,30 @@ module _
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
   where
 
-{-
+  Eq-ext-𝕎 : 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
+  Eq-ext-𝕎 x y = (z : 𝕎 A B) → (z ∈-𝕎 x) ≃ (z ∈-𝕎 y)
+
+  refl-Eq-ext-𝕎 : (x : 𝕎 A B) → Eq-ext-𝕎 x x
+  refl-Eq-ext-𝕎 x z = equiv-id
+
+  Eq-ext-eq-𝕎 : {x y : 𝕎 A B} → Id x y → Eq-ext-𝕎 x y
+  Eq-ext-eq-𝕎 {x} refl = refl-Eq-ext-𝕎 x
+
+  is-contr-total-Eq-ext-is-univalent-𝕎 :
+    is-univalent B → (x : 𝕎 A B) → is-contr (Σ (𝕎 A B) (Eq-ext-𝕎 x))
+  is-contr-total-Eq-ext-is-univalent-𝕎 H x =
+    pair c K
+    where
+    c : Σ (𝕎 A B) (Eq-ext-𝕎 x)
+    c = pair x (refl-Eq-ext-𝕎 x)
+    K : (t : Σ (𝕎 A B) (Eq-ext-𝕎 x)) → Id c t
+    K (pair y e) = {!!}
+
   is-extensional-is-univalent-𝕎 :
     is-univalent B → is-extensional-𝕎 A B
-  is-extensional-is-univalent-𝕎 H x =
+  is-extensional-is-univalent-𝕎 H x = {!!}
+
+{-
     fundamental-theorem-id x
       ( λ z → equiv-id)
       ( is-contr-equiv
@@ -827,6 +849,10 @@ module _
       ( λ y → extensional-Eq-eq-𝕎)
 -}
 
+--------------------------------------------------------------------------------
+
+-- Section B.6 Russel's paradox in type theory
+
 𝕎-UU : (l : Level) → UU (lsuc l)
 𝕎-UU l = 𝕎 (UU l) (λ X → X)
 
@@ -835,33 +861,33 @@ raise-𝕎-UU l = map-𝕎 id (raise l) (equiv-raise l)
 
 is-small-𝕎-UU :
   (l : Level) {l1 : Level} → 𝕎-UU l1 → UU (l1 ⊔ lsuc l)
-is-small-𝕎-UU l (collect-𝕎 A α) =
+is-small-𝕎-UU l (tree-𝕎 A α) =
   is-small l A × ((x : A) → is-small-𝕎-UU l (α x))
 
 arity-resize-𝕎-UU :
   {l l1 : Level} (X : 𝕎-UU l1) → is-small-𝕎-UU l X → UU l
-arity-resize-𝕎-UU (collect-𝕎 A α) (pair (pair A' e) H) = A'
+arity-resize-𝕎-UU (tree-𝕎 A α) (pair (pair A' e) H) = A'
 
 equiv-arity-resize-𝕎-UU :
   {l l1 : Level} (X : 𝕎-UU l1) (H : is-small-𝕎-UU l X) →
-  arity-𝕎 X ≃ arity-resize-𝕎-UU X H
-equiv-arity-resize-𝕎-UU (collect-𝕎 A α) (pair (pair A' e) H) = e
+  symbol-𝕎 X ≃ arity-resize-𝕎-UU X H
+equiv-arity-resize-𝕎-UU (tree-𝕎 A α) (pair (pair A' e) H) = e
 
 resize-𝕎-UU :
   {l1 l2 : Level} (X : 𝕎-UU l1) → is-small-𝕎-UU l2 X → 𝕎-UU l2
-resize-𝕎-UU (collect-𝕎 A α) (pair (pair A' e) H2) =
-  collect-𝕎 A'
+resize-𝕎-UU (tree-𝕎 A α) (pair (pair A' e) H2) =
+  tree-𝕎 A'
     ( λ x' → resize-𝕎-UU (α (map-inv-equiv e x')) (H2 (map-inv-equiv e x')))
 
 -- The componenthood relation on 𝕎-UU l is valued in 𝕎-UU (lsuc l)
 
 _∈-𝕎-UU_ : {l : Level} → 𝕎-UU l → 𝕎-UU l → UU (lsuc l)
-_∈-𝕎-UU_ {l} X (collect-𝕎 A α) = fib α X
+_∈-𝕎-UU_ {l} X (tree-𝕎 A α) = fib α X
 
 -- The condition that an component of 𝕎-UU l is empty
 
 is-empty-𝕎-UU : {l : Level} (X : 𝕎-UU l) → UU l
-is-empty-𝕎-UU (collect-𝕎 A α) = is-empty A
+is-empty-𝕎-UU (tree-𝕎 A α) = is-empty A
 
 -- The condition that an component of 𝕎-UU l has no components
 
@@ -876,31 +902,31 @@ has-no-components-𝕎-UU {l} X = (Y : 𝕎-UU l) → (Y ∉-𝕎-UU X)
 
 is-empty-has-no-components-𝕎-UU :
   {l : Level} (X : 𝕎-UU l) → has-no-components-𝕎-UU X → is-empty-𝕎-UU X
-is-empty-has-no-components-𝕎-UU (collect-𝕎 A α) H a =
+is-empty-has-no-components-𝕎-UU (tree-𝕎 A α) H a =
   H (α a) (pair a refl)
 
 has-no-components-is-empty-𝕎-UU :
   {l : Level} (X : 𝕎-UU l) → is-empty-𝕎-UU X → has-no-components-𝕎-UU X
-has-no-components-is-empty-𝕎-UU (collect-𝕎 A α) H (collect-𝕎 B β) t = H (pr1 t)
+has-no-components-is-empty-𝕎-UU (tree-𝕎 A α) H (tree-𝕎 B β) t = H (pr1 t)
 
 fam-𝕎-UU :
   (l : Level) {l1 : Level} (X : 𝕎-UU l1) → UU (l1 ⊔ lsuc l)
-fam-𝕎-UU l (collect-𝕎 A α) = A → 𝕎-UU l
+fam-𝕎-UU l (tree-𝕎 A α) = A → 𝕎-UU l
 
 flatten-𝕎-UU : {l : Level} → 𝕎-UU l → 𝕎-UU l
-flatten-𝕎-UU {l} (collect-𝕎 A α) =
-  collect-𝕎
-    ( Σ A (λ x → arity-𝕎 (α x)))
+flatten-𝕎-UU {l} (tree-𝕎 A α) =
+  tree-𝕎
+    ( Σ A (λ x → symbol-𝕎 (α x)))
     ( ind-Σ (λ x → component-𝕎 (α x)))
 
 subtree-𝕎-UU :
-  {l : Level} (X : 𝕎-UU l) → (P : arity-𝕎 X → UU-Prop l) → 𝕎-UU l
+  {l : Level} (X : 𝕎-UU l) → (P : symbol-𝕎 X → UU-Prop l) → 𝕎-UU l
 subtree-𝕎-UU X P =
-  collect-𝕎 (Σ (arity-𝕎 X) (λ x → type-Prop (P x))) ((component-𝕎 X) ∘ pr1)
+  tree-𝕎 (Σ (symbol-𝕎 X) (λ x → type-Prop (P x))) ((component-𝕎 X) ∘ pr1)
 
 tree-of-trees-𝕎-UU :
   (l : Level) → 𝕎-UU (lsuc l)
-tree-of-trees-𝕎-UU l = collect-𝕎 (𝕎-UU l) (raise-𝕎-UU (lsuc l))
+tree-of-trees-𝕎-UU l = tree-𝕎 (𝕎-UU l) (raise-𝕎-UU (lsuc l))
 
 is-small-universe :
   (l l1 : Level) → UU (lsuc l1 ⊔ lsuc l)
@@ -923,7 +949,7 @@ is-small-tree-of-trees-𝕎-UU l {l1} (pair (pair U e) H) =
     ( f)
     where
     f : (X : 𝕎-UU l1) → is-small-𝕎-UU l (raise-𝕎-UU (lsuc l1) X)
-    f (collect-𝕎 A α) =
+    f (tree-𝕎 A α) =
       pair
         ( pair
           ( type-is-small (H A))
@@ -949,7 +975,7 @@ x ∉-𝕎 y = is-empty (x ∈-𝕎 y)
 
 irreflexive-∈-𝕎 :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (x : 𝕎 A B) → x ∉-𝕎 x
-irreflexive-∈-𝕎 {A = A} {B = B} (collect-𝕎 x α) (pair y p) =
+irreflexive-∈-𝕎 {A = A} {B = B} (tree-𝕎 x α) (pair y p) =
   irreflexive-∈-𝕎 (α y) (tr (λ z → (α y) ∈-𝕎 z) (inv p) (pair y refl))
 
 -- Exercise B.5
@@ -977,7 +1003,7 @@ module _
   irreflexive-le-𝕎 :
     {x : 𝕎 A B} → ¬ (x le-𝕎 x)
   irreflexive-le-𝕎 {x = x} (le-∈-𝕎 H) = irreflexive-∈-𝕎 x H
-  irreflexive-le-𝕎 {x = collect-𝕎 x α} (propagate-le-𝕎 (pair b refl) H) =
+  irreflexive-le-𝕎 {x = tree-𝕎 x α} (propagate-le-𝕎 (pair b refl) H) =
     irreflexive-le-𝕎 {x = α b} (transitive-le-𝕎 H (le-∈-𝕎 (pair b refl)))
 
   asymmetric-le-𝕎 :
@@ -1016,18 +1042,18 @@ module _
 
   □-strong-ind-𝕎 :
     ((x : 𝕎 A B) → □-𝕎 P x → P x) → (x : 𝕎 A B) → □-𝕎 P x
-  □-strong-ind-𝕎 h (collect-𝕎 x α) .(α b) (le-∈-𝕎 (pair b refl)) =
+  □-strong-ind-𝕎 h (tree-𝕎 x α) .(α b) (le-∈-𝕎 (pair b refl)) =
     h (α b) (□-strong-ind-𝕎 h (α b))
-  □-strong-ind-𝕎 h (collect-𝕎 x α) y (propagate-le-𝕎 (pair b refl) K) =
+  □-strong-ind-𝕎 h (tree-𝕎 x α) y (propagate-le-𝕎 (pair b refl) K) =
     □-strong-ind-𝕎 h (α b) y K
 
   □-strong-comp-𝕎 :
     (h : (x : 𝕎 A B) → □-𝕎 P x → P x)
     (x : 𝕎 A B) (y : 𝕎 A B) (p : y le-𝕎 x) →
     Id (□-strong-ind-𝕎 h x y p) (h y (□-strong-ind-𝕎 h y))
-  □-strong-comp-𝕎 h (collect-𝕎 x α) .(α b) (le-∈-𝕎 (pair b refl)) =
+  □-strong-comp-𝕎 h (tree-𝕎 x α) .(α b) (le-∈-𝕎 (pair b refl)) =
     refl
-  □-strong-comp-𝕎 h (collect-𝕎 x α) y (propagate-le-𝕎 (pair b refl) K) =
+  □-strong-comp-𝕎 h (tree-𝕎 x α) y (propagate-le-𝕎 (pair b refl) K) =
     □-strong-comp-𝕎 h (α b) y K
 
 {- Now we prove the actual induction principle with computation rule, where we
@@ -1073,7 +1099,7 @@ module _
   where
 
   _≼-𝕎-Prop_ : 𝕎 A B → 𝕎 A B → UU-Prop (l1 ⊔ l2)
-  (collect-𝕎 x α) ≼-𝕎-Prop (collect-𝕎 y β) =
+  (tree-𝕎 x α) ≼-𝕎-Prop (tree-𝕎 y β) =
     Π-Prop (B x) (λ b → exists-Prop (λ c → (α b) ≼-𝕎-Prop (β c)))
 
   _≼-𝕎_ : 𝕎 A B → 𝕎 A B → UU (l1 ⊔ l2)
@@ -1089,10 +1115,10 @@ module _
   -- Exercise B.7 (a)
 
   refl-≼-𝕎 : (x : 𝕎 A B) → x ≼-𝕎 x
-  refl-≼-𝕎 (collect-𝕎 x α) b = unit-trunc-Prop (pair b (refl-≼-𝕎 (α b)))
+  refl-≼-𝕎 (tree-𝕎 x α) b = unit-trunc-Prop (pair b (refl-≼-𝕎 (α b)))
 
   transitive-≼-𝕎 : {x y z : 𝕎 A B} → (x ≼-𝕎 y) → (y ≼-𝕎 z) → (x ≼-𝕎 z)
-  transitive-≼-𝕎 {collect-𝕎 x α} {collect-𝕎 y β} {collect-𝕎 z γ} H K a =
+  transitive-≼-𝕎 {tree-𝕎 x α} {tree-𝕎 y β} {tree-𝕎 z γ} H K a =
     apply-universal-property-trunc-Prop
       ( H a)
       ( exists-Prop (λ c → (α a) ≼-𝕎-Prop (γ c)))
@@ -1129,7 +1155,7 @@ module _
   x strong-≼-𝕎 y = type-Prop (x strong-≼-𝕎-Prop y)
 
   strong-≼-≼-𝕎 : {x y : 𝕎 A B} → (x ≼-𝕎 y) → (x strong-≼-𝕎 y)
-  strong-≼-≼-𝕎 {collect-𝕎 x α} {collect-𝕎 y β} H .(α b) (pair b refl) =
+  strong-≼-≼-𝕎 {tree-𝕎 x α} {tree-𝕎 y β} H .(α b) (pair b refl) =
     apply-universal-property-trunc-Prop (H b)
       ( exists-Prop ((λ v → exists-Prop (λ hv → (α b) ≼-𝕎-Prop v))))
       ( f)
@@ -1146,7 +1172,7 @@ module _
             ( K))
 
   ≼-strong-≼-𝕎 : {x y : 𝕎 A B} → (x strong-≼-𝕎 y) → (x ≼-𝕎 y)
-  ≼-strong-≼-𝕎 {collect-𝕎 x α} {collect-𝕎 y β} H b =
+  ≼-strong-≼-𝕎 {tree-𝕎 x α} {tree-𝕎 y β} H b =
     apply-universal-property-trunc-Prop
       ( H (α b) (pair b refl))
       ( exists-Prop (λ c → α b ≼-𝕎-Prop β c))
@@ -1159,19 +1185,19 @@ module _
           ( exists-Prop (λ c → α b ≼-𝕎-Prop β c))
           ( g)
       where
-      g : (v ∈-𝕎 collect-𝕎 y β) × (α b ≼-𝕎 v) → ∃ (λ c → α b ≼-𝕎 β c)
+      g : (v ∈-𝕎 tree-𝕎 y β) × (α b ≼-𝕎 v) → ∃ (λ c → α b ≼-𝕎 β c)
       g (pair (pair c p) M) = intro-∃ c (tr (λ t → α b ≼-𝕎 t) (inv p) M)
 
   -- Exercise B.7 (a) (ii)
 
   ≼-∈-𝕎 : {x y : 𝕎 A B} → (x ∈-𝕎 y) → (x ≼-𝕎 y)
-  ≼-∈-𝕎 {collect-𝕎 x α} {collect-𝕎 y β} (pair v p) u =
+  ≼-∈-𝕎 {tree-𝕎 x α} {tree-𝕎 y β} (pair v p) u =
     intro-exists
       ( λ z → α u ≼-𝕎-Prop β z)
       ( v)
       ( tr ( λ t → α u ≼-𝕎 t)
            ( inv p)
-           ( ≼-∈-𝕎 {α u} {collect-𝕎 x α} (pair u refl)))
+           ( ≼-∈-𝕎 {α u} {tree-𝕎 x α} (pair u refl)))
 
   ≼-le-𝕎 : {x y : 𝕎 A B} → (x le-𝕎 y) → (x ≼-𝕎 y)
   ≼-le-𝕎 {x} {y} (le-∈-𝕎 H) = ≼-∈-𝕎 H
@@ -1181,7 +1207,7 @@ module _
   -- Exercise B.7 (a) (iii)
 
   not-≼-∈-𝕎 : {x y : 𝕎 A B} → (x ∈-𝕎 y) → ¬ (y ≼-𝕎 x)
-  not-≼-∈-𝕎 {collect-𝕎 x α} {collect-𝕎 y β} (pair b p) K =
+  not-≼-∈-𝕎 {tree-𝕎 x α} {tree-𝕎 y β} (pair b p) K =
     apply-universal-property-trunc-Prop (K b) (empty-Prop) f
     where
     f : Σ (B x) (λ c → β b ≼-𝕎 α c) → empty
@@ -1197,17 +1223,17 @@ module _
 
   is-least-≼-constant-𝕎 :
     {x : A} (h : is-empty (B x)) (w : 𝕎 A B) → constant-𝕎 x h ≼-𝕎 w
-  is-least-≼-constant-𝕎 h (collect-𝕎 y β) x = ex-falso (h x)
+  is-least-≼-constant-𝕎 h (tree-𝕎 y β) x = ex-falso (h x)
 
   is-least-≼-is-constant-𝕎 :
     {x : 𝕎 A B} → is-constant-𝕎 x → (y : 𝕎 A B) → x ≼-𝕎 y
-  is-least-≼-is-constant-𝕎 {collect-𝕎 x α} H (collect-𝕎 y β) z =
+  is-least-≼-is-constant-𝕎 {tree-𝕎 x α} H (tree-𝕎 y β) z =
     ex-falso (H z)
 
   is-constant-is-least-≼-𝕎 :
     {x : 𝕎 A B} → ((y : 𝕎 A B) → x ≼-𝕎 y) → is-constant-𝕎 x
-  is-constant-is-least-≼-𝕎 {collect-𝕎 x α} H b =
-    not-≼-∈-𝕎 {α b} {collect-𝕎 x α} (pair b refl) (H (α b))
+  is-constant-is-least-≼-𝕎 {tree-𝕎 x α} H b =
+    not-≼-∈-𝕎 {α b} {tree-𝕎 x α} (pair b refl) (H (α b))
 
   -- Exercise B.7 (b)
 
@@ -1235,12 +1261,12 @@ module _
             ( transitive-≼-𝕎 {w} {y} {v} (≼-∈-𝕎 L) Q))
 
   irreflexive-≺-𝕎 : {x : 𝕎 A B} → ¬ (x ≺-𝕎 x)
-  irreflexive-≺-𝕎 {collect-𝕎 x α} H =
+  irreflexive-≺-𝕎 {tree-𝕎 x α} H =
     apply-universal-property-trunc-Prop H empty-Prop f
     where
-    f : ¬ ( Σ ( Σ (𝕎 A B) (λ w → w ∈-𝕎 collect-𝕎 x α))
-              ( λ t → collect-𝕎 x α ≼-𝕎 pr1 t))
-    f (pair (pair w K) L) = not-≼-∈-𝕎 {w} {collect-𝕎 x α} K L
+    f : ¬ ( Σ ( Σ (𝕎 A B) (λ w → w ∈-𝕎 tree-𝕎 x α))
+              ( λ t → tree-𝕎 x α ≼-𝕎 pr1 t))
+    f (pair (pair w K) L) = not-≼-∈-𝕎 {w} {tree-𝕎 x α} K L
 
   in-lower-set-≺-𝕎-Prop : (x y : 𝕎 A B) → UU-Prop (l1 ⊔ l2)
   in-lower-set-≺-𝕎-Prop x y = y ≺-𝕎-Prop x
@@ -1267,3 +1293,17 @@ data _leq-𝕎_ {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (x : 𝕎 A B) :
   𝕎 A B → UU (l1 ⊔ l2) where
   refl-leq-𝕎 : x leq-𝕎 x
   propagate-leq-𝕎 : {y z : 𝕎 A B} → y ∈-𝕎 z → x leq-𝕎 y → x leq-𝕎 z
+
+--------------------------------------------------------------------------------
+
+module _
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
+  where
+
+  data Path-𝕎 : 𝕎 A B → UU (l1 ⊔ l2) where
+    root : (w : 𝕎 A B) → Path-𝕎 w
+    cons : (a : A) (f : B a → 𝕎 A B) (b : B a) → Path-𝕎 (f b) → Path-𝕎 (tree-𝕎 a f)
+
+  length-Path-𝕎 : (w : 𝕎 A B) → Path-𝕎 w → ℕ
+  length-Path-𝕎 w (root .w) = zero-ℕ
+  length-Path-𝕎 .(tree-𝕎 a f) (cons a f b p) = succ-ℕ (length-Path-𝕎 (f b) p)
