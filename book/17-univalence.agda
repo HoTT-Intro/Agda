@@ -355,6 +355,58 @@ is-locally-small :
   (l : Level) {l1 : Level} (A : UU l1) → UU (lsuc l ⊔ l1)
 is-locally-small l A = (x y : A) → is-small l (Id x y)
 
+-- Closure properties of small types
+
+is-small-equiv :
+  (l : Level) {l1 l2 : Level} {A : UU l1} (B : UU l2) →
+  A ≃ B → is-small l B → is-small l A
+is-small-equiv l B e (pair X h) = pair X (h ∘e e)
+
+is-small-Π :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  is-small l A → ((x : A) → is-small l (B x)) → is-small l ((x : A) → B x)
+is-small-Π l {B = B} (pair X e) H =
+  pair
+    ( (x : X) → pr1 (H (map-inv-equiv e x)))
+    ( equiv-Π
+      ( λ (x : X) → pr1 (H (map-inv-equiv e x)))
+      ( e)
+      ( λ a →
+        ( equiv-tr
+          ( λ t → pr1 (H t))
+          ( inv (isretr-map-inv-equiv e a))) ∘e
+        ( pr2 (H a))))
+
+is-small-Σ :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  is-small l A → ((x : A) → is-small l (B x)) → is-small l (Σ A B)
+is-small-Σ l {B = B} (pair X e) H =
+  pair
+    ( Σ X (λ x → pr1 (H (map-inv-equiv e x))))
+    ( equiv-Σ
+      ( λ x → pr1 (H (map-inv-equiv e x)))
+      ( e)
+      ( λ a →
+        ( equiv-tr
+          ( λ t → pr1 (H t))
+          ( inv (isretr-map-inv-equiv e a))) ∘e
+        ( pr2 (H a))))
+
+is-locally-small-is-small :
+  (l : Level) {l1 : Level} {A : UU l1} → is-small l A → is-locally-small l A
+is-locally-small-is-small l (pair X e) x y =
+  pair
+    ( Id (map-equiv e x) (map-equiv e y))
+    ( equiv-ap e x y)
+
+is-small-fib :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  is-small l A → is-small l B → (b : B) → is-small l (fib f b)
+is-small-fib l f H K b =
+  is-small-Σ l H (λ a → is-locally-small-is-small l K (f a) b)
+
+--
+
 total-subtype :
   {l1 l2 : Level} {A : UU l1} (P : A → UU-Prop l2) → UU (l1 ⊔ l2)
 total-subtype {A = A} P = Σ A (λ x → pr1 (P x))
@@ -383,6 +435,19 @@ equiv-comp-equiv' e C =
         ( λ is-equiv-eg →
           is-equiv-left-factor'
             g (map-equiv e) is-equiv-eg (is-equiv-map-equiv e)))
+
+equiv-comp-equiv :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} →
+  (A ≃ B) → (C : UU l3) → (C ≃ A) ≃ (C ≃ B)
+equiv-comp-equiv e C =
+  equiv-subtype-equiv
+    ( equiv-postcomp C e)
+    ( is-equiv-Prop)
+    ( is-equiv-Prop)
+    ( λ g →
+      pair
+        ( λ H → is-equiv-comp' (map-equiv e) g H (is-equiv-map-equiv e))
+        ( λ H → is-equiv-right-factor' (map-equiv e) g (is-equiv-map-equiv e) {!H!}))
 
 is-prop-is-small :
   (l : Level) {l1 : Level} (A : UU l1) → is-prop (is-small l A)

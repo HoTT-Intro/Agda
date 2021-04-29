@@ -187,6 +187,9 @@ module _
       ( is-contr-total-Eq-𝕎 v)
       ( Eq-𝕎-eq v)
 
+  eq-Eq-𝕎 : (v w : 𝕎 A B) → Eq-𝕎 v w → Id v w
+  eq-Eq-𝕎 v w = map-inv-is-equiv (is-equiv-Eq-𝕎-eq v w)
+
   equiv-Eq-𝕎-eq : (v w : 𝕎 A B) → Id v w ≃ Eq-𝕎 v w
   equiv-Eq-𝕎-eq v w = pair (Eq-𝕎-eq v w) (is-equiv-Eq-𝕎-eq v w)
   
@@ -851,13 +854,17 @@ module _
 
 --------------------------------------------------------------------------------
 
--- Section B.6 Russel's paradox in type theory
+-- Section B.5 Russel's paradox in type theory
+
+-- Definition B.5.1
 
 𝕎-UU : (l : Level) → UU (lsuc l)
 𝕎-UU l = 𝕎 (UU l) (λ X → X)
 
 raise-𝕎-UU : (l : Level) {l1 : Level} → 𝕎-UU l1 → 𝕎-UU (l1 ⊔ l)
 raise-𝕎-UU l = map-𝕎 id (raise l) (equiv-raise l)
+
+-- Definition B.5.2
 
 is-small-𝕎-UU :
   (l : Level) {l1 : Level} → 𝕎-UU l1 → UU (l1 ⊔ lsuc l)
@@ -873,56 +880,136 @@ equiv-arity-resize-𝕎-UU :
   symbol-𝕎 X ≃ arity-resize-𝕎-UU X H
 equiv-arity-resize-𝕎-UU (tree-𝕎 A α) (pair (pair A' e) H) = e
 
+is-prop-is-small-𝕎-UU :
+  {l l1 : Level} (X : 𝕎-UU l1) → is-prop (is-small-𝕎-UU l X)
+is-prop-is-small-𝕎-UU {l} (tree-𝕎 A α) =
+  is-prop-prod
+    ( is-prop-is-small l A)
+    ( is-prop-Π (λ x → is-prop-is-small-𝕎-UU (α x)))
+
+-- Definition B.5.3
+
 resize-𝕎-UU :
   {l1 l2 : Level} (X : 𝕎-UU l1) → is-small-𝕎-UU l2 X → 𝕎-UU l2
 resize-𝕎-UU (tree-𝕎 A α) (pair (pair A' e) H2) =
   tree-𝕎 A'
     ( λ x' → resize-𝕎-UU (α (map-inv-equiv e x')) (H2 (map-inv-equiv e x')))
 
+is-small-resize-𝕎-UU :
+  {l1 l2 : Level} (X : 𝕎-UU l1) (H : is-small-𝕎-UU l2 X) →
+  is-small-𝕎-UU l1 (resize-𝕎-UU X H)
+is-small-resize-𝕎-UU (tree-𝕎 A α) (pair (pair A' e) H2) =
+  pair
+    ( pair A (inv-equiv e))
+    ( λ a' →
+      is-small-resize-𝕎-UU
+        ( α (map-inv-equiv e a'))
+        ( H2 (map-inv-equiv e a')))
+
+resize-𝕎-UU' :
+  {l1 l2 : Level} →
+  Σ (𝕎-UU l1) (is-small-𝕎-UU l2) → Σ (𝕎-UU l2) (is-small-𝕎-UU l1)
+resize-𝕎-UU' (pair X H) = pair (resize-𝕎-UU X H) (is-small-resize-𝕎-UU X H)
+
+abstract
+  resize-resize-𝕎-UU' :
+    {l1 l2 : Level} → (resize-𝕎-UU' {l2} {l1} ∘ resize-𝕎-UU' {l1} {l2}) ~ id
+  resize-resize-𝕎-UU' (pair (tree-𝕎 A α) (pair (pair A' e) H2)) =
+    eq-subtype
+      ( is-prop-is-small-𝕎-UU)
+      ( eq-Eq-𝕎
+        ( tree-𝕎 A
+          ( λ x →
+            resize-𝕎-UU
+              ( resize-𝕎-UU
+                ( α (map-inv-equiv e (map-equiv e x)))
+                ( H2 (map-inv-equiv e (map-inv-equiv (inv-equiv e) x))))
+              ( is-small-resize-𝕎-UU
+                ( α (map-inv-equiv e (map-inv-equiv (inv-equiv e) x)))
+                ( H2 (map-inv-equiv e (map-inv-equiv (inv-equiv e) x))))))
+        ( tree-𝕎 A α)
+        ( pair
+          ( refl)
+          ( λ z →
+            Eq-𝕎-eq
+              ( resize-𝕎-UU
+                ( resize-𝕎-UU
+                  ( α (map-inv-equiv e (map-equiv e z)))
+                  ( H2 (map-inv-equiv e (map-equiv e z))))
+                ( is-small-resize-𝕎-UU
+                  ( α (map-inv-equiv e (map-equiv e z)))
+                  ( H2 (map-inv-equiv e (map-equiv e z)))))
+              ( α z)
+              ( ( ap
+                  ( λ t →
+                    resize-𝕎-UU
+                      ( resize-𝕎-UU (α t) (H2 t))
+                      ( is-small-resize-𝕎-UU (α t) (H2 t)))
+                  ( isretr-map-inv-equiv e z)) ∙
+                ( ap pr1 (resize-resize-𝕎-UU' (pair (α z) (H2 z))))))))
+
+is-equiv-resize-𝕎-UU' :
+  {l1 l2 : Level} → is-equiv (resize-𝕎-UU' {l1} {l2})
+is-equiv-resize-𝕎-UU' {l1} {l2} =
+  is-equiv-has-inverse
+    ( resize-𝕎-UU' {l2} {l1})
+    ( resize-resize-𝕎-UU')
+    ( resize-resize-𝕎-UU')
+
 -- The componenthood relation on 𝕎-UU l is valued in 𝕎-UU (lsuc l)
 
 _∈-𝕎-UU_ : {l : Level} → 𝕎-UU l → 𝕎-UU l → UU (lsuc l)
-_∈-𝕎-UU_ {l} X (tree-𝕎 A α) = fib α X
-
--- The condition that an component of 𝕎-UU l is empty
-
-is-empty-𝕎-UU : {l : Level} (X : 𝕎-UU l) → UU l
-is-empty-𝕎-UU (tree-𝕎 A α) = is-empty A
-
--- The condition that an component of 𝕎-UU l has no components
+X ∈-𝕎-UU Y = X ∈-𝕎 Y
 
 _∉-𝕎-UU_ : {l : Level} → 𝕎-UU l → 𝕎-UU l → UU (lsuc l)
 X ∉-𝕎-UU Y = is-empty (X ∈-𝕎-UU Y)
 
-has-no-components-𝕎-UU :
-  {l : Level} (X : 𝕎-UU l) → UU (lsuc l)
-has-no-components-𝕎-UU {l} X = (Y : 𝕎-UU l) → (Y ∉-𝕎-UU X)
+is-small-eq-𝕎-UU :
+  (l : Level) {l1 : Level} {X Y : 𝕎-UU l1} →
+  is-small-𝕎-UU l X → is-small-𝕎-UU l Y → is-small l (Id X Y)
+is-small-eq-𝕎-UU l {l1} {tree-𝕎 A α} {tree-𝕎 B β} (pair (pair X e) H) (pair (pair Y f) K) =
+  is-small-equiv l
+    ( Eq-𝕎 (tree-𝕎 A α) (tree-𝕎 B β))
+    ( equiv-Eq-𝕎-eq (tree-𝕎 A α) (tree-𝕎 B β))
+    ( is-small-Σ l
+      ( is-small-equiv l
+        ( A ≃ B)
+        ( equiv-univalence)
+        ( pair
+          ( X ≃ Y)
+          ( equiv-comp-equiv' (inv-equiv e) Y ∘e equiv-comp-equiv f A)))
+      ( E))
+  where
+  E : (x : Id A B) → is-small l ((z : A) → Eq-𝕎 (α z) (β (tr (λ X₁ → X₁) x z)))
+  E refl =
+    is-small-Π l
+      ( pair X e)
+      ( λ x →
+        is-small-equiv l
+          ( Id (α x) (β x))
+          ( inv-equiv (equiv-Eq-𝕎-eq (α x) (β x)))
+          ( is-small-eq-𝕎-UU l (H x) (K x)))
+  
+is-small-∈-𝕎-UU :
+  (l : Level) {l1 : Level} {X Y : 𝕎-UU l1} →
+  is-small-𝕎-UU l X → is-small-𝕎-UU l Y → is-small l (X ∈-𝕎-UU Y)
+is-small-∈-𝕎-UU l {l1} {tree-𝕎 A α} {tree-𝕎 B β} H (pair (pair Y f) K) =
+  is-small-Σ l
+    ( pair Y f)
+    ( λ b → is-small-eq-𝕎-UU l (K b) H)
 
--- An object X of 𝕎-UU l is empty if and only if it has no components
+is-small-∉-𝕎-UU :
+  (l : Level) {l1 : Level} {X Y : 𝕎-UU l1} →
+  is-small-𝕎-UU l X → is-small-𝕎-UU l Y → is-small l (X ∉-𝕎-UU Y)
+is-small-∉-𝕎-UU l H K =
+  is-small-Π l
+    ( is-small-∈-𝕎-UU l H K)
+    ( λ x → pair (raise-empty l) (equiv-raise-empty l))
 
-is-empty-has-no-components-𝕎-UU :
-  {l : Level} (X : 𝕎-UU l) → has-no-components-𝕎-UU X → is-empty-𝕎-UU X
-is-empty-has-no-components-𝕎-UU (tree-𝕎 A α) H a =
-  H (α a) (pair a refl)
+-- Theorem B.5.5 Russell's paradox
 
-has-no-components-is-empty-𝕎-UU :
-  {l : Level} (X : 𝕎-UU l) → is-empty-𝕎-UU X → has-no-components-𝕎-UU X
-has-no-components-is-empty-𝕎-UU (tree-𝕎 A α) H (tree-𝕎 B β) t = H (pr1 t)
-
-fam-𝕎-UU :
-  (l : Level) {l1 : Level} (X : 𝕎-UU l1) → UU (l1 ⊔ lsuc l)
-fam-𝕎-UU l (tree-𝕎 A α) = A → 𝕎-UU l
-
-flatten-𝕎-UU : {l : Level} → 𝕎-UU l → 𝕎-UU l
-flatten-𝕎-UU {l} (tree-𝕎 A α) =
-  tree-𝕎
-    ( Σ A (λ x → symbol-𝕎 (α x)))
-    ( ind-Σ (λ x → component-𝕎 (α x)))
-
-subtree-𝕎-UU :
-  {l : Level} (X : 𝕎-UU l) → (P : symbol-𝕎 X → UU-Prop l) → 𝕎-UU l
-subtree-𝕎-UU X P =
-  tree-𝕎 (Σ (symbol-𝕎 X) (λ x → type-Prop (P x))) ((component-𝕎 X) ∘ pr1)
+{- We first define the tree of trees, i.e. we define 𝕎-UU l as an element of
+   𝕎-UU (lsuc l) -}
 
 tree-of-trees-𝕎-UU :
   (l : Level) → 𝕎-UU (lsuc l)
@@ -956,11 +1043,33 @@ is-small-tree-of-trees-𝕎-UU l {l1} (pair (pair U e) H) =
           ( equiv-is-small (H A) ∘e inv-equiv (equiv-raise (lsuc l1) A)))
         ( λ x → f (α (map-inv-raise x)))
 
+comprehension-𝕎-UU :
+  {l : Level} (X : 𝕎-UU l) (P : symbol-𝕎 X → UU l) → 𝕎-UU l
+comprehension-𝕎-UU X P =
+  tree-𝕎 (Σ (symbol-𝕎 X) P) (component-𝕎 X ∘ pr1)
+
+is-small-comprehension-𝕎-UU :
+  (l : Level) {l1 : Level} {X : 𝕎-UU l1} {P : symbol-𝕎 X → UU l1} →
+  is-small-𝕎-UU l X → ((x : symbol-𝕎 X) → is-small l (P x)) →
+  is-small-𝕎-UU l (comprehension-𝕎-UU X P)
+is-small-comprehension-𝕎-UU l {l1} {tree-𝕎 A α} {P} (pair (pair X e) H) K =
+  pair
+    ( is-small-Σ l (pair X e) K)
+    ( λ t → H (pr1 t))
+
 Russell : (l : Level) → 𝕎-UU (lsuc l)
 Russell l =
-  subtree-𝕎-UU
+  comprehension-𝕎-UU
     ( tree-of-trees-𝕎-UU l)
-    ( λ X → neg-Prop' (X ∈-𝕎-UU X))
+    ( λ X → X ∉-𝕎-UU X)
+
+is-small-Russell :
+  (l : Level) {l1 : Level} →
+  is-small-universe l l1 → is-small-𝕎-UU l (Russell l1)
+is-small-Russell l H =
+  is-small-comprehension-𝕎-UU l
+    ( is-small-tree-of-trees-𝕎-UU l H)
+    ( λ X → {!is-small-∉-𝕎-UU l ? ?!})
 
 paradox-Russell : {l : Level} → ¬ (is-small l (UU l))
 paradox-Russell (pair A e) = {!!}
