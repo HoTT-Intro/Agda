@@ -827,6 +827,7 @@ module _
   Eq-ext-eq-𝕎 : {x y : 𝕎 A B} → Id x y → Eq-ext-𝕎 x y
   Eq-ext-eq-𝕎 {x} refl = refl-Eq-ext-𝕎 x
 
+{-
   is-contr-total-Eq-ext-is-univalent-𝕎 :
     is-univalent B → (x : 𝕎 A B) → is-contr (Σ (𝕎 A B) (Eq-ext-𝕎 x))
   is-contr-total-Eq-ext-is-univalent-𝕎 H x =
@@ -840,6 +841,7 @@ module _
   is-extensional-is-univalent-𝕎 :
     is-univalent B → is-extensional-𝕎 A B
   is-extensional-is-univalent-𝕎 H x = {!!}
+-}
 
 {-
     fundamental-theorem-id x
@@ -983,42 +985,44 @@ resize-𝕄' :
   Σ (𝕄 l1) (is-small-𝕄 l2) → Σ (𝕄 l2) (is-small-𝕄 l1)
 resize-𝕄' (pair X H) = pair (resize-𝕄 X H) (is-small-resize-𝕄 X H)
 
+
+abstract
+  resize-resize-𝕄 :
+    {l1 l2 : Level} {x : 𝕄 l1} (H : is-small-𝕄 l2 x) → 
+    Id (resize-𝕄 (resize-𝕄 x H) (is-small-resize-𝕄 x H)) x
+  resize-resize-𝕄 {x = tree-𝕎 A α} (pair (pair A' e) H) =
+    eq-Eq-𝕎
+      ( resize-𝕄
+        ( resize-𝕄 (tree-𝕎 A α) (pair (pair A' e) H))
+        ( is-small-resize-𝕄 (tree-𝕎 A α) (pair (pair A' e) H)))
+      ( tree-𝕎 A α)
+      ( pair
+        ( refl)
+        ( λ z →
+          Eq-𝕎-eq
+            ( resize-𝕄
+              ( resize-𝕄
+                ( α (map-inv-equiv e (map-inv-equiv (inv-equiv e) z)))
+                ( H (map-inv-equiv e (map-inv-equiv (inv-equiv e) z))))
+              ( is-small-resize-𝕄
+                ( α (map-inv-equiv e (map-inv-equiv (inv-equiv e) z)))
+                ( H (map-inv-equiv e (map-inv-equiv (inv-equiv e) z)))))
+            ( α z)
+            ( ( ap
+                ( λ t →
+                  resize-𝕄
+                    ( resize-𝕄 (α t) (H t))
+                    ( is-small-resize-𝕄 (α t) (H t)))
+                ( isretr-map-inv-equiv e z)) ∙
+              ( resize-resize-𝕄 (H z)))))
+
 abstract
   resize-resize-𝕄' :
     {l1 l2 : Level} → (resize-𝕄' {l2} {l1} ∘ resize-𝕄' {l1} {l2}) ~ id
-  resize-resize-𝕄' (pair (tree-𝕎 A α) (pair (pair A' e) H2)) =
+  resize-resize-𝕄' (pair X H) =
     eq-subtype
       ( is-prop-is-small-𝕄)
-      ( eq-Eq-𝕎
-        ( tree-𝕎 A
-          ( λ x →
-            resize-𝕄
-              ( resize-𝕄
-                ( α (map-inv-equiv e (map-equiv e x)))
-                ( H2 (map-inv-equiv e (map-inv-equiv (inv-equiv e) x))))
-              ( is-small-resize-𝕄
-                ( α (map-inv-equiv e (map-inv-equiv (inv-equiv e) x)))
-                ( H2 (map-inv-equiv e (map-inv-equiv (inv-equiv e) x))))))
-        ( tree-𝕎 A α)
-        ( pair
-          ( refl)
-          ( λ z →
-            Eq-𝕎-eq
-              ( resize-𝕄
-                ( resize-𝕄
-                  ( α (map-inv-equiv e (map-equiv e z)))
-                  ( H2 (map-inv-equiv e (map-equiv e z))))
-                ( is-small-resize-𝕄
-                  ( α (map-inv-equiv e (map-equiv e z)))
-                  ( H2 (map-inv-equiv e (map-equiv e z)))))
-              ( α z)
-              ( ( ap
-                  ( λ t →
-                    resize-𝕄
-                      ( resize-𝕄 (α t) (H2 t))
-                      ( is-small-resize-𝕄 (α t) (H2 t)))
-                  ( isretr-map-inv-equiv e z)) ∙
-                ( ap pr1 (resize-resize-𝕄' (pair (α z) (H2 z))))))))
+      ( resize-resize-𝕄 H)
 
 is-equiv-resize-𝕄' :
   {l1 l2 : Level} → is-equiv (resize-𝕄' {l1} {l2})
@@ -1028,7 +1032,44 @@ is-equiv-resize-𝕄' {l1} {l2} =
     ( resize-resize-𝕄')
     ( resize-resize-𝕄')
 
+equiv-resize-𝕄' :
+  {l1 l2 : Level} → Σ (𝕄 l1) (is-small-𝕄 l2) ≃ Σ (𝕄 l2) (is-small-𝕄 l1)
+equiv-resize-𝕄' {l1} {l2} = pair resize-𝕄' is-equiv-resize-𝕄'
+
+eq-resize-𝕄 :
+  {l1 l2 : Level} {x y : 𝕄 l1} (H : is-small-𝕄 l2 x) (K : is-small-𝕄 l2 y) →
+  Id x y ≃ Id (resize-𝕄 x H) (resize-𝕄 y K)
+eq-resize-𝕄 H K =
+  ( equiv-Eq-total-subtype-eq
+    ( is-prop-is-small-𝕄)
+    ( resize-𝕄' (pair _ H))
+    ( resize-𝕄' (pair _ K))) ∘e
+  ( ( equiv-ap (equiv-resize-𝕄') (pair _ H) (pair _ K)) ∘e
+    ( inv-equiv
+      ( equiv-Eq-total-subtype-eq
+        ( is-prop-is-small-𝕄)
+        ( pair _ H)
+        ( pair _ K))))
+
 -- Proposition B.5.7
+
+abstract
+  equiv-elementhood-resize-𝕄 :
+    {l1 l2 : Level} {x y : 𝕄 l1} (H : is-small-𝕄 l2 x) (K : is-small-𝕄 l2 y) →
+    (x ∈-𝕄 y) ≃ (resize-𝕄 x H ∈-𝕄 resize-𝕄 y K)
+  equiv-elementhood-resize-𝕄 {x = X} {tree-𝕎 B β} H (pair (pair B' e) K) =
+    equiv-Σ
+      ( λ y' →
+        Id ( component-𝕎 (resize-𝕄 (tree-𝕎 B β) (pair (pair B' e) K)) y')
+           ( resize-𝕄 X H))
+      ( e)
+      ( λ b →
+        ( equiv-concat
+          ( ap
+            ( λ t → resize-𝕄 (β t) (K t))
+            ( isretr-map-inv-equiv e b))
+          ( resize-𝕄 X H)) ∘e
+        ( eq-resize-𝕄 (K b) H))
 
 -- Definition B.5.8
 
@@ -1088,58 +1129,90 @@ Russell l =
     ( λ X → X ∉-𝕄 X)
 
 is-small-Russell :
-  (l : Level) {l1 : Level} →
-  is-small-universe l l1 → is-small-𝕄 l (Russell l1)
-is-small-Russell l H =
-  is-small-comprehension-𝕄 l
-    ( is-small-universal-tree-𝕄 l H)
-    ( λ X → is-small-∉-𝕄 l (K X) (K X))
-    
+  {l1 l2 : Level} → is-small-universe l2 l1 → is-small-𝕄 l2 (Russell l1)
+is-small-Russell {l1} {l2} H =
+  is-small-comprehension-𝕄 l2
+    ( is-small-universal-tree-𝕄 l2 H)
+    ( λ X → is-small-∉-𝕄 l2 (K X) (K X))
   where
-  
-  K = is-small-multiset-𝕄 l (λ A → pr2 H A)
+  K = is-small-multiset-𝕄 l2 (λ A → pr2 H A)
+
+resize-Russell :
+  {l1 l2 : Level} → is-small-universe l2 l1 → 𝕄 l2
+resize-Russell {l1} {l2} H =
+  resize-𝕄 (Russell l1) (is-small-Russell H)
+
+is-small-resize-Russell :
+  {l1 l2 : Level} (H : is-small-universe l2 l1) →
+  is-small-𝕄 (lsuc l1) (resize-Russell H)
+is-small-resize-Russell {l1} {l2} H =
+  is-small-resize-𝕄 (Russell l1) (is-small-Russell H)
+
+equiv-Russell-in-Russell :
+  {l1 l2 : Level} (H : is-small-universe l2 l1) →
+  (Russell l1 ∈-𝕄 Russell l1) ≃ (resize-Russell H ∈-𝕄 resize-Russell H)
+equiv-Russell-in-Russell H =
+  equiv-elementhood-resize-𝕄 (is-small-Russell H) (is-small-Russell H)
 
 paradox-Russell : {l : Level} → ¬ (is-small l (UU l))
-paradox-Russell {l} (pair U e) =
+paradox-Russell {l} H =
   no-fixed-points-neg
     ( R ∈-𝕄 R)
     ( pair (map-equiv β) (map-inv-equiv β))
 
   where
+  
+  K : is-small-universe l l
+  K = pair H (λ X → pair X equiv-id)
 
   R : 𝕄 (lsuc l)
   R = Russell l
   
   is-small-R : is-small-𝕄 l R
-  is-small-R = is-small-Russell l (pair (pair U e) (λ X → pair X equiv-id))
+  is-small-R = is-small-Russell K
 
   R' : 𝕄 l
-  R' = resize-𝕄 R is-small-R
+  R' = resize-Russell K
+
+  is-small-R' : is-small-𝕄 (lsuc l) R'
+  is-small-R' = is-small-resize-Russell K
+
+  abstract
+    p : Id (resize-𝕄 R' is-small-R') R
+    p = resize-resize-𝕄 is-small-R
 
   α : (R ∈-𝕄 R) ≃ (R' ∈-𝕄 R')
-  α = equiv-Σ
-        ( λ x → Id (component-𝕎 R' x) R')
-        ( equiv-is-small (pr1 is-small-R))
-        ( λ x → {!!})
+  α = equiv-Russell-in-Russell K
 
-  β : (R ∈-𝕄 R) ≃ (R ∉-𝕄 R)
-  β = ( equiv-precomp-equiv α empty) ∘e
-      ( ( left-unit-law-Σ-is-contr
-          { B = λ t → (pr1 t) ∉-𝕄 (pr1 t)}
-          ( is-contr-total-path' R')
-          ( pair R' refl)) ∘e
-        ( ( inv-assoc-Σ (𝕄 l) (λ t → Id t R') (λ t → (pr1 t) ∉-𝕄 (pr1 t))) ∘e
-          ( ( equiv-tot (λ t → commutative-prod ∘e {!!})) ∘e
-            ( assoc-Σ
-              ( 𝕄 l)
-              ( λ t → t ∉-𝕄 t)
-              ( λ t → Id ( resize-𝕄
-                           ( pr1 t)
-                           ( is-small-multiset-𝕄
-                             ( lsuc l)
-                             ( is-small-lsuc)
-                             ( pr1 t)))
-                         ( R))))))
+  abstract
+    β : (R ∈-𝕄 R) ≃ (R ∉-𝕄 R)
+    β = ( equiv-precomp-equiv α empty) ∘e
+        ( ( left-unit-law-Σ-is-contr
+            { B = λ t → (pr1 t) ∉-𝕄 (pr1 t)}
+            ( is-contr-total-path' R')
+            ( pair R' refl)) ∘e
+          ( ( inv-assoc-Σ (𝕄 l) (λ t → Id t R') (λ t → (pr1 t) ∉-𝕄 (pr1 t))) ∘e
+            ( ( equiv-tot
+                ( λ t →
+                  ( commutative-prod) ∘e
+                  ( equiv-prod
+                    ( equiv-id)
+                    ( inv-equiv
+                      ( ( equiv-concat'
+                          _ ( p)) ∘e
+                        ( eq-resize-𝕄
+                          ( is-small-multiset-𝕄 (lsuc l) is-small-lsuc t)
+                          ( is-small-R'))))))) ∘e
+              ( assoc-Σ
+                ( 𝕄 l)
+                ( λ t → t ∉-𝕄 t)
+                ( λ t → Id ( resize-𝕄
+                             ( pr1 t)
+                             ( is-small-multiset-𝕄
+                               ( lsuc l)
+                               ( is-small-lsuc)
+                               ( pr1 t)))
+                           ( R))))))
 
 --------------------------------------------------------------------------------
 
@@ -1459,9 +1532,11 @@ module _
   _≈-𝕎_ : (x y : 𝕎 A B) → UU (l1 ⊔ l2)
   x ≈-𝕎 y = type-Prop (x ≈-𝕎-Prop y)
 
+{-
   ≈-has-same-lower-set-≺-𝕎 :
     {x y : 𝕎 A B} → has-same-lower-set-≺-𝕎 x y → x ≈-𝕎 y
   ≈-has-same-lower-set-≺-𝕎 {x} {y} H = {!!}
+-}
 
 --------------------------------------------------------------------------------
 
