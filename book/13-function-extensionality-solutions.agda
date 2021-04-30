@@ -1535,6 +1535,22 @@ abstract
         ( is-equiv-hom-slice-is-fiberwise-equiv-fiberwise-hom-hom-slice
           f g))
 
+equiv-fiberwise-equiv-equiv-slice :
+  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
+  (f : A → X) (g : B → X) →
+  equiv-slice X f g ≃ Σ ((x : X) → (fib f x) → (fib g x)) is-fiberwise-equiv
+equiv-fiberwise-equiv-equiv-slice f g =
+  pair ( fiberwise-equiv-equiv-slice f g)
+       ( is-equiv-fiberwise-equiv-equiv-slice f g)
+
+equiv-fam-equiv-equiv-slice :
+  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
+  (f : A → X) (g : B → X) →
+  equiv-slice X f g ≃ ((x : X) → (fib f x) ≃ (fib g x))
+equiv-fam-equiv-equiv-slice f g =
+  ( equiv-inv-choice-∞ (λ x → is-equiv)) ∘e
+  ( equiv-fiberwise-equiv-equiv-slice f g)
+
 -- Exercise 13.17
 
 hom-over-morphism :
