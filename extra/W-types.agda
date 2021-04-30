@@ -863,24 +863,12 @@ module _
 𝕄 : (l : Level) → UU (lsuc l)
 𝕄 l = 𝕎 (UU l) (λ X → X)
 
-raise-𝕄 : (l : Level) {l1 : Level} → 𝕄 l1 → 𝕄 (l1 ⊔ l)
-raise-𝕄 l = map-𝕎 id (raise l) (equiv-raise l)
-
 -- Definition B.5.2
 
 is-small-𝕄 :
   (l : Level) {l1 : Level} → 𝕄 l1 → UU (l1 ⊔ lsuc l)
 is-small-𝕄 l (tree-𝕎 A α) =
   is-small l A × ((x : A) → is-small-𝕄 l (α x))
-
-cardinality-resize-𝕄 :
-  {l l1 : Level} (X : 𝕄 l1) → is-small-𝕄 l X → UU l
-cardinality-resize-𝕄 (tree-𝕎 A α) (pair (pair A' e) H) = A'
-
-equiv-cardinality-resize-𝕄 :
-  {l l1 : Level} (X : 𝕄 l1) (H : is-small-𝕄 l X) →
-  symbol-𝕎 X ≃ cardinality-resize-𝕄 X H
-equiv-cardinality-resize-𝕄 (tree-𝕎 A α) (pair (pair A' e) H) = e
 
 is-prop-is-small-𝕄 :
   {l l1 : Level} (X : 𝕄 l1) → is-prop (is-small-𝕄 l X)
@@ -1074,10 +1062,10 @@ abstract
 -- Definition B.5.8
 
 is-small-multiset-𝕄 :
-  (l : Level) {l1 : Level} →
-  ((A : UU l1) → is-small l A) → (X : 𝕄 l1) → is-small-𝕄 l X
-is-small-multiset-𝕄 l H (tree-𝕎 A α) =
-  pair (H A) (λ x → is-small-multiset-𝕄 l H (α x))
+  {l1 l2 : Level} →
+  ((A : UU l1) → is-small l2 A) → (X : 𝕄 l1) → is-small-𝕄 l2 X
+is-small-multiset-𝕄 {l1} {l2} H (tree-𝕎 A α) =
+  pair (H A) (λ x → is-small-multiset-𝕄 H (α x))
 
 is-small-lsuc : {l : Level} (X : UU l) → is-small (lsuc l) X
 is-small-lsuc X = pair (raise _ X) (equiv-raise _ X)
@@ -1086,7 +1074,7 @@ universal-tree-𝕄 : (l : Level) → 𝕄 (lsuc l)
 universal-tree-𝕄 l =
   tree-𝕎
     ( 𝕄 l)
-    ( λ X → resize-𝕄 X (is-small-multiset-𝕄 (lsuc l) is-small-lsuc X))
+    ( λ X → resize-𝕄 X (is-small-multiset-𝕄 is-small-lsuc X))
 
 -- Proposition B.5.9
 
@@ -1112,7 +1100,7 @@ is-small-universal-tree-𝕄 l {l1} (pair (pair U e) H) =
     where
     f : (X : 𝕄 l1) →
         is-small-𝕄 l
-          ( resize-𝕄 X (is-small-multiset-𝕄 (lsuc l1) is-small-lsuc X))
+          ( resize-𝕄 X (is-small-multiset-𝕄 is-small-lsuc X))
     f (tree-𝕎 A α) =
       pair
         ( pair
@@ -1135,7 +1123,7 @@ is-small-Russell {l1} {l2} H =
     ( is-small-universal-tree-𝕄 l2 H)
     ( λ X → is-small-∉-𝕄 l2 (K X) (K X))
   where
-  K = is-small-multiset-𝕄 l2 (λ A → pr2 H A)
+  K = is-small-multiset-𝕄 (λ A → pr2 H A)
 
 resize-Russell :
   {l1 l2 : Level} → is-small-universe l2 l1 → 𝕄 l2
@@ -1201,17 +1189,14 @@ paradox-Russell {l} H =
                       ( ( equiv-concat'
                           _ ( p)) ∘e
                         ( eq-resize-𝕄
-                          ( is-small-multiset-𝕄 (lsuc l) is-small-lsuc t)
+                          ( is-small-multiset-𝕄 is-small-lsuc t)
                           ( is-small-R'))))))) ∘e
               ( assoc-Σ
                 ( 𝕄 l)
                 ( λ t → t ∉-𝕄 t)
                 ( λ t → Id ( resize-𝕄
                              ( pr1 t)
-                             ( is-small-multiset-𝕄
-                               ( lsuc l)
-                               ( is-small-lsuc)
-                               ( pr1 t)))
+                             ( is-small-multiset-𝕄 is-small-lsuc (pr1 t)))
                            ( R))))))
 
 --------------------------------------------------------------------------------
