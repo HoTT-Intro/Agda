@@ -447,7 +447,8 @@ equiv-comp-equiv e C =
     ( λ g →
       pair
         ( λ H → is-equiv-comp' (map-equiv e) g H (is-equiv-map-equiv e))
-        ( λ H → is-equiv-right-factor' (map-equiv e) g (is-equiv-map-equiv e) {!H!}))
+        ( λ H →
+          is-equiv-right-factor' (map-equiv e) g (is-equiv-map-equiv e) H))
 
 is-prop-is-small :
   (l : Level) {l1 : Level} (A : UU l1) → is-prop (is-small l A)
