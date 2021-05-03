@@ -810,6 +810,47 @@ is-extensional-𝕎 A B =
 
 -- Theorem B.6.2
 
+module _
+  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2}
+  where
+
+  □-∈-𝕎 : (𝕎 A B → UU l3) → (𝕎 A B → UU (l1 ⊔ l2 ⊔ l3))
+  □-∈-𝕎 P x = (y : 𝕎 A B) → (y ∈-𝕎 x) → P y
+
+  η-□-∈-𝕎 :
+    (P : 𝕎 A B → UU l3) → ((x : 𝕎 A B) → P x) → ((x : 𝕎 A B) → □-∈-𝕎 P x)
+  η-□-∈-𝕎 P f x y e = f y
+
+  ε-□-∈-𝕎 :
+    (P : 𝕎 A B → UU l3) (h : (y : 𝕎 A B) → □-∈-𝕎 P y → P y) →
+    ((x : 𝕎 A B) → □-∈-𝕎 P x) → (x : 𝕎 A B) → P x
+  ε-□-∈-𝕎 P h f x = h x (f x)
+
+  ind-□-∈-𝕎 :
+    (P : 𝕎 A B → UU l3) (h : (y : 𝕎 A B) → □-∈-𝕎 P y → P y) →
+    (x : 𝕎 A B) → □-∈-𝕎 P x
+  ind-□-∈-𝕎 P h (tree-𝕎 x α) .(α b) (pair b refl) =
+    h (α b) (ind-□-∈-𝕎 P h (α b))
+
+  comp-□-∈-𝕎 :
+    (P : 𝕎 A B → UU l3) (h : (y : 𝕎 A B) → □-∈-𝕎 P y → P y) →
+    (x y : 𝕎 A B) (e : y ∈-𝕎 x) →
+    Id (ind-□-∈-𝕎 P h x y e) (h y (ind-□-∈-𝕎 P h y))
+  comp-□-∈-𝕎 P h (tree-𝕎 x α) .(α b) (pair b refl) = refl
+  
+  ind-∈-𝕎 :
+    (P : 𝕎 A B → UU l3) (h : (y : 𝕎 A B) → □-∈-𝕎 P y → P y) →
+    (x : 𝕎 A B) → P x
+  ind-∈-𝕎 P h = ε-□-∈-𝕎 P h (ind-□-∈-𝕎 P h)
+
+  comp-∈-𝕎 :
+    (P : 𝕎 A B → UU l3) (h : (y : 𝕎 A B) → □-∈-𝕎 P y → P y) →
+    (x : 𝕎 A B) → Id (ind-∈-𝕎 P h x) (h x (λ y e → ind-∈-𝕎 P h y))
+  comp-∈-𝕎 P h x =
+    ap (h x) (eq-htpy (λ y → eq-htpy (λ e → comp-□-∈-𝕎 P h x y e)))
+
+-- Theorem B.6.3
+
 is-univalent :
   {l1 l2 : Level} {A : UU l1} → (A → UU l2) → UU (l1 ⊔ l2)
 is-univalent {A = A} B = (x y : A) → is-equiv (λ (p : Id x y) → equiv-tr B p)
