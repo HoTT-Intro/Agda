@@ -108,6 +108,31 @@ module htpy-hom-system
             ( hom-system.slice g X)
   slice H = htpy-hom-system'.slice H
 
+refl-htpy-hom-system :
+  {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : system l3 l4}
+  (f : hom-system A B) → htpy-hom-system f f
+htpy-hom-system'.type (refl-htpy-hom-system f) = refl-htpy
+htpy-hom-system'.element (refl-htpy-hom-system f) X = refl-htpy
+htpy-hom-system'.slice (refl-htpy-hom-system f) X =
+  refl-htpy-hom-system (hom-system.slice f X)
+
+concat-htpy-hom-system :
+  {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : system l3 l4}
+  {f g h : hom-system A B} (H : htpy-hom-system f g)
+  (K : htpy-hom-system g h) → htpy-hom-system f h
+htpy-hom-system'.type (concat-htpy-hom-system H K) =
+  htpy-hom-system.type H ∙h htpy-hom-system.type K
+htpy-hom-system'.element (concat-htpy-hom-system {A = A} {B = B} {f} H K) X x =
+  ( ( tr-concat
+      ( htpy-hom-system.type H X)
+      ( htpy-hom-system.type K X)
+      ( hom-system.element (tr (hom-system A) refl f) X x)) ∙
+    ( ap
+      ( tr (system.element B) (htpy-hom-system.type K X))
+      ( htpy-hom-system.element H X x))) ∙
+  ( htpy-hom-system.element K X x)
+htpy-hom-system'.slice (concat-htpy-hom-system H K) X = {!!}
+
 --------------------------------------------------------------------------------
 
 -- We introduce weakening structure on systems
@@ -366,7 +391,8 @@ record generic-element-is-identity
                  ( hom-system.element
                    ( substitution.type S X x)
                    ( hom-system.type (weakening.type W X) X)
-                   ( generic-element.type δ X))) x
+                   ( generic-element.type δ X)))
+               ( x)
     slice : (X : system.type A) →
             generic-element-is-identity
               ( system.slice A X)
@@ -530,7 +556,6 @@ record is-equiv-on-elements-hom-system
               ( system.slice B (hom-system.type h X))
               ( hom-system.slice h X)
 
-{-
 --------------------------------------------------------------------------------
 
 -- We define what it means for a dependent type theory to have Π-types
@@ -550,6 +575,7 @@ record function-types
     slice : (X : system.type (dependent-type-theory.sys A)) →
             function-types (slice-dtt A X)
 
+{-
 record preserves-function-types
   {l1 l2 l3 l4 : Level} {A : dependent-type-theory l1 l2}
   {B : dependent-type-theory l3 l4} (ΠA : function-types A)
