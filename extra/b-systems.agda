@@ -54,66 +54,59 @@ hom-system.slice (comp-hom-system g f) X =
     ( hom-system.slice f X)
 
 tr-hom-system :
-  {l1 l2 : Level} {A : system l1 l2} {X Y : system.type A} (p : Id X Y) →
-  hom-system (system.slice A X) (system.slice A Y)
-tr-hom-system {A = A} {X = X} refl = id-hom-system (system.slice A X)
+  {l1 l2 l3 l4 : Level} {A : system l1 l2} {B B' : system l3 l4}
+  (p : Id B B') (f : hom-system A B) (X : system.type A) →
+  Id ( system.slice B (hom-system.type f X))
+     ( system.slice B' (hom-system.type (tr (hom-system A) p f) X))
+tr-hom-system refl f X = refl
 
-record htpy-hom-system
-  {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : system l3 l4}
-  (f g : hom-system A B) : UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+record htpy-hom-system'
+  {l1 l2 l3 l4 : Level} {A : system l1 l2} {B B' : system l3 l4} (p : Id B B')
+  (f : hom-system A B) (g : hom-system A B') : UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
   where
   coinductive
   field
-    type    : (X : system.type A) →
-              Id (hom-system.type f X) (hom-system.type g X)
+    type    : hom-system.type (tr (hom-system A) p f) ~ hom-system.type g
     element : (X : system.type A) (x : system.element A X) →
-              Id ( tr ( system.element B)
+              Id ( tr ( system.element B')
                       ( type X)
-                      ( hom-system.element f X x))
+                      ( hom-system.element
+                        ( tr (hom-system A) p f)
+                        X x))
                  ( hom-system.element g X x)
     slice   : (X : system.type A) →
-              htpy-hom-system
-                ( comp-hom-system
-                  ( tr-hom-system {A = B} (type X))
-                  ( hom-system.slice f X))
+              htpy-hom-system'
+                ( ( tr-hom-system p f X) ∙
+                  ( ap (system.slice B') (type X)))
+                ( hom-system.slice f X)
                 ( hom-system.slice g X)
 
-concat-htpy-hom-system :
+htpy-hom-system :
   {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : system l3 l4}
-  {f g h : hom-system A B} (H : htpy-hom-system f g) (K : htpy-hom-system g h) →
-  htpy-hom-system f h
-htpy-hom-system.type (concat-htpy-hom-system H K) X =
-  htpy-hom-system.type H X ∙ htpy-hom-system.type K X
-htpy-hom-system.element (concat-htpy-hom-system {B = B} {f} {g} {h} H K) X x =
-  ( tr-concat
-    ( htpy-hom-system.type H X)
-    ( htpy-hom-system.type K X)
-    ( hom-system.element f X x)) ∙
-  ( ( ap
-      ( tr (system.element B) (htpy-hom-system.type K X))
-      ( htpy-hom-system.element H X x)) ∙
-    ( htpy-hom-system.element K X x))
-htpy-hom-system.slice (concat-htpy-hom-system H K) X = {!!}
+  (f g : hom-system A B) → UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+htpy-hom-system f g = htpy-hom-system' refl f g
 
-left-unit-law-comp-hom-system :
+module htpy-hom-system
   {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : system l3 l4}
-  (h : hom-system A B) →
-  htpy-hom-system (comp-hom-system (id-hom-system B) h) h
-htpy-hom-system.type (left-unit-law-comp-hom-system h) X = refl
-htpy-hom-system.element (left-unit-law-comp-hom-system h) X x = refl
-htpy-hom-system.slice (left-unit-law-comp-hom-system {B = B} h) X =
-  concat-htpy-hom-system
-    ( left-unit-law-comp-hom-system (hom-system.slice (comp-hom-system (id-hom-system B) h) X))
-    ( left-unit-law-comp-hom-system (hom-system.slice h X))
+  {f g : hom-system A B}
+  where
 
-refl-htpy-hom-system :
-  {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : system l3 l4}
-  (h : hom-system A B) → htpy-hom-system h h
+  type : htpy-hom-system f g →
+         hom-system.type f ~ hom-system.type g
+  type H = htpy-hom-system'.type H
 
-htpy-hom-system.type (refl-htpy-hom-system h) = refl-htpy
-htpy-hom-system.element (refl-htpy-hom-system h) X = refl-htpy
-htpy-hom-system.slice (refl-htpy-hom-system h) X =
-  left-unit-law-comp-hom-system (hom-system.slice h X)
+  element : (H : htpy-hom-system f g) →
+            (X : system.type A) (x : system.element A X) →
+            Id ( tr (system.element B) (type H X) (hom-system.element f X x))
+               ( hom-system.element g X x)
+  element H = htpy-hom-system'.element H
+
+  slice : (H : htpy-hom-system f g) (X : system.type A) →
+          htpy-hom-system'
+            ( ap (system.slice B) (type H X))
+            ( hom-system.slice f X)
+            ( hom-system.slice g X)
+  slice H = htpy-hom-system'.slice H
 
 --------------------------------------------------------------------------------
 
