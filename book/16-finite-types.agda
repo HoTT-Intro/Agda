@@ -6,7 +6,13 @@ open import book.15-image public
 
 --------------------------------------------------------------------------------
 
-{- Counting in type theory -}
+-- Section 16 Finite types
+
+--------------------------------------------------------------------------------
+
+-- Section 16.1 Counting in type theory
+
+-- Definition 16.1.1
 
 count : {l : Level} → UU l → UU l
 count X = Σ ℕ (λ k → Fin k ≃ X)
@@ -53,19 +59,14 @@ count-is-equiv' :
   is-equiv f → count Y → count X
 count-is-equiv' is-equiv-f = count-equiv' (pair _ is-equiv-f)
 
-{- Types with a count have decidable equality -}
+-- Remark 16.1.2
 
-has-decidable-equality-count :
-  {l : Level} {X : UU l} → count X → has-decidable-equality X
-has-decidable-equality-count (pair k e) =
-  has-decidable-equality-equiv' e has-decidable-equality-Fin
-
-{- Fin k has a count -}
+-- Fin k has a count
 
 count-Fin : (k : ℕ) → count (Fin k)
 count-Fin k = pair k equiv-id
 
-{- A type as 0 elements if and only if it is empty -}
+-- A type as 0 elements if and only if it is empty
 
 is-empty-is-zero-number-of-elements-count :
   {l : Level} {X : UU l} (e : count X) →
@@ -88,7 +89,7 @@ count-is-empty H =
 count-empty : count empty
 count-empty = count-Fin zero-ℕ
 
-{- A type has 1 element if and only if it is contractible -}
+-- A type has 1 element if and only if it is contractible --
 
 count-is-contr :
   {l : Level} {X : UU l} → is-contr X → count X
@@ -115,6 +116,35 @@ is-one-number-of-elements-count-is-contr (pair (succ-ℕ (succ-ℕ k)) e) H =
 
 count-unit : count unit
 count-unit = count-is-contr is-contr-unit
+
+-- Propositions have countings if and only if they are decidable
+
+is-decidable-count :
+  {l : Level} {X : UU l} → count X → is-decidable X
+is-decidable-count (pair zero-ℕ e) =
+  inr (is-empty-is-zero-number-of-elements-count (pair zero-ℕ e) refl)
+is-decidable-count (pair (succ-ℕ k) e) =
+  inl (map-equiv e zero-Fin)
+
+count-is-decidable-is-prop :
+  {l : Level} {A : UU l} → is-prop A → is-decidable A → count A
+count-is-decidable-is-prop H (inl x) =
+  count-is-contr (is-proof-irrelevant-is-prop H x)
+count-is-decidable-is-prop H (inr f) = count-is-empty f
+
+count-decidable-Prop :
+  {l1 : Level} (P : UU-Prop l1) →
+  is-decidable (type-Prop P) → count (type-Prop P)
+count-decidable-Prop P (inl p) =
+  count-is-contr (is-proof-irrelevant-is-prop (is-prop-type-Prop P) p)
+count-decidable-Prop P (inr f) = count-is-empty f
+
+-- Types with a count have decidable equality
+
+has-decidable-equality-count :
+  {l : Level} {X : UU l} → count X → has-decidable-equality X
+has-decidable-equality-count (pair k e) =
+  has-decidable-equality-equiv' e has-decidable-equality-Fin
 
 {- We can count the elements of an identity type of a type that has decidable
    equality. -}
@@ -158,7 +188,11 @@ number-of-elements-count-eq :
 number-of-elements-count-eq d x y =
   cases-number-of-elements-count-eq d (d x y)
 
-{- Types equipped with a count are closed under coproducts -}
+-- Theorem 16.1.3
+
+-- Theorem 16.1.3 (i) Forward direction
+
+-- Types equipped with a count are closed under coproducts
 
 count-coprod :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
@@ -175,7 +209,43 @@ number-of-elements-count-coprod :
      ( add-ℕ (number-of-elements-count e) (number-of-elements-count f))
 number-of-elements-count-coprod (pair k e) (pair l f) = refl
 
-{- We introduce finite sums and sums indexed by counted types -}
+-- Theorem 16.1.3 (ii) (a) Forward direction
+
+count-Σ' :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  (k : ℕ) (e : Fin k ≃ A) → ((x : A) → count (B x)) → count (Σ A B)
+count-Σ' zero-ℕ e f =
+  count-is-empty
+    ( λ x →
+      is-empty-is-zero-number-of-elements-count (pair zero-ℕ e) refl (pr1 x))
+count-Σ' {l1} {l2} {A} {B} (succ-ℕ k) e f =
+  count-equiv
+    ( ( equiv-Σ-equiv-base B e) ∘e
+      ( ( inv-equiv
+          ( right-distributive-Σ-coprod (Fin k) unit (B ∘ map-equiv e))) ∘e
+        ( equiv-coprod
+          ( equiv-id)
+          ( inv-equiv
+            ( left-unit-law-Σ (B ∘ (map-equiv e ∘ inr)))))))
+    ( count-coprod
+      ( count-Σ' k equiv-id (λ x → f (map-equiv e (inl x))))
+      ( f (map-equiv e (inr star))))
+
+abstract
+  equiv-count-Σ' :
+    {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+    (k : ℕ) (e : Fin k ≃ A) (f : (x : A) → count (B x)) →
+    Fin (number-of-elements-count (count-Σ' k e f)) ≃ Σ A B
+  equiv-count-Σ' k e f = pr2 (count-Σ' k e f)
+
+count-Σ :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  count A → ((x : A) → count (B x)) → count (Σ A B)
+count-Σ (pair k e) f =
+  pair (number-of-elements-count (count-Σ' k e f)) (equiv-count-Σ' k e f)
+
+{- In order to compute the number of elements of a Σ-type, We introduce finite 
+   sums and sums indexed by counted types. -}
 
 sum-Fin-ℕ : {k : ℕ} → (Fin k → ℕ) → ℕ
 sum-Fin-ℕ {zero-ℕ} f = zero-ℕ
@@ -207,27 +277,7 @@ constant-sum-count-ℕ :
   Id (sum-count-ℕ e (const A ℕ n)) (mul-ℕ (number-of-elements-count e) n)
 constant-sum-count-ℕ (pair m e) n = constant-sum-Fin-ℕ m n
 
-{- Types equipped with a count are closed under Σ-types -}
-
-count-Σ' :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  (k : ℕ) (e : Fin k ≃ A) → ((x : A) → count (B x)) → count (Σ A B)
-count-Σ' zero-ℕ e f =
-  count-is-empty
-    ( λ x →
-      is-empty-is-zero-number-of-elements-count (pair zero-ℕ e) refl (pr1 x))
-count-Σ' {l1} {l2} {A} {B} (succ-ℕ k) e f =
-  count-equiv
-    ( ( equiv-Σ-equiv-base B e) ∘e
-      ( ( inv-equiv
-          ( right-distributive-Σ-coprod (Fin k) unit (B ∘ map-equiv e))) ∘e
-        ( equiv-coprod
-          ( equiv-id)
-          ( inv-equiv
-            ( left-unit-law-Σ (B ∘ (map-equiv e ∘ inr)))))))
-    ( count-coprod
-      ( count-Σ' k equiv-id (λ x → f (map-equiv e (inl x))))
-      ( f (map-equiv e (inr star))))
+-- We compute the number of elements of a Σ-type
 
 number-of-elements-count-Σ' :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (k : ℕ) (e : Fin k ≃ A) →
@@ -243,19 +293,6 @@ number-of-elements-count-Σ' (succ-ℕ k) e f =
     ( add-ℕ' (number-of-elements-count (f (map-equiv e (inr star)))))
     ( number-of-elements-count-Σ' k equiv-id (λ x → f (map-equiv e (inl x)))))
 
-abstract
-  equiv-count-Σ' :
-    {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-    (k : ℕ) (e : Fin k ≃ A) (f : (x : A) → count (B x)) →
-    Fin (number-of-elements-count (count-Σ' k e f)) ≃ Σ A B
-  equiv-count-Σ' k e f = pr2 (count-Σ' k e f)
-
-count-Σ :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  count A → ((x : A) → count (B x)) → count (Σ A B)
-count-Σ (pair k e) f =
-  pair (number-of-elements-count (count-Σ' k e f)) (equiv-count-Σ' k e f)
-
 number-of-elements-count-Σ :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (e : count A)
   (f : (x : A) → count (B x)) →
@@ -263,9 +300,9 @@ number-of-elements-count-Σ :
      ( sum-count-ℕ e (λ x → number-of-elements-count (f x)))
 number-of-elements-count-Σ (pair k e) f = number-of-elements-count-Σ' k e f
 
---------------------------------------------------------------------------------
+-- Theorem 16.1.3 (ii) (a) Converse direction
 
-{- We show that if A and Σ A B can be counted, then each B x can be counted -}
+-- We show that if A and Σ A B can be counted, then each B x can be counted
 
 count-fiber-count-Σ :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
@@ -285,7 +322,7 @@ count-fib :
 count-fib f count-A count-B =
   count-fiber-count-Σ count-B (count-equiv' (equiv-total-fib f) count-A)
 
---------------------------------------------------------------------------------
+-- Theorem 16.1.3 (ii) (b)
 
 {- If Σ A B and each B x can be counted, and if B has a section, then A can be
    counted. -}
@@ -359,7 +396,34 @@ count-base-count-Σ' {l1} {l2} {A} {B} e f g =
           ( number-of-elements-count (f x))
           ( zero-ℕ)))
 
-{- A coproduct X + Y has a count if and only if both X and Y have a count -}
+-- Theorem 16.1.3 (ii) Consequences
+
+-- A decidable subtype of a type that can be counted can be counted
+
+count-decidable-subtype :
+  {l1 l2 : Level} {X : UU l1} (P : X → UU-Prop l2) →
+  ((x : X) → is-decidable (type-Prop (P x))) →
+  count X → count (Σ X (λ x → type-Prop (P x)))
+count-decidable-subtype P d e =
+  count-Σ e (λ x → count-decidable-Prop (P x) (d x))
+
+{- If A can be counted and Σ A P can be counted for a subtype of A, then P is
+   decidable -}
+
+is-decidable-count-Σ :
+  {l1 l2 : Level} {X : UU l1} {P : X → UU l2} →
+  count X → count (Σ X P) → (x : X) → is-decidable (P x)
+is-decidable-count-Σ e f x =
+  is-decidable-count (count-fiber-count-Σ e f x)
+
+is-decidable-count-subtype :
+  {l1 l2 : Level} {X : UU l1} (P : X → UU-Prop l2) → count X →
+  count (Σ X (λ x → type-Prop (P x))) → (x : X) → is-decidable (type-Prop (P x))
+is-decidable-count-subtype P = is-decidable-count-Σ
+
+-- Theorem 16.1.3 (i) Converse direction
+
+-- A coproduct X + Y has a count if and only if both X and Y have a count.
 
 is-left : {l1 l2 : Level} {X : UU l1} {Y : UU l2} → coprod X Y → UU lzero
 is-left (inl x) = unit
@@ -402,7 +466,7 @@ count-right-coprod :
 count-right-coprod e =
   count-equiv equiv-right-summand (count-Σ e count-is-right)
 
-{- X × Y has a count if and only if Y → count X and X → count Y -}
+-- Corollary 16.1.4
 
 count-prod :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → count X → count Y → count (X × Y)
@@ -449,47 +513,6 @@ count-right-factor :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → count (X × Y) → X → count Y
 count-right-factor e x =
   count-left-factor (count-equiv commutative-prod e) x
-
-{- Any decidable proposition can be counted -}
-
-count-decidable-Prop :
-  {l1 : Level} (P : UU-Prop l1) →
-  is-decidable (type-Prop P) → count (type-Prop P)
-count-decidable-Prop P (inl p) =
-  count-is-contr (is-proof-irrelevant-is-prop (is-prop-type-Prop P) p)
-count-decidable-Prop P (inr f) = count-is-empty f
-
-{- A decidable subtype of a type that can be counted can be counted -}
-
-count-decidable-subtype :
-  {l1 l2 : Level} {X : UU l1} (P : X → UU-Prop l2) →
-  ((x : X) → is-decidable (type-Prop (P x))) →
-  count X → count (Σ X (λ x → type-Prop (P x)))
-count-decidable-subtype P d e =
-  count-Σ e (λ x → count-decidable-Prop (P x) (d x))
-
-{- Any type that can be counted is decidable -}
-
-is-decidable-count :
-  {l : Level} {X : UU l} → count X → is-decidable X
-is-decidable-count (pair zero-ℕ e) =
-  inr (is-empty-is-zero-number-of-elements-count (pair zero-ℕ e) refl)
-is-decidable-count (pair (succ-ℕ k) e) =
-  inl (map-equiv e zero-Fin)
-
-{- If A can be counted and Σ A P can be counted for a subtype of A, then P is
-   decidable -}
-
-is-decidable-count-Σ :
-  {l1 l2 : Level} {X : UU l1} {P : X → UU l2} →
-  count X → count (Σ X P) → (x : X) → is-decidable (P x)
-is-decidable-count-Σ e f x =
-  is-decidable-count (count-fiber-count-Σ e f x)
-
-is-decidable-count-subtype :
-  {l1 l2 : Level} {X : UU l1} (P : X → UU-Prop l2) → count X →
-  count (Σ X (λ x → type-Prop (P x))) → (x : X) → is-decidable (type-Prop (P x))
-is-decidable-count-subtype P = is-decidable-count-Σ
 
 --------------------------------------------------------------------------------
 

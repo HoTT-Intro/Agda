@@ -116,6 +116,25 @@ htpy-hom-system'.element (refl-htpy-hom-system f) X = refl-htpy
 htpy-hom-system'.slice (refl-htpy-hom-system f) X =
   refl-htpy-hom-system (hom-system.slice f X)
 
+concat-htpy-hom-system' :
+  {l1 l2 l3 l4 : Level} {A : system l1 l2} {B B' B'' : system l3 l4}
+  (p : Id B B') (q : Id B' B'') {f : hom-system A B} {g : hom-system A B'}
+  {h : hom-system A B''} → htpy-hom-system' p f g → htpy-hom-system' q g h →
+  htpy-hom-system' (p ∙ q) f h
+htpy-hom-system'.type (concat-htpy-hom-system' refl refl H K) =
+  htpy-hom-system'.type H ∙h htpy-hom-system'.type K
+htpy-hom-system'.element
+  ( concat-htpy-hom-system' {A = A} {B} {.B} refl refl {f} H K) X x =
+  ( ( tr-concat
+      ( htpy-hom-system.type H X)
+      ( htpy-hom-system.type K X)
+      ( hom-system.element (tr (hom-system A) refl f) X x)) ∙
+    ( ap
+      ( tr (system.element B) (htpy-hom-system.type K X))
+      ( htpy-hom-system.element H X x))) ∙
+  ( htpy-hom-system.element K X x)
+htpy-hom-system'.slice (concat-htpy-hom-system' p q H K) = {!!}
+
 concat-htpy-hom-system :
   {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : system l3 l4}
   {f g h : hom-system A B} (H : htpy-hom-system f g)
