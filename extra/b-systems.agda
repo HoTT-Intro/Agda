@@ -7,7 +7,16 @@ open book public
 
 --------------------------------------------------------------------------------
 
--- (Dependency) systems are the backbone of a dependent type theory
+{- (Dependency) systems are the structure around which a dependent type theory
+   is built.
+
+    Ã₀       Ã₁       Ã₂   
+    |        |        |
+    |        |        |
+    V        V        V
+    A₀ <---- A₁ <---- A₂ <---- ⋯
+
+-}
 
 record system (l1 l2 : Level) : UU (lsuc l1 ⊔ lsuc l2) where
   coinductive
@@ -52,6 +61,10 @@ hom-system.slice (comp-hom-system g f) X =
   comp-hom-system
     ( hom-system.slice g (hom-system.type f X))
     ( hom-system.slice f X)
+
+--------------------------------------------------------------------------------
+
+-- We first introduce heterogeneous homotopies, and then the actual homotopies
 
 tr-hom-system :
   {l1 l2 l3 l4 : Level} {A : system l1 l2} {B B' : system l3 l4}
@@ -116,43 +129,10 @@ htpy-hom-system'.element (refl-htpy-hom-system f) X = refl-htpy
 htpy-hom-system'.slice (refl-htpy-hom-system f) X =
   refl-htpy-hom-system (hom-system.slice f X)
 
-{-
+--------------------------------------------------------------------------------
 
-concat-htpy-hom-system' :
-  {l1 l2 l3 l4 : Level} {A : system l1 l2} {B B' B'' : system l3 l4}
-  (p : Id B B') (q : Id B' B'') {f : hom-system A B} {g : hom-system A B'}
-  {h : hom-system A B''} → htpy-hom-system' p f g → htpy-hom-system' q g h →
-  htpy-hom-system' (p ∙ q) f h
-htpy-hom-system'.type (concat-htpy-hom-system' refl refl H K) =
-  htpy-hom-system'.type H ∙h htpy-hom-system'.type K
-htpy-hom-system'.element
-  ( concat-htpy-hom-system' {A = A} {B} {.B} refl refl {f} H K) X x =
-  ( ( tr-concat
-      ( htpy-hom-system.type H X)
-      ( htpy-hom-system.type K X)
-      ( hom-system.element (tr (hom-system A) refl f) X x)) ∙
-    ( ap
-      ( tr (system.element B) (htpy-hom-system.type K X))
-      ( htpy-hom-system.element H X x))) ∙
-  ( htpy-hom-system.element K X x)
-htpy-hom-system'.slice (concat-htpy-hom-system' p q H K) = {!!}
-
-concat-htpy-hom-system :
-  {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : system l3 l4}
-  {f g h : hom-system A B} (H : htpy-hom-system f g)
-  (K : htpy-hom-system g h) → htpy-hom-system f h
-htpy-hom-system'.type (concat-htpy-hom-system H K) =
-  htpy-hom-system.type H ∙h htpy-hom-system.type K
-htpy-hom-system'.element (concat-htpy-hom-system {A = A} {B = B} {f} H K) X x =
-  ( ( tr-concat
-      ( htpy-hom-system.type H X)
-      ( htpy-hom-system.type K X)
-      ( hom-system.element (tr (hom-system A) refl f) X x)) ∙
-    ( ap
-      ( tr (system.element B) (htpy-hom-system.type K X))
-      ( htpy-hom-system.element H X x))) ∙
-  ( htpy-hom-system.element K X x)
-htpy-hom-system'.slice (concat-htpy-hom-system H K) X = {!!}
+{- Dependent type theories are systems equipped with weakening and substitution
+   structure, and with the structure of generic elements (the variable rule). 
 -}
 
 --------------------------------------------------------------------------------
@@ -165,6 +145,8 @@ record weakening {l1 l2 : Level} (A : system l1 l2) : UU (lsuc l1 ⊔ lsuc l2)
   field
     type  : (X : system.type A) → hom-system A (system.slice A X)
     slice : (X : system.type A) → weakening (system.slice A X)
+
+-- We state what it means for a morphism to preserve weakening structure
 
 record preserves-weakening
   {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : system l3 l4}
@@ -198,6 +180,8 @@ record substitution {l1 l2 : Level} (A : system l1 l2) : UU (lsuc l1 ⊔ lsuc l2
     type  : (X : system.type A) (x : system.element A X) →
             hom-system (system.slice A X) A
     slice : (X : system.type A) → substitution (system.slice A X)
+
+-- We state what it means for a morphism to preserve substitution structure
 
 record preserves-substitution
   {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : system l3 l4}
@@ -271,7 +255,24 @@ record preserves-generic-element
 
 --------------------------------------------------------------------------------
 
--- We now state the laws for weakening, substitution, and the generic element
+{- In a dependent type theory, every weakening morphism and every substitution
+   morphism preserve both the weakening and substitution structure, and they
+   also preserve generic elements.
+
+   For example, the rule that states that weakening preserves weakening (on
+   types) can be displayed as follows:
+
+          Γ ⊢ A type          Γ,Δ ⊢ B type          Γ,Δ,Ε ⊢ C type
+   ------------------------------------------------------------------------
+    Γ,A,W(A,Δ),W(A,B),W(W(A,B),W(A,E)) ⊢ W(W(A,B),W(A,C))=W(A,W(B,C)) type
+
+   Furthermore, there are laws that state that substitution by a:A cancels 
+   weakening by A, that substituting a:A in the generic element of A gives us
+   the element a back, and that substituting by the generic element of A cancels
+   weakening by A.
+
+   We will now state these laws.
+-}
 
 record weakening-preserves-weakening
   {l1 l2 : Level} (A : system l1 l2) (W : weakening A) : UU (l1 ⊔ l2)
@@ -484,8 +485,6 @@ weakening-dtt :
     ( dependent-type-theory.sys A)
     ( system.slice (dependent-type-theory.sys A) X)
 weakening-dtt A = weakening.type (dependent-type-theory.W A)
-
-
 
 --------------------------------------------------------------------------------
 
@@ -791,3 +790,42 @@ natural-numbers.succ (natural-numbers-slice A Π N X) =
        ( natural-numbers.succ N))
 
 --------------------------------------------------------------------------------
+
+{-
+
+concat-htpy-hom-system' :
+  {l1 l2 l3 l4 : Level} {A : system l1 l2} {B B' B'' : system l3 l4}
+  (p : Id B B') (q : Id B' B'') {f : hom-system A B} {g : hom-system A B'}
+  {h : hom-system A B''} → htpy-hom-system' p f g → htpy-hom-system' q g h →
+  htpy-hom-system' (p ∙ q) f h
+htpy-hom-system'.type (concat-htpy-hom-system' refl refl H K) =
+  htpy-hom-system'.type H ∙h htpy-hom-system'.type K
+htpy-hom-system'.element
+  ( concat-htpy-hom-system' {A = A} {B} {.B} refl refl {f} H K) X x =
+  ( ( tr-concat
+      ( htpy-hom-system.type H X)
+      ( htpy-hom-system.type K X)
+      ( hom-system.element (tr (hom-system A) refl f) X x)) ∙
+    ( ap
+      ( tr (system.element B) (htpy-hom-system.type K X))
+      ( htpy-hom-system.element H X x))) ∙
+  ( htpy-hom-system.element K X x)
+htpy-hom-system'.slice (concat-htpy-hom-system' p q H K) = {!!}
+
+concat-htpy-hom-system :
+  {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : system l3 l4}
+  {f g h : hom-system A B} (H : htpy-hom-system f g)
+  (K : htpy-hom-system g h) → htpy-hom-system f h
+htpy-hom-system'.type (concat-htpy-hom-system H K) =
+  htpy-hom-system.type H ∙h htpy-hom-system.type K
+htpy-hom-system'.element (concat-htpy-hom-system {A = A} {B = B} {f} H K) X x =
+  ( ( tr-concat
+      ( htpy-hom-system.type H X)
+      ( htpy-hom-system.type K X)
+      ( hom-system.element (tr (hom-system A) refl f) X x)) ∙
+    ( ap
+      ( tr (system.element B) (htpy-hom-system.type K X))
+      ( htpy-hom-system.element H X x))) ∙
+  ( htpy-hom-system.element K X x)
+htpy-hom-system'.slice (concat-htpy-hom-system H K) X = {!!}
+-}
