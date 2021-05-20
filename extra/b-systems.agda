@@ -116,6 +116,8 @@ htpy-hom-system'.element (refl-htpy-hom-system f) X = refl-htpy
 htpy-hom-system'.slice (refl-htpy-hom-system f) X =
   refl-htpy-hom-system (hom-system.slice f X)
 
+{-
+
 concat-htpy-hom-system' :
   {l1 l2 l3 l4 : Level} {A : system l1 l2} {B B' B'' : system l3 l4}
   (p : Id B B') (q : Id B' B'') {f : hom-system A B} {g : hom-system A B'}
@@ -151,6 +153,7 @@ htpy-hom-system'.element (concat-htpy-hom-system {A = A} {B = B} {f} H K) X x =
       ( htpy-hom-system.element H X x))) ∙
   ( htpy-hom-system.element K X x)
 htpy-hom-system'.slice (concat-htpy-hom-system H K) X = {!!}
+-}
 
 --------------------------------------------------------------------------------
 
@@ -521,6 +524,144 @@ dependent-type-theory.Sδ! (slice-dtt A X) =
 
 --------------------------------------------------------------------------------
 
+-- We introduce simple type theories
+
+record is-simple-dependent-type-theory 
+  {l1 l2 : Level} (A : dependent-type-theory l1 l2) : UU l1
+  where
+  coinductive
+  field
+    type  : (X : system.type (dependent-type-theory.sys A)) →
+            is-equiv
+              ( hom-system.type (weakening.type (dependent-type-theory.W A) X))
+    slice : (X : system.type (dependent-type-theory.sys A)) →
+            is-simple-dependent-type-theory (slice-dtt A X)
+
+record simple-type-theory (l1 l2 : Level) : UU (lsuc l1 ⊔ lsuc l2)
+  where
+  field
+    dtt : dependent-type-theory l1 l2
+    is-simple : is-simple-dependent-type-theory dtt
+
+--------------------------------------------------------------------------------
+
+{- We introduce the condiction that the action on elements of a morphism of
+   dependent type theories is an equivalence -}
+
+record is-equiv-on-elements-hom-system
+  {l1 l2 l3 l4 : Level} (A : system l1 l2) (B : system l3 l4)
+  (h : hom-system A B) : UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+  where
+  coinductive
+  field
+    type  : (X : system.type A) → is-equiv (hom-system.element h X)
+    slice : (X : system.type A) →
+            is-equiv-on-elements-hom-system
+              ( system.slice A X)
+              ( system.slice B (hom-system.type h X))
+              ( hom-system.slice h X)
+
+--------------------------------------------------------------------------------
+
+-- We introduce unary type theories
+
+record unary-type-theory
+  {l1 l2 : Level} (A : dependent-type-theory l1 l2) : UU (lsuc l1 ⊔ lsuc l2)
+  where
+  field
+    dtt       : dependent-type-theory l1 l2
+    is-simple : is-simple-dependent-type-theory A
+    is-unary  : (X Y : system.type (dependent-type-theory.sys A)) →
+                is-equiv-on-elements-hom-system
+                  ( system.slice (dependent-type-theory.sys A) Y)
+                  ( system.slice (system.slice (dependent-type-theory.sys A) X)
+                    ( hom-system.type
+                      ( weakening.type (dependent-type-theory.W A) X) Y))
+                  ( hom-system.slice
+                    ( weakening.type (dependent-type-theory.W A) X)
+                    ( Y))
+
+--------------------------------------------------------------------------------
+
+record dependent-system
+  {l1 l2 : Level} (l3 l4 : Level) (A : system l1 l2) :
+  UU (l1 ⊔ l2 ⊔ (lsuc l3) ⊔ (lsuc l4))
+  where
+  coinductive
+  field
+    type    : system.type A → UU l3
+    element : (X : system.type A) → type X → system.element A X → UU l4
+    slice   : (X : system.type A) → type X →
+              dependent-system l3 l4 (system.slice A X)
+
+record section-system
+  {l1 l2 l3 l4 : Level} (A : system l1 l2) (B : dependent-system l3 l4 A) :
+  UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+  where
+  coinductive
+  field
+    type    : (X : system.type A) → dependent-system.type B X
+    element : (X : system.type A) (Y : dependent-system.type B X)
+              (x : system.element A X) → dependent-system.element B X Y x
+    slice   : (X : system.type A) (Y : dependent-system.type B X) →
+              section-system (system.slice A X) (dependent-system.slice B X Y)
+
+system-slice-UU : {l : Level} (X : UU l) → system (lsuc l) l
+system.type (system-slice-UU {l} X) = X → UU l
+system.element (system-slice-UU {l} X) Y = (x : X) → Y x
+system.slice (system-slice-UU {l} X) Y = system-slice-UU (Σ X Y)
+
+hom-system-weakening-system-slice-UU :
+  {l : Level} (X : UU l) (Y : X → UU l) →
+  hom-system (system-slice-UU X) (system-slice-UU (Σ X Y))
+hom-system.type (hom-system-weakening-system-slice-UU X Y) Z (pair x y) =
+  Z x
+hom-system.element (hom-system-weakening-system-slice-UU X Y) Z g (pair x y) =
+  g x
+hom-system.type (hom-system.slice (hom-system-weakening-system-slice-UU X Y) Z) W (pair (pair x y) z) = W (pair x z)
+hom-system.element (hom-system.slice (hom-system-weakening-system-slice-UU X Y) Z) W h (pair (pair x y) z) = h (pair x z)
+hom-system.slice (hom-system.slice (hom-system-weakening-system-slice-UU X Y) Z) W = {!hom-system.slice (hom-system-weakening-system-slice-UU X Y) ?!}
+
+weakening-system-slice-UU :
+  {l : Level} (X : UU l) → weakening (system-slice-UU X)
+weakening.type (weakening-system-slice-UU X) Y =
+  hom-system-weakening-system-slice-UU X Y
+weakening.slice (weakening-system-slice-UU X) = {!!}
+
+system-UU : (l : Level) → system (lsuc l) l
+system.type (system-UU l) = UU l
+system.element (system-UU l) X = X
+system.slice (system-UU l) X = system-slice-UU X
+
+weakening-type-UU :
+  {l : Level} (X : UU l) →
+  hom-system (system-UU l) (system.slice (system-UU l) X)
+hom-system.type (weakening-type-UU X) Y x = Y
+hom-system.element (weakening-type-UU X) Y y x = y
+hom-system.slice (weakening-type-UU X) Y = {!!}
+
+weakening-UU : (l : Level) → weakening (system-UU l)
+hom-system.type (weakening.type (weakening-UU l) X) Y x = Y
+hom-system.element (weakening.type (weakening-UU l) X) Y y x = y
+hom-system.type (hom-system.slice (weakening.type (weakening-UU l) X) Y) Z t =
+  Z (pr2 t)
+hom-system.element
+  ( hom-system.slice (weakening.type (weakening-UU l) X) Y) Z f t =
+  f (pr2 t)
+hom-system.slice (hom-system.slice (weakening.type (weakening-UU l) X) Y) Z =
+  {!!}
+hom-system.type
+  ( weakening.type (weakening.slice (weakening-UU l) X) Y) Z (pair x y) =
+  Z x
+hom-system.element
+  ( weakening.type (weakening.slice (weakening-UU l) X) Y) Z f (pair x y) =
+  f x
+hom-system.slice (weakening.type (weakening.slice (weakening-UU l) X) Y) Z =
+  {!!}
+weakening.slice (weakening.slice (weakening-UU l) X) Y = weakening.slice (weakening-UU l) (Σ X Y)
+
+--------------------------------------------------------------------------------
+
 -- We introduce morphisms of dependent type theories
 
 record hom-dtt
@@ -545,6 +686,7 @@ record hom-dtt
             ( sys)
             ( W)
 
+{-
 preserves-weakening-id-hom-system :
   {l1 l2 : Level} (A : system l1 l2) (W : weakening A) →
   preserves-weakening W W (id-hom-system A)
@@ -556,24 +698,7 @@ hom-dtt.sys (id-hom-dtt A) = id-hom-system (dependent-type-theory.sys A)
 hom-dtt.W (id-hom-dtt A) = {!!}
 hom-dtt.S (id-hom-dtt A) = {!!}
 hom-dtt.δ (id-hom-dtt A) = {!!}
-
---------------------------------------------------------------------------------
-
-{- We introduce the condiction that the action on elements of a morphism of
-   dependent type theories is an equivalence -}
-
-record is-equiv-on-elements-hom-system
-  {l1 l2 l3 l4 : Level} (A : system l1 l2) (B : system l3 l4)
-  (h : hom-system A B) : UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
-  where
-  coinductive
-  field
-    type  : (X : system.type A) → is-equiv (hom-system.element h X)
-    slice : (X : system.type A) →
-            is-equiv-on-elements-hom-system
-              ( system.slice A X)
-              ( system.slice B (hom-system.type h X))
-              ( hom-system.slice h X)
+-}
 
 --------------------------------------------------------------------------------
 
@@ -604,6 +729,7 @@ record preserves-function-types
   field
     sys   : {!!}
     slice : {!!}
+-}
 
 --------------------------------------------------------------------------------
 
@@ -664,33 +790,4 @@ natural-numbers.succ (natural-numbers-slice A Π N X) =
            ( natural-numbers.N N)))
        ( natural-numbers.succ N))
 
-{-
-system-UU : (l : Level) → system (lsuc l) l
-system.type (system-UU l) = UU l
-system.element (system-UU l) X = X
-system.type (system.slice (system-UU l) X) = X → UU l
-system.element (system.slice (system-UU l) X) Y = (x : X) → Y x
-system.slice (system.slice (system-UU l) X) Y =
-  system.slice (system-UU l) (Σ X Y)
-
-weakening-UU : (l : Level) → weakening (system-UU l)
-hom-system.type (weakening.type (weakening-UU l) X) Y x = Y
-hom-system.element (weakening.type (weakening-UU l) X) Y y x = y
-hom-system.type (hom-system.slice (weakening.type (weakening-UU l) X) Y) Z t =
-  Z (pr2 t)
-hom-system.element
-  ( hom-system.slice (weakening.type (weakening-UU l) X) Y) Z f t =
-  f (pr2 t)
-hom-system.slice (hom-system.slice (weakening.type (weakening-UU l) X) Y) Z =
-  {!!}
-hom-system.type
-  ( weakening.type (weakening.slice (weakening-UU l) X) Y) Z (pair x y) =
-  Z x
-hom-system.element
-  ( weakening.type (weakening.slice (weakening-UU l) X) Y) Z f (pair x y) =
-  f x
-hom-system.slice (weakening.type (weakening.slice (weakening-UU l) X) Y) Z =
-  {!!}
-weakening.slice (weakening.slice (weakening-UU l) X) Y = weakening.slice (weakening-UU l) (Σ X Y)
--}
--}
+--------------------------------------------------------------------------------

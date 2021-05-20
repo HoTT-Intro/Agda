@@ -32,7 +32,14 @@ map-inv-equiv-count :
   {l : Level} {X : UU l} (e : count X) → X → Fin (number-of-elements-count e)
 map-inv-equiv-count e = map-inv-equiv (equiv-count e)
 
-{- We show that count is closed under equivalences -}
+-- Example 16.1.2
+
+-- Fin k has a count
+
+count-Fin : (k : ℕ) → count (Fin k)
+count-Fin k = pair k equiv-id
+
+-- Types equipped with countings are closed under equivalences
 
 abstract
   equiv-count-equiv :
@@ -59,12 +66,7 @@ count-is-equiv' :
   is-equiv f → count Y → count X
 count-is-equiv' is-equiv-f = count-equiv' (pair _ is-equiv-f)
 
--- Remark 16.1.2
-
--- Fin k has a count
-
-count-Fin : (k : ℕ) → count (Fin k)
-count-Fin k = pair k equiv-id
+-- Example 16.1.3
 
 -- A type as 0 elements if and only if it is empty
 
@@ -89,7 +91,9 @@ count-is-empty H =
 count-empty : count empty
 count-empty = count-Fin zero-ℕ
 
--- A type has 1 element if and only if it is contractible --
+-- Example 16.1.4
+
+-- A type has 1 element if and only if it is contractible
 
 count-is-contr :
   {l : Level} {X : UU l} → is-contr X → count X
@@ -117,6 +121,8 @@ is-one-number-of-elements-count-is-contr (pair (succ-ℕ (succ-ℕ k)) e) H =
 count-unit : count unit
 count-unit = count-is-contr is-contr-unit
 
+-- Example 16.1.5
+
 -- Propositions have countings if and only if they are decidable
 
 is-decidable-count :
@@ -138,6 +144,8 @@ count-decidable-Prop :
 count-decidable-Prop P (inl p) =
   count-is-contr (is-proof-irrelevant-is-prop (is-prop-type-Prop P) p)
 count-decidable-Prop P (inr f) = count-is-empty f
+
+-- Example 16.1.6
 
 -- Types with a count have decidable equality
 
@@ -188,9 +196,9 @@ number-of-elements-count-eq :
 number-of-elements-count-eq d x y =
   cases-number-of-elements-count-eq d (d x y)
 
--- Theorem 16.1.3
+-- Theorem 16.1.7
 
--- Theorem 16.1.3 (i) Forward direction
+-- Theorem 16.1.7 (i) Forward direction
 
 -- Types equipped with a count are closed under coproducts
 
@@ -209,7 +217,7 @@ number-of-elements-count-coprod :
      ( add-ℕ (number-of-elements-count e) (number-of-elements-count f))
 number-of-elements-count-coprod (pair k e) (pair l f) = refl
 
--- Theorem 16.1.3 (ii) (a) Forward direction
+-- Theorem 16.1.7 (ii) (a) Forward direction
 
 count-Σ' :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
@@ -300,7 +308,7 @@ number-of-elements-count-Σ :
      ( sum-count-ℕ e (λ x → number-of-elements-count (f x)))
 number-of-elements-count-Σ (pair k e) f = number-of-elements-count-Σ' k e f
 
--- Theorem 16.1.3 (ii) (a) Converse direction
+-- Theorem 16.1.7 (ii) (a) Converse direction
 
 -- We show that if A and Σ A B can be counted, then each B x can be counted
 
@@ -322,7 +330,7 @@ count-fib :
 count-fib f count-A count-B =
   count-fiber-count-Σ count-B (count-equiv' (equiv-total-fib f) count-A)
 
--- Theorem 16.1.3 (ii) (b)
+-- Theorem 16.1.7 (ii) (b)
 
 {- If Σ A B and each B x can be counted, and if B has a section, then A can be
    counted. -}
@@ -396,7 +404,7 @@ count-base-count-Σ' {l1} {l2} {A} {B} e f g =
           ( number-of-elements-count (f x))
           ( zero-ℕ)))
 
--- Theorem 16.1.3 (ii) Consequences
+-- Theorem 16.1.7 (ii) Consequences
 
 -- A decidable subtype of a type that can be counted can be counted
 
@@ -421,7 +429,7 @@ is-decidable-count-subtype :
   count (Σ X (λ x → type-Prop (P x))) → (x : X) → is-decidable (type-Prop (P x))
 is-decidable-count-subtype P = is-decidable-count-Σ
 
--- Theorem 16.1.3 (i) Converse direction
+-- Theorem 16.1.7 (i) Converse direction
 
 -- A coproduct X + Y has a count if and only if both X and Y have a count.
 
