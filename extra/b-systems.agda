@@ -610,6 +610,7 @@ system.type (system-slice-UU {l} X) = X → UU l
 system.element (system-slice-UU {l} X) Y = (x : X) → Y x
 system.slice (system-slice-UU {l} X) Y = system-slice-UU (Σ X Y)
 
+{-
 hom-system-weakening-system-slice-UU :
   {l : Level} (X : UU l) (Y : X → UU l) →
   hom-system (system-slice-UU X) (system-slice-UU (Σ X Y))
@@ -658,6 +659,7 @@ hom-system.element
 hom-system.slice (weakening.type (weakening.slice (weakening-UU l) X) Y) Z =
   {!!}
 weakening.slice (weakening.slice (weakening-UU l) X) Y = weakening.slice (weakening-UU l) (Σ X Y)
+-}
 
 --------------------------------------------------------------------------------
 
@@ -746,6 +748,7 @@ record natural-numbers
                    ( weakening.type (dependent-type-theory.W A) N)
                    ( N)))
 
+{-
 natural-numbers-slice :
   {l1 l2 : Level} (A : dependent-type-theory l1 l2) (Π : function-types A)
   (N : natural-numbers A Π) (X : closed-type-dtt A) →
@@ -788,6 +791,7 @@ natural-numbers.succ (natural-numbers-slice A Π N X) =
            ( weakening.type (dependent-type-theory.W A) (natural-numbers.N N))
            ( natural-numbers.N N)))
        ( natural-numbers.succ N))
+-}
 
 --------------------------------------------------------------------------------
 
