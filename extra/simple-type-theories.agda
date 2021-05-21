@@ -335,34 +335,31 @@ module simple where
   type-theoy.Sδ! (slice-type-theoy T X) =
     substitution-by-generic-element.slice (type-theoy.Sδ! T) X
 
-open import extra.b-systems
+open import extra.dependent-type-theories
 
-module dependent-simple
-  where
+dependent-system-simple-system :
+  {l1 l2 : Level} {A : UU l1} → simple.system l2 A → dependent.system l1 l2
+dependent.system.type (dependent-system-simple-system {A = A} σ) = A
+dependent.system.element (dependent-system-simple-system σ) X =
+  simple.system.element σ X
+dependent.system.slice (dependent-system-simple-system σ) X =
+  dependent-system-simple-system (simple.system.slice σ X)
+                                              
+hom-simple-hom-system :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l3} {f : A → B}
+  {σ : simple.system l2 A} {τ : simple.system l4 B} →
+  simple.hom-system f σ τ →
+  dependent.hom-system (dependent-system-simple-system σ) (dependent-system-simple-system τ)
+dependent.hom-system.type (hom-simple-hom-system {f = f} h) = f
+dependent.hom-system.element (hom-simple-hom-system h) X =
+  simple.hom-system.element h X
+dependent.hom-system.slice (hom-simple-hom-system h) X =
+  hom-simple-hom-system (simple.hom-system.slice h X)
 
-  system-simple-system :
-    {l1 l2 : Level} {A : UU l1} → simple.system l2 A → dependent.system l1 l2
-  dependent.system.type (system-simple-system {A = A} σ) = A
-  dependent.system.element (system-simple-system σ) X =
-    simple.system.element σ X
-  dependent.system.slice (system-simple-system σ) X =
-    system-simple-system (simple.system.slice σ X)
-
-  hom-simple-hom-system :
-    {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l3} {f : A → B}
-    {σ : simple.system l2 A} {τ : simple.system l4 B} →
-    simple.hom-system f σ τ →
-    dependent.hom-system (system-simple-system σ) (system-simple-system τ)
-  dependent.hom-system.type (hom-simple-hom-system {f = f} h) = f
-  dependent.hom-system.element (hom-simple-hom-system h) X =
-    simple.hom-system.element h X
-  dependent.hom-system.slice (hom-simple-hom-system h) X =
-    hom-simple-hom-system (simple.hom-system.slice h X)
-
-  weakening-simple-weakening :
-    {l1 l2 : Level} {A : UU l1} {σ : simple.system l2 A}
-    (W : simple.weakening σ) → dependent.weakening (system-simple-system σ)
-  dependent.weakening.type (weakening-simple-weakening W) X =
-    hom-simple-hom-system (simple.weakening.element W X)
-  dependent.weakening.slice (weakening-simple-weakening W) X =
-    weakening-simple-weakening (simple.weakening.slice W X)
+weakening-simple-weakening :
+  {l1 l2 : Level} {A : UU l1} {σ : simple.system l2 A}
+  (W : simple.weakening σ) → dependent.weakening (dependent-system-simple-system σ)
+dependent.weakening.type (weakening-simple-weakening W) X =
+  hom-simple-hom-system (simple.weakening.element W X)
+dependent.weakening.slice (weakening-simple-weakening W) X =
+  weakening-simple-weakening (simple.weakening.slice W X)
