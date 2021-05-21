@@ -284,10 +284,11 @@ module simple where
                   ( generic-element.slice δ X)
   
   record simple-type-theory
-    {l1 : Level} (l2 : Level) (A : UU l1) : UU (l1 ⊔ lsuc  l2)
+    (l1 l2 : Level) : UU (lsuc l1 ⊔ lsuc  l2)
     where
     field
-      sys : system l2 A
+      typ : UU l1
+      sys : system l2 typ
       W   : weakening sys
       S   : substitution sys
       δ   : generic-element sys
@@ -302,8 +303,11 @@ module simple where
       Sδ! : substitution-by-generic-element W S δ
 
   slice-simple-type-theory :
-    {l1 l2 : Level} {A : UU l1} (T : simple-type-theory l2 A) (X : A) →
-    simple-type-theory l2 A
+    {l1 l2 : Level} (T : simple-type-theory l1 l2)
+    (X : simple-type-theory.typ T) →
+    simple-type-theory l1 l2
+  simple-type-theory.typ (slice-simple-type-theory T X) =
+    simple-type-theory.typ T
   simple-type-theory.sys (slice-simple-type-theory T X) =
     system.slice (simple-type-theory.sys T) X
   simple-type-theory.W (slice-simple-type-theory T X) =
