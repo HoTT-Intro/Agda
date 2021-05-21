@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module extra.b-systems where
+module extra.dependent-type-theories where
 
 import book
 open book public
