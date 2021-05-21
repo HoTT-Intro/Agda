@@ -283,7 +283,7 @@ module simple where
                   ( substitution.slice S X)
                   ( generic-element.slice δ X)
   
-  record simple-type-theory
+  record type-theoy
     (l1 l2 : Level) : UU (lsuc l1 ⊔ lsuc  l2)
     where
     field
@@ -302,38 +302,38 @@ module simple where
       δid : generic-element-is-identity S δ
       Sδ! : substitution-by-generic-element W S δ
 
-  slice-simple-type-theory :
-    {l1 l2 : Level} (T : simple-type-theory l1 l2)
-    (X : simple-type-theory.typ T) →
-    simple-type-theory l1 l2
-  simple-type-theory.typ (slice-simple-type-theory T X) =
-    simple-type-theory.typ T
-  simple-type-theory.sys (slice-simple-type-theory T X) =
-    system.slice (simple-type-theory.sys T) X
-  simple-type-theory.W (slice-simple-type-theory T X) =
-    weakening.slice (simple-type-theory.W T) X
-  simple-type-theory.S (slice-simple-type-theory T X) =
-    substitution.slice (simple-type-theory.S T) X
-  simple-type-theory.δ (slice-simple-type-theory T X) =
-    generic-element.slice (simple-type-theory.δ T) X
-  simple-type-theory.WW (slice-simple-type-theory T X) =
-    weakening-preserves-weakening.slice (simple-type-theory.WW T) X
-  simple-type-theory.SS (slice-simple-type-theory T X) =
-    substitution-preserves-substitution.slice (simple-type-theory.SS T) X
-  simple-type-theory.WS (slice-simple-type-theory T X) =
-    weakening-preserves-substitution.slice (simple-type-theory.WS T) X
-  simple-type-theory.SW (slice-simple-type-theory T X) =
-    substitution-preserves-weakening.slice (simple-type-theory.SW T) X
-  simple-type-theory.Wδ (slice-simple-type-theory T X) =
-    weakening-preserves-generic-element.slice (simple-type-theory.Wδ T) X
-  simple-type-theory.Sδ (slice-simple-type-theory T X) =
-    substitution-preserves-generic-element.slice (simple-type-theory.Sδ T) X
-  simple-type-theory.S!W (slice-simple-type-theory T X) =
-    substitution-cancels-weakening.slice (simple-type-theory.S!W T) X
-  simple-type-theory.δid (slice-simple-type-theory T X) =
-    generic-element-is-identity.slice (simple-type-theory.δid T) X
-  simple-type-theory.Sδ! (slice-simple-type-theory T X) =
-    substitution-by-generic-element.slice (simple-type-theory.Sδ! T) X
+  slice-type-theoy :
+    {l1 l2 : Level} (T : type-theoy l1 l2)
+    (X : type-theoy.typ T) →
+    type-theoy l1 l2
+  type-theoy.typ (slice-type-theoy T X) =
+    type-theoy.typ T
+  type-theoy.sys (slice-type-theoy T X) =
+    system.slice (type-theoy.sys T) X
+  type-theoy.W (slice-type-theoy T X) =
+    weakening.slice (type-theoy.W T) X
+  type-theoy.S (slice-type-theoy T X) =
+    substitution.slice (type-theoy.S T) X
+  type-theoy.δ (slice-type-theoy T X) =
+    generic-element.slice (type-theoy.δ T) X
+  type-theoy.WW (slice-type-theoy T X) =
+    weakening-preserves-weakening.slice (type-theoy.WW T) X
+  type-theoy.SS (slice-type-theoy T X) =
+    substitution-preserves-substitution.slice (type-theoy.SS T) X
+  type-theoy.WS (slice-type-theoy T X) =
+    weakening-preserves-substitution.slice (type-theoy.WS T) X
+  type-theoy.SW (slice-type-theoy T X) =
+    substitution-preserves-weakening.slice (type-theoy.SW T) X
+  type-theoy.Wδ (slice-type-theoy T X) =
+    weakening-preserves-generic-element.slice (type-theoy.Wδ T) X
+  type-theoy.Sδ (slice-type-theoy T X) =
+    substitution-preserves-generic-element.slice (type-theoy.Sδ T) X
+  type-theoy.S!W (slice-type-theoy T X) =
+    substitution-cancels-weakening.slice (type-theoy.S!W T) X
+  type-theoy.δid (slice-type-theoy T X) =
+    generic-element-is-identity.slice (type-theoy.δid T) X
+  type-theoy.Sδ! (slice-type-theoy T X) =
+    substitution-by-generic-element.slice (type-theoy.Sδ! T) X
 
 open import extra.b-systems
 
@@ -341,27 +341,28 @@ module dependent-simple
   where
 
   system-simple-system :
-    {l1 l2 : Level} {A : UU l1} → simple.system l2 A → system l1 l2
-  system.type (system-simple-system {A = A} σ) = A
-  system.element (system-simple-system σ) X = simple.system.element σ X
-  system.slice (system-simple-system σ) X =
+    {l1 l2 : Level} {A : UU l1} → simple.system l2 A → dependent.system l1 l2
+  dependent.system.type (system-simple-system {A = A} σ) = A
+  dependent.system.element (system-simple-system σ) X =
+    simple.system.element σ X
+  dependent.system.slice (system-simple-system σ) X =
     system-simple-system (simple.system.slice σ X)
 
   hom-simple-hom-system :
     {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l3} {f : A → B}
     {σ : simple.system l2 A} {τ : simple.system l4 B} →
     simple.hom-system f σ τ →
-    hom-system (system-simple-system σ) (system-simple-system τ)
-  hom-system.type (hom-simple-hom-system {f = f} h) = f
-  hom-system.element (hom-simple-hom-system h) X =
+    dependent.hom-system (system-simple-system σ) (system-simple-system τ)
+  dependent.hom-system.type (hom-simple-hom-system {f = f} h) = f
+  dependent.hom-system.element (hom-simple-hom-system h) X =
     simple.hom-system.element h X
-  hom-system.slice (hom-simple-hom-system h) X =
+  dependent.hom-system.slice (hom-simple-hom-system h) X =
     hom-simple-hom-system (simple.hom-system.slice h X)
 
   weakening-simple-weakening :
     {l1 l2 : Level} {A : UU l1} {σ : simple.system l2 A}
-    (W : simple.weakening σ) → weakening (system-simple-system σ)
-  weakening.type (weakening-simple-weakening W) X =
+    (W : simple.weakening σ) → dependent.weakening (system-simple-system σ)
+  dependent.weakening.type (weakening-simple-weakening W) X =
     hom-simple-hom-system (simple.weakening.element W X)
-  weakening.slice (weakening-simple-weakening W) X =
+  dependent.weakening.slice (weakening-simple-weakening W) X =
     weakening-simple-weakening (simple.weakening.slice W X)

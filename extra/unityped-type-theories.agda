@@ -247,7 +247,7 @@ module unityped where
                   ( substitution.slice S)
                   ( generic-element.slice δ)
   
-  record unityped-type-theory
+  record type-theory
     (l : Level) : UU (lsuc l)
     where
     field
@@ -265,31 +265,31 @@ module unityped where
       δid : generic-element-is-identity S δ
       Sδ! : substitution-by-generic-element W S δ
 
-  slice-unityped-type-theory :
-    {l : Level} (T : unityped-type-theory l) → unityped-type-theory l
-  unityped-type-theory.sys (slice-unityped-type-theory T) =
-    system.slice (unityped-type-theory.sys T)
-  unityped-type-theory.W (slice-unityped-type-theory T) =
-    weakening.slice (unityped-type-theory.W T)
-  unityped-type-theory.S (slice-unityped-type-theory T) =
-    substitution.slice (unityped-type-theory.S T)
-  unityped-type-theory.δ (slice-unityped-type-theory T) =
-    generic-element.slice (unityped-type-theory.δ T)
-  unityped-type-theory.WW (slice-unityped-type-theory T) =
-    weakening-preserves-weakening.slice (unityped-type-theory.WW T)
-  unityped-type-theory.SS (slice-unityped-type-theory T) =
-    substitution-preserves-substitution.slice (unityped-type-theory.SS T)
-  unityped-type-theory.WS (slice-unityped-type-theory T ) =
-    weakening-preserves-substitution.slice (unityped-type-theory.WS T)
-  unityped-type-theory.SW (slice-unityped-type-theory T ) =
-    substitution-preserves-weakening.slice (unityped-type-theory.SW T)
-  unityped-type-theory.Wδ (slice-unityped-type-theory T ) =
-    weakening-preserves-generic-element.slice (unityped-type-theory.Wδ T)
-  unityped-type-theory.Sδ (slice-unityped-type-theory T ) =
-    substitution-preserves-generic-element.slice (unityped-type-theory.Sδ T)
-  unityped-type-theory.S!W (slice-unityped-type-theory T) =
-    substitution-cancels-weakening.slice (unityped-type-theory.S!W T)
-  unityped-type-theory.δid (slice-unityped-type-theory T) =
-    generic-element-is-identity.slice (unityped-type-theory.δid T)
-  unityped-type-theory.Sδ! (slice-unityped-type-theory T) =
-    substitution-by-generic-element.slice (unityped-type-theory.Sδ! T)
+  slice-type-theory :
+    {l : Level} (T : type-theory l) → type-theory l
+  type-theory.sys (slice-type-theory T) =
+    system.slice (type-theory.sys T)
+  type-theory.W (slice-type-theory T) =
+    weakening.slice (type-theory.W T)
+  type-theory.S (slice-type-theory T) =
+    substitution.slice (type-theory.S T)
+  type-theory.δ (slice-type-theory T) =
+    generic-element.slice (type-theory.δ T)
+  type-theory.WW (slice-type-theory T) =
+    weakening-preserves-weakening.slice (type-theory.WW T)
+  type-theory.SS (slice-type-theory T) =
+    substitution-preserves-substitution.slice (type-theory.SS T)
+  type-theory.WS (slice-type-theory T ) =
+    weakening-preserves-substitution.slice (type-theory.WS T)
+  type-theory.SW (slice-type-theory T ) =
+    substitution-preserves-weakening.slice (type-theory.SW T)
+  type-theory.Wδ (slice-type-theory T ) =
+    weakening-preserves-generic-element.slice (type-theory.Wδ T)
+  type-theory.Sδ (slice-type-theory T ) =
+    substitution-preserves-generic-element.slice (type-theory.Sδ T)
+  type-theory.S!W (slice-type-theory T) =
+    substitution-cancels-weakening.slice (type-theory.S!W T)
+  type-theory.δid (slice-type-theory T) =
+    generic-element-is-identity.slice (type-theory.δid T)
+  type-theory.Sδ! (slice-type-theory T) =
+    substitution-by-generic-element.slice (type-theory.Sδ! T)
