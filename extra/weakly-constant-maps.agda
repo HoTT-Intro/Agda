@@ -18,13 +18,13 @@ is-higher-constant-map-is-trunc :
   is-trunc (truncation-level-minus-one-ℕ k) A → is-higher-constant-map k f
 is-higher-constant-map-is-trunc zero-ℕ f H =
   pair
-    ( λ x y → ap f (eq-is-prop H x y))
+    ( λ x y → ap f (eq-is-prop' H x y))
     ( λ x y z →
-      ( inv (ap-concat f (eq-is-prop H x y) (eq-is-prop H y z))) ∙
+      ( inv (ap-concat f (eq-is-prop' H x y) (eq-is-prop' H y z))) ∙
       ( ap ( ap f)
-           ( eq-is-prop
+           ( eq-is-prop'
              ( is-trunc-succ-is-trunc neg-one-𝕋 H x z)
-             ( eq-is-prop H x y ∙ eq-is-prop H y z)
-             ( eq-is-prop H x z))))
+             ( eq-is-prop' H x y ∙ eq-is-prop' H y z)
+             ( eq-is-prop' H x z))))
 is-higher-constant-map-is-trunc (succ-ℕ k) f H x y =
   is-higher-constant-map-is-trunc k (ap f) (H x y)

@@ -96,7 +96,7 @@ is-locally-finite-Π-Fin :
   ((x : Fin k) → is-locally-finite (B x)) →
   is-locally-finite ((x : Fin k) → B x)
 is-locally-finite-Π-Fin {l1} {zero-ℕ} {B} f =
-  is-locally-finite-is-contr (dependent-universal-property-empty B)
+  is-locally-finite-is-contr (dependent-universal-property-empty' B)
 is-locally-finite-Π-Fin {l1} {succ-ℕ k} {B} f =
   is-locally-finite-equiv
     ( equiv-dependent-universal-property-coprod B)

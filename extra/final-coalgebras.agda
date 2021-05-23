@@ -203,12 +203,13 @@ type-final-coalgebra-polynomial-endofunctor A B =
   limit-Coseq
     ( coseq-final-coalgebra-polynomial-endofunctor A B)
 
+{-
 point-type-final-coalgebra-polynomial-endofunctor :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
   (x : type-final-coalgebra-polynomial-endofunctor A B) (n : ℕ) →
   type-coseq-final-coalgebra-polynomial-endofunctor A B n
 point-type-final-coalgebra-polynomial-endofunctor {A = A} {B} =
-  point-limit-Coseq
+  limit-Coseq
     ( coseq-final-coalgebra-polynomial-endofunctor A B)
 
 path-type-final-coalgebra-polynomial-endofunctor :
@@ -286,3 +287,4 @@ tail-type-final-coalgebra-polynomial-endofunctor x y =
   pair
     ( points-tail-type-final-coalgebra-polynomial-endofunctor x y)
     {!!}
+-}

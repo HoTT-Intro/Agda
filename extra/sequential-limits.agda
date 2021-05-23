@@ -608,9 +608,9 @@ equiv-limit-Coseq :
 equiv-limit-Coseq A =
   equiv-Σ
     ( λ a → (n : ℕ) → Id (map-Coseq A n (a (succ-ℕ n))) (a n))
-    ( equiv-postcomp-Π (λ n → equiv-ev-star' (type-Coseq A n)))
+    ( equiv-map-Π (λ n → equiv-ev-star' (type-Coseq A n)))
     ( λ a →
-      equiv-postcomp-Π
+      equiv-map-Π
         ( λ n →
           equiv-ev-star (λ x → Id (map-Coseq A n (a (succ-ℕ n) x)) (a n x))))
 
@@ -740,7 +740,7 @@ is-contr-total-Eq-limit-Coseq' A x =
             (n : ℕ) → Id (triangle-cone-limit-Coseq A x n) (p n)))
       ( equiv-tot
         ( λ p →
-          equiv-postcomp-Π
+          equiv-map-Π
             ( λ n →
               ( equiv-inv refl (inv (pr2 x n) ∙ p n)) ∘e
               ( ( equiv-inv-con (pr2 x n) refl (p n)) ∘e
@@ -889,10 +889,10 @@ uniqueness-map-limit-Coseq' :
 uniqueness-map-limit-Coseq' A c up-X c' h H h' H' =
   htpy-eq
     ( ap pr1
-      ( eq-is-contr
+      ( eq-is-contr'
         ( unique-mapping-property-limit-Coseq' A c up-X c')
-          ( pair h H)
-          ( pair h' H')))
+        ( pair h H)
+        ( pair h' H')))
 
 uniqueness-map-limit-Coseq :
   { l1 l2 l3 : Level} (A : Coseq-UU l1) {X : UU l2} (c : cone-Coseq A X) →
@@ -904,7 +904,7 @@ uniqueness-map-limit-Coseq :
 uniqueness-map-limit-Coseq A c up-X c' h H h' H' =
   htpy-eq
     ( ap pr1
-      ( eq-is-contr
+      ( eq-is-contr'
         ( unique-mapping-property-limit-Coseq A c up-X c')
         ( pair h H)
         ( pair h' H')))
@@ -1086,7 +1086,7 @@ uniqueness-limit-hom-Coseq :
   Id (pair (limit-hom-Coseq A B f) (eq-limit-hom-Coseq A B f))
      (pair h p)
 uniqueness-limit-hom-Coseq A B f h p =
-  eq-is-contr
+  eq-is-contr'
     ( unique-mapping-property-limit-Coseq' B
       ( cone-limit-Coseq B)
       ( λ {l} → universal-property-limit-limit-Coseq l B)
