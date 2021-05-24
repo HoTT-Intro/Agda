@@ -235,6 +235,40 @@ module dependent where
       ( section-system.slice g (section-system.type f X))
       ( section-system.slice f X)
 
+  left-unit-law-comp-hom-system :
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : system l3 l4}
+    (f : hom-system A B) →
+    htpy-hom-system (comp-hom-system (id-hom-system B) f) f
+  section-system.type (left-unit-law-comp-hom-system f) = refl-htpy
+  section-system.element (left-unit-law-comp-hom-system f) X = refl-htpy
+  section-system.slice (left-unit-law-comp-hom-system f) X =
+    left-unit-law-comp-hom-system (section-system.slice f X)
+
+  right-unit-law-comp-hom-system :
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : system l3 l4}
+    (f : hom-system A B) →
+    htpy-hom-system (comp-hom-system f (id-hom-system A)) f
+  section-system.type (right-unit-law-comp-hom-system f) = refl-htpy
+  section-system.element (right-unit-law-comp-hom-system f) X = refl-htpy
+  section-system.slice (right-unit-law-comp-hom-system f) X =
+    right-unit-law-comp-hom-system (section-system.slice f X)
+
+  assoc-comp-hom-system :
+    {l1 l2 l3 l4 l5 l6 l7 l8 : Level} {A : system l1 l2} {B : system l3 l4}
+    {C : system l5 l6} {D : system l7 l8} (h : hom-system C D)
+    (g : hom-system B C) (f : hom-system A B) →
+    htpy-hom-system
+      ( comp-hom-system (comp-hom-system h g) f)
+      ( comp-hom-system h (comp-hom-system g f))
+  section-system.type (assoc-comp-hom-system h g f) = refl-htpy
+  section-system.element (assoc-comp-hom-system h g f) X = refl-htpy
+  section-system.slice (assoc-comp-hom-system h g f) X =
+    assoc-comp-hom-system
+      ( section-system.slice h
+        ( section-system.type g (section-system.type f X)))
+      ( section-system.slice g ( section-system.type f X))
+      ( section-system.slice f X)
+
   ------------------------------------------------------------------------------
 
   -- Morphisms of fibered systems

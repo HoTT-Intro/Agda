@@ -293,3 +293,17 @@ module unityped where
     generic-element-is-identity.slice (type-theory.δid T)
   type-theory.Sδ! (slice-type-theory T) =
     substitution-by-generic-element.slice (type-theory.Sδ! T)
+
+record stream (l : Level) : Set (lsuc l)
+  where
+  coinductive
+  field
+    type  : Set l
+    slice : stream l
+
+total-stream : {l : Level} → stream l → UU l
+total-stream A = coprod (stream.type A) (total-stream (stream.slice A))
+
+ℕ-stream : stream lzero
+stream.type ℕ-stream = unit
+stream.slice ℕ-stream = ℕ-stream
