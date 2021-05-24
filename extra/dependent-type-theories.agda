@@ -54,7 +54,9 @@ module dependent where
 
   ------------------------------------------------------------------------------
 
-  -- We introduce homotopies of sections of fibered systems
+  {- We will introduce homotopies of sections of fibered systems. However,
+     in order to define concatenation of those homotopies, we will first 
+     define heterogeneous homotopies of sections of fibered systems. -}
 
   tr-fibered-system-slice :
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B B' : fibered-system l3 l4 A}
@@ -123,23 +125,7 @@ module dependent where
       ( section-system.slice G X)
       ( section-system.slice H X)
 
-  Eq-fibered-system :
-    {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
-    (f g : section-system A B) → fibered-system l3 l4 A
-  fibered-system.type (Eq-fibered-system f g) X =
-    Id (section-system.type f X) (section-system.type g X)
-  fibered-system.element (Eq-fibered-system {B = B} f g) X p x =
-    Id ( tr (λ t → fibered-system.element B X t x)
-            ( p)
-            ( section-system.element f X x))
-       ( section-system.element g X x)
-  fibered-system.slice (Eq-fibered-system {A = A} {B} f g) X p =
-    Eq-fibered-system
-      ( tr ( λ t →
-             section-system (system.slice A X) (fibered-system.slice B X t))
-           ( p)
-           ( section-system.slice f X))
-      ( section-system.slice g X)
+  -- We specialize the above definitions to nonhomogenous homotopies 
 
   htpy-section-system :
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
