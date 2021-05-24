@@ -345,21 +345,74 @@ dependent.system.element (dependent-system-simple-system σ) X =
 dependent.system.slice (dependent-system-simple-system σ) X =
   dependent-system-simple-system (simple.system.slice σ X)
                                               
-hom-simple-hom-system :
+dependent-hom-system-simple-hom-system :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l3} {f : A → B}
   {σ : simple.system l2 A} {τ : simple.system l4 B} →
   simple.hom-system f σ τ →
   dependent.hom-system (dependent-system-simple-system σ) (dependent-system-simple-system τ)
-dependent.hom-system.type (hom-simple-hom-system {f = f} h) = f
-dependent.hom-system.element (hom-simple-hom-system h) X =
+dependent.hom-system.type (dependent-hom-system-simple-hom-system {f = f} h) = f
+dependent.hom-system.element (dependent-hom-system-simple-hom-system h) X =
   simple.hom-system.element h X
-dependent.hom-system.slice (hom-simple-hom-system h) X =
-  hom-simple-hom-system (simple.hom-system.slice h X)
+dependent.hom-system.slice (dependent-hom-system-simple-hom-system h) X =
+  dependent-hom-system-simple-hom-system (simple.hom-system.slice h X)
 
-weakening-simple-weakening :
+dependent-htpy-hom-system-simple-htpy-hom-system :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {f : A → B}
+  {σ : simple.system l3 A} {τ : simple.system l4 B}
+  {g h : simple.hom-system f σ τ} →
+  simple.htpy-hom-system g h →
+  dependent.htpy-hom-system
+    ( dependent-hom-system-simple-hom-system g)
+    ( dependent-hom-system-simple-hom-system h)
+dependent.htpy-hom-system'.type
+  ( dependent-htpy-hom-system-simple-htpy-hom-system H) = refl-htpy
+dependent.htpy-hom-system'.element
+  ( dependent-htpy-hom-system-simple-htpy-hom-system H) X =
+  simple.htpy-hom-system.element H X
+dependent.htpy-hom-system'.slice
+  ( dependent-htpy-hom-system-simple-htpy-hom-system H) X =
+  dependent-htpy-hom-system-simple-htpy-hom-system
+    ( simple.htpy-hom-system.slice H X)
+
+dependent-weakening-simple-weakening :
   {l1 l2 : Level} {A : UU l1} {σ : simple.system l2 A}
   (W : simple.weakening σ) → dependent.weakening (dependent-system-simple-system σ)
-dependent.weakening.type (weakening-simple-weakening W) X =
-  hom-simple-hom-system (simple.weakening.element W X)
-dependent.weakening.slice (weakening-simple-weakening W) X =
-  weakening-simple-weakening (simple.weakening.slice W X)
+dependent.weakening.type (dependent-weakening-simple-weakening W) X =
+  dependent-hom-system-simple-hom-system (simple.weakening.element W X)
+dependent.weakening.slice (dependent-weakening-simple-weakening W) X =
+  dependent-weakening-simple-weakening (simple.weakening.slice W X)
+
+dependent-substitution-simple-substitution :
+  {l1 l2 : Level} {A : UU l1} {σ : simple.system l2 A} →
+  simple.substitution σ →
+  dependent.substitution (dependent-system-simple-system σ)
+dependent.substitution.type (dependent-substitution-simple-substitution S) X x =
+  dependent-hom-system-simple-hom-system (simple.substitution.element S X x)
+dependent.substitution.slice (dependent-substitution-simple-substitution S) X =
+  dependent-substitution-simple-substitution (simple.substitution.slice S X)
+
+dependent-generic-element-simple-generic-element :
+  {l1 l2 : Level} {A : UU l1} {σ : simple.system l2 A} →
+  (W : simple.weakening σ) → simple.generic-element σ →
+  dependent.generic-element
+    ( dependent-system-simple-system σ)
+    ( dependent-weakening-simple-weakening W)
+dependent.generic-element.type
+  ( dependent-generic-element-simple-generic-element W δ) X =
+  simple.generic-element.element δ X
+dependent.generic-element.slice
+  ( dependent-generic-element-simple-generic-element W δ) X =
+  dependent-generic-element-simple-generic-element
+    ( simple.weakening.slice W X)
+    ( simple.generic-element.slice δ X)
+
+dependent-wpw-simple-wpw :
+  {l1 l2 : Level} {A : UU l1} {σ : simple.system l2 A}
+  (W : simple.weakening σ) →
+  simple.weakening-preserves-weakening W →
+  dependent.weakening-preserves-weakening
+    ( dependent-system-simple-system σ)
+    ( dependent-weakening-simple-weakening W)
+dependent.weakening-preserves-weakening.type (dependent-wpw-simple-wpw W WW) X =
+  {!dependent-htpy-hom-system-simple-htpy-hom-system ?!}
+dependent.weakening-preserves-weakening.slice (dependent-wpw-simple-wpw W WW) = {!!}

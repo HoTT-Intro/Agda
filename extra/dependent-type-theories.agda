@@ -27,79 +27,96 @@ module dependent where
       element : type → UU l2
       slice   : (X : type) → system l1 l2
 
-  ------------------------------------------------------------------------------
+  record fibered-system
+    {l1 l2 : Level} (l3 l4 : Level) (A : system l1 l2) :
+    UU (l1 ⊔ l2 ⊔ (lsuc l3) ⊔ (lsuc l4))
+    where
+    coinductive
+    field
+      type    : system.type A → UU l3
+      element : (X : system.type A) → type X → system.element A X → UU l4
+      slice   : (X : system.type A) → type X →
+                fibered-system l3 l4 (system.slice A X)
 
-  -- We introduce morphisms of systems
-  
-  record hom-system
-    {l1 l2 l3 l4 : Level} (A : system l1 l2) (B : system l3 l4) :
+  record section-system
+    {l1 l2 l3 l4 : Level} (A : system l1 l2) (B : fibered-system l3 l4 A) :
     UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
     where
     coinductive
     field
-      type    : system.type A → system.type B
-      element : (X : system.type A) →
-                system.element A X → system.element B (type X)
+      type    : (X : system.type A) → fibered-system.type B X
+      element : (X : system.type A) (x : system.element A X) →
+                fibered-system.element B X (type X) x
       slice   : (X : system.type A) →
-                hom-system
+                section-system
                   ( system.slice A X)
-                  ( system.slice B (type X))
-
-  id-hom-system :
-    {l1 l2 : Level} (A : system l1 l2) → hom-system A A
-  hom-system.type (id-hom-system A) X = X
-  hom-system.element (id-hom-system A) X x = x
-  hom-system.slice (id-hom-system A) X = id-hom-system (system.slice A X)
-  
-  comp-hom-system :
-    {l1 l2 l3 l4 l5 l6 : Level}
-    {A : system l1 l2} {B : system l3 l4} {C : system l5 l6}
-    (g : hom-system B C) (f : hom-system A B) → hom-system A C
-  hom-system.type (comp-hom-system g f) =
-    hom-system.type g ∘ hom-system.type f
-  hom-system.element (comp-hom-system g f) X =
-    hom-system.element g (hom-system.type f X) ∘ hom-system.element f X
-  hom-system.slice (comp-hom-system g f) X =
-    comp-hom-system
-      ( hom-system.slice g (hom-system.type f X))
-      ( hom-system.slice f X)
+                  ( fibered-system.slice B X (type X))
 
   ------------------------------------------------------------------------------
 
-  -- We first introduce heterogeneous homotopies, and then the actual homotopies
-  
-  tr-hom-system :
-    {l1 l2 l3 l4 : Level} {A : system l1 l2} {B B' : system l3 l4}
-    (p : Id B B') (f : hom-system A B) (X : system.type A) →
-    Id ( system.slice B (hom-system.type f X))
-      ( system.slice B' (hom-system.type (tr (hom-system A) p f) X))
-  tr-hom-system refl f X = refl
-  
-  record htpy-hom-system'
-    {l1 l2 l3 l4 : Level} {A : system l1 l2} {B B' : system l3 l4} (p : Id B B')
-    (f : hom-system A B) (g : hom-system A B') : UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
-    where
-    coinductive
-    field
-      type    : hom-system.type (tr (hom-system A) p f) ~ hom-system.type g
-      element : (X : system.type A) (x : system.element A X) →
-                Id ( tr ( system.element B')
-                        ( type X)
-                        ( hom-system.element
-                          ( tr (hom-system A) p f)
-                          X x))
-                   ( hom-system.element g X x)
-      slice   : (X : system.type A) →
-                htpy-hom-system'
-                  ( ( tr-hom-system p f X) ∙
-                    ( ap (system.slice B') (type X)))
-                  ( hom-system.slice f X)
-                  ( hom-system.slice g X)
+  -- We introduce homotopies of sections of fibered systems
 
+  Eq-fibered-system :
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
+    (f g : section-system A B) → fibered-system l3 l4 A
+  fibered-system.type (Eq-fibered-system f g) X =
+    Id (section-system.type f X) (section-system.type g X)
+  fibered-system.element (Eq-fibered-system {B = B} f g) X p x =
+    Id ( tr (λ t → fibered-system.element B X t x)
+            ( p)
+            ( section-system.element f X x))
+       ( section-system.element g X x)
+  fibered-system.slice (Eq-fibered-system {A = A} {B} f g) X p =
+    Eq-fibered-system
+      ( tr ( λ t →
+             section-system (system.slice A X) (fibered-system.slice B X t))
+           ( p)
+           ( section-system.slice f X))
+      ( section-system.slice g X)
+
+  htpy-section-system :
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
+    (f g : section-system A B) → UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+  htpy-section-system {A = A} {B} f g =
+    section-system A (Eq-fibered-system f g)
+
+  refl-htpy-section-system :
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
+    (f : section-system A B) → htpy-section-system f f
+  section-system.type (refl-htpy-section-system f) X = refl
+  section-system.element (refl-htpy-section-system f) X x = refl
+  section-system.slice (refl-htpy-section-system f) X =
+    refl-htpy-section-system (section-system.slice f X)
+
+  ------------------------------------------------------------------------------
+
+  -- We introduce morphisms of systems
+
+  constant-fibered-system :
+    {l1 l2 l3 l4 : Level} (A : system l1 l2) (B : system l3 l4) →
+    fibered-system l3 l4 A
+  fibered-system.type (constant-fibered-system A B) X = system.type B
+  fibered-system.element (constant-fibered-system A B) X Y x =
+    system.element B Y
+  fibered-system.slice (constant-fibered-system A B) X Y =
+    constant-fibered-system (system.slice A X) (system.slice B Y)
+  
+  hom-system :
+    {l1 l2 l3 l4 : Level} (A : system l1 l2) (B : system l3 l4) → 
+    UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+  hom-system A B =
+    section-system A (constant-fibered-system A B)
+
+  ------------------------------------------------------------------------------
+
+  {- Homotopies of morphisms of systems are defined as an instance of
+     homotopies of sections of fibered systems
+  -}
+  
   htpy-hom-system :
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : system l3 l4}
     (f g : hom-system A B) → UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
-  htpy-hom-system f g = htpy-hom-system' refl f g
+  htpy-hom-system f g = htpy-section-system f g
   
   module htpy-hom-system
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : system l3 l4}
@@ -107,29 +124,42 @@ module dependent where
     where
     
     type : htpy-hom-system f g →
-           hom-system.type f ~ hom-system.type g
-    type H = htpy-hom-system'.type H
+           section-system.type f ~ section-system.type g
+    type H = section-system.type H
 
     element : (H : htpy-hom-system f g) →
               (X : system.type A) (x : system.element A X) →
-            Id ( tr (system.element B) (type H X) (hom-system.element f X x))
-                 ( hom-system.element g X x)
-    element H = htpy-hom-system'.element H
-  
-    slice : (H : htpy-hom-system f g) (X : system.type A) →
-            htpy-hom-system'
-              ( ap (system.slice B) (type H X))
-              ( hom-system.slice f X)
-              ( hom-system.slice g X)
-    slice H = htpy-hom-system'.slice H
-  
+            Id ( tr (system.element B) (type H X) (section-system.element f X x))
+                 ( section-system.element g X x)
+    element H = section-system.element H
+
   refl-htpy-hom-system :
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : system l3 l4}
     (f : hom-system A B) → htpy-hom-system f f
-  htpy-hom-system'.type (refl-htpy-hom-system f) = refl-htpy
-  htpy-hom-system'.element (refl-htpy-hom-system f) X = refl-htpy
-  htpy-hom-system'.slice (refl-htpy-hom-system f) X =
-    refl-htpy-hom-system (hom-system.slice f X)
+  refl-htpy-hom-system f = refl-htpy-section-system f
+
+  ------------------------------------------------------------------------------
+
+  -- We show that systems form a category
+
+  id-hom-system :
+    {l1 l2 : Level} (A : system l1 l2) → hom-system A A
+  section-system.type (id-hom-system A) X = X
+  section-system.element (id-hom-system A) X x = x
+  section-system.slice (id-hom-system A) X = id-hom-system (system.slice A X)
+  
+  comp-hom-system :
+    {l1 l2 l3 l4 l5 l6 : Level}
+    {A : system l1 l2} {B : system l3 l4} {C : system l5 l6}
+    (g : hom-system B C) (f : hom-system A B) → hom-system A C
+  section-system.type (comp-hom-system g f) =
+    section-system.type g ∘ section-system.type f
+  section-system.element (comp-hom-system g f) X =
+    section-system.element g (section-system.type f X) ∘ section-system.element f X
+  section-system.slice (comp-hom-system g f) X =
+    comp-hom-system
+      ( section-system.slice g (section-system.type f X))
+      ( section-system.slice f X)
   
   ------------------------------------------------------------------------------
   
@@ -161,16 +191,16 @@ module dependent where
       type  : (X : system.type A) →
               htpy-hom-system
                 ( comp-hom-system
-                  ( hom-system.slice h X)
+                  ( section-system.slice h X)
                   ( weakening.type WA X))
                 ( comp-hom-system
-                  ( weakening.type WB (hom-system.type h X))
+                  ( weakening.type WB (section-system.type h X))
                   ( h))
       slice : (X : system.type A) →
               preserves-weakening
                 ( weakening.slice WA X)
-                ( weakening.slice WB (hom-system.type h X))
-                ( hom-system.slice h X)
+                ( weakening.slice WB (section-system.type h X))
+                ( section-system.slice h X)
   
   ------------------------------------------------------------------------------
   
@@ -201,14 +231,14 @@ module dependent where
                   ( substitution.type SA X x))
                 ( comp-hom-system
                   ( substitution.type SB
-                    ( hom-system.type h X)
-                    ( hom-system.element h X x))
-                  ( hom-system.slice h X))
+                    ( section-system.type h X)
+                    ( section-system.element h X x))
+                  ( section-system.slice h X))
       slice : (X : system.type A) →
               preserves-substitution
                 ( substitution.slice SA X)
-                ( substitution.slice SB (hom-system.type h X))
-                ( hom-system.slice h X)
+                ( substitution.slice SB (section-system.type h X))
+                ( section-system.slice h X)
 
   ------------------------------------------------------------------------------
 
@@ -224,7 +254,7 @@ module dependent where
       type  : (X : system.type A) →
               system.element
                 ( system.slice A X)
-                  ( hom-system.type (weakening.type W X) X)
+                  ( section-system.type (weakening.type W X) X)
       slice : (X : system.type A) →
               generic-element (system.slice A X) (weakening.slice W X)
   
@@ -239,22 +269,22 @@ module dependent where
     field
       type  : (X : system.type A) →
               Id ( tr
-                   ( system.element (system.slice B (hom-system.type h X)))
+                   ( system.element (system.slice B (section-system.type h X)))
                    ( htpy-hom-system.type
                      ( preserves-weakening.type Wh X)
                      ( X))
-                   ( hom-system.element
-                     ( hom-system.slice h X)
-                     ( hom-system.type (weakening.type WA X) X)
+                   ( section-system.element
+                     ( section-system.slice h X)
+                     ( section-system.type (weakening.type WA X) X)
                      ( generic-element.type δA X)))
-                 ( generic-element.type δB (hom-system.type h X))
+                 ( generic-element.type δB (section-system.type h X))
       slice : (X : system.type A) →
               preserves-generic-element
                 ( weakening.slice WA X)
                 ( generic-element.slice δA X)
-                ( weakening.slice WB (hom-system.type h X))
-                ( generic-element.slice δB (hom-system.type h X))
-                ( hom-system.slice h X)
+                ( weakening.slice WB (section-system.type h X))
+                ( generic-element.slice δB (section-system.type h X))
+                ( section-system.slice h X)
                 ( preserves-weakening.slice Wh X)
 
   ------------------------------------------------------------------------------
@@ -415,9 +445,9 @@ module dependent where
                    ( system.element A)
                    ( htpy-hom-system.type
                      ( substitution-cancels-weakening.type S!W X x) X)
-                   ( hom-system.element
+                   ( section-system.element
                      ( substitution.type S X x)
-                     ( hom-system.type (weakening.type W X) X)
+                     ( section-system.type (weakening.type W X) X)
                      ( generic-element.type δ X)))
                  ( x)
       slice : (X : system.type A) →
@@ -440,11 +470,11 @@ module dependent where
                 ( comp-hom-system
                   ( substitution.type
                     ( substitution.slice S X)
-                    ( hom-system.type (weakening.type W X) X)
+                    ( section-system.type (weakening.type W X) X)
                     ( generic-element.type δ X))
                   ( weakening.type
                     ( weakening.slice W X)
-                    ( hom-system.type (weakening.type W X) X)))
+                    ( section-system.type (weakening.type W X) X)))
                 ( id-hom-system (system.slice A X))
       slice : (X : system.type A) →
               substitution-by-generic-element
@@ -537,7 +567,7 @@ module dependent where
     field
       type  : (X : system.type (type-theory.sys A)) →
               is-equiv
-                ( hom-system.type
+                ( section-system.type
                   ( weakening.type (type-theory.W A) X))
       slice : (X : system.type (type-theory.sys A)) →
               is-simple-type-theory (slice-dtt A X)
@@ -559,12 +589,12 @@ module dependent where
     where
     coinductive
     field
-      type  : (X : system.type A) → is-equiv (hom-system.element h X)
+      type  : (X : system.type A) → is-equiv (section-system.element h X)
       slice : (X : system.type A) →
               is-equiv-on-elements-hom-system
                 ( system.slice A X)
-                ( system.slice B (hom-system.type h X))
-                ( hom-system.slice h X)
+                ( system.slice B (section-system.type h X))
+                ( section-system.slice h X)
 
   ------------------------------------------------------------------------------
 
@@ -581,36 +611,13 @@ module dependent where
                     ( system.slice (type-theory.sys A) Y)
                     ( system.slice
                       ( system.slice (type-theory.sys A) X)
-                      ( hom-system.type
+                      ( section-system.type
                         ( weakening.type (type-theory.W A) X) Y))
-                    ( hom-system.slice
+                    ( section-system.slice
                       ( weakening.type (type-theory.W A) X)
                       ( Y))
 
   ------------------------------------------------------------------------------
-
-  record dependent-system
-    {l1 l2 : Level} (l3 l4 : Level) (A : system l1 l2) :
-    UU (l1 ⊔ l2 ⊔ (lsuc l3) ⊔ (lsuc l4))
-    where
-    coinductive
-    field
-      type    : system.type A → UU l3
-      element : (X : system.type A) → type X → system.element A X → UU l4
-      slice   : (X : system.type A) → type X →
-                dependent-system l3 l4 (system.slice A X)
-
-  record section-system
-    {l1 l2 l3 l4 : Level} (A : system l1 l2) (B : dependent-system l3 l4 A) :
-    UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
-    where
-    coinductive
-    field
-      type    : (X : system.type A) → dependent-system.type B X
-      element : (X : system.type A) (Y : dependent-system.type B X)
-                (x : system.element A X) → dependent-system.element B X Y x
-      slice   : (X : system.type A) (Y : dependent-system.type B X) →
-                section-system (system.slice A X) (dependent-system.slice B X Y)
 
   system-slice-UU : {l : Level} (X : UU l) → system (lsuc l) l
   system.type (system-slice-UU {l} X) = X → UU l
@@ -621,13 +628,13 @@ module dependent where
   hom-system-weakening-system-slice-UU :
     {l : Level} (X : UU l) (Y : X → UU l) →
     hom-system (system-slice-UU X) (system-slice-UU (Σ X Y))
-  hom-system.type (hom-system-weakening-system-slice-UU X Y) Z (pair x y) =
+  section-system.type (hom-system-weakening-system-slice-UU X Y) Z (pair x y) =
     Z x
-  hom-system.element (hom-system-weakening-system-slice-UU X Y) Z g (pair x y) =
+  section-system.element (hom-system-weakening-system-slice-UU X Y) Z g (pair x y) =
     g x
-  hom-system.type (hom-system.slice (hom-system-weakening-system-slice-UU X Y) Z) W (pair (pair x y) z) = W (pair x z)
-  hom-system.element (hom-system.slice (hom-system-weakening-system-slice-UU X Y) Z) W h (pair (pair x y) z) = h (pair x z)
-  hom-system.slice (hom-system.slice (hom-system-weakening-system-slice-UU X Y) Z) W = {!hom-system.slice (hom-system-weakening-system-slice-UU X Y) ?!}
+  section-system.type (section-system.slice (hom-system-weakening-system-slice-UU X Y) Z) W (pair (pair x y) z) = W (pair x z)
+  section-system.element (section-system.slice (hom-system-weakening-system-slice-UU X Y) Z) W h (pair (pair x y) z) = h (pair x z)
+  section-system.slice (section-system.slice (hom-system-weakening-system-slice-UU X Y) Z) W = {!section-system.slice (hom-system-weakening-system-slice-UU X Y) ?!}
 
   weakening-system-slice-UU :
     {l : Level} (X : UU l) → weakening (system-slice-UU X)
@@ -643,27 +650,27 @@ module dependent where
   weakening-type-UU :
     {l : Level} (X : UU l) →
     hom-system (system-UU l) (system.slice (system-UU l) X)
-  hom-system.type (weakening-type-UU X) Y x = Y
-  hom-system.element (weakening-type-UU X) Y y x = y
-  hom-system.slice (weakening-type-UU X) Y = {!!}
+  section-system.type (weakening-type-UU X) Y x = Y
+  section-system.element (weakening-type-UU X) Y y x = y
+  section-system.slice (weakening-type-UU X) Y = {!!}
   
   weakening-UU : (l : Level) → weakening (system-UU l)
-  hom-system.type (weakening.type (weakening-UU l) X) Y x = Y
-  hom-system.element (weakening.type (weakening-UU l) X) Y y x = y
-  hom-system.type (hom-system.slice (weakening.type (weakening-UU l) X) Y) Z t =
+  section-system.type (weakening.type (weakening-UU l) X) Y x = Y
+  section-system.element (weakening.type (weakening-UU l) X) Y y x = y
+  section-system.type (section-system.slice (weakening.type (weakening-UU l) X) Y) Z t =
     Z (pr2 t)
-  hom-system.element
-    ( hom-system.slice (weakening.type (weakening-UU l) X) Y) Z f t =
+  section-system.element
+    ( section-system.slice (weakening.type (weakening-UU l) X) Y) Z f t =
     f (pr2 t)
-  hom-system.slice (hom-system.slice (weakening.type (weakening-UU l) X) Y) Z =
+  section-system.slice (section-system.slice (weakening.type (weakening-UU l) X) Y) Z =
     {!!}
-  hom-system.type
+  section-system.type
     ( weakening.type (weakening.slice (weakening-UU l) X) Y) Z (pair x y) =
     Z x
-  hom-system.element
+  section-system.element
     ( weakening.type (weakening.slice (weakening-UU l) X) Y) Z f (pair x y) =
     f x
-  hom-system.slice (weakening.type (weakening.slice (weakening-UU l) X) Y) Z =
+  section-system.slice (weakening.type (weakening.slice (weakening-UU l) X) Y) Z =
     {!!}
   weakening.slice (weakening.slice (weakening-UU l) X) Y = weakening.slice (weakening-UU l) (Σ X Y)
 -}
@@ -751,9 +758,9 @@ module dependent where
       N    : closed-type-dtt A
       zero : global-element-dtt A N
       succ : global-element-dtt A
-               ( hom-system.type
+               ( section-system.type
                  ( hom-dtt.sys (function-types.sys Π N))
-                 ( hom-system.type
+                 ( section-system.type
                    ( weakening.type (type-theory.W A) N)
                    ( N)))
 
@@ -763,11 +770,11 @@ module dependent where
     (N : natural-numbers A Π) (X : closed-type-dtt A) →
     natural-numbers (slice-dtt A X) (function-types.slice Π X)
   natural-numbers.N (natural-numbers-slice A Π N X) =
-    hom-system.type
+    section-system.type
       ( weakening.type (type-theory.W A) X)
       ( natural-numbers.N N)
   natural-numbers.zero (natural-numbers-slice A Π N X) =
-    hom-system.element
+    section-system.element
       ( weakening.type (type-theory.W A) X)
       ( natural-numbers.N N)
       ( natural-numbers.zero N)
@@ -775,28 +782,28 @@ module dependent where
     tr ( system.element (type-theory.sys (slice-dtt A X)))
        {! (htpy-hom-system.type (preserves-weakening.type (hom-dtt.W (function-types.sys Π (natural-numbers.N N))) ?) ?)!}
     {-
-    Id ( hom-system.type 
+    Id ( section-system.type 
          ( weakening.type (type-theory.W A) X)
-         ( hom-system.type
+         ( section-system.type
            ( hom-dtt.sys (function-types.sys Π (natural-numbers.N N)))
-           ( hom-system.type
+           ( section-system.type
              ( weakening.type (type-theory.W A) (natural-numbers.N N))
              (natural-numbers.N N))))
-       ( hom-system.type
+       ( section-system.type
          ( hom-dtt.sys
            ( function-types.sys (function-types.slice Π X)
              ( natural-numbers.N (natural-numbers-slice A Π N X))))
-         ( hom-system.type
+         ( section-system.type
            ( weakening.type 
              ( type-theory.W (slice-dtt A X))
              ( natural-numbers.N (natural-numbers-slice A Π N X)))
            ( natural-numbers.N (natural-numbers-slice A Π N X))))
   -}
-       ( hom-system.element
+       ( section-system.element
          ( weakening.type (type-theory.W A) X)
-         ( hom-system.type
+         ( section-system.type
            ( hom-dtt.sys (function-types.sys Π (natural-numbers.N N)))
-           ( hom-system.type
+           ( section-system.type
              ( weakening.type (type-theory.W A) (natural-numbers.N N))
              ( natural-numbers.N N)))
          ( natural-numbers.succ N))
@@ -818,7 +825,7 @@ module dependent where
     ( ( tr-concat
         ( htpy-hom-system.type H X)
         ( htpy-hom-system.type K X)
-        ( hom-system.element (tr (hom-system A) refl f) X x)) ∙
+        ( section-system.element (tr (hom-system A) refl f) X x)) ∙
       ( ap
         ( tr (system.element B) (htpy-hom-system.type K X))
         ( htpy-hom-system.element H X x))) ∙
@@ -835,7 +842,7 @@ module dependent where
     ( ( tr-concat
         ( htpy-hom-system.type H X)
         ( htpy-hom-system.type K X)
-        ( hom-system.element (tr (hom-system A) refl f) X x)) ∙
+        ( section-system.element (tr (hom-system A) refl f) X x)) ∙
       ( ap
         ( tr (system.element B) (htpy-hom-system.type K X))
         ( htpy-hom-system.element H X x))) ∙
