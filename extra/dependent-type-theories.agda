@@ -374,6 +374,51 @@ module dependent where
   left-whisker-htpy-hom-system g H =
     left-whisker-htpy-hom-system' refl refl refl refl refl H
 
+  right-whisker-htpy-hom-system' :
+    {l1 l2 l3 l4 l5 l6 : Level} {A : system l1 l2} {B : system l3 l4}
+    {C C' : system l5 l6} (p : Id C C') {g : hom-system B C}
+    {g' : hom-system B C'}
+    {p' : Id (constant-fibered-system B C) (constant-fibered-system B C')}
+    (α : Id (ap (constant-fibered-system B) p) p')
+    {q' : Id (constant-fibered-system A C) (constant-fibered-system A C')}
+    (β : Id (ap (constant-fibered-system A) p) q')
+    (H : htpy-section-system' p' g g') →
+    (f : hom-system A B) →
+    htpy-section-system' q' (comp-hom-system g f) (comp-hom-system g' f)
+  section-system.type (right-whisker-htpy-hom-system' refl refl refl H f) X =
+    section-system.type H (section-system.type f X)
+  section-system.element
+    ( right-whisker-htpy-hom-system' refl refl refl H f) X x =
+    section-system.element H
+      ( section-system.type f X)
+      ( section-system.element f X x)
+  section-system.slice
+    ( right-whisker-htpy-hom-system'
+      {A = A} {B = B} {C = C} refl refl refl H f) X =
+    right-whisker-htpy-hom-system'
+      ( ap (system.slice C) (section-system.type H (section-system.type f X)))
+      ( inv
+        ( ap-comp
+          ( constant-fibered-system (system.slice B (section-system.type f X)))
+          ( system.slice C)
+          ( section-system.type H (section-system.type f X))))
+      ( inv
+        ( ap-comp
+          ( constant-fibered-system (system.slice A X))
+          ( system.slice C)
+          ( section-system.type H (section-system.type f X))))
+      ( section-system.slice H (section-system.type f X))
+      ( section-system.slice f X)
+
+  right-whisker-htpy-hom-system :
+    {l1 l2 l3 l4 l5 l6 : Level} {A : system l1 l2} {B : system l3 l4}
+    {C : system l5 l6} {g g' : hom-system B C}
+    (H : htpy-section-system g g') →
+    (f : hom-system A B) →
+    htpy-section-system (comp-hom-system g f) (comp-hom-system g' f)
+  right-whisker-htpy-hom-system H f =
+    right-whisker-htpy-hom-system' refl refl refl H f 
+
   ------------------------------------------------------------------------------
   
   {- Dependent type theories are systems equipped with weakening and 
