@@ -307,16 +307,44 @@ module dependent where
       ( section-system.slice g ( section-system.type f X))
       ( section-system.slice f X)
 
-  left-whisker-htpy-hom-system :
-    {l1 l2 l3 l4 l5 l6 : Level} {A : system l1 l2} {B : system l3 l4}
-    {C : system l5 l6} (g : hom-system B C)
-    {f f' : hom-system A B} → htpy-hom-system f f' →
-    htpy-hom-system (comp-hom-system g f) (comp-hom-system g f')
-  section-system.type (left-whisker-htpy-hom-system g H) X =
+  left-whisker-htpy-hom-system' :
+    {l1 l2 l3 l4 l5 l6 : Level} {A : system l1 l2} {B B' : system l3 l4}
+    {C C' : system l5 l6} {g : hom-system B C} {g' : hom-system B' C'}
+    (p : Id B B') (q : Id C C')
+    (r : Id (tr (λ t → t) (ap-binary hom-system p q) g) g')
+    {f : hom-system A B} {f' : hom-system A B'} →
+    htpy-section-system' (ap (constant-fibered-system A) p) f f' →
+    htpy-section-system'
+      ( ap (constant-fibered-system A) q)
+      ( comp-hom-system g f)
+      ( comp-hom-system g' f')
+  section-system.type (left-whisker-htpy-hom-system' {g = g} refl refl refl H) X =
     ap (section-system.type g) (section-system.type H X)
-  section-system.element (left-whisker-htpy-hom-system g H) X x =
-    {!!}
-  section-system.slice (left-whisker-htpy-hom-system g H) X = {!!}
+  section-system.element (left-whisker-htpy-hom-system' {A = A} {B = B} {g = g} refl refl refl {f} {f'} H) X x =
+    ( tr-ap
+      ( section-system.type g)
+      ( section-system.element g)
+      ( section-system.type H X)
+      ( section-system.element f X x)) ∙
+    ( ap ( section-system.element g (section-system.type f' X))
+         ( section-system.element H X x))
+  section-system.slice (left-whisker-htpy-hom-system' {g = g} refl refl refl H) X =
+    {!left-whisker-htpy-hom-system' ? ? ? ?!}
+
+{-
+    tr-ap
+      ( section-system.type g)
+      ( section-system.element g)
+      ( section-system.type H X)
+      ( section-system.element f X x)
+
+    Id ( tr ( λ t → fibered-system.element B X t x)
+            ( ap (section-system.type g) (section-system.type H X))
+            ( section-system.element g 
+              ( section-system.type f X) 
+              ( section-system.element f X x)))
+       ( section-system.element (comp-hom-system g f') X x)
+-}
 
   ------------------------------------------------------------------------------
   
