@@ -270,34 +270,6 @@ module dependent where
       ( section-system.slice f X)
 
   ------------------------------------------------------------------------------
-
-  -- Morphisms of fibered systems
-
-  record hom-fibered-system
-    {l1 l2 l3 l4 l5 l6 l7 l8 : Level} {A : system l1 l2} {A' : system l3 l4}
-    (f : hom-system A A') (B : fibered-system l5 l6 A)
-    (B' : fibered-system l7 l8 A') : UU (l1 ⊔ l2 ⊔ l3 ⊔ l4 ⊔ l5 ⊔ l6 ⊔ l7 ⊔ l8)
-    where
-    coinductive
-    field
-      type    : (X : system.type A) → fibered-system.type B X →
-                fibered-system.type B' (section-system.type f X)
-      element : (X : system.type A) (x : system.element A X) →
-                (Y : fibered-system.type B X) →
-                fibered-system.element B X Y x →
-                fibered-system.element B'
-                  ( section-system.type f X)
-                  ( type X Y)
-                  ( section-system.element f X x)
-      slice   : (X : system.type A) (Y : fibered-system.type B X) →
-                hom-fibered-system
-                  ( section-system.slice f X)
-                  ( fibered-system.slice B X Y)
-                  ( fibered-system.slice B'
-                    ( section-system.type f X)
-                    ( type X Y))
-  
-  ------------------------------------------------------------------------------
   
   {- Dependent type theories are systems equipped with weakening and 
      substitution structure, and with the structure of generic elements (the 
@@ -691,6 +663,42 @@ module dependent where
     generic-element-is-identity.slice (type-theory.δid A) X
   type-theory.Sδ! (slice-dtt A X) =
     substitution-by-generic-element.slice (type-theory.Sδ! A) X
+
+  ------------------------------------------------------------------------------
+
+  -- Morphisms of fibered systems
+
+  record hom-fibered-system
+    {l1 l2 l3 l4 l5 l6 l7 l8 : Level} {A : system l1 l2} {A' : system l3 l4}
+    (f : hom-system A A') (B : fibered-system l5 l6 A)
+    (B' : fibered-system l7 l8 A') : UU (l1 ⊔ l2 ⊔ l3 ⊔ l4 ⊔ l5 ⊔ l6 ⊔ l7 ⊔ l8)
+    where
+    coinductive
+    field
+      type    : (X : system.type A) → fibered-system.type B X →
+                fibered-system.type B' (section-system.type f X)
+      element : (X : system.type A) (x : system.element A X) →
+                (Y : fibered-system.type B X) →
+                fibered-system.element B X Y x →
+                fibered-system.element B'
+                  ( section-system.type f X)
+                  ( type X Y)
+                  ( section-system.element f X x)
+      slice   : (X : system.type A) (Y : fibered-system.type B X) →
+                hom-fibered-system
+                  ( section-system.slice f X)
+                  ( fibered-system.slice B X Y)
+                  ( fibered-system.slice B'
+                    ( section-system.type f X)
+                    ( type X Y))
+
+  id-hom-fibered-system :
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} (B : fibered-system l3 l4 A) →
+    hom-fibered-system (id-hom-system A) B B
+  hom-fibered-system.type (id-hom-fibered-system B) X = id
+  hom-fibered-system.element (id-hom-fibered-system B) X x Y = id
+  hom-fibered-system.slice (id-hom-fibered-system B) X Y =
+    id-hom-fibered-system (fibered-system.slice B X Y)
 
   ------------------------------------------------------------------------------
 
