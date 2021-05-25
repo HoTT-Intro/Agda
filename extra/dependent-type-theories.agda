@@ -167,6 +167,12 @@ module dependent where
   concat-htpy-section-system G H =
     concat-htpy-section-system' refl refl G H
 
+  inv-htpy-section-system :
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
+    {f g : section-system A B} (H : htpy-section-system f g) →
+    htpy-section-system g f
+  inv-htpy-section-system H = inv-htpy-section-system' refl refl H
+
   ------------------------------------------------------------------------------
 
   -- We introduce the total system of a fibered dependency system
@@ -238,6 +244,11 @@ module dependent where
     htpy-hom-system f g → htpy-hom-system g h → htpy-hom-system f h
   concat-htpy-hom-system G H =
     concat-htpy-section-system G H
+
+  inv-htpy-hom-system :
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : system l3 l4}
+    {f g : hom-system A B} → htpy-hom-system f g → htpy-hom-system g f
+  inv-htpy-hom-system H = inv-htpy-section-system H
 
   ------------------------------------------------------------------------------
 
@@ -871,22 +882,45 @@ module dependent where
     preserves-weakening W W (id-hom-system A)
   preserves-weakening.type (preserves-weakening-id-hom-system W) X =
     concat-htpy-hom-system
-      ( left-unit-law-comp-hom-system (weakening.type W X)) {!!}
-  preserves-weakening.slice (preserves-weakening-id-hom-system W) X = {!!}
+      ( left-unit-law-comp-hom-system (weakening.type W X))
+      ( inv-htpy-hom-system
+        ( right-unit-law-comp-hom-system (weakening.type W X)))
+  preserves-weakening.slice (preserves-weakening-id-hom-system W) X =
+    preserves-weakening-id-hom-system (weakening.slice W X)
 
-  {-
-  preserves-weakening-id-hom-system :
-    {l1 l2 : Level} (A : system l1 l2) (W : weakening A) →
-    preserves-weakening W W (id-hom-system A)
-  preserves-weakening.type (preserves-weakening-id-hom-system A W) X = {!!}
-  preserves-weakening.slice (preserves-weakening-id-hom-system A W) = {!!}
+  preserves-substitution-id-hom-system :
+    {l1 l2 : Level} {A : system l1 l2} (S : substitution A) →
+    preserves-substitution S S (id-hom-system A)
+  preserves-substitution.type (preserves-substitution-id-hom-system S) X x =
+    concat-htpy-hom-system
+      ( left-unit-law-comp-hom-system (substitution.type S X x))
+      ( inv-htpy-hom-system
+        ( right-unit-law-comp-hom-system (substitution.type S X x)))
+  preserves-substitution.slice (preserves-substitution-id-hom-system S) X =
+    preserves-substitution-id-hom-system (substitution.slice S X)
 
-  id-hom-dtt : {l1 l2 : Level} (A : type-theory l1 l2) → hom-dtt A A
-  hom-dtt.sys (id-hom-dtt A) = id-hom-system (type-theory.sys A)
-  hom-dtt.W (id-hom-dtt A) = {!!}
-  hom-dtt.S (id-hom-dtt A) = {!!}
-  hom-dtt.δ (id-hom-dtt A) = {!!}
-  -}
+  preserves-generic-element-id-hom-system :
+    {l1 l2 : Level} {A : system l1 l2} {W : weakening A}
+    (δ : generic-element A W) →
+    preserves-generic-element δ δ
+      ( id-hom-system A)
+      ( preserves-weakening-id-hom-system W)
+  preserves-generic-element.type
+    ( preserves-generic-element-id-hom-system δ) X = refl
+  preserves-generic-element.slice
+    ( preserves-generic-element-id-hom-system δ) X =
+    preserves-generic-element-id-hom-system (generic-element.slice δ X)
+
+  id-hom-dtt :
+    {l1 l2 : Level} (A : type-theory l1 l2) → hom-dtt A A
+  hom-dtt.sys (id-hom-dtt A) =
+    id-hom-system (type-theory.sys A)
+  hom-dtt.W (id-hom-dtt A) =
+    preserves-weakening-id-hom-system (type-theory.W A)
+  hom-dtt.S (id-hom-dtt A) =
+    preserves-substitution-id-hom-system (type-theory.S A)
+  hom-dtt.δ (id-hom-dtt A) =
+    preserves-generic-element-id-hom-system (type-theory.δ A)
 
   ------------------------------------------------------------------------------
 
