@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --exact-split #-}
+{-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
 module extra.dependent-type-theories where
 
@@ -306,6 +306,17 @@ module dependent where
         ( section-system.type g (section-system.type f X)))
       ( section-system.slice g ( section-system.type f X))
       ( section-system.slice f X)
+
+  left-whisker-htpy-hom-system :
+    {l1 l2 l3 l4 l5 l6 : Level} {A : system l1 l2} {B : system l3 l4}
+    {C : system l5 l6} (g : hom-system B C)
+    {f f' : hom-system A B} → htpy-hom-system f f' →
+    htpy-hom-system (comp-hom-system g f) (comp-hom-system g f')
+  section-system.type (left-whisker-htpy-hom-system g H) X =
+    ap (section-system.type g) (section-system.type H X)
+  section-system.element (left-whisker-htpy-hom-system g H) X x =
+    {!!}
+  section-system.slice (left-whisker-htpy-hom-system g H) X = {!!}
 
   ------------------------------------------------------------------------------
   
@@ -877,6 +888,10 @@ module dependent where
               ( sys)
               ( W)
 
+  ------------------------------------------------------------------------------
+
+  -- We construct the identity morphism of a dependent type theory
+
   preserves-weakening-id-hom-system :
     {l1 l2 : Level} {A : system l1 l2} (W : weakening A) →
     preserves-weakening W W (id-hom-system A)
@@ -921,6 +936,22 @@ module dependent where
     preserves-substitution-id-hom-system (type-theory.S A)
   hom-dtt.δ (id-hom-dtt A) =
     preserves-generic-element-id-hom-system (type-theory.δ A)
+
+  ------------------------------------------------------------------------------
+
+  -- We construct the composition of morphisms of type theories
+
+  {-
+
+  preserves-weakening-comp-hom-system :
+    {l1 l2 l3 l4 l5 l6 : Level} {A : system l1 l2} {B : system l3 l4}
+    {C : system l5 l6} {g : hom-system B C} {f : hom-system A B}
+    {WA : weakening A} {WB : weakening B} {WC : weakening C} →
+    preserves-weakening WB WC g → preserves-weakening WA WB f →
+    preserves-weakening WA WC (comp-hom-system g f)
+  preserves-weakening.type (preserves-weakening-comp-hom-system Wg Wf) X = {!!}
+  preserves-weakening.slice (preserves-weakening-comp-hom-system Wg Wf) X = {!!}
+  -}
 
   ------------------------------------------------------------------------------
 
