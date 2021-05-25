@@ -180,6 +180,16 @@ tr-ap :
   Id (tr D (ap f p) (g x z)) (g y (tr B p z))
 tr-ap f g refl z = refl
 
+eq-transpose-tr :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {x y : A} (p : Id x y)
+  {u : B x} {v : B y} → Id v (tr B p u) → Id (tr B (inv p) v) u
+eq-transpose-tr refl q = q
+
+eq-transpose-tr' :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {x y : A} (p : Id x y)
+  {u : B x} {v : B y} → Id (tr B p u) v → Id u (tr B (inv p) v)
+eq-transpose-tr' refl q = q
+
 --------------------------------------------------------------------------------
 
 -- Section 5.5 The uniqueness of refl
