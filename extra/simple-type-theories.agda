@@ -350,10 +350,10 @@ dependent-hom-system-simple-hom-system :
   {σ : simple.system l2 A} {τ : simple.system l4 B} →
   simple.hom-system f σ τ →
   dependent.hom-system (dependent-system-simple-system σ) (dependent-system-simple-system τ)
-dependent.hom-system.type (dependent-hom-system-simple-hom-system {f = f} h) = f
-dependent.hom-system.element (dependent-hom-system-simple-hom-system h) X =
+dependent.section-system.type (dependent-hom-system-simple-hom-system {f = f} h) = f
+dependent.section-system.element (dependent-hom-system-simple-hom-system h) X =
   simple.hom-system.element h X
-dependent.hom-system.slice (dependent-hom-system-simple-hom-system h) X =
+dependent.section-system.slice (dependent-hom-system-simple-hom-system h) X =
   dependent-hom-system-simple-hom-system (simple.hom-system.slice h X)
 
 dependent-htpy-hom-system-simple-htpy-hom-system :
@@ -364,12 +364,12 @@ dependent-htpy-hom-system-simple-htpy-hom-system :
   dependent.htpy-hom-system
     ( dependent-hom-system-simple-hom-system g)
     ( dependent-hom-system-simple-hom-system h)
-dependent.htpy-hom-system'.type
+dependent.section-system.type
   ( dependent-htpy-hom-system-simple-htpy-hom-system H) = refl-htpy
-dependent.htpy-hom-system'.element
+dependent.section-system.element
   ( dependent-htpy-hom-system-simple-htpy-hom-system H) X =
   simple.htpy-hom-system.element H X
-dependent.htpy-hom-system'.slice
+dependent.section-system.slice
   ( dependent-htpy-hom-system-simple-htpy-hom-system H) X =
   dependent-htpy-hom-system-simple-htpy-hom-system
     ( simple.htpy-hom-system.slice H X)
