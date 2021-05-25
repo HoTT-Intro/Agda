@@ -310,17 +310,22 @@ module dependent where
   left-whisker-htpy-hom-system' :
     {l1 l2 l3 l4 l5 l6 : Level} {A : system l1 l2} {B B' : system l3 l4}
     {C C' : system l5 l6} {g : hom-system B C} {g' : hom-system B' C'}
-    (p : Id B B') (q : Id C C')
+    (p : Id B B')
+    {p' : Id (constant-fibered-system A B) (constant-fibered-system A B')}
+    (α : Id (ap (constant-fibered-system A) p) p')
+    (q : Id C C')
+    {q' : Id (constant-fibered-system A C) (constant-fibered-system A C')}
+    (β : Id (ap (constant-fibered-system A) q) q')
     (r : Id (tr (λ t → t) (ap-binary hom-system p q) g) g')
     {f : hom-system A B} {f' : hom-system A B'} →
-    htpy-section-system' (ap (constant-fibered-system A) p) f f' →
-    htpy-section-system'
-      ( ap (constant-fibered-system A) q)
-      ( comp-hom-system g f)
-      ( comp-hom-system g' f')
-  section-system.type (left-whisker-htpy-hom-system' {g = g} refl refl refl H) X =
+    htpy-section-system' p' f f' →
+    htpy-section-system' q' (comp-hom-system g f) (comp-hom-system g' f')
+  section-system.type
+    ( left-whisker-htpy-hom-system' {g = g} refl refl refl refl refl H) X =
     ap (section-system.type g) (section-system.type H X)
-  section-system.element (left-whisker-htpy-hom-system' {A = A} {B = B} {g = g} refl refl refl {f} {f'} H) X x =
+  section-system.element
+    ( left-whisker-htpy-hom-system'
+      {A = A} {B = B} {g = g} refl refl refl refl refl {f} {f'} H) X x =
     ( tr-ap
       ( section-system.type g)
       ( section-system.element g)
@@ -328,23 +333,46 @@ module dependent where
       ( section-system.element f X x)) ∙
     ( ap ( section-system.element g (section-system.type f' X))
          ( section-system.element H X x))
-  section-system.slice (left-whisker-htpy-hom-system' {g = g} refl refl refl H) X =
-    {!left-whisker-htpy-hom-system' ? ? ? ?!}
+  section-system.slice
+    ( left-whisker-htpy-hom-system'
+      {A = A} {B = B} {C = C} {g = g} refl refl refl refl refl H) X =
+    left-whisker-htpy-hom-system'
+      ( ap (system.slice B) (section-system.type H X))
+      ( inv
+        ( ap-comp
+          ( constant-fibered-system (system.slice A X))
+          ( system.slice B)
+          ( section-system.type H X)))
+      ( ap (system.slice C ∘ section-system.type g) (section-system.type H X))
+      ( ( ap ( ap (constant-fibered-system (system.slice A X)))
+             ( ap-comp
+               ( system.slice C)
+               ( section-system.type g)
+               ( section-system.type H X))) ∙
+        ( inv
+          ( ap-comp
+            ( constant-fibered-system (system.slice A X))
+            ( system.slice C)
+            ( ap (section-system.type g) (section-system.type H X)))))
+      ( γ (section-system.type H X))
+      ( section-system.slice H X)
+      where
+      γ : {Y Y' : system.type B} (p : Id Y Y') → 
+          Id ( tr ( λ t → t)
+                  ( ap-binary hom-system
+                    ( ap (system.slice B) p)
+                    ( ap (system.slice C ∘ section-system.type g) p))
+                  ( section-system.slice g Y))
+             ( section-system.slice g Y')
+      γ refl = refl
 
-{-
-    tr-ap
-      ( section-system.type g)
-      ( section-system.element g)
-      ( section-system.type H X)
-      ( section-system.element f X x)
-
-    Id ( tr ( λ t → fibered-system.element B X t x)
-            ( ap (section-system.type g) (section-system.type H X))
-            ( section-system.element g 
-              ( section-system.type f X) 
-              ( section-system.element f X x)))
-       ( section-system.element (comp-hom-system g f') X x)
--}
+  left-whisker-htpy-hom-system :
+    {l1 l2 l3 l4 l5 l6 : Level} {A : system l1 l2} {B : system l3 l4}
+    {C : system l5 l6} (g : hom-system B C) {f f' : hom-system A B} →
+    htpy-hom-system f f' →
+    htpy-hom-system (comp-hom-system g f) (comp-hom-system g f')
+  left-whisker-htpy-hom-system g H =
+    left-whisker-htpy-hom-system' refl refl refl refl refl H
 
   ------------------------------------------------------------------------------
   
