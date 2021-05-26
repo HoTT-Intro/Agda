@@ -263,7 +263,7 @@ module dependent where
     (f : hom-system A B) →
     htpy-hom-system (comp-hom-system (id-hom-system B) f) f
   section-system.type (left-unit-law-comp-hom-system f) = refl-htpy
-  section-system.element (left-unit-law-comp-hom-system f) {X} = refl-htpy
+  section-system.element (left-unit-law-comp-hom-system f) = refl-htpy
   section-system.slice (left-unit-law-comp-hom-system f) X =
     left-unit-law-comp-hom-system (section-system.slice f X)
 
@@ -272,7 +272,7 @@ module dependent where
     (f : hom-system A B) →
     htpy-hom-system (comp-hom-system f (id-hom-system A)) f
   section-system.type (right-unit-law-comp-hom-system f) = refl-htpy
-  section-system.element (right-unit-law-comp-hom-system f) {X} = refl-htpy
+  section-system.element (right-unit-law-comp-hom-system f) = refl-htpy
   section-system.slice (right-unit-law-comp-hom-system f) X =
     right-unit-law-comp-hom-system (section-system.slice f X)
 
@@ -284,7 +284,7 @@ module dependent where
       ( comp-hom-system (comp-hom-system h g) f)
       ( comp-hom-system h (comp-hom-system g f))
   section-system.type (assoc-comp-hom-system h g f) = refl-htpy
-  section-system.element (assoc-comp-hom-system h g f) {X} = refl-htpy
+  section-system.element (assoc-comp-hom-system h g f) = refl-htpy
   section-system.slice (assoc-comp-hom-system h g f) X =
     assoc-comp-hom-system
       ( section-system.slice h
@@ -316,8 +316,7 @@ module dependent where
       ( λ X' → section-system.element g {X'})
       ( section-system.type H X)
       ( section-system.element f x)) ∙
-    ( ap ( section-system.element g {section-system.type f' X})
-         ( section-system.element H x))
+    ( ap (section-system.element g) (section-system.element H x))
   section-system.slice
     ( left-whisker-htpy-hom-system'
       {A = A} {B = B} {C = C} {g = g} refl refl refl refl refl H) X =
@@ -373,9 +372,8 @@ module dependent where
   section-system.type (right-whisker-htpy-hom-system' refl refl refl H f) X =
     section-system.type H (section-system.type f X)
   section-system.element
-    ( right-whisker-htpy-hom-system' refl refl refl H f) {X} x =
-    section-system.element H
-      ( section-system.element f x)
+    ( right-whisker-htpy-hom-system' refl refl refl H f) x =
+    section-system.element H (section-system.element f x)
   section-system.slice
     ( right-whisker-htpy-hom-system'
       {A = A} {B = B} {C = C} refl refl refl H f) X =
@@ -517,7 +515,6 @@ module dependent where
                      ( X))
                    ( section-system.element
                      ( section-system.slice h X)
-                     { section-system.type (weakening.type WA X) X}
                      ( generic-element.type δA X)))
                  ( generic-element.type δB (section-system.type h X))
       slice : (X : system.type A) →
@@ -671,7 +668,6 @@ module dependent where
                      ( substitution-cancels-weakening.type S!W X x) X)
                    ( section-system.element
                      ( substitution.type S X x)
-                     { section-system.type (weakening.type W X) X}
                      ( generic-element.type δ X)))
                  ( x)
       slice : (X : system.type A) →
@@ -934,13 +930,15 @@ module dependent where
     {l1 l2 l3 l4 l5 l6 : Level} {A : system l1 l2} {B : system l3 l4}
     {C : system l5 l6} {g : hom-system B C} {f : hom-system A B}
     {WA : weakening A} {WB : weakening B} {WC : weakening C} →
-    {δA : generic-element WA} {δB : generic-element WB} {δC : generic-element WC} →
+    {δA : generic-element WA} {δB : generic-element WB}
+    {δC : generic-element WC} →
     {Wg : preserves-weakening WB WC g} {Wf : preserves-weakening WA WB f} →
     (δg : preserves-generic-element δB δC Wg)
     (δf : preserves-generic-element δA δB Wf) →
     preserves-generic-element δA δC (preserves-weakening-comp-hom-system Wg Wf)
   preserves-generic-element.type
-    ( preserves-generic-element-comp-hom-system {A = A} {B} {C} {g} {f} {WA} {WB} {WC} {δA} {δB} {δC} {Wg} {Wf} δg δf) X =
+    ( preserves-generic-element-comp-hom-system {A = A} {B} {C} {g} {f} {WA}
+      {WB} {WC} {δA} {δB} {δC} {Wg} {Wf} δg δf) X =
     ( ap
       ( λ t →
         tr ( system.element
@@ -966,12 +964,7 @@ module dependent where
                   ( generic-element.type δA X))) ∙
             ( ap
               ( section-system.element
-                ( section-system.slice g (section-system.type f X))
-                { section-system.type
-                  ( comp-hom-system
-                    ( weakening.type WB (section-system.type f X))
-                    ( f))
-                  ( X)})
+                ( section-system.slice g (section-system.type f X)))
               ( preserves-generic-element.type δf X)))) ∙
         ( preserves-generic-element.type δg (section-system.type f X))))
     where
@@ -1000,11 +993,6 @@ module dependent where
                ( u)))
            ( section-system.element
              ( section-system.slice g (section-system.type f X))
-             { section-system.type
-               ( comp-hom-system
-                 ( weakening.type WB (section-system.type f X))
-                 ( f))
-               ( X)}
              ( tr 
                ( system.element (system.slice B (section-system.type f X)))
                ( p)
@@ -1121,8 +1109,8 @@ module dependent where
 
   system-slice-UU : {l : Level} (X : UU l) → system (lsuc l) l
   system.type (system-slice-UU {l} X) = X → UU l
-  system.element (system-slice-UU {l} X) Y = (x : X) → Y x
-  system.slice (system-slice-UU {l} X) Y = system-slice-UU (Σ X Y)
+  system.element (system-slice-UU X) Y = (x : X) → Y x
+  system.slice (system-slice-UU X) Y = system-slice-UU (Σ X Y)
   
   {-
   hom-system-weakening-system-slice-UU :
