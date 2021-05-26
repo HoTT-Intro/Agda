@@ -781,161 +781,6 @@ module dependent where
 
   ------------------------------------------------------------------------------
 
-  -- Morphisms of fibered systems
-
-  record hom-fibered-system
-    {l1 l2 l3 l4 l5 l6 l7 l8 : Level} {A : system l1 l2} {A' : system l3 l4}
-    (f : hom-system A A') (B : fibered-system l5 l6 A)
-    (B' : fibered-system l7 l8 A') : UU (l1 ⊔ l2 ⊔ l3 ⊔ l4 ⊔ l5 ⊔ l6 ⊔ l7 ⊔ l8)
-    where
-    coinductive
-    field
-      type    : (X : system.type A) → fibered-system.type B X →
-                fibered-system.type B' (section-system.type f X)
-      element : (X : system.type A) (x : system.element A X) →
-                (Y : fibered-system.type B X) →
-                fibered-system.element B X Y x →
-                fibered-system.element B'
-                  ( section-system.type f X)
-                  ( type X Y)
-                  ( section-system.element f X x)
-      slice   : (X : system.type A) (Y : fibered-system.type B X) →
-                hom-fibered-system
-                  ( section-system.slice f X)
-                  ( fibered-system.slice B X Y)
-                  ( fibered-system.slice B'
-                    ( section-system.type f X)
-                    ( type X Y))
-
-  id-hom-fibered-system :
-    {l1 l2 l3 l4 : Level} {A : system l1 l2} (B : fibered-system l3 l4 A) →
-    hom-fibered-system (id-hom-system A) B B
-  hom-fibered-system.type (id-hom-fibered-system B) X = id
-  hom-fibered-system.element (id-hom-fibered-system B) X x Y = id
-  hom-fibered-system.slice (id-hom-fibered-system B) X Y =
-    id-hom-fibered-system (fibered-system.slice B X Y)
-
-  ------------------------------------------------------------------------------
-
-  -- We introduce simple type theories
-  
-  record is-simple-type-theory 
-    {l1 l2 : Level} (A : type-theory l1 l2) : UU l1
-    where
-    coinductive
-    field
-      type  : (X : system.type (type-theory.sys A)) →
-              is-equiv
-                ( section-system.type
-                  ( weakening.type (type-theory.W A) X))
-      slice : (X : system.type (type-theory.sys A)) →
-              is-simple-type-theory (slice-dtt A X)
-  
-  record simple-type-theory (l1 l2 : Level) : UU (lsuc l1 ⊔ lsuc l2)
-    where
-    field
-      dtt : type-theory l1 l2
-      is-simple : is-simple-type-theory dtt
-
-  ------------------------------------------------------------------------------
-
-  {- We introduce the condiction that the action on elements of a morphism of
-     dependent type theories is an equivalence -}
-  
-  record is-equiv-on-elements-hom-system
-    {l1 l2 l3 l4 : Level} (A : system l1 l2) (B : system l3 l4)
-    (h : hom-system A B) : UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
-    where
-    coinductive
-    field
-      type  : (X : system.type A) → is-equiv (section-system.element h X)
-      slice : (X : system.type A) →
-              is-equiv-on-elements-hom-system
-                ( system.slice A X)
-                ( system.slice B (section-system.type h X))
-                ( section-system.slice h X)
-
-  ------------------------------------------------------------------------------
-
-  -- We introduce unary type theories
-  
-  record unary-type-theory
-    {l1 l2 : Level} (A : type-theory l1 l2) : UU (lsuc l1 ⊔ lsuc l2)
-    where
-    field
-      dtt       : type-theory l1 l2
-      is-simple : is-simple-type-theory A
-      is-unary  : (X Y : system.type (type-theory.sys A)) →
-                  is-equiv-on-elements-hom-system
-                    ( system.slice (type-theory.sys A) Y)
-                    ( system.slice
-                      ( system.slice (type-theory.sys A) X)
-                      ( section-system.type
-                        ( weakening.type (type-theory.W A) X) Y))
-                    ( section-system.slice
-                      ( weakening.type (type-theory.W A) X)
-                      ( Y))
-
-  ------------------------------------------------------------------------------
-
-  system-slice-UU : {l : Level} (X : UU l) → system (lsuc l) l
-  system.type (system-slice-UU {l} X) = X → UU l
-  system.element (system-slice-UU {l} X) Y = (x : X) → Y x
-  system.slice (system-slice-UU {l} X) Y = system-slice-UU (Σ X Y)
-  
-  {-
-  hom-system-weakening-system-slice-UU :
-    {l : Level} (X : UU l) (Y : X → UU l) →
-    hom-system (system-slice-UU X) (system-slice-UU (Σ X Y))
-  section-system.type (hom-system-weakening-system-slice-UU X Y) Z (pair x y) =
-    Z x
-  section-system.element (hom-system-weakening-system-slice-UU X Y) Z g (pair x y) =
-    g x
-  section-system.type (section-system.slice (hom-system-weakening-system-slice-UU X Y) Z) W (pair (pair x y) z) = W (pair x z)
-  section-system.element (section-system.slice (hom-system-weakening-system-slice-UU X Y) Z) W h (pair (pair x y) z) = h (pair x z)
-  section-system.slice (section-system.slice (hom-system-weakening-system-slice-UU X Y) Z) W = {!section-system.slice (hom-system-weakening-system-slice-UU X Y) ?!}
-
-  weakening-system-slice-UU :
-    {l : Level} (X : UU l) → weakening (system-slice-UU X)
-  weakening.type (weakening-system-slice-UU X) Y =
-    hom-system-weakening-system-slice-UU X Y
-  weakening.slice (weakening-system-slice-UU X) = {!!}
-  
-  system-UU : (l : Level) → system (lsuc l) l
-  system.type (system-UU l) = UU l
-  system.element (system-UU l) X = X
-  system.slice (system-UU l) X = system-slice-UU X
-  
-  weakening-type-UU :
-    {l : Level} (X : UU l) →
-    hom-system (system-UU l) (system.slice (system-UU l) X)
-  section-system.type (weakening-type-UU X) Y x = Y
-  section-system.element (weakening-type-UU X) Y y x = y
-  section-system.slice (weakening-type-UU X) Y = {!!}
-  
-  weakening-UU : (l : Level) → weakening (system-UU l)
-  section-system.type (weakening.type (weakening-UU l) X) Y x = Y
-  section-system.element (weakening.type (weakening-UU l) X) Y y x = y
-  section-system.type (section-system.slice (weakening.type (weakening-UU l) X) Y) Z t =
-    Z (pr2 t)
-  section-system.element
-    ( section-system.slice (weakening.type (weakening-UU l) X) Y) Z f t =
-    f (pr2 t)
-  section-system.slice (section-system.slice (weakening.type (weakening-UU l) X) Y) Z =
-    {!!}
-  section-system.type
-    ( weakening.type (weakening.slice (weakening-UU l) X) Y) Z (pair x y) =
-    Z x
-  section-system.element
-    ( weakening.type (weakening.slice (weakening-UU l) X) Y) Z f (pair x y) =
-    f x
-  section-system.slice (weakening.type (weakening.slice (weakening-UU l) X) Y) Z =
-    {!!}
-  weakening.slice (weakening.slice (weakening-UU l) X) Y = weakening.slice (weakening-UU l) (Σ X Y)
--}
-
-  ------------------------------------------------------------------------------
-
   -- We introduce morphisms of dependent type theories
   
   record hom-dtt
@@ -1189,6 +1034,368 @@ module dependent where
     preserves-substitution-comp-hom-system (hom-dtt.S g) (hom-dtt.S f)
   hom-dtt.δ (comp-hom-dtt g f) =
     preserves-generic-element-comp-hom-system (hom-dtt.δ g) (hom-dtt.δ f)
+
+  ------------------------------------------------------------------------------
+
+  -- Homotopies of morphisms of dependent type theories
+
+  htpy-hom-dtt :
+    {l1 l2 l3 l4 : Level} {A : type-theory l1 l2} {B : type-theory l3 l4}
+    (f g : hom-dtt A B) → UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+  htpy-hom-dtt f g = htpy-hom-system (hom-dtt.sys f) (hom-dtt.sys g)
+
+  left-unit-law-comp-hom-dtt :
+    {l1 l2 l3 l4 : Level} {A : type-theory l1 l2} {B : type-theory l3 l4}
+    (f : hom-dtt A B) → htpy-hom-dtt (comp-hom-dtt (id-hom-dtt B) f) f
+  left-unit-law-comp-hom-dtt f = left-unit-law-comp-hom-system (hom-dtt.sys f)
+
+  right-unit-law-comp-hom-dtt :
+    {l1 l2 l3 l4 : Level} {A : type-theory l1 l2} {B : type-theory l3 l4}
+    (f : hom-dtt A B) → htpy-hom-dtt (comp-hom-dtt f (id-hom-dtt A)) f
+  right-unit-law-comp-hom-dtt f = right-unit-law-comp-hom-system (hom-dtt.sys f)
+
+  assoc-comp-hom-dtt :
+    {l1 l2 l3 l4 l5 l6 l7 l8 : Level} {A : type-theory l1 l2}
+    {B : type-theory l3 l4} {C : type-theory l5 l6} {D : type-theory l7 l8}
+    (h : hom-dtt C D) (g : hom-dtt B C) (f : hom-dtt A B) →
+    htpy-hom-dtt (comp-hom-dtt (comp-hom-dtt h g) f)
+                 (comp-hom-dtt h (comp-hom-dtt g f))
+  assoc-comp-hom-dtt h g f =
+    assoc-comp-hom-system (hom-dtt.sys h) (hom-dtt.sys g) (hom-dtt.sys f)
+
+  ------------------------------------------------------------------------------
+
+  -- Bifibered systems
+
+  record bifibered-system
+    {l1 l2 l3 l4 l5 l6 : Level} (l7 l8 : Level) {A : system l1 l2}
+    (B : fibered-system l3 l4 A) (C : fibered-system l5 l6 A) :
+    UU (l1 ⊔ l2 ⊔ l3 ⊔ l4 ⊔ l5 ⊔ l6 ⊔ lsuc l7 ⊔ lsuc l8)
+    where
+    coinductive
+    field
+      type    : {X : system.type A} (Y : fibered-system.type B X)
+                (Z : fibered-system.type C X) → UU l7
+      element : {X : system.type A} {Y : fibered-system.type B X}
+                {Z : fibered-system.type C X} {x : system.element A X}
+                (W : type Y Z) (y : fibered-system.element B X Y x)
+                (z : fibered-system.element C X Z x) → UU l8
+      slice   : {X : system.type A} (Y : fibered-system.type B X)
+                (Z : fibered-system.type C X) →
+                bifibered-system l7 l8
+                  ( fibered-system.slice B X Y)
+                  ( fibered-system.slice C X Z)
+
+  record section-fibered-system
+    {l1 l2 l3 l4 l5 l6 l7 l8 : Level} {A : system l1 l2}
+    {B : fibered-system l3 l4 A} {C : fibered-system l5 l6 A}
+    (f : section-system A C) (D : bifibered-system l7 l8 B C) :
+    UU (l1 ⊔ l2 ⊔ l3 ⊔ l4 ⊔ l7 ⊔ l8)
+    where
+    coinductive
+    field
+      type    : {X : system.type A} (Y : fibered-system.type B X) →
+                bifibered-system.type D Y (section-system.type f X)
+      element : {X : system.type A} {Y : fibered-system.type B X} →
+                {x : system.element A X} (y : fibered-system.element B X Y x) →
+                bifibered-system.element D 
+                  ( type Y)
+                  ( y)
+                  ( section-system.element f X x)
+      slice   : {X : system.type A} (Y : fibered-system.type B X) →
+                section-fibered-system
+                  ( section-system.slice f X)
+                  ( bifibered-system.slice D Y (section-system.type f X))
+
+  ------------------------------------------------------------------------------
+
+  -- Homotopies of sections of fibered systems
+
+  double-tr :
+    {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : A → UU l3}
+    (D : (x : A) → B x → C x → UU l4) {x y : A} (p : Id x y) {u : B x}
+    {v : C x} → D x u v → D y (tr B p u) (tr C p v)
+  double-tr D refl z = z
+
+{-
+  tr-bifibered-system-slice :
+    {l1 l2 l3 l4 l5 l6 l7 l8 : Level} {A : system l1 l2}
+    {B : fibered-system l3 l4 A} {C : fibered-system l5 l6 A}
+    (D : bifibered-system l7 l8 B C) {X : system.type A}
+    (Y : fibered-system.type B X) {Z Z' : fibered-system.type C X}
+    (p : Id Z Z') →
+-}  
+   
+  Eq-bifibered-system' :
+    {l1 l2 l3 l4 l5 l6 l7 l8 : Level} {A : system l1 l2}
+    {B : fibered-system l3 l4 A} {C C' : fibered-system l5 l6 A}
+    (D : bifibered-system l7 l8 B C) (D' : bifibered-system l7 l8 B C')
+    (α : Id C C') (β : Id (tr (bifibered-system l7 l8 B) α D) D')
+    (f : section-system A C) (f' : section-system A C')
+    (g : section-fibered-system f D) (g' : section-fibered-system f' D') →
+    bifibered-system l7 l8 B (Eq-fibered-system' α f f')
+  bifibered-system.type
+    ( Eq-bifibered-system' D .D refl refl f f' g g') {X} Y p =
+    Id ( tr (bifibered-system.type D Y) p (section-fibered-system.type g Y))
+       ( section-fibered-system.type g' Y)
+  bifibered-system.element
+    ( Eq-bifibered-system' {A = A} {C = C} D .D refl refl f f' g g')
+    {X} {Y} {p} {x} α y q =
+    Id ( tr
+         ( bifibered-system.element D (section-fibered-system.type g' Y) y)
+         ( q)
+         ( tr
+           ( λ t →
+             bifibered-system.element D t y
+               ( tr (λ t → fibered-system.element C X t x)
+               ( p)
+               ( section-system.element f X x)))
+           ( α)
+           ( double-tr
+             ( λ Z u v → bifibered-system.element D {Z = Z} u y v)
+             ( p)
+             ( section-fibered-system.element g y))))
+       ( section-fibered-system.element g' y)
+  bifibered-system.slice
+    ( Eq-bifibered-system' {C = C} D .D refl refl f f' g g') {X} Y α =
+    Eq-bifibered-system'
+      ( bifibered-system.slice D Y (section-system.type f X))
+      ( bifibered-system.slice D Y (section-system.type f' X))
+      ( ap (fibered-system.slice C X) α)
+      {!!}
+      ( section-system.slice f X)
+      ( section-system.slice f' X)
+      ( section-fibered-system.slice g Y)
+      ( section-fibered-system.slice g' Y)
+
+{-
+Id
+    (tr (bifibered-system l7 l8 (fibered-system.slice B X Y))
+     (ap (fibered-system.slice C X) α)
+     (bifibered-system.slice D Y (section-system.type f X)))
+    (bifibered-system.slice D Y (section-system.type f' X))
+
+-}
+    
+
+{-
+  {- We will introduce homotopies of sections of fibered systems. However,
+     in order to define concatenation of those homotopies, we will first 
+     define heterogeneous homotopies of sections of fibered systems. -}
+
+  tr-fibered-system-slice :
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} {B B' : fibered-system l3 l4 A}
+    (α : Id B B') (f : section-system A B) (X : system.type A) →
+    Id ( fibered-system.slice B X (section-system.type f X))
+       ( fibered-system.slice B' X
+         ( section-system.type (tr (section-system A) α f) X))
+  tr-fibered-system-slice refl f X = refl
+
+  Eq-fibered-system' :
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} {B B' : fibered-system l3 l4 A}
+    (α : Id B B') (f : section-system A B) (g : section-system A B') →
+    fibered-system l3 l4 A
+  fibered-system.type (Eq-fibered-system' {A = A} α f g) X =
+    Id ( section-system.type (tr (section-system A) α f) X)
+       ( section-system.type g X)
+  fibered-system.element (Eq-fibered-system' {A = A} {B} {B'} α f g) X p x =
+    Id ( tr (λ t → fibered-system.element B' X t x)
+            ( p)
+            ( section-system.element (tr (section-system A) α f) X x))
+       ( section-system.element g X x)
+  fibered-system.slice (Eq-fibered-system' {A = A} {B} {B'} α f g) X p =
+    Eq-fibered-system'
+      ( tr-fibered-system-slice α f X ∙ ap (fibered-system.slice B' X) p)
+      ( section-system.slice f X)
+      ( section-system.slice g X)
+
+  htpy-section-system' :
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} {B B' : fibered-system l3 l4 A}
+    (α : Id B B') (f : section-system A B) (g : section-system A B') →
+    UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+  htpy-section-system' {A = A} α f g =
+    section-system A (Eq-fibered-system' α f g)
+-}
+
+  ------------------------------------------------------------------------------
+
+  -- Morphisms of fibered systems
+
+  record hom-fibered-system
+    {l1 l2 l3 l4 l5 l6 l7 l8 : Level} {A : system l1 l2} {A' : system l3 l4}
+    (f : hom-system A A') (B : fibered-system l5 l6 A)
+    (B' : fibered-system l7 l8 A') : UU (l1 ⊔ l2 ⊔ l3 ⊔ l4 ⊔ l5 ⊔ l6 ⊔ l7 ⊔ l8)
+    where
+    coinductive
+    field
+      type    : (X : system.type A) → fibered-system.type B X →
+                fibered-system.type B' (section-system.type f X)
+      element : (X : system.type A) (x : system.element A X) →
+                (Y : fibered-system.type B X) →
+                fibered-system.element B X Y x →
+                fibered-system.element B'
+                  ( section-system.type f X)
+                  ( type X Y)
+                  ( section-system.element f X x)
+      slice   : (X : system.type A) (Y : fibered-system.type B X) →
+                hom-fibered-system
+                  ( section-system.slice f X)
+                  ( fibered-system.slice B X Y)
+                  ( fibered-system.slice B'
+                    ( section-system.type f X)
+                    ( type X Y))
+
+  id-hom-fibered-system :
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} (B : fibered-system l3 l4 A) →
+    hom-fibered-system (id-hom-system A) B B
+  hom-fibered-system.type (id-hom-fibered-system B) X = id
+  hom-fibered-system.element (id-hom-fibered-system B) X x Y = id
+  hom-fibered-system.slice (id-hom-fibered-system B) X Y =
+    id-hom-fibered-system (fibered-system.slice B X Y)
+
+  comp-hom-fibered-system :
+    {l1 l2 l3 l4 l5 l6 l7 l8 l9 l10 l11 l12 : Level}
+    {A : system l1 l2} {B : system l3 l4} {C : system l5 l6}
+    {g : hom-system B C} {f : hom-system A B}
+    {D : fibered-system l7 l8 A} {E : fibered-system l9 l10 B}
+    {F : fibered-system l11 l12 C}
+    (k : hom-fibered-system g E F) (h : hom-fibered-system f D E) →
+    hom-fibered-system (comp-hom-system g f) D F
+  hom-fibered-system.type (comp-hom-fibered-system {f = f} k h) X Y =
+    hom-fibered-system.type k
+      ( section-system.type f X)
+      ( hom-fibered-system.type h X Y)
+  hom-fibered-system.element (comp-hom-fibered-system {f = f} k h) X x Y y =
+    hom-fibered-system.element k
+      ( section-system.type f X)
+      ( section-system.element f X x)
+      ( hom-fibered-system.type h X Y)
+      ( hom-fibered-system.element h X x Y y)
+  hom-fibered-system.slice (comp-hom-fibered-system {f = f} k h) X Y =
+    comp-hom-fibered-system
+      ( hom-fibered-system.slice k
+        ( section-system.type f X)
+        ( hom-fibered-system.type h X Y))
+      ( hom-fibered-system.slice h X Y)
+
+  ------------------------------------------------------------------------------
+
+  -- We introduce simple type theories
+  
+  record is-simple-type-theory 
+    {l1 l2 : Level} (A : type-theory l1 l2) : UU l1
+    where
+    coinductive
+    field
+      type  : (X : system.type (type-theory.sys A)) →
+              is-equiv
+                ( section-system.type
+                  ( weakening.type (type-theory.W A) X))
+      slice : (X : system.type (type-theory.sys A)) →
+              is-simple-type-theory (slice-dtt A X)
+  
+  record simple-type-theory (l1 l2 : Level) : UU (lsuc l1 ⊔ lsuc l2)
+    where
+    field
+      dtt : type-theory l1 l2
+      is-simple : is-simple-type-theory dtt
+
+  ------------------------------------------------------------------------------
+
+  {- We introduce the condiction that the action on elements of a morphism of
+     dependent type theories is an equivalence -}
+  
+  record is-equiv-on-elements-hom-system
+    {l1 l2 l3 l4 : Level} (A : system l1 l2) (B : system l3 l4)
+    (h : hom-system A B) : UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+    where
+    coinductive
+    field
+      type  : (X : system.type A) → is-equiv (section-system.element h X)
+      slice : (X : system.type A) →
+              is-equiv-on-elements-hom-system
+                ( system.slice A X)
+                ( system.slice B (section-system.type h X))
+                ( section-system.slice h X)
+
+  ------------------------------------------------------------------------------
+
+  -- We introduce unary type theories
+  
+  record unary-type-theory
+    {l1 l2 : Level} (A : type-theory l1 l2) : UU (lsuc l1 ⊔ lsuc l2)
+    where
+    field
+      dtt       : type-theory l1 l2
+      is-simple : is-simple-type-theory A
+      is-unary  : (X Y : system.type (type-theory.sys A)) →
+                  is-equiv-on-elements-hom-system
+                    ( system.slice (type-theory.sys A) Y)
+                    ( system.slice
+                      ( system.slice (type-theory.sys A) X)
+                      ( section-system.type
+                        ( weakening.type (type-theory.W A) X) Y))
+                    ( section-system.slice
+                      ( weakening.type (type-theory.W A) X)
+                      ( Y))
+
+  ------------------------------------------------------------------------------
+
+  system-slice-UU : {l : Level} (X : UU l) → system (lsuc l) l
+  system.type (system-slice-UU {l} X) = X → UU l
+  system.element (system-slice-UU {l} X) Y = (x : X) → Y x
+  system.slice (system-slice-UU {l} X) Y = system-slice-UU (Σ X Y)
+  
+  {-
+  hom-system-weakening-system-slice-UU :
+    {l : Level} (X : UU l) (Y : X → UU l) →
+    hom-system (system-slice-UU X) (system-slice-UU (Σ X Y))
+  section-system.type (hom-system-weakening-system-slice-UU X Y) Z (pair x y) =
+    Z x
+  section-system.element (hom-system-weakening-system-slice-UU X Y) Z g (pair x y) =
+    g x
+  section-system.type (section-system.slice (hom-system-weakening-system-slice-UU X Y) Z) W (pair (pair x y) z) = W (pair x z)
+  section-system.element (section-system.slice (hom-system-weakening-system-slice-UU X Y) Z) W h (pair (pair x y) z) = h (pair x z)
+  section-system.slice (section-system.slice (hom-system-weakening-system-slice-UU X Y) Z) W = {!section-system.slice (hom-system-weakening-system-slice-UU X Y) ?!}
+
+  weakening-system-slice-UU :
+    {l : Level} (X : UU l) → weakening (system-slice-UU X)
+  weakening.type (weakening-system-slice-UU X) Y =
+    hom-system-weakening-system-slice-UU X Y
+  weakening.slice (weakening-system-slice-UU X) = {!!}
+  
+  system-UU : (l : Level) → system (lsuc l) l
+  system.type (system-UU l) = UU l
+  system.element (system-UU l) X = X
+  system.slice (system-UU l) X = system-slice-UU X
+  
+  weakening-type-UU :
+    {l : Level} (X : UU l) →
+    hom-system (system-UU l) (system.slice (system-UU l) X)
+  section-system.type (weakening-type-UU X) Y x = Y
+  section-system.element (weakening-type-UU X) Y y x = y
+  section-system.slice (weakening-type-UU X) Y = {!!}
+  
+  weakening-UU : (l : Level) → weakening (system-UU l)
+  section-system.type (weakening.type (weakening-UU l) X) Y x = Y
+  section-system.element (weakening.type (weakening-UU l) X) Y y x = y
+  section-system.type (section-system.slice (weakening.type (weakening-UU l) X) Y) Z t =
+    Z (pr2 t)
+  section-system.element
+    ( section-system.slice (weakening.type (weakening-UU l) X) Y) Z f t =
+    f (pr2 t)
+  section-system.slice (section-system.slice (weakening.type (weakening-UU l) X) Y) Z =
+    {!!}
+  section-system.type
+    ( weakening.type (weakening.slice (weakening-UU l) X) Y) Z (pair x y) =
+    Z x
+  section-system.element
+    ( weakening.type (weakening.slice (weakening-UU l) X) Y) Z f (pair x y) =
+    f x
+  section-system.slice (weakening.type (weakening.slice (weakening-UU l) X) Y) Z =
+    {!!}
+  weakening.slice (weakening.slice (weakening-UU l) X) Y = weakening.slice (weakening-UU l) (Σ X Y)
+-}
 
   ------------------------------------------------------------------------------
 
