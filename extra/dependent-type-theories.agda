@@ -484,7 +484,7 @@ module dependent where
 
   {- We introduce the structure of a generic element on a system equipped with
      weakening structure -}
-                        
+
   record generic-element
     {l1 l2 : Level} {A : system l1 l2} (W : weakening A) :
     UU (l1 ⊔ l2)

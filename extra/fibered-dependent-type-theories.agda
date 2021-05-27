@@ -57,9 +57,10 @@ module fibered where
 
   double-tr :
     {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : A → UU l3}
-    (D : (x : A) → B x → C x → UU l4) {x y : A} (p : Id x y) {u : B x}
-    {v : C x} → D x u v → D y (tr B p u) (tr C p v)
-  double-tr D refl z = z
+    (D : (x : A) → B x → C x → UU l4) {x y : A} (p : Id x y)
+    {u : B x} {u' : B y} (q : Id (tr B p u) u') {v : C x} {v' : C y}
+    (r : Id (tr C p v) v') → D x u v → D y u' v'
+  double-tr D refl refl refl d = d
 
   tr-bifibered-system-slice :
     {l1 l2 l3 l4 l5 l6 l7 l8 : Level} {A : system l1 l2}
@@ -89,21 +90,13 @@ module fibered where
   bifibered-system.element
     ( Eq-bifibered-system' {A = A} {C = C} D .D refl refl f f' g g')
     {X} {Y} {p} {x} α y q =
-    Id ( tr
-         ( bifibered-system.element D (section-fibered-system.type g' Y) y)
-         ( q)
-         ( tr
-           ( λ t →
-             bifibered-system.element D t y
-               ( tr (λ t → fibered-system.element C t x)
-               ( p)
-               ( section-system.element f x)))
+      Id ( double-tr
+           ( λ Z u v → bifibered-system.element D {Z = Z} u y v)
+           ( p)
            ( α)
-           ( double-tr
-             ( λ Z u v → bifibered-system.element D {Z = Z} u y v)
-             ( p)
-             ( section-fibered-system.element g y))))
-       ( section-fibered-system.element g' y)
+           ( q)
+           ( section-fibered-system.element g y))
+         ( section-fibered-system.element g' y)
   bifibered-system.slice
     ( Eq-bifibered-system' {C = C} D .D refl refl f f' g g') {X} {Y} {α} β =
     Eq-bifibered-system'
@@ -269,6 +262,42 @@ module fibered where
                 ( fibered-system.slice B Y)
                 ( substitution.slice S X)
 
+  record preserves-fibered-substitution
+    {l1 l2 l3 l4 l5 l6 l7 l8 : Level} {A : system l1 l2}
+    {B : fibered-system l3 l4 A} {C : system l5 l6}
+    {D : fibered-system l7 l8 C} {SA : substitution A} {SC : substitution C}
+    (SB : fibered-substitution B SA) (SD : fibered-substitution D SC)
+    {f : hom-system A C} (Sf : preserves-substitution SA SC f)
+    (g : hom-fibered-system f B D) :
+    UU (l1 ⊔ l2 ⊔ l3 ⊔ l4 ⊔ l7 ⊔ l8)
+    where
+    coinductive
+    field
+      type  : {X : system.type A} {Y : fibered-system.type B X}
+              {x : system.element A X} (y : fibered-system.element B Y x) →
+              htpy-hom-fibered-system
+                ( preserves-substitution.type Sf X x)
+                ( comp-hom-fibered-system
+                  ( g)
+                  ( fibered-substitution.type SB y))
+                ( comp-hom-fibered-system
+                  ( fibered-substitution.type SD
+                    ( section-fibered-system.element g y))
+                  ( section-fibered-system.slice g Y))
+      slice : {X : system.type A} (Y : fibered-system.type B X) →
+              preserves-fibered-substitution
+                ( fibered-substitution.slice SB Y)
+                ( fibered-substitution.slice SD
+                  ( section-fibered-system.type g Y))
+                ( preserves-substitution.slice Sf X)
+                ( section-fibered-system.slice g Y)
+
+  ------------------------------------------------------------------------------
+
+  {- We define what it means for a fibered system equipped with fibered
+     weakening structure over a system equipped with weakening structure and
+     the structure of generic elements to be equipped with generic elements. -}
+
   record fibered-generic-element
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
     {WA : weakening A} (W : fibered-weakening B WA) (δ : generic-element WA) :
@@ -286,3 +315,174 @@ module fibered where
                 ( fibered-weakening.slice W Y)
                 ( generic-element.slice δ X)
 
+  record preserves-fibered-generic-element
+    {l1 l2 l3 l4 l5 l6 l7 l8 : Level} {A : system l1 l2}
+    {B : fibered-system l3 l4 A} {C : system l5 l6}
+    {D : fibered-system l7 l8 C} {WA : weakening A} {WC : weakening C}
+    {WB : fibered-weakening B WA} {WD : fibered-weakening D WC}
+    {δA : generic-element WA} {δC : generic-element WC}
+    (δB : fibered-generic-element WB δA) (δD : fibered-generic-element WD δC)
+    {f : hom-system A C} {Wf : preserves-weakening WA WC f}
+    (δf : preserves-generic-element δA δC Wf)
+    {g : hom-fibered-system f B D}
+    (Wg : preserves-fibered-weakening WB WD Wf g) :
+    UU (l1 ⊔ l2 ⊔ l3 ⊔ l4 ⊔ l7 ⊔ l8)
+    where
+    coinductive
+    field
+      type  : {X : system.type A} (Y : fibered-system.type B X) →
+              Id ( double-tr
+                   ( λ Z u v →
+                     fibered-system.element
+                      ( fibered-system.slice D
+                        ( section-fibered-system.type g Y))
+                      {Z} u v)
+                   ( section-system.type (preserves-weakening.type Wf X) X)
+                   ( section-fibered-system.type
+                     ( preserves-fibered-weakening.type Wg Y) Y)
+                   ( preserves-generic-element.type δf X)
+                   ( section-fibered-system.element
+                     ( section-fibered-system.slice g Y)
+                     ( fibered-generic-element.type δB Y)))
+                 ( fibered-generic-element.type δD
+                   ( section-fibered-system.type g Y))
+      slice : {X : system.type A} (Y : fibered-system.type B X) →
+              preserves-fibered-generic-element
+                ( fibered-generic-element.slice δB Y)
+                ( fibered-generic-element.slice δD
+                  ( section-fibered-system.type g Y))
+                ( preserves-generic-element.slice δf X)
+                ( preserves-fibered-weakening.slice Wg Y)
+
+  ------------------------------------------------------------------------------
+
+  -- We state the axioms of a fibered dependent type theory
+
+  record fibered-weakening-preserves-weakening
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
+    {WA : weakening A} (WWA : weakening-preserves-weakening WA)
+    (W : fibered-weakening B WA) : UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+    where
+    coinductive
+    field
+      type  : {X : system.type A} (Y : fibered-system.type B X) →
+              preserves-fibered-weakening
+                ( W)
+                ( fibered-weakening.slice W Y)
+                ( weakening-preserves-weakening.type WWA X)
+                ( fibered-weakening.type W Y)
+      slice : {X : system.type A} (Y : fibered-system.type B X) →
+              fibered-weakening-preserves-weakening
+                ( weakening-preserves-weakening.slice WWA X)
+                ( fibered-weakening.slice W Y)
+
+  record fibered-substitution-preserves-substitution
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
+    {SA : substitution A} (SSA : substitution-preserves-substitution SA)
+    (S : fibered-substitution B SA) : UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+    where
+    coinductive
+    field
+      type  : {X : system.type A} {Y : fibered-system.type B X}
+              {x : system.element A X} (y : fibered-system.element B Y x) →
+              preserves-fibered-substitution
+                ( fibered-substitution.slice S Y)
+                ( S)
+                ( substitution-preserves-substitution.type SSA X x)
+                ( fibered-substitution.type S y)
+      slice : {X : system.type A} (Y : fibered-system.type B X) →
+              fibered-substitution-preserves-substitution
+                ( substitution-preserves-substitution.slice SSA X)
+                ( fibered-substitution.slice S Y)
+
+  record fibered-weakening-preserves-substitution
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
+    {WA : weakening A} {SA : substitution A}
+    (WSA : weakening-preserves-substitution SA WA)
+    (W : fibered-weakening B WA) (S : fibered-substitution B SA) :
+    UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+    where
+    coinductive
+    field
+      type  : {X : system.type A} (Y : fibered-system.type B X) →
+              preserves-fibered-substitution
+                ( S)
+                ( fibered-substitution.slice S Y)
+                ( weakening-preserves-substitution.type WSA X)
+                ( fibered-weakening.type W Y)
+      slice : {X : system.type A} (Y : fibered-system.type B X) →
+              fibered-weakening-preserves-substitution
+                ( weakening-preserves-substitution.slice WSA X)
+                ( fibered-weakening.slice W Y)
+                ( fibered-substitution.slice S Y)
+
+  record fibered-substitution-preserves-weakening
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
+    {WA : weakening A} {SA : substitution A}
+    (SWA : substitution-preserves-weakening WA SA)
+    (W : fibered-weakening B WA) (S : fibered-substitution B SA) :
+    UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+    where
+    coinductive
+    field
+      type  : {X : system.type A} {Y : fibered-system.type B X}
+              {x : system.element A X} (y : fibered-system.element B Y x) →
+              preserves-fibered-weakening
+                ( fibered-weakening.slice W Y)
+                ( W)
+                ( substitution-preserves-weakening.type SWA X x)
+                ( fibered-substitution.type S y)
+      slice : {X : system.type A} (Y : fibered-system.type B X) →
+              fibered-substitution-preserves-weakening
+                ( substitution-preserves-weakening.slice SWA X)
+                ( fibered-weakening.slice W Y)
+                ( fibered-substitution.slice S Y)
+
+  record fibered-weakening-preserves-generic-element
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
+    {WA : weakening A} {δA : generic-element WA}
+    {WWA : weakening-preserves-weakening WA}
+    (WδA : weakening-preserves-generic-element WA WWA δA)
+    {W : fibered-weakening B WA}
+    (WWB : fibered-weakening-preserves-weakening WWA W)
+    (δ : fibered-generic-element W δA) :
+    UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+    where
+    coinductive
+    field
+      type  : {X : system.type A} (Y : fibered-system.type B X) →
+              preserves-fibered-generic-element
+                ( δ)
+                ( fibered-generic-element.slice δ Y)
+                ( weakening-preserves-generic-element.type WδA X)
+                ( fibered-weakening-preserves-weakening.type WWB Y)
+      slice : {X : system.type A} (Y : fibered-system.type B X) →
+              fibered-weakening-preserves-generic-element
+                ( weakening-preserves-generic-element.slice WδA X)
+                ( fibered-weakening-preserves-weakening.slice WWB Y)
+                ( fibered-generic-element.slice δ Y)
+
+  record fibered-substitution-preserves-generic-element
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
+    {WA : weakening A} {SA : substitution A} {δA : generic-element WA}
+    {SWA : substitution-preserves-weakening WA SA}
+    (SδA : substitution-preserves-generic-element WA δA SA SWA)
+    {WB : fibered-weakening B WA} {SB : fibered-substitution B SA}
+    (SWB : fibered-substitution-preserves-weakening SWA WB SB)
+    (δB : fibered-generic-element WB δA) :
+    UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+    where
+    coinductive
+    field
+      type  : {X : system.type A} {Y : fibered-system.type B X}
+              {x : system.element A X} (y : fibered-system.element B Y x) →
+              preserves-fibered-generic-element
+                ( fibered-generic-element.slice δB Y)
+                ( δB)
+                ( substitution-preserves-generic-element.type SδA X x)
+                ( fibered-substitution-preserves-weakening.type SWB y)
+      slice : {X : system.type A} (Y : fibered-system.type B X) →
+              fibered-substitution-preserves-generic-element
+                ( substitution-preserves-generic-element.slice SδA X)
+                ( fibered-substitution-preserves-weakening.slice SWB Y)
+                ( fibered-generic-element.slice δB Y)

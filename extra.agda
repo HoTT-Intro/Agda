@@ -11,6 +11,7 @@ open import extra.combinatorial-objects public
 open import extra.dependent-preorders public
 open import extra.dependent-type-theories public
 open import extra.dn-sheaves public
+open import extra.fibered-dependent-type-theories public
 open import extra.final-coalgebras public
 open import extra.flat-modality public
 open import extra.free-group public
