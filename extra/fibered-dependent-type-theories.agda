@@ -222,7 +222,7 @@ module fibered where
   record preserves-fibered-weakening
     {l1 l2 l3 l4 l5 l6 l7 l8 : Level} {A : system l1 l2}
     {B : fibered-system l3 l4 A} {C : system l5 l6}
-    (D : fibered-system l7 l8 C) {WA : weakening A} {WC : weakening C}
+    {D : fibered-system l7 l8 C} {WA : weakening A} {WC : weakening C}
     (WB : fibered-weakening B WA) (WD : fibered-weakening D WC)
     {f : hom-system A C} (Wf : preserves-weakening WA WC f)
     (g : hom-fibered-system f B D) :
@@ -242,7 +242,6 @@ module fibered where
                   ( g))
       slice : {X : system.type A} (Y : fibered-system.type B X) →
               preserves-fibered-weakening
-                ( fibered-system.slice D (section-fibered-system.type g Y))
                 ( fibered-weakening.slice WB Y)
                 ( fibered-weakening.slice WD (section-fibered-system.type g Y))
                 ( preserves-weakening.slice Wf X)
