@@ -190,10 +190,18 @@ module fibered where
       ( section-fibered-system.slice k (section-fibered-system.type h Y))
       ( section-fibered-system.slice h Y)
 
+  htpy-hom-fibered-system :
+    {l1 l2 l3 l4 l5 l6 l7 l8 : Level} {A : system l1 l2}
+    {B : fibered-system l3 l4 A} {C : system l5 l6} {D : fibered-system l7 l8 C}
+    {f f' : hom-system A C} (H : htpy-hom-system f f')
+    (g : hom-fibered-system f B D) (g' : hom-fibered-system f' B D) →
+    UU (l1 ⊔ l2 ⊔ l3 ⊔ l4 ⊔ l7 ⊔ l8)
+  htpy-hom-fibered-system H g g' = htpy-section-fibered-system H g g'
+
   ------------------------------------------------------------------------------
 
-  {- We define what it means for a fibered system over a system equipped wih
-     weakening structure to possess weakening structure. -}
+  {- We define what it means for a fibered system over a system equipped with
+     weakening structure to be equipped with weakening structure. -}
 
   record fibered-weakening
     {l1 l2 l3 l4 : Level} {A : system l1 l2} (B : fibered-system l3 l4 A)
@@ -210,6 +218,40 @@ module fibered where
               fibered-weakening
                 ( fibered-system.slice B Y)
                 ( weakening.slice W X)
+
+  record preserves-fibered-weakening
+    {l1 l2 l3 l4 l5 l6 l7 l8 : Level} {A : system l1 l2}
+    {B : fibered-system l3 l4 A} {C : system l5 l6}
+    (D : fibered-system l7 l8 C) {WA : weakening A} {WC : weakening C}
+    (WB : fibered-weakening B WA) (WD : fibered-weakening D WC)
+    {f : hom-system A C} (Wf : preserves-weakening WA WC f)
+    (g : hom-fibered-system f B D) :
+    UU (l1 ⊔ l2 ⊔ l3 ⊔ l4 ⊔ l7 ⊔ l8)
+    where
+    coinductive
+    field
+      type  : {X : system.type A} (Y : fibered-system.type B X) →
+              htpy-hom-fibered-system
+                ( preserves-weakening.type Wf X)
+                ( comp-hom-fibered-system
+                  ( section-fibered-system.slice g Y)
+                  ( fibered-weakening.type WB Y))
+                ( comp-hom-fibered-system
+                  ( fibered-weakening.type WD
+                    ( section-fibered-system.type g Y))
+                  ( g))
+      slice : {X : system.type A} (Y : fibered-system.type B X) →
+              preserves-fibered-weakening
+                ( fibered-system.slice D (section-fibered-system.type g Y))
+                ( fibered-weakening.slice WB Y)
+                ( fibered-weakening.slice WD (section-fibered-system.type g Y))
+                ( preserves-weakening.slice Wf X)
+                ( section-fibered-system.slice g Y)
+
+  ------------------------------------------------------------------------------
+
+  {- We define what it means for a fibered system over a system equipped with
+     substitution structure to be equipped with substitution structure. -}
 
   record fibered-substitution
     {l1 l2 l3 l4 : Level} {A : system l1 l2} (B : fibered-system l3 l4 A)
