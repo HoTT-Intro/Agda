@@ -451,7 +451,7 @@ module dependent where
     where
     coinductive
     field
-      type  : (X : system.type A) (x : system.element A X) →
+      type  : {X : system.type A} (x : system.element A X) →
               hom-system (system.slice A X) A
       slice : (X : system.type A) → substitution (system.slice A X)
   
@@ -464,14 +464,13 @@ module dependent where
     where
     coinductive
     field
-      type  : (X : system.type A) (x : system.element A X) →
+      type  : {X : system.type A} (x : system.element A X) →
               htpy-hom-system
                 ( comp-hom-system
                   ( h)
-                  ( substitution.type SA X x))
+                  ( substitution.type SA x))
                 ( comp-hom-system
                   ( substitution.type SB
-                    ( section-system.type h X)
                     ( section-system.element h x))
                   ( section-system.slice h X))
       slice : (X : system.type A) →
@@ -559,11 +558,11 @@ module dependent where
     where
     coinductive
     field
-      type  : (X : system.type A) (x : system.element A X) →
+      type  : {X : system.type A} (x : system.element A X) →
               preserves-substitution
                 ( substitution.slice S X)
                 ( S)
-                ( substitution.type S X x)
+                ( substitution.type S x)
       slice : (X : system.type A) →
               substitution-preserves-substitution (substitution.slice S X)
   
@@ -589,11 +588,11 @@ module dependent where
     where
     coinductive
     field
-      type  : (X : system.type A) (x : system.element A X) →
+      type  : {X : system.type A} (x : system.element A X) →
               preserves-weakening
                 ( weakening.slice W X)
                 ( W)
-                ( substitution.type S X x)
+                ( substitution.type S x)
       slice : (X : system.type A) →
               substitution-preserves-weakening
                 ( weakening.slice W X)
@@ -625,11 +624,11 @@ module dependent where
     where
     coinductive
     field
-      type  : (X : system.type A) (x : system.element A X) →
+      type  : {X : system.type A} (x : system.element A X) →
               preserves-generic-element
                 ( generic-element.slice δ X)
                 ( δ)
-                ( substitution-preserves-weakening.type SW X x)
+                ( substitution-preserves-weakening.type SW x)
       slice : (X : system.type A) →
               substitution-preserves-generic-element
                 ( weakening.slice W X)
@@ -643,10 +642,10 @@ module dependent where
     where
     coinductive
     field
-      type  : (X : system.type A) (x : system.element A X) →
+      type  : {X : system.type A} (x : system.element A X) →
               htpy-hom-system
                 ( comp-hom-system
-                  ( substitution.type S X x)
+                  ( substitution.type S x)
                   ( weakening.type W X))
                 ( id-hom-system A)
       slice : (X : system.type A) →
@@ -661,13 +660,13 @@ module dependent where
     where
     coinductive
     field
-      type  : (X : system.type A) (x : system.element A X) →
+      type  : {X : system.type A} (x : system.element A X) →
               Id ( tr
                    ( system.element A)
                    ( section-system.type
-                     ( substitution-cancels-weakening.type S!W X x) X)
+                     ( substitution-cancels-weakening.type S!W x) X)
                    ( section-system.element
-                     ( substitution.type S X x)
+                     ( substitution.type S x)
                      ( generic-element.type δ X)))
                  ( x)
       slice : (X : system.type A) →
@@ -689,7 +688,6 @@ module dependent where
                 ( comp-hom-system
                   ( substitution.type
                     ( substitution.slice S X)
-                    ( section-system.type (weakening.type W X) X)
                     ( generic-element.type δ X))
                   ( weakening.type
                     ( weakening.slice W X)
@@ -817,11 +815,11 @@ module dependent where
   preserves-substitution-id-hom-system :
     {l1 l2 : Level} {A : system l1 l2} (S : substitution A) →
     preserves-substitution S S (id-hom-system A)
-  preserves-substitution.type (preserves-substitution-id-hom-system S) X x =
+  preserves-substitution.type (preserves-substitution-id-hom-system S) x =
     concat-htpy-hom-system
-      ( left-unit-law-comp-hom-system (substitution.type S X x))
+      ( left-unit-law-comp-hom-system (substitution.type S x))
       ( inv-htpy-hom-system
-        ( right-unit-law-comp-hom-system (substitution.type S X x)))
+        ( right-unit-law-comp-hom-system (substitution.type S x)))
   preserves-substitution.slice (preserves-substitution-id-hom-system S) X =
     preserves-substitution-id-hom-system (substitution.slice S X)
 
@@ -895,28 +893,25 @@ module dependent where
     preserves-substitution SB SC g → preserves-substitution SA SB f →
     preserves-substitution SA SC (comp-hom-system g f)
   preserves-substitution.type
-    ( preserves-substitution-comp-hom-system {g = g} {f} {SA} {SB} {SC} Sg Sf) X x =
+    ( preserves-substitution-comp-hom-system {g = g} {f} {SA} {SB} {SC} Sg Sf) {X} x =
     concat-htpy-hom-system
-      ( assoc-comp-hom-system g f (substitution.type SA X x))
+      ( assoc-comp-hom-system g f (substitution.type SA x))
       ( concat-htpy-hom-system
         ( left-whisker-htpy-hom-system g
-          ( preserves-substitution.type Sf X x))
+          ( preserves-substitution.type Sf x))
         ( concat-htpy-hom-system
           ( inv-htpy-hom-system
             ( assoc-comp-hom-system g
               ( substitution.type SB
-                ( section-system.type f X)
                 ( section-system.element f x))
               ( section-system.slice f X)))
           ( concat-htpy-hom-system
             ( right-whisker-htpy-hom-system
               ( preserves-substitution.type Sg
-                ( section-system.type f X)
                 ( section-system.element f x))
               ( section-system.slice f X))
             ( assoc-comp-hom-system
               ( substitution.type SC
-                ( section-system.type g (section-system.type f X))
                 ( section-system.element g (section-system.element f x)))
               ( section-system.slice g (section-system.type f X))
               ( section-system.slice f X)))))

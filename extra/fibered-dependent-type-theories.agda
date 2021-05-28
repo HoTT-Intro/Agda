@@ -4,7 +4,6 @@ module extra.fibered-dependent-type-theories where
 
 open import extra.dependent-type-theories public
 open dependent
-
 module fibered where
 
   ------------------------------------------------------------------------------
@@ -254,7 +253,7 @@ module fibered where
       type  : {X : system.type A} {Y : fibered-system.type B X}
               {x : system.element A X} (y : fibered-system.element B Y x) →
               hom-fibered-system
-                ( substitution.type S X x)
+                ( substitution.type S x)
                 ( fibered-system.slice B Y)
                 ( B)
       slice : {X : system.type A} (Y : fibered-system.type B X) →
@@ -276,7 +275,7 @@ module fibered where
       type  : {X : system.type A} {Y : fibered-system.type B X}
               {x : system.element A X} (y : fibered-system.element B Y x) →
               htpy-hom-fibered-system
-                ( preserves-substitution.type Sf X x)
+                ( preserves-substitution.type Sf x)
                 ( comp-hom-fibered-system
                   ( g)
                   ( fibered-substitution.type SB y))
@@ -388,7 +387,7 @@ module fibered where
               preserves-fibered-substitution
                 ( fibered-substitution.slice S Y)
                 ( S)
-                ( substitution-preserves-substitution.type SSA X x)
+                ( substitution-preserves-substitution.type SSA x)
                 ( fibered-substitution.type S y)
       slice : {X : system.type A} (Y : fibered-system.type B X) →
               fibered-substitution-preserves-substitution
@@ -430,7 +429,7 @@ module fibered where
               preserves-fibered-weakening
                 ( fibered-weakening.slice W Y)
                 ( W)
-                ( substitution-preserves-weakening.type SWA X x)
+                ( substitution-preserves-weakening.type SWA x)
                 ( fibered-substitution.type S y)
       slice : {X : system.type A} (Y : fibered-system.type B X) →
               fibered-substitution-preserves-weakening
@@ -479,7 +478,7 @@ module fibered where
               preserves-fibered-generic-element
                 ( fibered-generic-element.slice δB Y)
                 ( δB)
-                ( substitution-preserves-generic-element.type SδA X x)
+                ( substitution-preserves-generic-element.type SδA x)
                 ( fibered-substitution-preserves-weakening.type SWB y)
       slice : {X : system.type A} (Y : fibered-system.type B X) →
               fibered-substitution-preserves-generic-element
@@ -499,7 +498,7 @@ module fibered where
       type  : {X : system.type A} {Y : fibered-system.type B X}
               {x : system.element A X} (y : fibered-system.element B Y x) →
               htpy-hom-fibered-system
-                ( substitution-cancels-weakening.type S!WA X x)
+                ( substitution-cancels-weakening.type S!WA x)
                 ( comp-hom-fibered-system
                   ( fibered-substitution.type SB y)
                   ( fibered-weakening.type WB Y))
@@ -527,12 +526,12 @@ module fibered where
               Id ( double-tr
                    ( λ α β γ → fibered-system.element B {X = α} β γ)
                    ( section-system.type
-                     ( substitution-cancels-weakening.type S!WA X x)
+                     ( substitution-cancels-weakening.type S!WA x)
                      ( X))
                    ( section-fibered-system.type
                      ( fibered-substitution-cancels-weakening.type S!WB y)
                      ( Y))
-                   ( generic-element-is-identity.type δidA X x)
+                   ( generic-element-is-identity.type δidA x)
                    ( section-fibered-system.element
                      ( fibered-substitution.type SB y)
                      ( fibered-generic-element.type δB Y)))
@@ -598,3 +597,18 @@ module fibered where
       δid : fibered-generic-element-is-identity
               (type-theory.S!W A) (type-theory.δid A) δ S!W
       Sδ! : fibered-substitution-by-generic-element (type-theory.Sδ! A) S δ
+
+  ------------------------------------------------------------------------------
+
+  -- We define subtype theories
+
+  is-subtype-theory :
+    {l1 l2 l3 l4 : Level} {A : type-theory l1 l2} →
+    fibered-type-theory l3 l4 A → UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+  is-subtype-theory {A = A} B =
+    ( (X : system.type (type-theory.sys A)) →
+      is-prop (fibered-system.type (fibered-type-theory.sys B) X)) ×
+    ( (X : system.type (type-theory.sys A))
+    ( Y : fibered-system.type (fibered-type-theory.sys B) X)
+    ( x : system.element (type-theory.sys A) X) →
+      is-prop (fibered-system.element (fibered-type-theory.sys B) Y x))
