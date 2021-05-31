@@ -598,17 +598,26 @@ module fibered where
               (type-theory.S!W A) (type-theory.δid A) δ S!W
       Sδ! : fibered-substitution-by-generic-element (type-theory.Sδ! A) S δ
 
+{-
+  slice-fibered-type-theory
+    {l1 l2 l3 l4 : Level} {A : type-theory l1 l2}
+
   ------------------------------------------------------------------------------
 
   -- We define subtype theories
 
-  is-subtype-theory :
-    {l1 l2 l3 l4 : Level} {A : type-theory l1 l2} →
-    fibered-type-theory l3 l4 A → UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
-  is-subtype-theory {A = A} B =
-    ( (X : system.type (type-theory.sys A)) →
-      is-prop (fibered-system.type (fibered-type-theory.sys B) X)) ×
-    ( (X : system.type (type-theory.sys A))
-    ( Y : fibered-system.type (fibered-type-theory.sys B) X)
-    ( x : system.element (type-theory.sys A) X) →
-      is-prop (fibered-system.element (fibered-type-theory.sys B) Y x))
+  record is-subtype-theory 
+    {l1 l2 l3 l4 : Level} {A : type-theory l1 l2}
+    (B : fibered-type-theory l3 l4 A) : UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+    where
+    coinductive
+    field
+      type  : ( (X : system.type (type-theory.sys A)) →
+                is-prop (fibered-system.type (fibered-type-theory.sys B) X)) ×
+              ( (X : system.type (type-theory.sys A))
+                ( Y : fibered-system.type (fibered-type-theory.sys B) X)
+                ( x : system.element (type-theory.sys A) X) →
+                is-prop (fibered-system.element (fibered-type-theory.sys B) Y x))
+      slice : (X : system.type (type-theory.sys A)) →
+              is-subtype-theory (slice-fibered-type-theory B X)
+-}
