@@ -1,8 +1,12 @@
-{-# OPTIONS --without-K --exact-split #-}
+{-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
 module extra.simple-type-theories where
 
 open import book public
+
+{- We introduce the category of simple type theories. Those are type theories
+   that have no type dependency. The category of simple type theories is 
+   equivalent to the category of multisorted algebraic theories. -}
 
 module simple where
   

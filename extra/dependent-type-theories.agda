@@ -5,6 +5,10 @@ module extra.dependent-type-theories where
 import book
 open book public
 
+{- We introduce the cagegory of dependent type theories. The category of 
+   generalised algebraic theories is defined to be this category. It should
+   be equivalent to the category of essentially algebraic theories. -}
+
 module dependent where
   
   ------------------------------------------------------------------------------

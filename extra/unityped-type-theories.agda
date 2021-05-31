@@ -3,6 +3,10 @@
 module extra.unityped-type-theories where
 
 open import book public
+open import extra.simple-type-theories
+
+{- We introduce the category of unityped type theories. This category is
+   equivalent to the category of single sorted algebraic theories. -}
 
 module unityped where
   
@@ -12,6 +16,13 @@ module unityped where
     field
       element : UU l
       slice   : system l
+
+  record system-Set (l : Level) : UU (lsuc l)
+    where
+    coinductive
+    field
+      element : UU-Set l
+      slice   : system-Set l
   
   record hom-system
     {l1 l2 : Level} (σ : system l1) (T : system l2) : UU (l1 ⊔ l2)
@@ -293,3 +304,71 @@ module unityped where
     generic-element-is-identity.slice (type-theory.δid T)
   type-theory.Sδ! (slice-type-theory T) =
     substitution-by-generic-element.slice (type-theory.Sδ! T)
+
+--------------------------------------------------------------------------------
+
+{- We construct the forgetful functor from unityped type theories to simple
+   type theories. -}
+
+module simple-unityped where
+
+  system :
+    {l : Level} → unityped.system l → simple.system l unit
+  simple.system.element (system A) x = unityped.system.element A
+  simple.system.slice (system A) x = system (unityped.system.slice A)
+  
+  hom-system :
+    {l1 l2 : Level} {A : unityped.system l1} {B : unityped.system l2} →
+    unityped.hom-system A B →
+    simple.hom-system id
+      ( system A)
+      ( system B)
+  simple.hom-system.element (hom-system f) = unityped.hom-system.element f
+  simple.hom-system.slice (hom-system f) x =
+    hom-system (unityped.hom-system.slice f)
+
+  id-hom-system :
+    {l : Level} (A : unityped.system l) →
+    simple.htpy-hom-system
+      ( hom-system (unityped.id-hom-system A))
+      ( simple.id-hom-system (system A))
+  simple.htpy-hom-system.element (id-hom-system A) x = refl-htpy
+  simple.htpy-hom-system.slice (id-hom-system A) x =
+    id-hom-system (unityped.system.slice A)
+  
+  comp-hom-system :
+    {l1 l2 l3 : Level} {A : unityped.system l1} {B : unityped.system l2}
+    {C : unityped.system l3} (g : unityped.hom-system B C)
+    (f : unityped.hom-system A B) →
+    simple.htpy-hom-system
+      ( hom-system (unityped.comp-hom-system g f))
+      ( simple.comp-hom-system
+        ( hom-system g)
+        ( hom-system f))
+  simple.htpy-hom-system.element (comp-hom-system g f) x = refl-htpy
+  simple.htpy-hom-system.slice (comp-hom-system g f) x =
+    comp-hom-system (unityped.hom-system.slice g) (unityped.hom-system.slice f)
+
+  weakening :
+    {l : Level} {A : unityped.system l} → unityped.weakening A →
+    simple.weakening (system A)
+  simple.weakening.element (weakening W) x =
+    hom-system (unityped.weakening.element W)
+  simple.weakening.slice (weakening W) x =
+    weakening (unityped.weakening.slice W)
+
+  substitution :
+    {l : Level} {A : unityped.system l} → unityped.substitution A →
+    simple.substitution (system A)
+  simple.substitution.element (substitution S) x =
+    hom-system (unityped.substitution.element S x)
+  simple.substitution.slice (substitution S) x =
+    substitution (unityped.substitution.slice S)
+
+  generic-element :
+    {l : Level} {A : unityped.system l} → unityped.generic-element A →
+    simple.generic-element (system A)
+  simple.generic-element.element (generic-element δ) x =
+    unityped.generic-element.element δ
+  simple.generic-element.slice (generic-element δ) x =
+    generic-element (unityped.generic-element.slice δ)
