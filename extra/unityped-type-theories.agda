@@ -349,6 +349,16 @@ module simple-unityped where
   simple.htpy-hom-system.slice (comp-hom-system g f) x =
     comp-hom-system (unityped.hom-system.slice g) (unityped.hom-system.slice f)
 
+  htpy-hom-system :
+    {l1 l2 : Level} {A : unityped.system l1} {B : unityped.system l2}
+    {f g : unityped.hom-system A B} →
+    unityped.htpy-hom-system f g →
+    simple.htpy-hom-system (hom-system f) (hom-system g)
+  simple.htpy-hom-system.element (htpy-hom-system H) x =
+    unityped.htpy-hom-system.element H
+  simple.htpy-hom-system.slice (htpy-hom-system H) x =
+    htpy-hom-system (unityped.htpy-hom-system.slice H)
+
   weakening :
     {l : Level} {A : unityped.system l} → unityped.weakening A →
     simple.weakening (system A)
@@ -356,6 +366,16 @@ module simple-unityped where
     hom-system (unityped.weakening.element W)
   simple.weakening.slice (weakening W) x =
     weakening (unityped.weakening.slice W)
+
+  preserves-weakening :
+    {l1 l2 : Level} {A : unityped.system l1} {B : unityped.system l2}
+    {WA : unityped.weakening A} {WB : unityped.weakening B}
+    {f : unityped.hom-system A B} →
+    unityped.preserves-weakening WA WB f →
+    simple.preserves-weakening (weakening WA) (weakening WB) (hom-system f)
+  simple.preserves-weakening.element (preserves-weakening Wf) x =
+    {!htpy-hom-system (unityped.preserves-weakening.element Wf)!}
+  simple.preserves-weakening.slice (preserves-weakening Wf) = {!!}
 
   substitution :
     {l : Level} {A : unityped.system l} → unityped.substitution A →

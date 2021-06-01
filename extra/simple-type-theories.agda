@@ -11,277 +11,402 @@ open import book public
 module simple where
   
   record system
-    {l1 : Level} (l2 : Level) (A : UU l1) : UU (l1 ⊔ lsuc l2)
+    {l1 : Level} (l2 : Level) (T : UU l1) : UU (l1 ⊔ lsuc l2)
     where
     coinductive
     field
-      element : A → UU l2
-      slice   : (X : A) → system l2 A
-  
+      element : T → UU l2
+      slice   : (X : T) → system l2 T
+
+  record fibered-system
+    {l1 l2 l3 : Level} (l4 : Level) {T  : UU l1} (S : T → UU l2)
+    (A : system l3 T) : UU (l1 ⊔ l2 ⊔ l3 ⊔ lsuc l4)
+    where
+    coinductive
+    field
+      element : {X : T} → S X → system.element A X → UU l4
+      slice   : {X : T} → S X → fibered-system l4 S (system.slice A X)
+
+  record section-system
+    {l1 l2 l3 l4 : Level} {T : UU l1} {S : T → UU l2} {A : system l3 T}
+    (B : fibered-system l4 S A) (f : (X : T) → S X) : UU (l1 ⊔ l3 ⊔ l4)
+    where
+    coinductive
+    field
+      element : {X : T} (x : system.element A X) →
+                fibered-system.element B (f X) x 
+      slice   : (X : T) → section-system (fibered-system.slice B (f X)) f
+
+  ------------------------------------------------------------------------------
+
+  {- We will introduce homotopies of sections of fibered systems. However,
+     in order to define concatenation of those homotopies, we will first 
+     define heterogeneous homotopies of sections of fibered systems. -}
+
+  Eq-fibered-system' :
+    {l1 l2 l3 l4 : Level} {T : UU l1} {A : system l2 T} {S : T → UU l3}
+    {B B' : fibered-system l4 S A} (α : Id B B') {f f' : (X : T) → S X}
+    (g : section-system B f) (g' : section-system B' f') →
+    fibered-system l4 (λ t → Id (f t) (f' t)) A
+  fibered-system.element (Eq-fibered-system' {B = B} refl {f} g g') {X} p x =
+    Id ( tr ( λ u → fibered-system.element B u x)
+            ( p)
+            ( section-system.element g x))
+       ( section-system.element g' x)
+  fibered-system.slice (Eq-fibered-system' {B = B} refl g g') {X} p =
+    Eq-fibered-system'
+      ( ap (fibered-system.slice B) p)
+      ( section-system.slice g X)
+      ( section-system.slice g' X)
+
+  htpy-section-system' :
+    {l1 l2 l3 l4 : Level} {T : UU l1} {A : system l2 T} {S : T → UU l3}
+    {B B' : fibered-system l4 S A} (α : Id B B') {f f' : (X : T) → S X}
+    (H : f ~ f') (g : section-system B f) (g' : section-system B' f') →
+    UU (l1 ⊔ l2 ⊔ l4)
+  htpy-section-system' α H g g' = section-system (Eq-fibered-system' α g g') H
+
+  concat-htpy-section-system' :
+    {l1 l2 l3 l4 : Level} {T : UU l1} {A : system l2 T} {S : T → UU l3}
+    {B B' B'' : fibered-system l4 S A} {α : Id B B'} {β : Id B' B''}
+    (γ : Id B B'') (δ : Id (α ∙ β) γ) {f f' f'' : (X : T) → S X}
+    {H : f ~ f'} {H' : f' ~ f''} {g : section-system B f}
+    {g' : section-system B' f'} {g'' : section-system B'' f''}
+    (K : htpy-section-system' α H g g')
+    (K' : htpy-section-system' β H' g' g'') →
+    htpy-section-system' γ (H ∙h H') g g''
+  section-system.element
+    ( concat-htpy-section-system'
+      {B = B} {α = refl} {refl} .refl refl {H = H} {H'} {g} K K') {X} x =
+    ( tr-concat (H X) (H' X) (section-system.element g x)) ∙
+    ( ( ap ( tr ( λ t → fibered-system.element B t x)
+                ( H' X))
+           ( section-system.element K x)) ∙
+      ( section-system.element K' x))
+  section-system.slice
+    ( concat-htpy-section-system'
+      {B = B} {α = refl} {refl} .refl refl {H = H} {H'} K K') X =
+    concat-htpy-section-system'
+      ( ap (fibered-system.slice B) (H X ∙ H' X))
+      ( inv (ap-concat (fibered-system.slice B) (H X) (H' X)))
+      ( section-system.slice K X)
+      ( section-system.slice K' X)
+
+  inv-htpy-section-system' :
+    {l1 l2 l3 l4 : Level} {T : UU l1} {A : system l2 T} {S : T → UU l3}
+    {B B' : fibered-system l4 S A} {α : Id B B'} (β : Id B' B)
+    (γ : Id (inv α) β) {f f' : (X : T) → S X} {g : section-system B f}
+    {g' : section-system B' f'} {H : f ~ f'} →
+    htpy-section-system' α H g g' → htpy-section-system' β (inv-htpy H) g' g
+  section-system.element
+    ( inv-htpy-section-system' {α = refl} .refl refl {H = H} K) {X} x =
+    eq-transpose-tr
+      ( H X)
+      ( inv (section-system.element K x))
+  section-system.slice
+    ( inv-htpy-section-system' {B = B} {α = refl} .refl refl {H = H} K) X =
+    inv-htpy-section-system'
+      ( ap (fibered-system.slice B) (inv (H X)))
+      ( inv (ap-inv (fibered-system.slice B) (H X)))
+      ( section-system.slice K X)
+
+  -- We specialize the above definitions to nonhomogenous homotopies 
+
+  htpy-section-system :
+    {l1 l2 l3 l4 : Level} {T : UU l1} {A : system l2 T} {S : T → UU l3}
+    {B : fibered-system l4 S A} {f f' : (X : T) → S X} →
+    (f ~ f') → section-system B f → section-system B f' → UU (l1 ⊔ l2 ⊔ l4)
+  htpy-section-system H g g' = htpy-section-system' refl H g g'
+
+  refl-htpy-section-system :
+    {l1 l2 l3 l4 : Level} {T : UU l1} {A : system l2 T} {S : T → UU l3}
+    {B : fibered-system l4 S A} {f : (X : T) → S X} (g : section-system B f) →
+    htpy-section-system refl-htpy g g
+  section-system.element (refl-htpy-section-system g) = refl-htpy
+  section-system.slice (refl-htpy-section-system g) X =
+    refl-htpy-section-system (section-system.slice g X)
+
+  concat-htpy-section-system :
+    {l1 l2 l3 l4 : Level} {T : UU l1} {A : system l2 T} {S : T → UU l3}
+    {B : fibered-system l4 S A} {f f' f'' : (X : T) → S X}
+    {g : section-system B f} {g' : section-system B f'}
+    {g'' : section-system B f''} {H : f ~ f'} {H' : f' ~ f''} →
+    htpy-section-system H g g' → htpy-section-system H' g' g'' →
+    htpy-section-system (H ∙h H') g g''
+  concat-htpy-section-system K K' =
+    concat-htpy-section-system' refl refl K K'
+
+  inv-htpy-section-system :
+    {l1 l2 l3 l4 : Level} {T : UU l1} {A : system l2 T} {S : T → UU l3}
+    {B : fibered-system l4 S A} {f f' : (X : T) → S X}
+    {g : section-system B f} {g' : section-system B f'} {H : f ~ f'} →
+    htpy-section-system H g g' → htpy-section-system (inv-htpy H) g' g
+  inv-htpy-section-system K =
+    inv-htpy-section-system' refl refl K
+
+  ------------------------------------------------------------------------------
+
   record hom-system
-    {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} (f : A → B)
-    (σ : system l3 A) (T : system l4 B) : UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+    {l1 l2 l3 l4 : Level} {T : UU l1} {S : UU l2} (f : T → S)
+    (A : system l3 T) (B : system l4 S) : UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
     where
     coinductive
     field
-      element : {X : A} → system.element σ X → system.element T (f X)
-      slice   : (X : A) → hom-system f (system.slice σ X) (system.slice T (f X))
+      element : {X : T} → system.element A X → system.element B (f X)
+      slice   : (X : T) → hom-system f (system.slice A X) (system.slice B (f X))
   
   id-hom-system :
-    {l1 l2 : Level} {A : UU l1} (σ : system l2 A) → hom-system id σ σ
-  hom-system.element (id-hom-system σ) {X} = id
-  hom-system.slice (id-hom-system σ) X = id-hom-system (system.slice σ X)
+    {l1 l2 : Level} {T : UU l1} (A : system l2 T) → hom-system id A A
+  hom-system.element (id-hom-system A) {X} = id
+  hom-system.slice (id-hom-system A) X = id-hom-system (system.slice A X)
   
   comp-hom-system :
-    {l1 l2 l3 l4 l5 l6 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {g : B → C}
-    {f : A → B} {σ : system l4 A} {τ : system l5 B} {υ : system l6 C}
-    (β : hom-system g τ υ) (α : hom-system f σ τ) → hom-system (g ∘ f) σ υ
+    {l1 l2 l3 l4 l5 l6 : Level} {T : UU l1} {S : UU l2} {R : UU l3} {g : S → R}
+    {f : T → S} {A : system l4 T} {B : system l5 S} {C : system l6 R}
+    (β : hom-system g B C) (α : hom-system f A B) → hom-system (g ∘ f) A C
   hom-system.element (comp-hom-system {f = f} β α) {X} =
     hom-system.element β {f X} ∘ hom-system.element α {X}
   hom-system.slice (comp-hom-system {f = f} β α) X =
     comp-hom-system (hom-system.slice β (f X)) (hom-system.slice α X)
   
   record htpy-hom-system
-    {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {f : A → B}
-    {σ : system l3 A} {τ : system l4 B} (g h : hom-system f σ τ) :
+    {l1 l2 l3 l4 : Level} {T : UU l1} {S : UU l2} {f : T → S}
+    {A : system l3 T} {B : system l4 S} (g h : hom-system f A B) :
     UU (l1 ⊔ l3 ⊔ l4)
     where
     coinductive
     field
-      element : (X : A) → hom-system.element g {X} ~ hom-system.element h {X}
-      slice   : (X : A) →
+      element : (X : T) → hom-system.element g {X} ~ hom-system.element h {X}
+      slice   : (X : T) →
                 htpy-hom-system (hom-system.slice g X) (hom-system.slice h X)
   
   record weakening
-    {l1 l2 : Level} {A : UU l1} (σ : system l2 A) : UU (l1 ⊔ l2)
+    {l1 l2 : Level} {T : UU l1} (A : system l2 T) : UU (l1 ⊔ l2)
     where
     coinductive
     field
-      element : (X : A) → hom-system id σ (system.slice σ X)
-      slice   : (X : A) → weakening (system.slice σ X)
+      element : (X : T) → hom-system id A (system.slice A X)
+      slice   : (X : T) → weakening (system.slice A X)
   
   record preserves-weakening
-    {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {f : A → B}
-    {σ : system l3 A} {τ : system l4 B} (Wσ : weakening σ) (Wτ : weakening τ)
-    (h : hom-system f σ τ) : UU (l1 ⊔ l3 ⊔ l4)
+    {l1 l2 l3 l4 : Level} {T : UU l1} {S : UU l2} {f : T → S}
+    {A : system l3 T} {B : system l4 S} (WA : weakening A) (WB : weakening B)
+    (h : hom-system f A B) : UU (l1 ⊔ l3 ⊔ l4)
     where
     coinductive
     field
-      element : (X : A) →
+      element : (X : T) →
                 htpy-hom-system
                   ( comp-hom-system
                     ( hom-system.slice h X)
-                    ( weakening.element Wσ X))
+                    ( weakening.element WA X))
                   ( comp-hom-system
-                    ( weakening.element Wτ (f X))
+                    ( weakening.element WB (f X))
                     ( h))
-      slice   : (X : A) →
+      slice   : (X : T) →
                 preserves-weakening
-                  ( weakening.slice Wσ X)
-                  ( weakening.slice Wτ (f X))
+                  ( weakening.slice WA X)
+                  ( weakening.slice WB (f X))
                   ( hom-system.slice h X)
   
   record substitution
-    {l1 l2 : Level} {A : UU l1} (σ : system l2 A) : UU (l1 ⊔ l2)
+    {l1 l2 : Level} {T : UU l1} (A : system l2 T) : UU (l1 ⊔ l2)
     where
     coinductive
     field
-      element : {X : A} (x : system.element σ X) →
-                hom-system id (system.slice σ X) σ
-      slice   : (X : A) → substitution (system.slice σ X)
+      element : {X : T} (x : system.element A X) →
+                hom-system id (system.slice A X) A
+      slice   : (X : T) → substitution (system.slice A X)
   
   record preserves-substitution
-    {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {f : A → B} {σ : system l3 A}
-    {τ : system l4 B} (Sσ : substitution σ) (Sτ : substitution τ)
-    (h : hom-system f σ τ) : UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+    {l1 l2 l3 l4 : Level} {T : UU l1} {S : UU l2} {f : T → S} {A : system l3 T}
+    {B : system l4 S} (SA : substitution A) (SB : substitution B)
+    (h : hom-system f A B) : UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
     where
     coinductive
     field
-      element : {X : A} (x : system.element σ X) →
+      element : {X : T} (x : system.element A X) →
                 htpy-hom-system
                   ( comp-hom-system
                     ( h)
-                    ( substitution.element Sσ x))
+                    ( substitution.element SA x))
                   ( comp-hom-system
-                    ( substitution.element Sτ
+                    ( substitution.element SB
                       ( hom-system.element h x))
                     ( hom-system.slice h X))
-      slice   : (X : A) →
+      slice   : (X : T) →
                 preserves-substitution
-                  ( substitution.slice Sσ X)
-                  ( substitution.slice Sτ (f X))
+                  ( substitution.slice SA X)
+                  ( substitution.slice SB (f X))
                   ( hom-system.slice h X)
   
   record generic-element
-    {l1 l2 : Level} {A : UU l1} (σ : system l2 A) :
-    UU (l1 ⊔ l2)
+    {l1 l2 : Level} {T : UU l1} (A : system l2 T) : UU (l1 ⊔ l2)
     where
     coinductive
     field
-      element : (X : A) → system.element (system.slice σ X) X
-      slice   : (X : A) → generic-element (system.slice σ X)
+      element : (X : T) → system.element (system.slice A X) X
+      slice   : (X : T) → generic-element (system.slice A X)
   
   record preserves-generic-element
-    {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {f : A → B}
-    {σ : system l3 A} {τ : system l4 B} (δσ : generic-element σ)
-    (δτ : generic-element τ) (h : hom-system f σ τ) : UU (l1 ⊔ l3 ⊔ l4)
+    {l1 l2 l3 l4 : Level} {T : UU l1} {S : UU l2} {f : T → S}
+    {A : system l3 T} {B : system l4 S} (δA : generic-element A)
+    (δB : generic-element B) (h : hom-system f A B) : UU (l1 ⊔ l3 ⊔ l4)
     where
     coinductive
     field
-      element : (X : A) →
+      element : (X : T) →
                 Id ( hom-system.element
                      ( hom-system.slice h X)
-                     ( generic-element.element δσ X))
-                   ( generic-element.element δτ (f X))
-      slice   : (X : A) →
+                     ( generic-element.element δA X))
+                   ( generic-element.element δB (f X))
+      slice   : (X : T) →
                 preserves-generic-element
-                  ( generic-element.slice δσ X)
-                  ( generic-element.slice δτ (f X))
+                  ( generic-element.slice δA X)
+                  ( generic-element.slice δB (f X))
                   ( hom-system.slice h X)
-  
-  record weakening-preserves-weakening
-    {l1 l2 : Level} {A : UU l1} {σ : system l2 A} (W : weakening σ) :
-    UU (l1 ⊔ l2)
+
+  module _
+    {l1 l2 : Level} {T : UU l1}
     where
-    coinductive
-    field
-      element : (X : A) →
-                preserves-weakening
-                  ( W)
-                  ( weakening.slice W X)
-                  ( weakening.element W X)
-      slice   : (X : A) → weakening-preserves-weakening (weakening.slice W  X)
   
-  record substitution-preserves-substitution
-    {l1 l2 : Level} {A : UU l1} {σ : system l2 A} (S : substitution σ) :
-    UU (l1 ⊔ l2)
-    where
-    coinductive
-    field
-      element : {X : A} (x : system.element σ X) →
-                preserves-substitution
-                  ( substitution.slice S X)
-                  ( S)
-                  ( substitution.element S x)
-      slice   : (X : A) →
-                substitution-preserves-substitution (substitution.slice S X)
+    record weakening-preserves-weakening
+      {A : system l2 T} (W : weakening A) : UU (l1 ⊔ l2)
+      where
+      coinductive
+      field
+        element : (X : T) →
+                  preserves-weakening
+                    ( W)
+                    ( weakening.slice W X)
+                    ( weakening.element W X)
+        slice   : (X : T) → weakening-preserves-weakening (weakening.slice W  X)
   
-  record weakening-preserves-substitution
-    {l1 l2 : Level} {A : UU l1} {σ : system l2 A} (W : weakening σ)
-    (S : substitution σ) : UU (l1 ⊔ l2)
-    where
-    coinductive
-    field
-      element : (X : A) →
-                preserves-substitution
-                  ( S)
-                  ( substitution.slice S X)
-                  ( weakening.element W X)
-      slice   : (X : A) →
-                weakening-preserves-substitution
-                  ( weakening.slice W X)
-                  ( substitution.slice S X)
-  
-  record substitution-preserves-weakening
-    {l1 l2 : Level} {A : UU l1} {σ : system l2 A} (W : weakening σ)
-    (S : substitution σ) : UU (l1 ⊔ l2)
-    where
-    coinductive
-    field
-      element : {X : A} (x : system.element σ X) →
-                preserves-weakening
-                  ( weakening.slice W X)
-                  ( W)
-                  ( substitution.element S x)
-      slice   : (X : A) →
-                substitution-preserves-weakening
-                  ( weakening.slice W X)
-                  ( substitution.slice S X)
-  
-  record weakening-preserves-generic-element
-    {l1 l2 : Level} {A : UU l1} {σ : system l2 A} (W : weakening σ)
-    (δ : generic-element σ) : UU (l1 ⊔ l2)
-    where
-    coinductive
-    field
-      element : (X : A) →
-                preserves-generic-element
-                  ( δ)
-                  ( generic-element.slice δ X)
-                  ( weakening.element W X)
-      slice   : (X : A) →
-                weakening-preserves-generic-element
-                  ( weakening.slice W X)
-                  ( generic-element.slice δ X)
-  
-  record substitution-preserves-generic-element
-    {l1 l2 : Level} {A : UU l1} {σ : system l2 A} (S : substitution σ)
-    (δ : generic-element σ) : UU (l1 ⊔ l2)
-    where
-    coinductive
-    field
-      element : {X : A} (x : system.element σ X) →
-                preserves-generic-element
-                  ( generic-element.slice δ X)
-                  ( δ)
-                  ( substitution.element S x)
-      slice   : (X : A) →
-                substitution-preserves-generic-element
-                  ( substitution.slice S X)
-                  ( generic-element.slice δ X)
-  
-  record substitution-cancels-weakening
-    {l1 l2 : Level} {A : UU l1} {σ : system l2 A} (W : weakening σ)
-    (S : substitution σ) : UU (l1 ⊔ l2)
-    where
-    coinductive
-    field
-      element : {X : A} (x : system.element σ X) →
-                htpy-hom-system
-                  ( comp-hom-system
+    record substitution-preserves-substitution
+      {A : system l2 T} (S : substitution A) : UU (l1 ⊔ l2)
+      where
+      coinductive
+      field
+        element : {X : T} (x : system.element A X) →
+                  preserves-substitution
+                    ( substitution.slice S X)
+                    ( S)
                     ( substitution.element S x)
-                    ( weakening.element W X))
-                  ( id-hom-system σ)
-      slice   : (X : A) →
-                substitution-cancels-weakening
-                  ( weakening.slice W X)
-                  ( substitution.slice S X)
+        slice   : (X : T) →
+                  substitution-preserves-substitution (substitution.slice S X)
   
-  record generic-element-is-identity
-    {l1 l2 : Level} {A : UU l1} {σ : system l2 A} (S : substitution σ)
-    (δ : generic-element σ) : UU (l1 ⊔ l2)
-    where
-    coinductive
-    field
-      element : {X : A} (x : system.element σ X) →
-                Id ( hom-system.element
-                     ( substitution.element S x)
-                     ( generic-element.element δ X))
-                   ( x)
-      slice   : (X : A) →
-                generic-element-is-identity
-                  ( substitution.slice S X)
-                  ( generic-element.slice δ X)
+    record weakening-preserves-substitution
+      {A : system l2 T} (W : weakening A) (S : substitution A) : UU (l1 ⊔ l2)
+      where
+      coinductive
+      field
+        element : (X : T) →
+                  preserves-substitution
+                    ( S)
+                    ( substitution.slice S X)
+                    ( weakening.element W X)
+        slice   : (X : T) →
+                  weakening-preserves-substitution
+                    ( weakening.slice W X)
+                    ( substitution.slice S X)
   
-  record substitution-by-generic-element
-    {l1 l2 : Level} {A : UU l1} {σ : system l2 A} (W : weakening σ)
-    (S : substitution σ) (δ : generic-element σ) : UU (l1 ⊔ l2)
-    where
-    coinductive
-    field
-      element : (X : A) →
-                htpy-hom-system
-                  ( comp-hom-system
-                    ( substitution.element
-                      ( substitution.slice S X)
-                      ( generic-element.element δ X))
-                    ( weakening.element (weakening.slice W X) X))
-                  ( id-hom-system (system.slice σ X))
-      slice   : (X : A) →
-                substitution-by-generic-element
-                  ( weakening.slice W X)
-                  ( substitution.slice S X)
-                  ( generic-element.slice δ X)
+    record substitution-preserves-weakening
+      {A : system l2 T} (W : weakening A) (S : substitution A) : UU (l1 ⊔ l2)
+      where
+      coinductive
+      field
+        element : {X : T} (x : system.element A X) →
+                  preserves-weakening
+                    ( weakening.slice W X)
+                    ( W)
+                    ( substitution.element S x)
+        slice   : (X : T) →
+                  substitution-preserves-weakening
+                    ( weakening.slice W X)
+                    ( substitution.slice S X)
+  
+    record weakening-preserves-generic-element
+      {A : system l2 T} (W : weakening A) (δ : generic-element A) : UU (l1 ⊔ l2)
+      where
+      coinductive
+      field
+        element : (X : T) →
+                  preserves-generic-element
+                    ( δ)
+                    ( generic-element.slice δ X)
+                    ( weakening.element W X)
+        slice   : (X : T) →
+                  weakening-preserves-generic-element
+                    ( weakening.slice W X)
+                    ( generic-element.slice δ X)
+  
+    record substitution-preserves-generic-element
+      {A : system l2 T} (S : substitution A) (δ : generic-element A) :
+      UU (l1 ⊔ l2)
+      where
+      coinductive
+      field
+        element : {X : T} (x : system.element A X) →
+                  preserves-generic-element
+                    ( generic-element.slice δ X)
+                    ( δ)
+                    ( substitution.element S x)
+        slice   : (X : T) →
+                  substitution-preserves-generic-element
+                    ( substitution.slice S X)
+                    ( generic-element.slice δ X)
+  
+    record substitution-cancels-weakening
+      {A : system l2 T} (W : weakening A) (S : substitution A) : UU (l1 ⊔ l2)
+      where
+      coinductive
+      field
+        element : {X : T} (x : system.element A X) →
+                  htpy-hom-system
+                    ( comp-hom-system
+                      ( substitution.element S x)
+                      ( weakening.element W X))
+                    ( id-hom-system A)
+        slice   : (X : T) →
+                  substitution-cancels-weakening
+                    ( weakening.slice W X)
+                    ( substitution.slice S X)
+  
+    record generic-element-is-identity
+      {A : system l2 T} (S : substitution A) (δ : generic-element A) :
+      UU (l1 ⊔ l2)
+      where
+      coinductive
+      field
+        element : {X : T} (x : system.element A X) →
+                  Id ( hom-system.element
+                       ( substitution.element S x)
+                       ( generic-element.element δ X))
+                     ( x)
+        slice   : (X : T) →
+                  generic-element-is-identity
+                    ( substitution.slice S X)
+                    ( generic-element.slice δ X)
+  
+    record substitution-by-generic-element
+      {A : system l2 T} (W : weakening A) (S : substitution A)
+      (δ : generic-element A) : UU (l1 ⊔ l2)
+      where
+      coinductive
+      field
+        element : (X : T) →
+                  htpy-hom-system
+                    ( comp-hom-system
+                      ( substitution.element
+                        ( substitution.slice S X)
+                        ( generic-element.element δ X))
+                      ( weakening.element (weakening.slice W X) X))
+                    ( id-hom-system (system.slice A X))
+        slice   : (X : T) →
+                  substitution-by-generic-element
+                    ( weakening.slice W X)
+                    ( substitution.slice S X)
+                    ( generic-element.slice δ X)
   
   record type-theory
     (l1 l2 : Level) : UU (lsuc l1 ⊔ lsuc  l2)
@@ -335,127 +460,126 @@ module simple where
   type-theory.Sδ! (slice-type-theory T X) =
     substitution-by-generic-element.slice (type-theory.Sδ! T) X
 
-open import extra.dependent-type-theories
+module dependent-simple
+  where
 
-dependent-system-simple-system :
-  {l1 l2 : Level} {A : UU l1} → simple.system l2 A → dependent.system l1 l2
-dependent.system.type (dependent-system-simple-system {A = A} σ) = A
-dependent.system.element (dependent-system-simple-system σ) X =
-  simple.system.element σ X
-dependent.system.slice (dependent-system-simple-system σ) X =
-  dependent-system-simple-system (simple.system.slice σ X)
+  open import extra.dependent-type-theories
+
+  system :
+    {l1 l2 : Level} {T : UU l1} → simple.system l2 T → dependent.system l1 l2
+  dependent.system.type (system {T = T} A) = T
+  dependent.system.element (system A) X =
+    simple.system.element A X
+  dependent.system.slice (system A) X =
+    system (simple.system.slice A X)
                                               
-dependent-hom-system-simple-hom-system :
-  {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l3} {f : A → B}
-  {σ : simple.system l2 A} {τ : simple.system l4 B} →
-  simple.hom-system f σ τ →
-  dependent.hom-system
-    ( dependent-system-simple-system σ)
-    ( dependent-system-simple-system τ)
-dependent.section-system.type
-  ( dependent-hom-system-simple-hom-system {f = f} h) = f
-dependent.section-system.element
-  ( dependent-hom-system-simple-hom-system h) =
-  simple.hom-system.element h
-dependent.section-system.slice (dependent-hom-system-simple-hom-system h) X =
-  dependent-hom-system-simple-hom-system (simple.hom-system.slice h X)
+  hom-system :
+    {l1 l2 l3 l4 : Level} {T : UU l1} {S : UU l3} {f : T → S}
+    {A : simple.system l2 T} {B : simple.system l4 S} →
+    simple.hom-system f A B →
+    dependent.hom-system (system A) (system B)
+  dependent.section-system.type (hom-system {f = f} h) = f
+  dependent.section-system.element (hom-system h) =
+    simple.hom-system.element h
+  dependent.section-system.slice (hom-system h) X =
+    hom-system (simple.hom-system.slice h X)
+  
+  comp-hom-system :
+    {l1 l2 l3 l4 l5 l6 : Level} {T : UU l1} {S : UU l2} {R : UU l3}
+    {g : S → R} {f : T → S} {A : simple.system l4 T} {B : simple.system l5 S}
+    {C : simple.system l6 R} (k : simple.hom-system g B C)
+    (h : simple.hom-system f A B) →
+    dependent.htpy-hom-system
+      ( hom-system
+        ( simple.comp-hom-system k h))
+      ( dependent.comp-hom-system
+        ( hom-system k)
+        ( hom-system h))
+  dependent.section-system.type (comp-hom-system k h) X = refl
+  dependent.section-system.element (comp-hom-system k h) x = refl
+  dependent.section-system.slice (comp-hom-system {f = f} k h) X =
+    comp-hom-system
+      ( simple.hom-system.slice k (f X))
+      ( simple.hom-system.slice h X)
+  
+  htpy-hom-system :
+    {l1 l2 l3 l4 : Level} {T : UU l1} {S : UU l2} {f : T → S}
+    {A : simple.system l3 T} {B : simple.system l4 S}
+    {g h : simple.hom-system f A B} →
+    simple.htpy-hom-system g h →
+    dependent.htpy-hom-system (hom-system g) (hom-system h)
+  dependent.section-system.type (htpy-hom-system H) = refl-htpy
+  dependent.section-system.element (htpy-hom-system H) {X} =
+    simple.htpy-hom-system.element H X
+  dependent.section-system.slice (htpy-hom-system H) X =
+    htpy-hom-system (simple.htpy-hom-system.slice H X)
+  
+  weakening :
+    {l1 l2 : Level} {T : UU l1} {A : simple.system l2 T} →
+    simple.weakening A → dependent.weakening (system A)
+  dependent.weakening.type (weakening W) X =
+    hom-system (simple.weakening.element W X)
+  dependent.weakening.slice (weakening W) X =
+    weakening (simple.weakening.slice W X)
 
-comp-dependent-hom-system-simple-hom-system :
-  {l1 l2 l3 l4 l5 l6 : Level} {A : UU l1} {B : UU l2} {C : UU l3}
-  {g : B → C} {f : A → B} {σ : simple.system l4 A} {τ : simple.system l5 B}
-  {υ : simple.system l6 C} (k : simple.hom-system g τ υ)
-  (h : simple.hom-system f σ τ) →
-  dependent.htpy-hom-system
-    ( dependent-hom-system-simple-hom-system
-      ( simple.comp-hom-system k h))
-    ( dependent.comp-hom-system
-      ( dependent-hom-system-simple-hom-system k)
-      ( dependent-hom-system-simple-hom-system h))
-dependent.section-system.type
-  ( comp-dependent-hom-system-simple-hom-system k h) X =
-  refl
-dependent.section-system.element
-  ( comp-dependent-hom-system-simple-hom-system k h) x =
-  refl
-dependent.section-system.slice
-  ( comp-dependent-hom-system-simple-hom-system {f = f} k h) X =
-  comp-dependent-hom-system-simple-hom-system
-    ( simple.hom-system.slice k (f X))
-    ( simple.hom-system.slice h X)
+  preserves-weakening :
+    {l1 l2 l3 l4 : Level} {T : UU l1} {S : UU l2} {f : T → S}
+    {A : simple.system l3 T} {B : simple.system l4 S}
+    {WA : simple.weakening A} {WB : simple.weakening B}
+    {g : simple.hom-system f A B} →
+    simple.preserves-weakening WA WB g →
+    dependent.preserves-weakening
+      ( weakening WA)
+      ( weakening WB)
+      ( hom-system g)
+  dependent.preserves-weakening.type
+    ( preserves-weakening {f = f} {WA = WA} {WB} {g = g} Wg) X =
+    dependent.concat-htpy-hom-system
+      ( dependent.inv-htpy-hom-system
+        ( comp-hom-system
+          ( simple.hom-system.slice g X)
+          ( simple.weakening.element WA X)))
+      ( dependent.concat-htpy-hom-system
+        ( htpy-hom-system (simple.preserves-weakening.element Wg X))
+        ( comp-hom-system
+          ( simple.weakening.element WB (f X))
+          ( g)))
+  dependent.preserves-weakening.slice (preserves-weakening Wg) X =
+    preserves-weakening (simple.preserves-weakening.slice Wg X)
+  
+  substitution :
+    {l1 l2 : Level} {T : UU l1} {A : simple.system l2 T} →
+    simple.substitution A →
+    dependent.substitution (system A)
+  dependent.substitution.type
+    ( substitution S) x =
+    hom-system (simple.substitution.element S x)
+  dependent.substitution.slice
+    ( substitution S) X =
+    substitution (simple.substitution.slice S X)
 
-dependent-htpy-hom-system-simple-htpy-hom-system :
-  {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {f : A → B}
-  {σ : simple.system l3 A} {τ : simple.system l4 B}
-  {g h : simple.hom-system f σ τ} →
-  simple.htpy-hom-system g h →
-  dependent.htpy-hom-system
-    ( dependent-hom-system-simple-hom-system g)
-    ( dependent-hom-system-simple-hom-system h)
-dependent.section-system.type
-  ( dependent-htpy-hom-system-simple-htpy-hom-system H) = refl-htpy
-dependent.section-system.element
-  ( dependent-htpy-hom-system-simple-htpy-hom-system H) {X} =
-  simple.htpy-hom-system.element H X
-dependent.section-system.slice
-  ( dependent-htpy-hom-system-simple-htpy-hom-system H) X =
-  dependent-htpy-hom-system-simple-htpy-hom-system
-    ( simple.htpy-hom-system.slice H X)
-
-dependent-weakening-simple-weakening :
-  {l1 l2 : Level} {A : UU l1} {σ : simple.system l2 A}
-  (W : simple.weakening σ) →
-  dependent.weakening (dependent-system-simple-system σ)
-dependent.weakening.type (dependent-weakening-simple-weakening W) X =
-  dependent-hom-system-simple-hom-system (simple.weakening.element W X)
-dependent.weakening.slice (dependent-weakening-simple-weakening W) X =
-  dependent-weakening-simple-weakening (simple.weakening.slice W X)
-
-dependent-substitution-simple-substitution :
-  {l1 l2 : Level} {A : UU l1} {σ : simple.system l2 A} →
-  simple.substitution σ →
-  dependent.substitution (dependent-system-simple-system σ)
-dependent.substitution.type (dependent-substitution-simple-substitution S) x =
-  dependent-hom-system-simple-hom-system (simple.substitution.element S x)
-dependent.substitution.slice (dependent-substitution-simple-substitution S) X =
-  dependent-substitution-simple-substitution (simple.substitution.slice S X)
-
-dependent-generic-element-simple-generic-element :
-  {l1 l2 : Level} {A : UU l1} {σ : simple.system l2 A} →
-  (W : simple.weakening σ) → simple.generic-element σ →
-  dependent.generic-element
-    ( dependent-weakening-simple-weakening W)
-dependent.generic-element.type
-  ( dependent-generic-element-simple-generic-element W δ) X =
-  simple.generic-element.element δ X
-dependent.generic-element.slice
-  ( dependent-generic-element-simple-generic-element W δ) X =
-  dependent-generic-element-simple-generic-element
-    ( simple.weakening.slice W X)
-    ( simple.generic-element.slice δ X)
-
-dependent-preserves-weakening-simple-preserves-weakening :
-  {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {f : A → B}
-  {σ : simple.system l3 A} {τ : simple.system l4 B}
-  {Wσ : simple.weakening σ} {Wτ : simple.weakening τ}
-  {g : simple.hom-system f σ τ} →
-  simple.preserves-weakening Wσ Wτ g →
-  dependent.preserves-weakening
-    ( dependent-weakening-simple-weakening Wσ)
-    ( dependent-weakening-simple-weakening Wτ)
-    ( dependent-hom-system-simple-hom-system g)
-dependent.preserves-weakening.type
-  ( dependent-preserves-weakening-simple-preserves-weakening Wg) X =
-  {!!}
-dependent.preserves-weakening.slice
-  ( dependent-preserves-weakening-simple-preserves-weakening Wg) X =
-  {!!}
-
-dependent-wpw-simple-wpw :
-  {l1 l2 : Level} {A : UU l1} {σ : simple.system l2 A}
-  {W : simple.weakening σ} →
-  simple.weakening-preserves-weakening W →
-  dependent.weakening-preserves-weakening
-    ( dependent-weakening-simple-weakening W)
-dependent.weakening-preserves-weakening.type (dependent-wpw-simple-wpw WW) X =
-  {!dependent.concat-htpy-hom-system ? ?!}
-dependent.weakening-preserves-weakening.slice (dependent-wpw-simple-wpw WW) = {!!}
+  generic-element :
+    {l1 l2 : Level} {T : UU l1} {A : simple.system l2 T} →
+    (W : simple.weakening A) → simple.generic-element A →
+    dependent.generic-element (weakening W)
+  dependent.generic-element.type
+    ( generic-element W δ) X =
+    simple.generic-element.element δ X
+  dependent.generic-element.slice
+    ( generic-element W δ) X =
+    generic-element
+      ( simple.weakening.slice W X)
+      ( simple.generic-element.slice δ X)
+  
+  weakening-preserves-weakening :
+    {l1 l2 : Level} {T : UU l1} {A : simple.system l2 T}
+    {W : simple.weakening A} →
+    simple.weakening-preserves-weakening W →
+    dependent.weakening-preserves-weakening (weakening W)
+  dependent.weakening-preserves-weakening.type
+    ( weakening-preserves-weakening WW) X =
+    preserves-weakening (simple.weakening-preserves-weakening.element WW X)
+  dependent.weakening-preserves-weakening.slice
+    ( weakening-preserves-weakening WW) X =
+    weakening-preserves-weakening
+      ( simple.weakening-preserves-weakening.slice WW X)
