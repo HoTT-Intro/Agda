@@ -307,11 +307,38 @@ module unityped where
 
 --------------------------------------------------------------------------------
 
+  module C-system where
+
+    El : {l : Level} (A : type-theory l) → ℕ → UU l
+    El A zero-ℕ = system.element (type-theory.sys A)
+    El A (succ-ℕ n) = El (slice-type-theory A) n
+
+    hom-El :
+      {l1 l2 : Level} {A : type-theory l1} {B : type-theory l2}
+      (f : ho
+
+    iterated-weakening :
+      {l : Level} {A : type-theory l} {m n : ℕ} →
+      El A n → El A (succ-ℕ (add-ℕ m n))
+    iterated-weakening {l} {A} {zero-ℕ} {n} x = {!hom-system.element (weakening.element (type-theory.W A))!}
+    iterated-weakening {l} {A} {succ-ℕ m} {n} x = {!!}
+
+    -- hom(X,Y) := Tm(W(X,Y))
+  
+    hom : {l : Level} (A : type-theory l) → ℕ → ℕ → UU l
+    hom A m n = El A (succ-ℕ (add-ℕ m n))
+
+    id-hom : {l : Level} (A : type-theory l) (n : ℕ) → hom A n n
+    id-hom A zero-ℕ = generic-element.element (type-theory.δ A)
+    id-hom A (succ-ℕ n) = {!!}
+--------------------------------------------------------------------------------
+
 {- We construct the forgetful functor from unityped type theories to simple
    type theories. -}
 
 module simple-unityped where
 
+{-
   system :
     {l : Level} → unityped.system l → simple.system l unit
   simple.system.element (system A) x = unityped.system.element A
@@ -374,7 +401,7 @@ module simple-unityped where
     unityped.preserves-weakening WA WB f →
     simple.preserves-weakening (weakening WA) (weakening WB) (hom-system f)
   simple.preserves-weakening.element (preserves-weakening Wf) x =
-    {!htpy-hom-system (unityped.preserves-weakening.element Wf)!}
+    {!simple.concat-htpy-hom-system!}
   simple.preserves-weakening.slice (preserves-weakening Wf) = {!!}
 
   substitution :
@@ -392,3 +419,4 @@ module simple-unityped where
     unityped.generic-element.element δ
   simple.generic-element.slice (generic-element δ) x =
     generic-element (unityped.generic-element.slice δ)
+-}

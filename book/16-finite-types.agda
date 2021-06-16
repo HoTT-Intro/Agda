@@ -1274,13 +1274,35 @@ is-finite-equiv' e = is-finite-equiv (inv-equiv e)
 
 {- Theorem -}
 
+mere-equiv-Prop :
+  {l1 l2 : Level} → UU l1 → UU l2 → UU-Prop (l1 ⊔ l2)
+mere-equiv-Prop X Y = trunc-Prop (X ≃ Y)
+
 mere-equiv :
   {l1 l2 : Level} → UU l1 → UU l2 → UU (l1 ⊔ l2)
-mere-equiv X Y = type-trunc-Prop (X ≃ Y)
+mere-equiv X Y = type-Prop (mere-equiv-Prop X Y)
+
+is-prop-mere-equiv :
+  {l1 l2 : Level} (X : UU l1) (Y : UU l2) → is-prop (mere-equiv X Y)
+is-prop-mere-equiv X Y = is-prop-type-Prop (mere-equiv-Prop X Y)
+
+has-cardinality-Prop :
+  {l : Level} → UU l → ℕ → UU-Prop l
+has-cardinality-Prop X k = mere-equiv-Prop (Fin k) X
+
+has-cardinality :
+  {l : Level} → UU l → ℕ → UU l
+has-cardinality X k = mere-equiv (Fin k) X
+
+UU-Fin' : (l : Level) → ℕ → UU (lsuc l)
+UU-Fin' l k = Σ (UU l) (mere-equiv (Fin k))
+
+UU-Fin : ℕ → UU (lsuc lzero)
+UU-Fin k = UU-Fin' lzero k
 
 has-finite-cardinality :
   {l : Level} → UU l → UU l
-has-finite-cardinality X = Σ ℕ (λ k → mere-equiv (Fin k) X)
+has-finite-cardinality X = Σ ℕ (has-cardinality X)
 
 number-of-elements-has-finite-cardinality :
   {l : Level} {X : UU l} → has-finite-cardinality X → ℕ
@@ -1374,6 +1396,9 @@ is-finite-is-empty :
   {l1 : Level} {X : UU l1} → is-empty X → is-finite X
 is-finite-is-empty H = is-finite-count (count-is-empty H)
 
+empty-𝔽 : 𝔽
+empty-𝔽 = pair empty (is-finite-is-empty id)
+
 has-finite-cardinality-is-empty :
   {l1 : Level} {X : UU l1} → is-empty X → has-finite-cardinality X
 has-finite-cardinality-is-empty f =
@@ -1392,12 +1417,18 @@ is-empty-is-zero-number-of-elements-is-finite {l1} {X} f p =
 is-finite-unit : is-finite unit
 is-finite-unit = is-finite-count count-unit
 
+unit-𝔽 : 𝔽
+unit-𝔽 = pair unit is-finite-unit
+
 is-finite-is-contr :
   {l1 : Level} {X : UU l1} → is-contr X → is-finite X
-is-finite-is-contr H = is-finite-count (count-is-contr H) 
+is-finite-is-contr H = is-finite-count (count-is-contr H)
 
 is-finite-Fin : {k : ℕ} → is-finite (Fin k)
 is-finite-Fin {k} = is-finite-count (count-Fin k)
+
+Fin-𝔽 : ℕ → 𝔽
+Fin-𝔽 k = pair (Fin k) (is-finite-Fin)
 
 {- Finiteness and coproducts -}
 
@@ -1411,6 +1442,11 @@ is-finite-coprod {X = X} {Y} is-finite-X is-finite-Y =
       apply-universal-property-trunc-Prop is-finite-Y
         ( is-finite-Prop (coprod X Y))
         ( is-finite-count ∘ (count-coprod e)))
+
+coprod-𝔽 : 𝔽 → 𝔽 → 𝔽
+coprod-𝔽 X Y =
+  pair ( coprod (type-𝔽 X) (type-𝔽 Y))
+       ( is-finite-coprod (is-finite-type-𝔽 X) (is-finite-type-𝔽 Y))
 
 is-finite-left-coprod :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → is-finite (coprod X Y) → is-finite X
@@ -1434,6 +1470,11 @@ is-finite-prod {X = X} {Y} is-finite-X is-finite-Y =
       apply-universal-property-trunc-Prop is-finite-Y
         ( is-finite-Prop (X × Y))
         ( is-finite-count ∘ (count-prod e)))
+
+prod-𝔽 : 𝔽 → 𝔽 → 𝔽
+prod-𝔽 X Y =
+  pair ( prod (type-𝔽 X) (type-𝔽 Y))
+       ( is-finite-prod (is-finite-type-𝔽 X) (is-finite-type-𝔽 Y))
 
 is-finite-left-factor :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
@@ -1493,6 +1534,13 @@ is-finite-Σ {X = X} {Y} is-finite-X is-finite-Y =
         ( is-finite-Prop (Σ X Y))
         ( is-finite-count ∘ (count-Σ e)))
 
+Σ-𝔽 : (X : 𝔽) (Y : type-𝔽 X → 𝔽) → 𝔽
+Σ-𝔽 X Y =
+  pair ( Σ (type-𝔽 X) (λ x → type-𝔽 (Y x)))
+       ( is-finite-Σ
+         ( is-finite-type-𝔽 X)
+         ( λ x → is-finite-type-𝔽 (Y x)))
+
 is-finite-fiber-is-finite-Σ :
   {l1 l2 : Level} {X : UU l1} {Y : X → UU l2} →
   is-finite X → is-finite (Σ X Y) → (x : X) → is-finite (Y x)
@@ -1500,6 +1548,23 @@ is-finite-fiber-is-finite-Σ {l1} {l2} {X} {Y} f g x =
   apply-universal-property-trunc-Prop f
     ( is-finite-Prop (Y x))
     ( λ e → functor-trunc-Prop (λ h → count-fiber-count-Σ e h x) g)
+
+is-finite-fib :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (f : X → Y) →
+  is-finite X → is-finite Y → (y : Y) → is-finite (fib f y)
+is-finite-fib f is-finite-X is-finite-Y y =
+  apply-universal-property-trunc-Prop
+    ( is-finite-X)
+    ( is-finite-Prop (fib f y))
+    ( λ H →
+      apply-universal-property-trunc-Prop
+        ( is-finite-Y)
+        ( is-finite-Prop (fib f y))
+        ( λ K → unit-trunc-Prop (count-fib f H K y)))
+
+fib-𝔽 : (X Y : 𝔽) (f : type-𝔽 X → type-𝔽 Y) → type-𝔽 Y → 𝔽
+fib-𝔽 X Y f y =
+  pair (fib f y) (is-finite-fib f (is-finite-type-𝔽 X) (is-finite-type-𝔽 Y) y)
 
 is-prop-is-inhabited :
   {l1 : Level} {X : UU l1} → (X → is-prop X) → is-prop X
@@ -1531,6 +1596,11 @@ is-finite-eq :
   {l1 : Level} {X : UU l1} →
   has-decidable-equality X → {x y : X} → is-finite (Id x y)
 is-finite-eq d {x} {y} = is-finite-count (count-eq d x y)
+
+Id-𝔽 : (X : 𝔽) (x y : type-𝔽 X) → 𝔽
+Id-𝔽 X x y =
+  pair ( Id x y)
+       ( is-finite-eq (has-decidable-equality-is-finite (is-finite-type-𝔽 X)))
 
 is-finite-fib-map-section :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
@@ -1908,6 +1978,11 @@ is-finite-type-trunc-Prop :
   {l1 : Level} {A : UU l1} → is-finite A → is-finite (type-trunc-Prop A)
 is-finite-type-trunc-Prop = functor-trunc-Prop count-type-trunc-Prop
 
+trunc-Prop-𝔽 : 𝔽 → 𝔽
+trunc-Prop-𝔽 A =
+  pair ( type-trunc-Prop (type-𝔽 A))
+       ( is-finite-type-trunc-Prop (is-finite-type-𝔽 A)) 
+
 complement :
   {l1 l2 : Level} {A : UU l1} (B : A → UU l2) → UU (l1 ⊔ l2)
 complement {l1} {l2} {A} B = Σ A (is-empty ∘ B)
@@ -1974,6 +2049,48 @@ is-finite-Π {l1} {l2} {A} {B} f g =
         ( finite-choice f g)
         ( is-finite-Prop ((x : A) → B x))
         ( λ h → unit-trunc-Prop (count-Π e h)))
+
+Π-𝔽 : (A : 𝔽) (B : type-𝔽 A → 𝔽) → 𝔽
+Π-𝔽 A B =
+  pair ( (x : type-𝔽 A) → type-𝔽 (B x))
+       ( is-finite-Π (is-finite-type-𝔽 A) (λ x → is-finite-type-𝔽 (B x)))
+
+is-finite-function-type :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  is-finite A → is-finite B → is-finite (A → B)
+is-finite-function-type f g = is-finite-Π f (λ x → g)
+
+_→-𝔽_ : 𝔽 → 𝔽 → 𝔽
+A →-𝔽 B =
+  pair ( type-𝔽 A → type-𝔽 B)
+       ( is-finite-function-type (is-finite-type-𝔽 A) (is-finite-type-𝔽 B))
+
+is-finite-≃ :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  is-finite A → is-finite B → is-finite (A ≃ B)
+is-finite-≃ f g =
+  is-finite-Σ
+    ( is-finite-function-type f g)
+    ( λ h →
+      is-finite-prod
+        ( is-finite-Σ
+          ( is-finite-function-type g f)
+          ( λ k →
+            is-finite-Π g
+              ( λ y → is-finite-eq (has-decidable-equality-is-finite g))))
+        ( is-finite-Σ
+          ( is-finite-function-type g f)
+          ( λ k →
+            is-finite-Π f
+              ( λ x → is-finite-eq (has-decidable-equality-is-finite f)))))
+
+_≃-𝔽_ : 𝔽 → 𝔽 → 𝔽
+A ≃-𝔽 B =
+  pair ( type-𝔽 A ≃ type-𝔽 B)
+       ( is-finite-≃ (is-finite-type-𝔽 A) (is-finite-type-𝔽 B))
+
+Aut-𝔽 : 𝔽 → 𝔽
+Aut-𝔽 A = A ≃-𝔽 A
 
 is-injective-is-injective-comp :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} (f : A → C)

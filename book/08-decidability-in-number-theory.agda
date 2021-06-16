@@ -1416,7 +1416,7 @@ preserves-leq-nat-Fin {succ-ℕ k} {inl x} {inl y} H =
 preserves-leq-nat-Fin {succ-ℕ k} {inl x} {inr star} H =
   leq-le-ℕ {nat-Fin x} {k} (strict-upper-bound-nat-Fin x)
 preserves-leq-nat-Fin {succ-ℕ k} {inr star} {inr star} H =
-  reflexive-leq-ℕ k
+  refl-leq-ℕ k
 
 reflects-leq-nat-Fin :
   {k : ℕ} {x y : Fin k} → leq-ℕ (nat-Fin x) (nat-Fin y) → leq-Fin x y

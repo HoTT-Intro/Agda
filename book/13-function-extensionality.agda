@@ -1083,7 +1083,7 @@ computation-succ-strong-ind-ℕ P q0 qS n = refl
 conclusion-strong-ind-ℕ :
   { l : Level} (P : ℕ → UU l) →
   ( ( n : ℕ) → fam-strong-ind-ℕ P n) → (n : ℕ) → P n
-conclusion-strong-ind-ℕ P f n = f n n (reflexive-leq-ℕ n)
+conclusion-strong-ind-ℕ P f n = f n n (refl-leq-ℕ n)
 
 {- We are finally ready to put things together and define strong-ind-ℕ. -}
 
@@ -1108,7 +1108,7 @@ comp-zero-strong-ind-ℕ P p0 pS = refl
 {- For the computation rule of the inductive step, we use our hard work. -}
 
 cases-leq-succ-reflexive-leq-ℕ :
-  {n : ℕ} → Id (cases-leq-succ-ℕ {succ-ℕ n} {n} (reflexive-leq-ℕ n)) (inr refl)
+  {n : ℕ} → Id (cases-leq-succ-ℕ {succ-ℕ n} {n} (refl-leq-ℕ n)) (inr refl)
 cases-leq-succ-reflexive-leq-ℕ {zero-ℕ} = refl
 cases-leq-succ-reflexive-leq-ℕ {succ-ℕ n} =
   ap (map-coprod id (ap succ-ℕ)) cases-leq-succ-reflexive-leq-ℕ
@@ -1183,7 +1183,7 @@ comp-succ-strong-ind-ℕ P p0 pS n =
       ( zero-strong-ind-ℕ P p0)
       ( succ-strong-ind-ℕ P pS)
       ( n))
-    ( reflexive-leq-ℕ n)) ∙
+    ( refl-leq-ℕ n)) ∙
   ( ap ( pS n)
        ( eq-htpy
          ( λ m → eq-htpy
@@ -1214,7 +1214,7 @@ subtract-ℕ (succ-ℕ a) (succ-ℕ b) = subtract-ℕ a b
 leq-subtract-ℕ : (a b : ℕ) → leq-ℕ (subtract-ℕ a b) a
 leq-subtract-ℕ zero-ℕ zero-ℕ = star
 leq-subtract-ℕ zero-ℕ (succ-ℕ b) = star
-leq-subtract-ℕ (succ-ℕ a) zero-ℕ = reflexive-leq-ℕ a
+leq-subtract-ℕ (succ-ℕ a) zero-ℕ = refl-leq-ℕ a
 leq-subtract-ℕ (succ-ℕ a) (succ-ℕ b) =
   transitive-leq-ℕ (subtract-ℕ a b) a (succ-ℕ a)
     ( leq-subtract-ℕ a b)

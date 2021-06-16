@@ -44,7 +44,7 @@ module dependent where
                 fibered-system l3 l4 (system.slice A X)
 
   record section-system
-    {l1 l2 l3 l4 : Level} (A : system l1 l2) (B : fibered-system l3 l4 A) :
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} (B : fibered-system l3 l4 A) :
     UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
     where
     coinductive
@@ -53,9 +53,7 @@ module dependent where
       element : {X : system.type A} (x : system.element A X) →
                 fibered-system.element B (type X) x
       slice   : (X : system.type A) →
-                section-system
-                  ( system.slice A X)
-                  ( fibered-system.slice B (type X))
+                section-system (fibered-system.slice B (type X))
 
   ------------------------------------------------------------------------------
 
@@ -65,23 +63,23 @@ module dependent where
 
   tr-fibered-system-slice :
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B B' : fibered-system l3 l4 A}
-    (α : Id B B') (f : section-system A B) (X : system.type A) →
+    (α : Id B B') (f : section-system B) (X : system.type A) →
     Id ( fibered-system.slice B (section-system.type f X))
        ( fibered-system.slice B'
-         ( section-system.type (tr (section-system A) α f) X))
+         ( section-system.type (tr section-system α f) X))
   tr-fibered-system-slice refl f X = refl
 
   Eq-fibered-system' :
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B B' : fibered-system l3 l4 A}
-    (α : Id B B') (f : section-system A B) (g : section-system A B') →
+    (α : Id B B') (f : section-system B) (g : section-system B') →
     fibered-system l3 l4 A
   fibered-system.type (Eq-fibered-system' {A = A} α f g) X =
-    Id ( section-system.type (tr (section-system A) α f) X)
+    Id ( section-system.type (tr section-system α f) X)
        ( section-system.type g X)
   fibered-system.element (Eq-fibered-system' {A = A} {B} {B'} α f g) p x =
     Id ( tr (λ t → fibered-system.element B' t x)
             ( p)
-            ( section-system.element (tr (section-system A) α f) x))
+            ( section-system.element (tr section-system α f) x))
        ( section-system.element g x)
   fibered-system.slice (Eq-fibered-system' {A = A} {B} {B'} α f g) {X} p =
     Eq-fibered-system'
@@ -91,16 +89,16 @@ module dependent where
 
   htpy-section-system' :
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B B' : fibered-system l3 l4 A}
-    (α : Id B B') (f : section-system A B) (g : section-system A B') →
+    (α : Id B B') (f : section-system B) (g : section-system B') →
     UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
   htpy-section-system' {A = A} α f g =
-    section-system A (Eq-fibered-system' α f g)
+    section-system (Eq-fibered-system' α f g)
 
   concat-htpy-section-system' :
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B B' B'' : fibered-system l3 l4 A}
     {α : Id B B'} {β : Id B' B''} (γ : Id B B'') (δ : Id (α ∙ β) γ)
-    {f : section-system A B} {g : section-system A B'}
-    {h : section-system A B''}
+    {f : section-system B} {g : section-system B'}
+    {h : section-system B''}
     (G : htpy-section-system' α f g) (H : htpy-section-system' β g h) →
     htpy-section-system' γ f h
   section-system.type
@@ -133,7 +131,7 @@ module dependent where
   inv-htpy-section-system' :
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B B' : fibered-system l3 l4 A}
     {α : Id B B'} (β : Id B' B) (γ : Id (inv α) β)
-    {f : section-system A B} {g : section-system A B'} →
+    {f : section-system B} {g : section-system B'} →
     htpy-section-system' α f g → htpy-section-system' β g f
   section-system.type (inv-htpy-section-system' {α = refl} .refl refl H) X =
     inv (section-system.type H X)
@@ -153,13 +151,13 @@ module dependent where
 
   htpy-section-system :
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
-    (f g : section-system A B) → UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+    (f g : section-system B) → UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
   htpy-section-system {A = A} {B} f g =
     htpy-section-system' refl f g
 
   refl-htpy-section-system :
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
-    (f : section-system A B) → htpy-section-system f f
+    (f : section-system B) → htpy-section-system f f
   section-system.type (refl-htpy-section-system f) X = refl
   section-system.element (refl-htpy-section-system f) x = refl
   section-system.slice (refl-htpy-section-system f) X =
@@ -167,14 +165,14 @@ module dependent where
 
   concat-htpy-section-system :
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
-    {f g h : section-system A B} (G : htpy-section-system f g)
+    {f g h : section-system B} (G : htpy-section-system f g)
     (H : htpy-section-system g h) → htpy-section-system f h
   concat-htpy-section-system G H =
     concat-htpy-section-system' refl refl G H
 
   inv-htpy-section-system :
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
-    {f g : section-system A B} (H : htpy-section-system f g) →
+    {f g : section-system B} (H : htpy-section-system f g) →
     htpy-section-system g f
   inv-htpy-section-system H = inv-htpy-section-system' refl refl H
 
@@ -209,7 +207,7 @@ module dependent where
     {l1 l2 l3 l4 : Level} (A : system l1 l2) (B : system l3 l4) → 
     UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
   hom-system A B =
-    section-system A (constant-fibered-system A B)
+    section-system (constant-fibered-system A B)
 
   ------------------------------------------------------------------------------
 

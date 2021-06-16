@@ -1222,6 +1222,11 @@ fib-triangle :
   (x : X) → (fib f x) → (fib g x)
 fib-triangle f g h H .(f a) (pair a refl) = pair (h a) (inv (H a))
 
+fib-triangle' :
+  {i j k : Level} {X : UU i} {A : UU j} {B : UU k}
+  (g : B → X) (h : A → B) (x : X) → (fib (g ∘ h) x) → fib g x
+fib-triangle' g h x = fib-triangle (g ∘ h) g h refl-htpy x
+
 square-tot-fib-triangle :
   {i j k : Level} {X : UU i} {A : UU j} {B : UU k}
   (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) →
