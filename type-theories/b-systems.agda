@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module extra.b-systems where
+module type-theories.b-systems where
 
 import book
 open book public

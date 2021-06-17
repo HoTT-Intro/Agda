@@ -9,9 +9,7 @@ open import extra.categories public
 open import extra.cofibonacci public
 open import extra.combinatorial-objects public
 open import extra.dependent-preorders public
-open import extra.dependent-type-theories public
 open import extra.dn-sheaves public
-open import extra.fibered-dependent-type-theories public
 open import extra.final-coalgebras public
 open import extra.flat-modality public
 open import extra.free-group public
@@ -29,11 +27,9 @@ open import extra.rational-numbers public
 open import extra.rings-with-properties public
 open import extra.rings public
 open import extra.sequential-limits public
-open import extra.simple-type-theories public
 open import extra.subgroups public
 open import extra.subuniverses public
 open import extra.syllepsis public
 open import extra.towers public
-open import extra.unityped-type-theories public
 open import extra.univalent-combinatorics public
 open import extra.weakly-constant-maps public

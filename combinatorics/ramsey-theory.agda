@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module extra.ramsey-theory where
+module combinatorics.ramsey-theory where
 
 open import book public
 

@@ -32,7 +32,7 @@ repeats-nat-to-Fin' (succ-ℕ k) f with
   pair
     ( succ-ℕ (succ-ℕ k))
     ( pair
-      ( reflexive-leq-ℕ (succ-ℕ (succ-ℕ k)))
+      ( refl-leq-ℕ (succ-ℕ (succ-ℕ k)))
       ( r))
 ... | inr g = {!!}
 

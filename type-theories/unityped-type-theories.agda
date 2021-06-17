@@ -1,9 +1,9 @@
-{-# OPTIONS --without-K --exact-split #-}
+{-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module extra.unityped-type-theories where
+module type-theories.unityped-type-theories where
 
 open import book public
-open import extra.simple-type-theories
+open import type-theories.simple-type-theories
 
 {- We introduce the category of unityped type theories. This category is
    equivalent to the category of single sorted algebraic theories. -}
@@ -312,10 +312,6 @@ module unityped where
     El : {l : Level} (A : type-theory l) → ℕ → UU l
     El A zero-ℕ = system.element (type-theory.sys A)
     El A (succ-ℕ n) = El (slice-type-theory A) n
-
-    hom-El :
-      {l1 l2 : Level} {A : type-theory l1} {B : type-theory l2}
-      (f : ho
 
     iterated-weakening :
       {l : Level} {A : type-theory l} {m n : ℕ} →

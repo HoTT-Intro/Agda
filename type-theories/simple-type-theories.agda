@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module extra.simple-type-theories where
+module type-theories.simple-type-theories where
 
 open import book public
 
@@ -463,8 +463,8 @@ module simple where
 module dependent-simple
   where
 
-  open import extra.dependent-type-theories
-  open import extra.fibered-dependent-type-theories
+  open import type-theories.dependent-type-theories
+  open import type-theories.fibered-dependent-type-theories
 
   system :
     {l1 l2 : Level} {T : UU l1} → simple.system l2 T → dependent.system l1 l2

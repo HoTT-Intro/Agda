@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module extra.dependent-type-theories where
+module type-theories.dependent-type-theories where
 
 import book
 open book public

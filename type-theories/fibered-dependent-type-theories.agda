@@ -1,8 +1,8 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module extra.fibered-dependent-type-theories where
+module type-theories.fibered-dependent-type-theories where
 
-open import extra.dependent-type-theories public
+open import type-theories.dependent-type-theories public
 open dependent
 module fibered where
 

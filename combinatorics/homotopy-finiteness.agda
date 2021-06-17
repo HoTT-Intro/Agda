@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module extra.homotopy-finiteness where
+module combinatorics.homotopy-finiteness where
 
 open import book public
 
