@@ -66,10 +66,9 @@ incident-edges-vertex-Graph-𝔽 G x =
   Σ ( unordered-pair (type-𝔽 (Graph-𝔽.vertex G)))
     ( λ p → fib (pair-unordered-pair p) x)
 
-is-finite-incident-edges-vertex-Graph-𝔽 :
-  (G : Graph-𝔽) (x : type-𝔽 (Graph-𝔽.vertex G)) →
-  is-finite (incident-edges-vertex-Graph-𝔽 G x)
-is-finite-incident-edges-vertex-Graph-𝔽 G x = {!!}
+neighbor-Graph-𝔽 :
+  (G : Graph-𝔽) (x : vertices-Graph-𝔽 G) → UU (lsuc lzero)
+neighbor-Graph-𝔽 G x = Σ (vertices-Graph-𝔽 G) (λ y → type-trunc-Prop {!!})
 
 --------------------------------------------------------------------------------
 
@@ -112,3 +111,18 @@ Graph-𝔽.edge (complete-bipartite-Graph-𝔽 X Y) p =
                ( coprod-𝔽 X Y)
                ( pair-unordered-pair p)
                ( inr y)))
+
+--------------------------------------------------------------------------------
+
+{- We define the polygons -}
+
+polygon-Graph-𝔽 : ℕ → Graph-𝔽
+Graph-𝔽.vertex (polygon-Graph-𝔽 k) = Fin-𝔽 k
+Graph-𝔽.edge (polygon-Graph-𝔽 k) p =
+  Σ-𝔽 ( two-element-type-𝔽 (pr1 p))
+      ( λ x →
+        fib-𝔽
+          ( two-element-type-𝔽 (pr1 p))
+          ( Fin-𝔽 k)
+          ( pair-unordered-pair p)
+          ( succ-Fin (pair-unordered-pair p x)))
