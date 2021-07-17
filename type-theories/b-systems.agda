@@ -15,46 +15,127 @@ module B where
       ft      : {n : ℕ} → type (succ-ℕ n) → type n
       ∂       : {n : ℕ} → element n → type n
 
-  iterate-using-add-ft :
+  slice-over-closed-type-system :
+    {l1 l2 : Level} (A : system l1 l2) (X : system.type A zero-ℕ) →
+    system l1 l2
+  system.type (slice-over-closed-type-system A X) n =
+    Σ (system.type A (succ-ℕ n)) (λ Y → Id {!!} {!!}) 
+  system.element (slice-over-closed-type-system A X) = {!!}
+  system.ft (slice-over-closed-type-system A X) = {!!}
+  system.∂ (slice-over-closed-type-system A X) = {!!}
+
+  data precontext {l1 l2 : Level} (A : system l1 l2) : ℕ → UU (lsuc l1)
+    where
+    empty-context     : precontext A zero-ℕ
+    extension-context : {n : ℕ} (Γ : precontext A n) → system.type A n →
+                        precontext A (succ-ℕ n)
+  
+  head-precontext :
+    {l1 l2 : Level} {A : system l1 l2} {n : ℕ} →
+    precontext A (succ-ℕ n) → system.type A n
+  head-precontext (extension-context Γ X) = X
+  
+  data is-context-precontext {l1 l2 : Level} {A : system l1 l2} :
+    {n : ℕ} (Γ : precontext A n) → UU (lsuc l1)
+    where
+    is-context-empty-context :
+      is-context-precontext empty-context
+    is-context-extension-closed-type-ctx :
+      (X : system.type A zero-ℕ) →
+      is-context-precontext (extension-context empty-context X)
+    is-context-extenison-ctx :
+      {n : ℕ} (Γ : precontext A (succ-ℕ n)) (X : system.type A (succ-ℕ n)) →
+      Id (system.ft A X) (head-precontext Γ) →
+      is-context-precontext (extension-context Γ X)
+  
+  context : {l1 l2 : Level} (A : system l1 l2) (n : ℕ) → UU (lsuc l1)
+  context A n = Σ (precontext A n) is-context-precontext
+  
+  head-context :
+    {l1 l2 : Level} (A : system l1 l2) {n : ℕ} (Γ : context A (succ-ℕ n)) →
+    system.type A n
+  head-context A (pair (extension-context Γ X) p) = X
+  
+  type-in-context :
+    {l1 l2 : Level} (A : system l1 l2) {n : ℕ} (Γ : context A n) → UU l1
+  type-in-context A {zero-ℕ} Γ = system.type A zero-ℕ
+  type-in-context A {succ-ℕ n} Γ = fib (system.ft A) (head-context A Γ)
+  
+  judgmental-eq-type-in-context :
+    {l1 l2 : Level} (A : system l1 l2) {n : ℕ} (Γ : context A n)
+    (X Y : type-in-context A Γ) → UU l1
+  judgmental-eq-type-in-context A Γ X Y = Id X Y
+  
+  element-in-context :
+    {l1 l2 : Level} (A : system l1 l2) {n : ℕ} (Γ : context A n)
+    (X : type-in-context A Γ) → UU (l1 ⊔ l2)
+  element-in-context A {zero-ℕ} Γ X = fib (system.∂ A) X
+  element-in-context A {succ-ℕ n} Γ X = fib (system.∂ A) (pr1 X)
+
+  iterate-using-add-system-ft :
     {l1 l2 : Level} (A : system l1 l2) (n k : ℕ) {m : ℕ}
     (p : Id (add-ℕ n k) m) → system.type A m → system.type A n
-  iterate-using-add-ft A n zero-ℕ refl X = X
-  iterate-using-add-ft A n (succ-ℕ k) refl X =
-    iterate-using-add-ft A n k refl (system.ft A X)
+  iterate-using-add-system-ft A n zero-ℕ refl X = X
+  iterate-using-add-system-ft A n (succ-ℕ k) refl X =
+    iterate-using-add-system-ft A n k refl (system.ft A X)
 
-  iterate-using-leq-ft :
+  iterate-using-leq-system-ft :
     {l1 l2 : Level} (A : system l1 l2) (n : ℕ) {m : ℕ} (p : n ≤-ℕ m) →
     system.type A m → system.type A n
-  iterate-using-leq-ft A n {m} p X =
-    iterate-using-add-ft A n (dist-ℕ n m) (leq-dist-ℕ n m p) X
+  iterate-using-leq-system-ft A n {m} p X =
+    iterate-using-add-system-ft A n (dist-ℕ n m) (leq-dist-ℕ n m p) X
     
-  iterate-ft' :
+  iterate-system-ft :
     {l1 l2 : Level} (A : system l1 l2) (n k : ℕ) →
     system.type A (add-ℕ n k) → system.type A n
-  iterate-ft' A n k = iterate-using-add-ft A n k refl
+  iterate-system-ft A n k = iterate-using-add-system-ft A n k refl
 
   slice-system :
     {l1 l2 : Level} (A : system l1 l2) {n : ℕ} → system.type A n →
     system l1 (l1 ⊔ l2)
   system.type (slice-system A {n} X) m =
-    fib (iterate-ft' A n (succ-ℕ m)) X
+    fib (iterate-system-ft A n (succ-ℕ m)) X
   system.element (slice-system A {n} X) m =
-    fib (iterate-ft' A n (succ-ℕ m) ∘ system.∂ A) X
+    fib (iterate-system-ft A n (succ-ℕ m) ∘ system.∂ A) X
   system.ft (slice-system A {n} X) {m} =
-    fib-triangle' (iterate-ft' A n (succ-ℕ m)) (system.ft A) X
+    fib-triangle' (iterate-system-ft A n (succ-ℕ m)) (system.ft A) X
   system.∂ (slice-system A {n} X) {m} =
-    fib-triangle' (iterate-ft' A n (succ-ℕ m)) (system.∂ A) X
+    fib-triangle' (iterate-system-ft A n (succ-ℕ m)) (system.∂ A) X
 
   slice-system-ft :
     {l1 l2 : Level} (A : system l1 l2) {n : ℕ} → system.type A n →
     system l1 (l1 ⊔ l2)
-  system.type (slice-system-ft A {n} X) m = fib (iterate-ft' A n m) X
+  system.type (slice-system-ft A {n} X) m = fib (iterate-system-ft A n m) X
   system.element (slice-system-ft A {n} X) m =
-    fib (iterate-ft' A n m ∘ system.∂ A) X
+    fib (iterate-system-ft A n m ∘ system.∂ A) X
   system.ft (slice-system-ft A {n} X) {m} =
-    fib-triangle' (iterate-ft' A n m) (system.ft A) X
+    fib-triangle' (iterate-system-ft A n m) (system.ft A) X
   system.∂ (slice-system-ft A {n} X) {m} =
-    fib-triangle' (iterate-ft' A n m) (system.∂ A) X
+    fib-triangle' (iterate-system-ft A n m) (system.∂ A) X
+
+  record hom-system
+    {l1 l2 l3 l4 : Level} (A : system l1 l2) (B : system l3 l4) :
+    UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+    where
+    field
+      type    : {n : ℕ} → system.type A n → system.type B n
+      element : {n : ℕ} → system.element A n  → system.element B n
+      ft      : {n : ℕ} (X : system.type A (succ-ℕ n)) →
+                Id (type (system.ft A X)) (system.ft B (type X))
+      ∂       : {n : ℕ} (x : system.element A n) →
+                Id (type (system.∂ A x)) (system.∂ B (element x))
+
+  slice-hom-system :
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : system l3 l4}
+    (f : hom-system A B) {n : ℕ} (X : system.type A n) →
+    hom-system (slice-system A X) (slice-system B (hom-system.type f X))
+  hom-system.type (slice-hom-system f X) =
+    fib-square {!!} {!!} {!!} {!!}
+  hom-system.element (slice-hom-system f X) = {!!}
+  hom-system.ft (slice-hom-system f X) = {!!}
+  hom-system.∂ (slice-hom-system f X) = {!!}
+
+{-
 
   record fibered-system {l1 l2 : Level} (l3 l4 : Level) (A : system l1 l2) :
     UU (l1 ⊔ l2 ⊔ lsuc l3 ⊔ lsuc l4)
@@ -67,14 +148,50 @@ module B where
       ∂       : {n : ℕ} {x : system.element A n} →
                 element x → type (system.∂ A x)
 
+  iterate-using-add-fibered-ft :
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} (B : fibered-system l3 l4 A)
+    (n k : ℕ) {m : ℕ} (p : Id (add-ℕ n k) m) {X : system.type A m} → 
+    fibered-system.type B X →
+    fibered-system.type B (iterate-using-add-system-ft A n k p X)
+  iterate-using-add-fibered-ft B n zero-ℕ refl Y = Y
+  iterate-using-add-fibered-ft B n (succ-ℕ k) refl Y =
+    iterate-using-add-fibered-ft B n k refl (fibered-system.ft B Y)
+
+  iterate-using-leq-fibered-ft :
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} (B : fibered-system l3 l4 A)
+    (n : ℕ) {m : ℕ} (p : n ≤-ℕ m) {X : system.type A m} →
+    fibered-system.type B X →
+    fibered-system.type B (iterate-using-leq-system-ft A n p X)
+  iterate-using-leq-fibered-ft B n {m} p Y =
+    iterate-using-add-fibered-ft B n (dist-ℕ n m) (leq-dist-ℕ n m p) Y
+
+  iterate-fibered-ft' :
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} (B : fibered-system l3 l4 A)
+    (n k : ℕ) → {X : system.type A (add-ℕ n k)} →
+    fibered-system.type B X →
+    fibered-system.type B (iterate-system-ft A n k X)
+  iterate-fibered-ft' B n k Y =
+    iterate-using-add-fibered-ft B n k refl Y
+
   slice-fibered-system :
     {l1 l2 l3 l4 : Level} {A : system l1 l2} (B : fibered-system l3 l4 A)
     {n : ℕ} {X : system.type A n} (Y : fibered-system.type B X) →
     fibered-system l3 l4 (slice-system A X)
-  fibered-system.type (slice-fibered-system B {n} {X} Y) {m} (pair X' p) = {!!}
+  fibered-system.type (slice-fibered-system B {n} {X} Y) (pair X' p) =
+    Σ {!!} {!!}
   fibered-system.element (slice-fibered-system B {n} {X} Y) = {!!}
   fibered-system.ft (slice-fibered-system B {n} {X} Y) = {!!}
   fibered-system.∂ (slice-fibered-system B {n} {X} Y) = {!!}
+-}
+
+
+{-
+  fibered-system.type
+    ( slice-fibered-system {A = A} B {n}
+      {.(iterate-using-add-system-ft A n m refl (system.ft A X'))} Y)
+      {m} (pair X' refl) =
+    fib (iterate-using-add-fibered-ft B n m {add-ℕ n m} refl) Y
+-}
 
 {-
   slice-fibered-system-ft :
@@ -445,51 +562,4 @@ module B where
 
 open B
 
-data precontext {l1 l2 : Level} (A : system l1 l2) : ℕ → UU (lsuc l1)
-  where
-  empty-ctx     : precontext A zero-ℕ
-  extension-ctx : {n : ℕ} (Γ : precontext A n) → system.type A n →
-                  precontext A (succ-ℕ n)
-
-head-precontext :
-  {l1 l2 : Level} {A : system l1 l2} {n : ℕ} →
-  precontext A (succ-ℕ n) → system.type A n
-head-precontext (extension-ctx Γ X) = X
-
-data is-context-precontext {l1 l2 : Level} {A : system l1 l2} :
-  {n : ℕ} (Γ : precontext A n) → UU (lsuc l1)
-  where
-  is-context-empty-ctx :
-    is-context-precontext empty-ctx
-  is-context-extension-closed-type-ctx :
-    (X : system.type A zero-ℕ) →
-    is-context-precontext (extension-ctx empty-ctx X)
-  is-context-extenison-ctx :
-    {n : ℕ} (Γ : precontext A (succ-ℕ n)) (X : system.type A (succ-ℕ n)) →
-    Id (system.ft A X) (head-precontext Γ) →
-    is-context-precontext (extension-ctx Γ X)
-
-context : {l1 l2 : Level} (A : system l1 l2) (n : ℕ) → UU (lsuc l1)
-context A n = Σ (precontext A n) is-context-precontext
-
-head-context :
-  {l1 l2 : Level} (A : system l1 l2) {n : ℕ} (Γ : context A (succ-ℕ n)) →
-  system.type A n
-head-context A (pair (extension-ctx Γ X) p) = X
-
-type-in-context :
-  {l1 l2 : Level} (A : system l1 l2) {n : ℕ} (Γ : context A n) → UU l1
-type-in-context A {zero-ℕ} Γ = system.type A zero-ℕ
-type-in-context A {succ-ℕ n} Γ = fib (system.ft A) (head-context A Γ)
-
-judgmental-eq-type-in-context :
-  {l1 l2 : Level} (A : system l1 l2) {n : ℕ} (Γ : context A n)
-  (X Y : type-in-context A Γ) → UU l1
-judgmental-eq-type-in-context A Γ X Y = Id X Y
-
-element-in-context :
-  {l1 l2 : Level} (A : system l1 l2) {n : ℕ} (Γ : context A n)
-  (X : type-in-context A Γ) → UU (l1 ⊔ l2)
-element-in-context A {zero-ℕ} Γ X = fib (system.∂ A) X
-element-in-context A {succ-ℕ n} Γ X = fib (system.∂ A) (pr1 X)
 -}

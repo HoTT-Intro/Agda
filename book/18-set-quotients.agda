@@ -279,7 +279,8 @@ map-trunc-Set {A = A} {B} f x =
 
 id-map-trunc-Set :
   {l1 : Level} (A : UU l1) → map-trunc-Set (id {A = A}) ~ id
-id-map-trunc-Set A x = {!!}
+id-map-trunc-Set A x =
+  {!dependent-universal-property-trunc-Set!}
 
 is-equiv-map-trunc-Set :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} → is-equiv f →

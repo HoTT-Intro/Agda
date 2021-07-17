@@ -29,6 +29,19 @@ module fibered where
                   ( fibered-system.slice B Y)
                   ( fibered-system.slice C Z)
 
+  total-fibered-system :
+    {l1 l2 l3 l4 l5 l6 l7 l8 : Level} {A : system l1 l2}
+    {B : fibered-system l3 l4 A} {C : fibered-system l5 l6 A}
+    (D : bifibered-system l7 l8 B C) →
+    fibered-system (l5 ⊔ l7) (l6 ⊔ l8) (total-system A B)
+  fibered-system.type (total-fibered-system {C = C} D) X =
+    Σ (fibered-system.type C (pr1 X)) (bifibered-system.type D (pr2 X))
+  fibered-system.element (total-fibered-system {C = C} D)
+    {pair X Y} (pair Z W) (pair x y) =
+    Σ (fibered-system.element C Z x) (bifibered-system.element D W y)
+  fibered-system.slice (total-fibered-system D) {pair X Y} (pair Z W) =
+    total-fibered-system (bifibered-system.slice D W)
+
   record section-fibered-system
     {l1 l2 l3 l4 l5 l6 l7 l8 : Level} {A : system l1 l2}
     {B : fibered-system l3 l4 A} {C : fibered-system l5 l6 A}
@@ -49,6 +62,20 @@ module fibered where
                 section-fibered-system
                   ( section-system.slice f X)
                   ( bifibered-system.slice D (type Y))
+
+  total-section-system :
+    {l1 l2 l3 l4 l5 l6 l7 l8 : Level} {A : system l1 l2}
+    {B : fibered-system l3 l4 A} {C : fibered-system l5 l6 A}
+    {D : bifibered-system l7 l8 B C} {f : section-system C}
+    (g : section-fibered-system f D) →
+    section-system (total-fibered-system D)
+  section-system.type (total-section-system {f = f} g) (pair X Y) =
+    pair (section-system.type f X) (section-fibered-system.type g Y)
+  section-system.element (total-section-system {f = f} g)
+    {pair X Y} (pair x y) =
+    pair (section-system.element f x) (section-fibered-system.element g y)
+  section-system.slice (total-section-system g) (pair X Y) =
+    total-section-system (section-fibered-system.slice g Y)
 
   ------------------------------------------------------------------------------
 
@@ -597,6 +624,24 @@ module fibered where
       δid : fibered-generic-element-is-identity
               (type-theory.S!W A) (type-theory.δid A) δ S!W
       Sδ! : fibered-substitution-by-generic-element (type-theory.Sδ! A) S δ
+
+  total-type-theory :
+    {l1 l2 l3 l4 : Level} {A : type-theory l1 l2}
+    (B : fibered-type-theory l3 l4 A) → type-theory (l1 ⊔ l3) (l2 ⊔ l4)
+  type-theory.sys (total-type-theory {A = A} B) =
+    total-system (type-theory.sys A) (fibered-type-theory.sys B)
+  type-theory.W (total-type-theory {A = A} B) = {!!}
+  type-theory.S (total-type-theory {A = A} B) = {!!}
+  type-theory.δ (total-type-theory {A = A} B) = {!!}
+  type-theory.WW (total-type-theory {A = A} B) = {!!}
+  type-theory.SS (total-type-theory {A = A} B) = {!!}
+  type-theory.WS (total-type-theory {A = A} B) = {!!}
+  type-theory.SW (total-type-theory {A = A} B) = {!!}
+  type-theory.Wδ (total-type-theory {A = A} B) = {!!}
+  type-theory.Sδ (total-type-theory {A = A} B) = {!!}
+  type-theory.S!W (total-type-theory {A = A} B) = {!!}
+  type-theory.δid (total-type-theory {A = A} B) = {!!}
+  type-theory.Sδ! (total-type-theory {A = A} B) = {!!}
 
 {-
   slice-fibered-type-theory

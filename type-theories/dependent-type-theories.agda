@@ -800,6 +800,21 @@ module dependent where
               ( type-theory.δ B)
               ( W)
 
+  hom-slice-dtt :
+    {l1 l2 l3 l4 : Level} {A : type-theory l1 l2} {B : type-theory l3 l4}
+    (f : hom-dtt A B) (X : system.type (type-theory.sys A)) →
+    hom-dtt
+      ( slice-dtt A X)
+      ( slice-dtt B (section-system.type (hom-dtt.sys f) X))
+  hom-dtt.sys (hom-slice-dtt f X) =
+    section-system.slice (hom-dtt.sys f) X
+  hom-dtt.W (hom-slice-dtt f X) =
+    preserves-weakening.slice (hom-dtt.W f) X
+  hom-dtt.S (hom-slice-dtt f X) =
+    preserves-substitution.slice (hom-dtt.S f) X
+  hom-dtt.δ (hom-slice-dtt f X) =
+    preserves-generic-element.slice (hom-dtt.δ f) X
+
   ------------------------------------------------------------------------------
 
   -- We construct the identity morphism of a dependent type theory
@@ -1105,6 +1120,20 @@ module dependent where
 
   ------------------------------------------------------------------------------
 
+  -- We define proof irrelevant type theories
+
+  record is-proof-irrelevant-type-theory
+    {l1 l2 : Level} (A : type-theory l1 l2) : UU (l1 ⊔ l2)
+    where
+    coinductive
+    field
+      type  : (X : system.type (type-theory.sys A)) →
+              is-prop (system.element (type-theory.sys A) X)
+      slice : (X : system.type (type-theory.sys A)) →
+              is-proof-irrelevant-type-theory (slice-dtt A X)
+
+  ------------------------------------------------------------------------------
+
   system-slice-UU : {l : Level} (X : UU l) → system (lsuc l) l
   system.type (system-slice-UU {l} X) = X → UU l
   system.element (system-slice-UU X) Y = (x : X) → Y x
@@ -1293,3 +1322,86 @@ module dependent where
     ( section-system.element K X x)
   htpy-hom-system'.slice (concat-htpy-hom-system H K) X = {!!}
   -}
+
+--------------------------------------------------------------------------------
+
+module c-system where
+
+  open dependent
+
+  -- We interpret contexts in a dependent type theory
+  data context
+    {l1 l2 : Level} (A : type-theory l1 l2) : UU l1
+    where
+    empty-ctx     : context A
+    extension-ctx : (X : system.type (type-theory.sys A))
+                    (Γ : context (slice-dtt A X)) → context A
+
+  -- We define the action on contexts of a morphism of dependent type theories
+  context-hom :
+    {l1 l2 l3 l4 : Level} {A : type-theory l1 l2}
+    {B : type-theory l3 l4} (f : hom-dtt A B) →
+    context A → context B
+  context-hom f empty-ctx = empty-ctx
+  context-hom f (extension-ctx X Γ) =
+    extension-ctx
+      ( section-system.type (hom-dtt.sys f) X)
+      ( context-hom (hom-slice-dtt f X) Γ)
+
+  -- We define elements of contexts
+  data element-context 
+    {l1 l2 : Level} {A : type-theory l1 l2} : (Γ : context A) → UU {!substitution.type (type-theory.S A) !}
+    where
+    element-empty-context : element-context empty-ctx
+    element-extension-ctx : {!(X : system.type (type-theory.sys A)) (Γ : context (slice-dtt A X)) (x : system.element (type-theory.sys A) X) (y : element-context (context-hom (substitution.type (type-theory.S A) x) Γ)) → element-context (extension-ctx X Γ)!}
+
+  -- We interpret types in context in a dependent type theory
+  type :
+    {l1 l2 : Level} (A : type-theory l1 l2) →
+    context A → UU l1
+  type A empty-ctx = system.type (type-theory.sys A)
+  type A (extension-ctx X Γ) = type (slice-dtt A X) Γ
+
+  -- We interpret elements of types in context in a dependent type theory
+  element :
+    {l1 l2 : Level} (A : type-theory l1 l2) (Γ : context A)
+    (Y : type A Γ) → UU l2
+  element A empty-ctx = system.element (type-theory.sys A)
+  element A (extension-ctx X Γ) = element (slice-dtt A X) Γ
+
+  slice :
+    {l1 l2 : Level} (A : type-theory l1 l2) (Γ : context A) →
+    type-theory l1 l2
+  slice A empty-ctx = A
+  slice A (extension-ctx X Γ) = slice (slice-dtt A X) Γ
+
+  dependent-context :
+    {l1 l2 : Level} (A : type-theory l1 l2) (Γ : context A) →
+    UU l1
+  dependent-context A Γ = context (slice A Γ)
+
+  weakening-by-type-context :
+    {l1 l2 : Level} {A : type-theory l1 l2}
+    (X : system.type (type-theory.sys A)) →
+    context A → context (slice-dtt A X)
+  weakening-by-type-context {A = A} X Δ = context-hom {!weakening.type (type-theory.W A) X!} Δ
+
+  weakening-type-context :
+    {l1 l2 : Level} (A : type-theory l1 l2) (Γ : context A) →
+    system.type (type-theory.sys A) →
+    system.type (type-theory.sys (slice A Γ))
+  weakening-type-context A empty-ctx Y = Y
+  weakening-type-context A (extension-ctx X Γ) Y =
+    weakening-type-context (slice-dtt A X) Γ
+      ( section-system.type
+        ( weakening.type (type-theory.W A) X) Y)
+
+  weakening-context :
+    {l1 l2 : Level} (A : type-theory l1 l2) (Γ : context A) →
+    context A → context (slice A Γ)
+  weakening-context A empty-ctx Δ = Δ
+  weakening-context A (extension-ctx X Γ) empty-ctx = empty-ctx
+  weakening-context A (extension-ctx X Γ) (extension-ctx Y Δ) =
+    extension-ctx
+      ( weakening-type-context A (extension-ctx X Γ) Y)
+      ( weakening-context {!!} {!!} {!!})
