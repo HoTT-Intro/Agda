@@ -14,6 +14,11 @@ jobs:
       fail-fast: false
 
       matrix:
+        # OS
+        os: [ ubuntu-latest , macos-latest ]
+        # Version of agda
+        agda-version: [ 2.6.1.3 ]
+        
         # We test on ubuntu-latest and macos-latest
         # this might need to be modified if we also want to test windows also
         include:
@@ -50,8 +55,8 @@ jobs:
         with:
           path: |
             ~/.cabal
-          # We cache each os sperately
-          key: ${{ matrix.os }}
+          # We cache each os and agda version seperately
+          key: ${{ matrix.os }}-${{ matrix.agda-version}}
 
         # If we have not already cached update cabal listings
       - name: Update cabal listings
@@ -66,7 +71,7 @@ jobs:
         # If we have not already cached install agda
       - name: Install Agda with cabal
         if: steps.cache.outputs.cache-hit != 'true'
-        run: cabal install Agda-2.6.1
+        run: cabal install Agda-${{ matrix.agda-version }}
       
       - name: Build book
         run: ~/.cabal/bin/agda book.agda
