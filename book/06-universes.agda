@@ -260,40 +260,40 @@ leq-ℕ zero-ℕ m = unit
 leq-ℕ (succ-ℕ n) zero-ℕ = empty
 leq-ℕ (succ-ℕ n) (succ-ℕ m) = leq-ℕ n m
 
-_≤_ = leq-ℕ
+_≤-ℕ_ = leq-ℕ
 
 -- Some trivialities that will be useful later
 
 leq-zero-ℕ :
-  (n : ℕ) → leq-ℕ zero-ℕ n
+  (n : ℕ) → zero-ℕ ≤-ℕ n
 leq-zero-ℕ n = star
 
 is-zero-leq-zero-ℕ :
-  (x : ℕ) → leq-ℕ x zero-ℕ → is-zero-ℕ x
+  (x : ℕ) → x ≤-ℕ zero-ℕ → is-zero-ℕ x
 is-zero-leq-zero-ℕ zero-ℕ star = refl
 
 is-zero-leq-zero-ℕ' :
-  (x : ℕ) → leq-ℕ x zero-ℕ → is-zero-ℕ' x
+  (x : ℕ) → x ≤-ℕ zero-ℕ → is-zero-ℕ' x
 is-zero-leq-zero-ℕ' zero-ℕ star = refl
 
-succ-leq-ℕ : (n : ℕ) → leq-ℕ n (succ-ℕ n)
+succ-leq-ℕ : (n : ℕ) → n ≤-ℕ (succ-ℕ n)
 succ-leq-ℕ zero-ℕ = star
 succ-leq-ℕ (succ-ℕ n) = succ-leq-ℕ n
 
 concatenate-eq-leq-eq-ℕ :
-  {x1 x2 x3 x4 : ℕ} → Id x1 x2 → leq-ℕ x2 x3 → Id x3 x4 → leq-ℕ x1 x4
+  {x' x y y' : ℕ} → Id x' x → x ≤-ℕ y → Id y y' → x' ≤-ℕ y'
 concatenate-eq-leq-eq-ℕ refl H refl = H
 
 concatenate-leq-eq-ℕ :
-  (m : ℕ) {n n' : ℕ} → leq-ℕ m n → Id n n' → leq-ℕ m n'
+  (m : ℕ) {n n' : ℕ} → m ≤-ℕ n → Id n n' → m ≤-ℕ n'
 concatenate-leq-eq-ℕ m H refl = H
 
 concatenate-eq-leq-ℕ :
-  {m m' : ℕ} (n : ℕ) → Id m' m → leq-ℕ m n → leq-ℕ m' n
+  {m m' : ℕ} (n : ℕ) → Id m' m → m ≤-ℕ n → m' ≤-ℕ n
 concatenate-eq-leq-ℕ n refl H = H
 
 decide-leq-succ-ℕ :
-  (m n : ℕ) → leq-ℕ m (succ-ℕ n) → coprod (leq-ℕ m n) (Id m (succ-ℕ n))
+  (m n : ℕ) → m ≤-ℕ (succ-ℕ n) → coprod (m ≤-ℕ n) (Id m (succ-ℕ n))
 decide-leq-succ-ℕ zero-ℕ zero-ℕ l = inl star
 decide-leq-succ-ℕ zero-ℕ (succ-ℕ n) l = inl star
 decide-leq-succ-ℕ (succ-ℕ m) zero-ℕ l =
@@ -303,24 +303,24 @@ decide-leq-succ-ℕ (succ-ℕ m) (succ-ℕ n) l =
 
 -- Exercise 6.3 (a)
 
-reflexive-leq-ℕ : (n : ℕ) → leq-ℕ n n
-reflexive-leq-ℕ zero-ℕ = star
-reflexive-leq-ℕ (succ-ℕ n) = reflexive-leq-ℕ n
+refl-leq-ℕ : (n : ℕ) → n ≤-ℕ n
+refl-leq-ℕ zero-ℕ = star
+refl-leq-ℕ (succ-ℕ n) = refl-leq-ℕ n
 
-leq-eq-ℕ : (m n : ℕ) → Id m n → leq-ℕ m n
-leq-eq-ℕ m .m refl = reflexive-leq-ℕ m
+leq-eq-ℕ : (m n : ℕ) → Id m n → m ≤-ℕ n
+leq-eq-ℕ m .m refl = refl-leq-ℕ m
 
 transitive-leq-ℕ :
-  (n m l : ℕ) → (n ≤ m) → (m ≤ l) → (n ≤ l)
+  (n m l : ℕ) → (n ≤-ℕ m) → (m ≤-ℕ l) → (n ≤-ℕ l)
 transitive-leq-ℕ zero-ℕ m l p q = star
 transitive-leq-ℕ (succ-ℕ n) (succ-ℕ m) (succ-ℕ l) p q =
   transitive-leq-ℕ n m l p q
 
 preserves-leq-succ-ℕ :
-  (m n : ℕ) → leq-ℕ m n → leq-ℕ m (succ-ℕ n)
+  (m n : ℕ) → m ≤-ℕ n → m ≤-ℕ (succ-ℕ n)
 preserves-leq-succ-ℕ m n p = transitive-leq-ℕ m n (succ-ℕ n) p (succ-leq-ℕ n)
 
-anti-symmetric-leq-ℕ : (m n : ℕ) → leq-ℕ m n → leq-ℕ n m → Id m n
+anti-symmetric-leq-ℕ : (m n : ℕ) → m ≤-ℕ n → n ≤-ℕ m → Id m n
 anti-symmetric-leq-ℕ zero-ℕ zero-ℕ p q = refl
 anti-symmetric-leq-ℕ (succ-ℕ m) (succ-ℕ n) p q =
   ap succ-ℕ (anti-symmetric-leq-ℕ m n p q)
@@ -328,7 +328,7 @@ anti-symmetric-leq-ℕ (succ-ℕ m) (succ-ℕ n) p q =
 -- Exercise 6.3 (b)
 
 decide-leq-ℕ :
-  (m n : ℕ) → coprod (leq-ℕ m n) (leq-ℕ n m)
+  (m n : ℕ) → coprod (m ≤-ℕ n) (n ≤-ℕ m)
 decide-leq-ℕ zero-ℕ zero-ℕ = inl star
 decide-leq-ℕ zero-ℕ (succ-ℕ n) = inl star
 decide-leq-ℕ (succ-ℕ m) zero-ℕ = inr star
@@ -337,19 +337,19 @@ decide-leq-ℕ (succ-ℕ m) (succ-ℕ n) = decide-leq-ℕ m n
 -- Exercise 6.3 (c)
 
 preserves-order-add-ℕ :
-  (k m n : ℕ) → leq-ℕ m n → leq-ℕ (add-ℕ m k) (add-ℕ n k)
+  (k m n : ℕ) → m ≤-ℕ n → (add-ℕ m k) ≤-ℕ (add-ℕ n k)
 preserves-order-add-ℕ zero-ℕ m n = id
 preserves-order-add-ℕ (succ-ℕ k) m n = preserves-order-add-ℕ k m n
 
 reflects-order-add-ℕ :
-  (k m n : ℕ) → leq-ℕ (add-ℕ m k) (add-ℕ n k) → leq-ℕ m n
+  (k m n : ℕ) → (add-ℕ m k) ≤-ℕ (add-ℕ n k) → m ≤-ℕ n
 reflects-order-add-ℕ zero-ℕ m n = id
 reflects-order-add-ℕ (succ-ℕ k) m n = reflects-order-add-ℕ k m n
 
 -- Exercise 6.3 (d)
 
 preserves-order-mul-ℕ :
-  (k m n : ℕ) → leq-ℕ m n → leq-ℕ (mul-ℕ m k) (mul-ℕ n k)
+  (k m n : ℕ) → m ≤-ℕ n → (mul-ℕ m k) ≤-ℕ (mul-ℕ n k)
 preserves-order-mul-ℕ k zero-ℕ n p = star
 preserves-order-mul-ℕ k (succ-ℕ m) (succ-ℕ n) p =
   preserves-order-add-ℕ k
@@ -358,7 +358,7 @@ preserves-order-mul-ℕ k (succ-ℕ m) (succ-ℕ n) p =
     ( preserves-order-mul-ℕ k m n p)
 
 preserves-order-mul-ℕ' :
-  (k m n : ℕ) → leq-ℕ m n → leq-ℕ (mul-ℕ k m) (mul-ℕ k n)
+  (k m n : ℕ) → m ≤-ℕ n → (mul-ℕ k m) ≤-ℕ (mul-ℕ k n)
 preserves-order-mul-ℕ' k m n H =
   concatenate-eq-leq-eq-ℕ
     ( commutative-mul-ℕ k m)
@@ -366,7 +366,7 @@ preserves-order-mul-ℕ' k m n H =
     ( commutative-mul-ℕ n k)
 
 reflects-order-mul-ℕ :
-  (k m n : ℕ) → leq-ℕ (mul-ℕ m (succ-ℕ k)) (mul-ℕ n (succ-ℕ k)) → leq-ℕ m n
+  (k m n : ℕ) → (mul-ℕ m (succ-ℕ k)) ≤-ℕ (mul-ℕ n (succ-ℕ k)) → m ≤-ℕ n
 reflects-order-mul-ℕ k zero-ℕ n p = star
 reflects-order-mul-ℕ k (succ-ℕ m) (succ-ℕ n) p =
   reflects-order-mul-ℕ k m n
@@ -376,10 +376,10 @@ reflects-order-mul-ℕ k (succ-ℕ m) (succ-ℕ n) p =
       ( mul-ℕ n (succ-ℕ k))
       ( p))
 
--- We also record the fact that x ≤ mul-ℕ x (succ-ℕ k)
+-- We also record the fact that x ≤-ℕ mul-ℕ x (succ-ℕ k)
 
 leq-mul-ℕ :
-  (k x : ℕ) → leq-ℕ x (mul-ℕ x (succ-ℕ k))
+  (k x : ℕ) → x ≤-ℕ (mul-ℕ x (succ-ℕ k))
 leq-mul-ℕ k x =
   concatenate-eq-leq-ℕ
     ( mul-ℕ x (succ-ℕ k))
@@ -387,26 +387,26 @@ leq-mul-ℕ k x =
     ( preserves-order-mul-ℕ' x one-ℕ (succ-ℕ k) (leq-zero-ℕ k))
 
 leq-mul-ℕ' :
-  (k x : ℕ) → leq-ℕ x (mul-ℕ (succ-ℕ k) x)
+  (k x : ℕ) → x ≤-ℕ (mul-ℕ (succ-ℕ k) x)
 leq-mul-ℕ' k x =
   concatenate-leq-eq-ℕ x
     ( leq-mul-ℕ k x)
     ( commutative-mul-ℕ x (succ-ℕ k))
 
 leq-mul-is-nonzero-ℕ :
-  (k x : ℕ) → is-nonzero-ℕ k → leq-ℕ x (mul-ℕ x k)
+  (k x : ℕ) → is-nonzero-ℕ k → x ≤-ℕ (mul-ℕ x k)
 leq-mul-is-nonzero-ℕ k x H with is-successor-is-nonzero-ℕ H
 ... | pair l refl = leq-mul-ℕ l x
 
 leq-mul-is-nonzero-ℕ' :
-  (k x : ℕ) → is-nonzero-ℕ k → leq-ℕ x (mul-ℕ k x)
+  (k x : ℕ) → is-nonzero-ℕ k → x ≤-ℕ (mul-ℕ k x)
 leq-mul-is-nonzero-ℕ' k x H with is-successor-is-nonzero-ℕ H
 ... | pair l refl = leq-mul-ℕ' l x
 
 -- Exercise 6.3 (e)
 
 leq-min-ℕ :
-  (k m n : ℕ) → leq-ℕ k m → leq-ℕ k n → leq-ℕ k (min-ℕ m n)
+  (k m n : ℕ) → k ≤-ℕ m → k ≤-ℕ n → k ≤-ℕ (min-ℕ m n)
 leq-min-ℕ zero-ℕ zero-ℕ zero-ℕ H K = star
 leq-min-ℕ zero-ℕ zero-ℕ (succ-ℕ n) H K = star
 leq-min-ℕ zero-ℕ (succ-ℕ m) zero-ℕ H K = star
@@ -414,7 +414,7 @@ leq-min-ℕ zero-ℕ (succ-ℕ m) (succ-ℕ n) H K = star
 leq-min-ℕ (succ-ℕ k) (succ-ℕ m) (succ-ℕ n) H K = leq-min-ℕ k m n H K
 
 leq-left-leq-min-ℕ :
-  (k m n : ℕ) → leq-ℕ k (min-ℕ m n) → leq-ℕ k m
+  (k m n : ℕ) → k ≤-ℕ (min-ℕ m n) → k ≤-ℕ m
 leq-left-leq-min-ℕ zero-ℕ zero-ℕ zero-ℕ H = star
 leq-left-leq-min-ℕ zero-ℕ zero-ℕ (succ-ℕ n) H = star
 leq-left-leq-min-ℕ zero-ℕ (succ-ℕ m) zero-ℕ H = star
@@ -423,7 +423,7 @@ leq-left-leq-min-ℕ (succ-ℕ k) (succ-ℕ m) (succ-ℕ n) H =
   leq-left-leq-min-ℕ k m n H
 
 leq-right-leq-min-ℕ :
-  (k m n : ℕ) → leq-ℕ k (min-ℕ m n) → leq-ℕ k n
+  (k m n : ℕ) → k ≤-ℕ (min-ℕ m n) → k ≤-ℕ n
 leq-right-leq-min-ℕ zero-ℕ zero-ℕ zero-ℕ H = star
 leq-right-leq-min-ℕ zero-ℕ zero-ℕ (succ-ℕ n) H = star
 leq-right-leq-min-ℕ zero-ℕ (succ-ℕ m) zero-ℕ H = star
@@ -432,7 +432,7 @@ leq-right-leq-min-ℕ (succ-ℕ k) (succ-ℕ m) (succ-ℕ n) H =
   leq-right-leq-min-ℕ k m n H
 
 leq-max-ℕ :
-  (k m n : ℕ) → leq-ℕ m k → leq-ℕ n k → leq-ℕ (max-ℕ m n) k
+  (k m n : ℕ) → m ≤-ℕ k → n ≤-ℕ k → (max-ℕ m n) ≤-ℕ k
 leq-max-ℕ zero-ℕ zero-ℕ zero-ℕ H K = star
 leq-max-ℕ (succ-ℕ k) zero-ℕ zero-ℕ H K = star
 leq-max-ℕ (succ-ℕ k) zero-ℕ (succ-ℕ n) H K = K
@@ -440,7 +440,7 @@ leq-max-ℕ (succ-ℕ k) (succ-ℕ m) zero-ℕ H K = H
 leq-max-ℕ (succ-ℕ k) (succ-ℕ m) (succ-ℕ n) H K = leq-max-ℕ k m n H K
 
 leq-left-leq-max-ℕ :
-  (k m n : ℕ) → leq-ℕ (max-ℕ m n) k → leq-ℕ m k
+  (k m n : ℕ) → (max-ℕ m n) ≤-ℕ k → m ≤-ℕ k
 leq-left-leq-max-ℕ k zero-ℕ zero-ℕ H = star
 leq-left-leq-max-ℕ k zero-ℕ (succ-ℕ n) H = star
 leq-left-leq-max-ℕ k (succ-ℕ m) zero-ℕ H = H
@@ -448,7 +448,7 @@ leq-left-leq-max-ℕ (succ-ℕ k) (succ-ℕ m) (succ-ℕ n) H =
   leq-left-leq-max-ℕ k m n H
 
 leq-right-leq-max-ℕ :
-  (k m n : ℕ) → leq-ℕ (max-ℕ m n) k → leq-ℕ n k
+  (k m n : ℕ) → (max-ℕ m n) ≤-ℕ k → n ≤-ℕ k
 leq-right-leq-max-ℕ k zero-ℕ zero-ℕ H = star
 leq-right-leq-max-ℕ k zero-ℕ (succ-ℕ n) H = H
 leq-right-leq-max-ℕ k (succ-ℕ m) zero-ℕ H = star
@@ -488,14 +488,14 @@ anti-symmetric-le-ℕ : (m n : ℕ) → le-ℕ m n → le-ℕ n m → Id m n
 anti-symmetric-le-ℕ (succ-ℕ m) (succ-ℕ n) p q =
   ap succ-ℕ (anti-symmetric-le-ℕ m n p q)
 
-contradiction-le-ℕ : (m n : ℕ) → le-ℕ m n → ¬ (leq-ℕ n m)
+contradiction-le-ℕ : (m n : ℕ) → le-ℕ m n → ¬ (n ≤-ℕ m)
 contradiction-le-ℕ zero-ℕ (succ-ℕ n) H K = K
 contradiction-le-ℕ (succ-ℕ m) (succ-ℕ n) H = contradiction-le-ℕ m n H
 
-contradiction-le-ℕ' : (m n : ℕ) → leq-ℕ n m → ¬ (le-ℕ m n)
+contradiction-le-ℕ' : (m n : ℕ) → n ≤-ℕ m → ¬ (le-ℕ m n)
 contradiction-le-ℕ' m n K H = contradiction-le-ℕ m n H K
 
-leq-not-le-ℕ : (m n : ℕ) → ¬ (le-ℕ m n) → leq-ℕ n m
+leq-not-le-ℕ : (m n : ℕ) → ¬ (le-ℕ m n) → n ≤-ℕ m
 leq-not-le-ℕ zero-ℕ zero-ℕ H = star
 leq-not-le-ℕ zero-ℕ (succ-ℕ n) H = ex-falso (H star)
 leq-not-le-ℕ (succ-ℕ m) zero-ℕ H = star
@@ -504,26 +504,26 @@ leq-not-le-ℕ (succ-ℕ m) (succ-ℕ n) H = leq-not-le-ℕ m n H
 is-nonzero-le-ℕ : (m n : ℕ) → le-ℕ m n → is-nonzero-ℕ n
 is-nonzero-le-ℕ m n H p = tr (le-ℕ m) p H
 
-contradiction-leq-ℕ : (m n : ℕ) → leq-ℕ m n → ¬ (leq-ℕ (succ-ℕ n) m)
+contradiction-leq-ℕ : (m n : ℕ) → m ≤-ℕ n → ¬ ((succ-ℕ n) ≤-ℕ m)
 contradiction-leq-ℕ (succ-ℕ m) (succ-ℕ n) H K = contradiction-leq-ℕ m n H K
 
-contradiction-leq-ℕ' : (m n : ℕ) → leq-ℕ (succ-ℕ n) m → ¬ (leq-ℕ m n)
+contradiction-leq-ℕ' : (m n : ℕ) → (succ-ℕ n) ≤-ℕ m → ¬ (m ≤-ℕ n)
 contradiction-leq-ℕ' m n K H = contradiction-leq-ℕ m n H K
 
 leq-le-ℕ :
-  {x y : ℕ} → le-ℕ x y → leq-ℕ x y
+  {x y : ℕ} → le-ℕ x y → x ≤-ℕ y
 leq-le-ℕ {zero-ℕ} {succ-ℕ y} H = star
 leq-le-ℕ {succ-ℕ x} {succ-ℕ y} H = leq-le-ℕ {x} {y} H
 
 concatenate-leq-le-ℕ :
-  {x y z : ℕ} → leq-ℕ x y → le-ℕ y z → le-ℕ x z
+  {x y z : ℕ} → x ≤-ℕ y → le-ℕ y z → le-ℕ x z
 concatenate-leq-le-ℕ {zero-ℕ} {zero-ℕ} {succ-ℕ z} H K = star
 concatenate-leq-le-ℕ {zero-ℕ} {succ-ℕ y} {succ-ℕ z} H K = star
 concatenate-leq-le-ℕ {succ-ℕ x} {succ-ℕ y} {succ-ℕ z} H K =
   concatenate-leq-le-ℕ {x} {y} {z} H K
 
 concatenate-le-leq-ℕ :
-  {x y z : ℕ} → le-ℕ x y → leq-ℕ y z → le-ℕ x z
+  {x y z : ℕ} → le-ℕ x y → y ≤-ℕ z → le-ℕ x z
 concatenate-le-leq-ℕ {zero-ℕ} {succ-ℕ y} {succ-ℕ z} H K = star
 concatenate-le-leq-ℕ {succ-ℕ x} {succ-ℕ y} {succ-ℕ z} H K =
   concatenate-le-leq-ℕ {x} {y} {z} H K
@@ -532,7 +532,7 @@ le-succ-ℕ : {x : ℕ} → le-ℕ x (succ-ℕ x)
 le-succ-ℕ {zero-ℕ} = star
 le-succ-ℕ {succ-ℕ x} = le-succ-ℕ {x}
 
-le-leq-neq-ℕ : {x y : ℕ} → leq-ℕ x y → ¬ (Id x y) → le-ℕ x y
+le-leq-neq-ℕ : {x y : ℕ} → x ≤-ℕ y → ¬ (Id x y) → le-ℕ x y
 le-leq-neq-ℕ {zero-ℕ} {zero-ℕ} l f = ex-falso (f refl)
 le-leq-neq-ℕ {zero-ℕ} {succ-ℕ y} l f = star
 le-leq-neq-ℕ {succ-ℕ x} {succ-ℕ y} l f =
@@ -601,20 +601,20 @@ ap-add-ℕ :
 ap-add-ℕ p q = ap-binary add-ℕ p q
 
 triangle-inequality-dist-ℕ :
-  (m n k : ℕ) → leq-ℕ (dist-ℕ m n) (add-ℕ (dist-ℕ m k) (dist-ℕ k n))
+  (m n k : ℕ) → (dist-ℕ m n) ≤-ℕ (add-ℕ (dist-ℕ m k) (dist-ℕ k n))
 triangle-inequality-dist-ℕ zero-ℕ zero-ℕ zero-ℕ = star
 triangle-inequality-dist-ℕ zero-ℕ zero-ℕ (succ-ℕ k) = star
 triangle-inequality-dist-ℕ zero-ℕ (succ-ℕ n) zero-ℕ =
   tr ( leq-ℕ (succ-ℕ n))
      ( inv (left-unit-law-add-ℕ (succ-ℕ n)))
-     ( reflexive-leq-ℕ (succ-ℕ n))
+     ( refl-leq-ℕ (succ-ℕ n))
 triangle-inequality-dist-ℕ zero-ℕ (succ-ℕ n) (succ-ℕ k) =
   concatenate-eq-leq-eq-ℕ
     ( inv (ap succ-ℕ (left-unit-law-dist-ℕ n)))
     ( triangle-inequality-dist-ℕ zero-ℕ n k)
     ( ( ap (succ-ℕ ∘ (add-ℕ' (dist-ℕ k n))) (left-unit-law-dist-ℕ k)) ∙
       ( inv (left-successor-law-add-ℕ k (dist-ℕ k n))))
-triangle-inequality-dist-ℕ (succ-ℕ m) zero-ℕ zero-ℕ = reflexive-leq-ℕ (succ-ℕ m)
+triangle-inequality-dist-ℕ (succ-ℕ m) zero-ℕ zero-ℕ = refl-leq-ℕ (succ-ℕ m)
 triangle-inequality-dist-ℕ (succ-ℕ m) zero-ℕ (succ-ℕ k) =
   concatenate-eq-leq-eq-ℕ
     ( inv (ap succ-ℕ (right-unit-law-dist-ℕ m)))
@@ -645,7 +645,7 @@ triangle-inequality-dist-ℕ (succ-ℕ m) (succ-ℕ n) (succ-ℕ k) =
 -- We show that dist-ℕ x y is a solution to a simple equation.
 
 leq-dist-ℕ :
-  (x y : ℕ) → leq-ℕ x y → Id (add-ℕ x (dist-ℕ x y)) y
+  (x y : ℕ) → x ≤-ℕ y → Id (add-ℕ x (dist-ℕ x y)) y
 leq-dist-ℕ zero-ℕ zero-ℕ H = refl
 leq-dist-ℕ zero-ℕ (succ-ℕ y) star = left-unit-law-add-ℕ (succ-ℕ y)
 leq-dist-ℕ (succ-ℕ x) (succ-ℕ y) H =
@@ -655,7 +655,7 @@ leq-dist-ℕ (succ-ℕ x) (succ-ℕ y) H =
 -- If three elements are ordered linearly, then their distances add up.
 
 triangle-equality-dist-ℕ :
-  (x y z : ℕ) → (leq-ℕ x y) → (leq-ℕ y z) →
+  (x y z : ℕ) → (x ≤-ℕ y) → (y ≤-ℕ z) →
   Id (add-ℕ (dist-ℕ x y) (dist-ℕ y z)) (dist-ℕ x z)
 triangle-equality-dist-ℕ zero-ℕ zero-ℕ zero-ℕ H1 H2 = refl
 triangle-equality-dist-ℕ zero-ℕ zero-ℕ (succ-ℕ z) star star =
@@ -678,7 +678,7 @@ rewrite-left-add-dist-ℕ
   rewrite-left-add-dist-ℕ (succ-ℕ x) y (add-ℕ (succ-ℕ x) y) refl
 
 rewrite-left-dist-add-ℕ :
-  (x y z : ℕ) → leq-ℕ y z → Id x (dist-ℕ y z) → Id (add-ℕ x y) z
+  (x y z : ℕ) → y ≤-ℕ z → Id x (dist-ℕ y z) → Id (add-ℕ x y) z
 rewrite-left-dist-add-ℕ .(dist-ℕ y z) y z H refl =
   ( commutative-add-ℕ (dist-ℕ y z) y) ∙
   ( leq-dist-ℕ y z H)
@@ -689,7 +689,7 @@ rewrite-right-add-dist-ℕ x y z p =
   rewrite-left-add-dist-ℕ y x z (commutative-add-ℕ y x ∙ p)
 
 rewrite-right-dist-add-ℕ :
-  (x y z : ℕ) → leq-ℕ x z → Id y (dist-ℕ x z) → Id (add-ℕ x y) z
+  (x y z : ℕ) → x ≤-ℕ z → Id y (dist-ℕ x z) → Id (add-ℕ x y) z
 rewrite-right-dist-add-ℕ x .(dist-ℕ x z) z H refl =
   leq-dist-ℕ x z H
 
@@ -735,7 +735,7 @@ linear-dist-ℕ (succ-ℕ m) (succ-ℕ n) (succ-ℕ k) =
 -- Exercise 6.5 (d)
 
 is-difference-dist-ℕ :
-  (x y : ℕ) → leq-ℕ x y → Id (add-ℕ x (dist-ℕ x y)) y
+  (x y : ℕ) → x ≤-ℕ y → Id (add-ℕ x (dist-ℕ x y)) y
 is-difference-dist-ℕ zero-ℕ zero-ℕ H = refl
 is-difference-dist-ℕ zero-ℕ (succ-ℕ y) H = left-unit-law-add-ℕ (succ-ℕ y)
 is-difference-dist-ℕ (succ-ℕ x) (succ-ℕ y) H =
@@ -743,7 +743,7 @@ is-difference-dist-ℕ (succ-ℕ x) (succ-ℕ y) H =
   ( ap succ-ℕ (is-difference-dist-ℕ x y H))
 
 is-difference-dist-ℕ' :
-  (x y : ℕ) → leq-ℕ x y → Id (add-ℕ (dist-ℕ x y) x) y
+  (x y : ℕ) → x ≤-ℕ y → Id (add-ℕ (dist-ℕ x y) x) y
 is-difference-dist-ℕ' x y H =
   ( commutative-add-ℕ (dist-ℕ x y) x) ∙
   ( is-difference-dist-ℕ x y H)
@@ -777,29 +777,29 @@ abs-eq-ℤ : (x : ℤ) → is-zero-ℤ x → is-zero-ℕ (abs-ℤ x)
 abs-eq-ℤ .zero-ℤ refl = refl
 
 predecessor-law-abs-ℤ :
-  (x : ℤ) → leq-ℕ (abs-ℤ (pred-ℤ x)) (succ-ℕ (abs-ℤ x))
+  (x : ℤ) → (abs-ℤ (pred-ℤ x)) ≤-ℕ (succ-ℕ (abs-ℤ x))
 predecessor-law-abs-ℤ (inl x) =
-  reflexive-leq-ℕ (succ-ℕ x)
+  refl-leq-ℕ (succ-ℕ x)
 predecessor-law-abs-ℤ (inr (inl star)) =
-  reflexive-leq-ℕ zero-ℕ
+  refl-leq-ℕ zero-ℕ
 predecessor-law-abs-ℤ (inr (inr zero-ℕ)) =
   star
 predecessor-law-abs-ℤ (inr (inr (succ-ℕ x))) =
   preserves-leq-succ-ℕ x (succ-ℕ x) (succ-leq-ℕ x)
 
 successor-law-abs-ℤ :
-  (x : ℤ) → leq-ℕ (abs-ℤ (succ-ℤ x)) (succ-ℕ (abs-ℤ x))
+  (x : ℤ) → (abs-ℤ (succ-ℤ x)) ≤-ℕ (succ-ℕ (abs-ℤ x))
 successor-law-abs-ℤ (inl zero-ℕ) =
   star
 successor-law-abs-ℤ (inl (succ-ℕ x)) =
   preserves-leq-succ-ℕ x (succ-ℕ x) (succ-leq-ℕ x)
 successor-law-abs-ℤ (inr (inl star)) =
-  reflexive-leq-ℕ zero-ℕ
+  refl-leq-ℕ zero-ℕ
 successor-law-abs-ℤ (inr (inr x)) =
-  reflexive-leq-ℕ (succ-ℕ x)
+  refl-leq-ℕ (succ-ℕ x)
 
 subadditive-abs-ℤ :
-  (x y : ℤ) → leq-ℕ (abs-ℤ (add-ℤ x y)) (add-ℕ (abs-ℤ x) (abs-ℤ y))
+  (x y : ℤ) → (abs-ℤ (add-ℤ x y)) ≤-ℕ (add-ℕ (abs-ℤ x) (abs-ℤ y))
 subadditive-abs-ℤ x (inl zero-ℕ) =
   concatenate-eq-leq-eq-ℕ
     ( ap abs-ℤ (add-neg-one-right-ℤ x))
@@ -818,7 +818,7 @@ subadditive-abs-ℤ x (inl (succ-ℕ y)) =
 subadditive-abs-ℤ x (inr (inl star)) =
   concatenate-eq-leq-eq-ℕ
     ( ap abs-ℤ (right-unit-law-add-ℤ x))
-    ( reflexive-leq-ℕ (abs-ℤ x))
+    ( refl-leq-ℕ (abs-ℤ x))
     ( refl)
 subadditive-abs-ℤ x (inr (inr zero-ℕ)) =
   concatenate-eq-leq-eq-ℕ
@@ -847,9 +847,9 @@ negative-law-abs-ℤ (inr (inr x)) = refl
 
 -- Exercise 6.6
 
-{- In this exercise we were asked to define the relations ≤ and < on the 
+{- In this exercise we were asked to define the relations ≤-ℕ and < on the 
    integers. As a criterion of correctness, we were then also asked to show 
-   that the type of all integers l satisfying k ≤ l satisfy the induction 
+   that the type of all integers l satisfying k ≤-ℕ l satisfy the induction 
    principle of the natural numbers. -}
 
 diff-ℤ : ℤ → ℤ → ℤ
@@ -862,8 +862,8 @@ is-non-negative-ℤ (inr k) = unit
 leq-ℤ : ℤ → ℤ → UU lzero
 leq-ℤ k l = is-non-negative-ℤ (diff-ℤ k l)
 
-reflexive-leq-ℤ : (k : ℤ) → leq-ℤ k k
-reflexive-leq-ℤ k =
+refl-leq-ℤ : (k : ℤ) → leq-ℤ k k
+refl-leq-ℤ k =
   tr is-non-negative-ℤ (inv (left-inverse-law-add-ℤ k)) star
 
 is-non-negative-succ-ℤ :
@@ -941,11 +941,11 @@ le-ℤ (inr (inr (succ-ℕ x))) (inr (inr (succ-ℕ y))) =
 
 -- We show that ℕ is an ordered semi-ring
 
-left-law-leq-add-ℕ : (k m n : ℕ) → leq-ℕ m n → leq-ℕ (add-ℕ m k) (add-ℕ n k)
+left-law-leq-add-ℕ : (k m n : ℕ) → m ≤-ℕ n → (add-ℕ m k) ≤-ℕ (add-ℕ n k)
 left-law-leq-add-ℕ zero-ℕ m n = id
 left-law-leq-add-ℕ (succ-ℕ k) m n H = left-law-leq-add-ℕ k m n H
 
-right-law-leq-add-ℕ : (k m n : ℕ) → leq-ℕ m n → leq-ℕ (add-ℕ k m) (add-ℕ k n) 
+right-law-leq-add-ℕ : (k m n : ℕ) → m ≤-ℕ n → (add-ℕ k m) ≤-ℕ (add-ℕ k n) 
 right-law-leq-add-ℕ k m n H =
   concatenate-eq-leq-eq-ℕ
     ( commutative-add-ℕ k m)
@@ -953,7 +953,7 @@ right-law-leq-add-ℕ k m n H =
     ( commutative-add-ℕ n k)
 
 preserves-leq-add-ℕ :
-  {m m' n n' : ℕ} → leq-ℕ m m' → leq-ℕ n n' → leq-ℕ (add-ℕ m n) (add-ℕ m' n')
+  {m m' n n' : ℕ} → m ≤-ℕ m' → n ≤-ℕ n' → (add-ℕ m n) ≤-ℕ (add-ℕ m' n')
 preserves-leq-add-ℕ {m} {m'} {n} {n'} H K =
   transitive-leq-ℕ
     ( add-ℕ m n)
@@ -1047,26 +1047,24 @@ divides d n = Σ ℕ (λ m → Eq-ℕ (mul-ℕ d m) n)
 
 -- We prove some lemmas about inequalities --
 
-leq-add-ℕ :
-  (m n : ℕ) → leq-ℕ m (add-ℕ m n)
-leq-add-ℕ m zero-ℕ = reflexive-leq-ℕ m
+leq-add-ℕ : (m n : ℕ) → m ≤-ℕ (add-ℕ m n)
+leq-add-ℕ m zero-ℕ = refl-leq-ℕ m
 leq-add-ℕ m (succ-ℕ n) =
   transitive-leq-ℕ m (add-ℕ m n) (succ-ℕ (add-ℕ m n))
     ( leq-add-ℕ m n)
     ( succ-leq-ℕ (add-ℕ m n))
 
-leq-add-ℕ' :
-  (m n : ℕ) → leq-ℕ m (add-ℕ n m)
+leq-add-ℕ' : (m n : ℕ) → m ≤-ℕ (add-ℕ n m)
 leq-add-ℕ' m n =
   concatenate-leq-eq-ℕ m (leq-add-ℕ m n) (commutative-add-ℕ m n)
 
 leq-leq-add-ℕ :
-  (m n x : ℕ) → leq-ℕ (add-ℕ m x) (add-ℕ n x) → leq-ℕ m n
+  (m n x : ℕ) → (add-ℕ m x) ≤-ℕ (add-ℕ n x) → m ≤-ℕ n
 leq-leq-add-ℕ m n zero-ℕ H = H
 leq-leq-add-ℕ m n (succ-ℕ x) H = leq-leq-add-ℕ m n x H
 
 leq-leq-add-ℕ' :
-  (m n x : ℕ) → leq-ℕ (add-ℕ x m) (add-ℕ x n) → leq-ℕ m n
+  (m n x : ℕ) → (add-ℕ x m) ≤-ℕ (add-ℕ x n) → m ≤-ℕ n
 leq-leq-add-ℕ' m n x H =
   leq-leq-add-ℕ m n x
     ( concatenate-eq-leq-eq-ℕ
@@ -1075,7 +1073,7 @@ leq-leq-add-ℕ' m n x H =
       ( commutative-add-ℕ x n))
 
 leq-leq-mul-ℕ :
-  (m n x : ℕ) → leq-ℕ (mul-ℕ (succ-ℕ x) m) (mul-ℕ (succ-ℕ x) n) → leq-ℕ m n
+  (m n x : ℕ) → (mul-ℕ (succ-ℕ x) m) ≤-ℕ (mul-ℕ (succ-ℕ x) n) → m ≤-ℕ n
 leq-leq-mul-ℕ zero-ℕ zero-ℕ x H = star
 leq-leq-mul-ℕ zero-ℕ (succ-ℕ n) x H = star
 leq-leq-mul-ℕ (succ-ℕ m) zero-ℕ x H =
@@ -1093,7 +1091,7 @@ leq-leq-mul-ℕ (succ-ℕ m) (succ-ℕ n) x H =
         ( right-successor-law-mul-ℕ (succ-ℕ x) n)))
 
 leq-leq-mul-ℕ' :
-  (m n x : ℕ) → leq-ℕ (mul-ℕ m (succ-ℕ x)) (mul-ℕ n (succ-ℕ x)) → leq-ℕ m n
+  (m n x : ℕ) → (mul-ℕ m (succ-ℕ x)) ≤-ℕ (mul-ℕ n (succ-ℕ x)) → m ≤-ℕ n
 leq-leq-mul-ℕ' m n x H =
   leq-leq-mul-ℕ m n x
     ( concatenate-eq-leq-eq-ℕ

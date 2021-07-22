@@ -321,7 +321,7 @@ upper-bound-nat-Fin : {k : ℕ} (x : Fin (succ-ℕ k)) → leq-ℕ (nat-Fin x) k
 upper-bound-nat-Fin {zero-ℕ} (inr star) = star
 upper-bound-nat-Fin {succ-ℕ k} (inl x) =
   preserves-leq-succ-ℕ (nat-Fin x) k (upper-bound-nat-Fin x)
-upper-bound-nat-Fin {succ-ℕ k} (inr star) = reflexive-leq-ℕ (succ-ℕ k)
+upper-bound-nat-Fin {succ-ℕ k} (inr star) = refl-leq-ℕ (succ-ℕ k)
 
 {- Proposition 7.3.5 -}
 
@@ -1193,7 +1193,7 @@ leq-nat-succ-Fin (succ-ℕ k) (inr star) =
 leq-nat-mod-succ-ℕ :
   (k x : ℕ) → leq-ℕ (nat-Fin (mod-succ-ℕ k x)) x
 leq-nat-mod-succ-ℕ k zero-ℕ =
-  concatenate-eq-leq-ℕ zero-ℕ (nat-zero-Fin {k}) (reflexive-leq-ℕ zero-ℕ)
+  concatenate-eq-leq-ℕ zero-ℕ (nat-zero-Fin {k}) (refl-leq-ℕ zero-ℕ)
 leq-nat-mod-succ-ℕ k (succ-ℕ x) =
   transitive-leq-ℕ
     ( nat-Fin (mod-succ-ℕ k (succ-ℕ x)))

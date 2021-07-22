@@ -1,13 +1,14 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module extra.dependent-type-theories where
+module type-theories.dependent-type-theories where
 
 import book
 open book public
 
-{- We introduce the cagegory of dependent type theories. The category of 
-   generalised algebraic theories is defined to be this category. It should
-   be equivalent to the category of essentially algebraic theories. -}
+{- We introduce the cagegory of dependent type theories, following Voevodsky's
+   notion of B-systems. The category of generalised algebraic theories is 
+   defined to be this category. It should be equivalent to the category of 
+   essentially algebraic theories. -}
 
 module dependent where
   
@@ -43,7 +44,7 @@ module dependent where
                 fibered-system l3 l4 (system.slice A X)
 
   record section-system
-    {l1 l2 l3 l4 : Level} (A : system l1 l2) (B : fibered-system l3 l4 A) :
+    {l1 l2 l3 l4 : Level} {A : system l1 l2} (B : fibered-system l3 l4 A) :
     UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
     where
     coinductive
@@ -52,9 +53,7 @@ module dependent where
       element : {X : system.type A} (x : system.element A X) →
                 fibered-system.element B (type X) x
       slice   : (X : system.type A) →
-                section-system
-                  ( system.slice A X)
-                  ( fibered-system.slice B (type X))
+                section-system (fibered-system.slice B (type X))
 
   ------------------------------------------------------------------------------
 
@@ -64,23 +63,23 @@ module dependent where
 
   tr-fibered-system-slice :
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B B' : fibered-system l3 l4 A}
-    (α : Id B B') (f : section-system A B) (X : system.type A) →
+    (α : Id B B') (f : section-system B) (X : system.type A) →
     Id ( fibered-system.slice B (section-system.type f X))
        ( fibered-system.slice B'
-         ( section-system.type (tr (section-system A) α f) X))
+         ( section-system.type (tr section-system α f) X))
   tr-fibered-system-slice refl f X = refl
 
   Eq-fibered-system' :
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B B' : fibered-system l3 l4 A}
-    (α : Id B B') (f : section-system A B) (g : section-system A B') →
+    (α : Id B B') (f : section-system B) (g : section-system B') →
     fibered-system l3 l4 A
   fibered-system.type (Eq-fibered-system' {A = A} α f g) X =
-    Id ( section-system.type (tr (section-system A) α f) X)
+    Id ( section-system.type (tr section-system α f) X)
        ( section-system.type g X)
   fibered-system.element (Eq-fibered-system' {A = A} {B} {B'} α f g) p x =
     Id ( tr (λ t → fibered-system.element B' t x)
             ( p)
-            ( section-system.element (tr (section-system A) α f) x))
+            ( section-system.element (tr section-system α f) x))
        ( section-system.element g x)
   fibered-system.slice (Eq-fibered-system' {A = A} {B} {B'} α f g) {X} p =
     Eq-fibered-system'
@@ -90,16 +89,16 @@ module dependent where
 
   htpy-section-system' :
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B B' : fibered-system l3 l4 A}
-    (α : Id B B') (f : section-system A B) (g : section-system A B') →
+    (α : Id B B') (f : section-system B) (g : section-system B') →
     UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
   htpy-section-system' {A = A} α f g =
-    section-system A (Eq-fibered-system' α f g)
+    section-system (Eq-fibered-system' α f g)
 
   concat-htpy-section-system' :
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B B' B'' : fibered-system l3 l4 A}
     {α : Id B B'} {β : Id B' B''} (γ : Id B B'') (δ : Id (α ∙ β) γ)
-    {f : section-system A B} {g : section-system A B'}
-    {h : section-system A B''}
+    {f : section-system B} {g : section-system B'}
+    {h : section-system B''}
     (G : htpy-section-system' α f g) (H : htpy-section-system' β g h) →
     htpy-section-system' γ f h
   section-system.type
@@ -132,7 +131,7 @@ module dependent where
   inv-htpy-section-system' :
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B B' : fibered-system l3 l4 A}
     {α : Id B B'} (β : Id B' B) (γ : Id (inv α) β)
-    {f : section-system A B} {g : section-system A B'} →
+    {f : section-system B} {g : section-system B'} →
     htpy-section-system' α f g → htpy-section-system' β g f
   section-system.type (inv-htpy-section-system' {α = refl} .refl refl H) X =
     inv (section-system.type H X)
@@ -152,13 +151,13 @@ module dependent where
 
   htpy-section-system :
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
-    (f g : section-system A B) → UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+    (f g : section-system B) → UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
   htpy-section-system {A = A} {B} f g =
     htpy-section-system' refl f g
 
   refl-htpy-section-system :
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
-    (f : section-system A B) → htpy-section-system f f
+    (f : section-system B) → htpy-section-system f f
   section-system.type (refl-htpy-section-system f) X = refl
   section-system.element (refl-htpy-section-system f) x = refl
   section-system.slice (refl-htpy-section-system f) X =
@@ -166,14 +165,14 @@ module dependent where
 
   concat-htpy-section-system :
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
-    {f g h : section-system A B} (G : htpy-section-system f g)
+    {f g h : section-system B} (G : htpy-section-system f g)
     (H : htpy-section-system g h) → htpy-section-system f h
   concat-htpy-section-system G H =
     concat-htpy-section-system' refl refl G H
 
   inv-htpy-section-system :
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
-    {f g : section-system A B} (H : htpy-section-system f g) →
+    {f g : section-system B} (H : htpy-section-system f g) →
     htpy-section-system g f
   inv-htpy-section-system H = inv-htpy-section-system' refl refl H
 
@@ -208,7 +207,7 @@ module dependent where
     {l1 l2 l3 l4 : Level} (A : system l1 l2) (B : system l3 l4) → 
     UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
   hom-system A B =
-    section-system A (constant-fibered-system A B)
+    section-system (constant-fibered-system A B)
 
   ------------------------------------------------------------------------------
 
@@ -801,6 +800,21 @@ module dependent where
               ( type-theory.δ B)
               ( W)
 
+  hom-slice-dtt :
+    {l1 l2 l3 l4 : Level} {A : type-theory l1 l2} {B : type-theory l3 l4}
+    (f : hom-dtt A B) (X : system.type (type-theory.sys A)) →
+    hom-dtt
+      ( slice-dtt A X)
+      ( slice-dtt B (section-system.type (hom-dtt.sys f) X))
+  hom-dtt.sys (hom-slice-dtt f X) =
+    section-system.slice (hom-dtt.sys f) X
+  hom-dtt.W (hom-slice-dtt f X) =
+    preserves-weakening.slice (hom-dtt.W f) X
+  hom-dtt.S (hom-slice-dtt f X) =
+    preserves-substitution.slice (hom-dtt.S f) X
+  hom-dtt.δ (hom-slice-dtt f X) =
+    preserves-generic-element.slice (hom-dtt.δ f) X
+
   ------------------------------------------------------------------------------
 
   -- We construct the identity morphism of a dependent type theory
@@ -1106,6 +1120,20 @@ module dependent where
 
   ------------------------------------------------------------------------------
 
+  -- We define proof irrelevant type theories
+
+  record is-proof-irrelevant-type-theory
+    {l1 l2 : Level} (A : type-theory l1 l2) : UU (l1 ⊔ l2)
+    where
+    coinductive
+    field
+      type  : (X : system.type (type-theory.sys A)) →
+              is-prop (system.element (type-theory.sys A) X)
+      slice : (X : system.type (type-theory.sys A)) →
+              is-proof-irrelevant-type-theory (slice-dtt A X)
+
+  ------------------------------------------------------------------------------
+
   system-slice-UU : {l : Level} (X : UU l) → system (lsuc l) l
   system.type (system-slice-UU {l} X) = X → UU l
   system.element (system-slice-UU X) Y = (x : X) → Y x
@@ -1294,3 +1322,86 @@ module dependent where
     ( section-system.element K X x)
   htpy-hom-system'.slice (concat-htpy-hom-system H K) X = {!!}
   -}
+
+--------------------------------------------------------------------------------
+
+module c-system where
+
+  open dependent
+
+  -- We interpret contexts in a dependent type theory
+  data context
+    {l1 l2 : Level} (A : type-theory l1 l2) : UU l1
+    where
+    empty-ctx     : context A
+    extension-ctx : (X : system.type (type-theory.sys A))
+                    (Γ : context (slice-dtt A X)) → context A
+
+  -- We define the action on contexts of a morphism of dependent type theories
+  context-hom :
+    {l1 l2 l3 l4 : Level} {A : type-theory l1 l2}
+    {B : type-theory l3 l4} (f : hom-dtt A B) →
+    context A → context B
+  context-hom f empty-ctx = empty-ctx
+  context-hom f (extension-ctx X Γ) =
+    extension-ctx
+      ( section-system.type (hom-dtt.sys f) X)
+      ( context-hom (hom-slice-dtt f X) Γ)
+
+  -- We define elements of contexts
+  data element-context 
+    {l1 l2 : Level} {A : type-theory l1 l2} : (Γ : context A) → UU {!substitution.type (type-theory.S A) !}
+    where
+    element-empty-context : element-context empty-ctx
+    element-extension-ctx : {!(X : system.type (type-theory.sys A)) (Γ : context (slice-dtt A X)) (x : system.element (type-theory.sys A) X) (y : element-context (context-hom (substitution.type (type-theory.S A) x) Γ)) → element-context (extension-ctx X Γ)!}
+
+  -- We interpret types in context in a dependent type theory
+  type :
+    {l1 l2 : Level} (A : type-theory l1 l2) →
+    context A → UU l1
+  type A empty-ctx = system.type (type-theory.sys A)
+  type A (extension-ctx X Γ) = type (slice-dtt A X) Γ
+
+  -- We interpret elements of types in context in a dependent type theory
+  element :
+    {l1 l2 : Level} (A : type-theory l1 l2) (Γ : context A)
+    (Y : type A Γ) → UU l2
+  element A empty-ctx = system.element (type-theory.sys A)
+  element A (extension-ctx X Γ) = element (slice-dtt A X) Γ
+
+  slice :
+    {l1 l2 : Level} (A : type-theory l1 l2) (Γ : context A) →
+    type-theory l1 l2
+  slice A empty-ctx = A
+  slice A (extension-ctx X Γ) = slice (slice-dtt A X) Γ
+
+  dependent-context :
+    {l1 l2 : Level} (A : type-theory l1 l2) (Γ : context A) →
+    UU l1
+  dependent-context A Γ = context (slice A Γ)
+
+  weakening-by-type-context :
+    {l1 l2 : Level} {A : type-theory l1 l2}
+    (X : system.type (type-theory.sys A)) →
+    context A → context (slice-dtt A X)
+  weakening-by-type-context {A = A} X Δ = context-hom {!weakening.type (type-theory.W A) X!} Δ
+
+  weakening-type-context :
+    {l1 l2 : Level} (A : type-theory l1 l2) (Γ : context A) →
+    system.type (type-theory.sys A) →
+    system.type (type-theory.sys (slice A Γ))
+  weakening-type-context A empty-ctx Y = Y
+  weakening-type-context A (extension-ctx X Γ) Y =
+    weakening-type-context (slice-dtt A X) Γ
+      ( section-system.type
+        ( weakening.type (type-theory.W A) X) Y)
+
+  weakening-context :
+    {l1 l2 : Level} (A : type-theory l1 l2) (Γ : context A) →
+    context A → context (slice A Γ)
+  weakening-context A empty-ctx Δ = Δ
+  weakening-context A (extension-ctx X Γ) empty-ctx = empty-ctx
+  weakening-context A (extension-ctx X Γ) (extension-ctx Y Δ) =
+    extension-ctx
+      ( weakening-type-context A (extension-ctx X Γ) Y)
+      ( weakening-context {!!} {!!} {!!})

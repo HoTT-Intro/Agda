@@ -270,3 +270,23 @@ apply-universal-property-trunc-Set :
   (A → type-Set B) → type-Set B
 apply-universal-property-trunc-Set t B f =
   map-universal-property-trunc-Set B f t
+
+map-trunc-Set :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} → (A → B) →
+  type-trunc-Set A → type-trunc-Set B
+map-trunc-Set {A = A} {B} f x =
+  apply-universal-property-trunc-Set x (trunc-Set B) (unit-trunc-Set ∘ f)
+
+id-map-trunc-Set :
+  {l1 : Level} (A : UU l1) → map-trunc-Set (id {A = A}) ~ id
+id-map-trunc-Set A x =
+  {!dependent-universal-property-trunc-Set!}
+
+is-equiv-map-trunc-Set :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} → is-equiv f →
+  is-equiv (map-trunc-Set f)
+is-equiv-map-trunc-Set {A = A} {B} {f} H =
+  is-equiv-has-inverse
+    {!!}
+    {!!}
+    {!!}

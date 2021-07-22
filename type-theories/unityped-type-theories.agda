@@ -1,9 +1,9 @@
-{-# OPTIONS --without-K --exact-split #-}
+{-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module extra.unityped-type-theories where
+module type-theories.unityped-type-theories where
 
 open import book public
-open import extra.simple-type-theories
+open import type-theories.simple-type-theories
 
 {- We introduce the category of unityped type theories. This category is
    equivalent to the category of single sorted algebraic theories. -}
@@ -307,11 +307,34 @@ module unityped where
 
 --------------------------------------------------------------------------------
 
+  module C-system where
+
+    El : {l : Level} (A : type-theory l) → ℕ → UU l
+    El A zero-ℕ = system.element (type-theory.sys A)
+    El A (succ-ℕ n) = El (slice-type-theory A) n
+
+    iterated-weakening :
+      {l : Level} {A : type-theory l} {m n : ℕ} →
+      El A n → El A (succ-ℕ (add-ℕ m n))
+    iterated-weakening {l} {A} {zero-ℕ} {n} x = {!hom-system.element (weakening.element (type-theory.W A))!}
+    iterated-weakening {l} {A} {succ-ℕ m} {n} x = {!!}
+
+    -- hom(X,Y) := Tm(W(X,Y))
+  
+    hom : {l : Level} (A : type-theory l) → ℕ → ℕ → UU l
+    hom A m n = El A (succ-ℕ (add-ℕ m n))
+
+    id-hom : {l : Level} (A : type-theory l) (n : ℕ) → hom A n n
+    id-hom A zero-ℕ = generic-element.element (type-theory.δ A)
+    id-hom A (succ-ℕ n) = {!!}
+--------------------------------------------------------------------------------
+
 {- We construct the forgetful functor from unityped type theories to simple
    type theories. -}
 
 module simple-unityped where
 
+{-
   system :
     {l : Level} → unityped.system l → simple.system l unit
   simple.system.element (system A) x = unityped.system.element A
@@ -349,6 +372,16 @@ module simple-unityped where
   simple.htpy-hom-system.slice (comp-hom-system g f) x =
     comp-hom-system (unityped.hom-system.slice g) (unityped.hom-system.slice f)
 
+  htpy-hom-system :
+    {l1 l2 : Level} {A : unityped.system l1} {B : unityped.system l2}
+    {f g : unityped.hom-system A B} →
+    unityped.htpy-hom-system f g →
+    simple.htpy-hom-system (hom-system f) (hom-system g)
+  simple.htpy-hom-system.element (htpy-hom-system H) x =
+    unityped.htpy-hom-system.element H
+  simple.htpy-hom-system.slice (htpy-hom-system H) x =
+    htpy-hom-system (unityped.htpy-hom-system.slice H)
+
   weakening :
     {l : Level} {A : unityped.system l} → unityped.weakening A →
     simple.weakening (system A)
@@ -356,6 +389,16 @@ module simple-unityped where
     hom-system (unityped.weakening.element W)
   simple.weakening.slice (weakening W) x =
     weakening (unityped.weakening.slice W)
+
+  preserves-weakening :
+    {l1 l2 : Level} {A : unityped.system l1} {B : unityped.system l2}
+    {WA : unityped.weakening A} {WB : unityped.weakening B}
+    {f : unityped.hom-system A B} →
+    unityped.preserves-weakening WA WB f →
+    simple.preserves-weakening (weakening WA) (weakening WB) (hom-system f)
+  simple.preserves-weakening.element (preserves-weakening Wf) x =
+    {!simple.concat-htpy-hom-system!}
+  simple.preserves-weakening.slice (preserves-weakening Wf) = {!!}
 
   substitution :
     {l : Level} {A : unityped.system l} → unityped.substitution A →
@@ -372,3 +415,4 @@ module simple-unityped where
     unityped.generic-element.element δ
   simple.generic-element.slice (generic-element δ) x =
     generic-element (unityped.generic-element.slice δ)
+-}
