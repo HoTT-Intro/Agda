@@ -7,9 +7,9 @@ open book.06-universes public
 
 --------------------------------------------------------------------------------
 
-{- Section 7.1 The congruence relations -}
+{- Section 7.1 The Curry-Howard interpretation -}
 
-{- Definition 7.1.1 -}
+{- Definition 7.1.2 -}
 
 -- We introduce the divisibility relation. --
 
@@ -22,7 +22,7 @@ is-even-ℕ n = div-ℕ two-ℕ n
 is-odd-ℕ : ℕ → UU lzero
 is-odd-ℕ n = ¬ (is-even-ℕ n)
 
-{- Remark 7.1.2 -}
+{- Example 7.1.4 -}
 
 div-one-ℕ :
   (x : ℕ) → div-ℕ one-ℕ x
@@ -40,7 +40,7 @@ div-is-zero-ℕ :
   (k x : ℕ) → is-zero-ℕ x → div-ℕ k x
 div-is-zero-ℕ k .zero-ℕ refl = div-zero-ℕ k
 
-{- Proposition 7.1.3 -}
+{- Proposition 7.1.5 -}
 
 {- In the following three constructions we show that if any two of the three
    numbers x, y, and x + y, is divisible by d, then so is the third. -}
@@ -82,7 +82,20 @@ div-right-summand-ℕ :
 div-right-summand-ℕ d x y H1 H2 =
   div-left-summand-ℕ d y x H1 (tr (div-ℕ d) (commutative-add-ℕ x y) H2)
 
-{- Definition 7.1.4 -}
+{- Section 7.2 The congruence relations -}
+
+{- Definition 7.2.1 -}
+
+is-reflexive : {l1 l2 : Level} {A : UU l1} → (A → A → UU l2) → UU (l1 ⊔ l2)
+is-reflexive {A = A} R = (x : A) → R x x
+
+is-symmetric : {l1 l2 : Level} {A : UU l1} → (A → A → UU l2) → UU (l1 ⊔ l2)
+is-symmetric {A = A} R = (x y : A) → R x y → R y x
+
+is-transitive : {l1 l2 : Level} {A : UU l1} → (A → A → UU l2) → UU (l1 ⊔ l2)
+is-transitive {A = A} R = (x y z : A) → R x y → R y z → R x z
+
+{- Definition 7.2.2 -}
 
 {- We define the congruence relation on ℕ and we do some bureaucracy that will
    help us in calculations involving the congruence relations. -}
@@ -122,14 +135,14 @@ is-discrete-cong-zero-ℕ :
 is-discrete-cong-zero-ℕ x y (pair k p) =
   eq-dist-ℕ x y ((inv p) ∙ (right-zero-law-mul-ℕ k))
 
-{- Example 7.1.5 -}
+{- Example 7.2.3 -}
 
 cong-zero-ℕ :
   (k : ℕ) → cong-ℕ k k zero-ℕ
 cong-zero-ℕ k =
   pair one-ℕ ((left-unit-law-mul-ℕ k) ∙ (inv (right-unit-law-dist-ℕ k)))
 
-{- Proposition 7.1.6 -}
+{- Proposition 7.2.4 -}
 
 -- We show that cong-ℕ is an equivalence relation.
 
@@ -259,9 +272,9 @@ concatenate-eq-cong-eq-cong-eq-ℕ k {x} {.x} {y} {.y} {z} {.z} refl H refl K re
 
 --------------------------------------------------------------------------------
 
-{- Section 7.2 The finite types -}
+{- Section 7.3 The standard finite types -}
 
-{- Definition 7.2.1 -}
+{- Definition 7.3.1 -}
 
 -- We introduce the finite types as a family indexed by ℕ.
 
@@ -279,7 +292,7 @@ neg-one-Fin {k} = inr star
 is-neg-one-Fin : {k : ℕ} → Fin k → UU lzero
 is-neg-one-Fin {succ-ℕ k} x = Id x neg-one-Fin
 
-{- Definition 7.2.4 -}
+{- Definition 7.3.3 -}
 
 -- We define the inclusion of Fin k into ℕ.
 
@@ -287,7 +300,7 @@ nat-Fin : {k : ℕ} → Fin k → ℕ
 nat-Fin {succ-ℕ k} (inl x) = nat-Fin x
 nat-Fin {succ-ℕ k} (inr x) = k
 
-{- Lemma 7.2.5 -}
+{- Lemma 7.3.4 -}
 
 -- We show that nat-Fin is bounded
 
@@ -310,7 +323,7 @@ upper-bound-nat-Fin {succ-ℕ k} (inl x) =
   preserves-leq-succ-ℕ (nat-Fin x) k (upper-bound-nat-Fin x)
 upper-bound-nat-Fin {succ-ℕ k} (inr star) = reflexive-leq-ℕ (succ-ℕ k)
 
-{- Proposition 7.2.6 -}
+{- Proposition 7.3.5 -}
 
 -- We show that nat-Fin is an injective function
 
@@ -330,7 +343,15 @@ is-injective-nat-Fin {succ-ℕ k} {inr star} {inr star} p =
 
 --------------------------------------------------------------------------------
 
-{- Definition 7.3.1 -}
+{- Section 7.4 The natural numbers modulo k+1 -}
+
+{- Definition 7.4.1 -}
+
+is-split-surjective :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} → (A → B) → UU (l1 ⊔ l2)
+is-split-surjective {A = A} {B} f = (b : B) → Σ A (λ a → Id (f a) b)
+
+{- Definition 7.4.2 -}
 
 -- We define the zero element of Fin k.
 
@@ -359,7 +380,7 @@ succ-Fin : {k : ℕ} → Fin k → Fin k
 succ-Fin {succ-ℕ k} (inl x) = skip-zero-Fin x
 succ-Fin {succ-ℕ k} (inr star) = zero-Fin
 
-{- Definition 7.3.2 -}
+{- Definition 7.4.3 -}
 
 -- We define the modulo function
 
@@ -373,7 +394,7 @@ mod-two-ℕ = mod-succ-ℕ one-ℕ
 mod-three-ℕ : ℕ → Fin three-ℕ
 mod-three-ℕ = mod-succ-ℕ two-ℕ
 
-{- Lemma 7.3.3 -}
+{- Lemma 7.4.4 -}
 
 -- We prove three things to help calculating with nat-Fin.
 
@@ -408,7 +429,7 @@ cong-nat-succ-Fin (succ-ℕ k) (inr star) =
     ( nat-zero-Fin {k})
     ( cong-zero-ℕ' (succ-ℕ k))
 
-{- Proposition 7.3.4 -}
+{- Proposition 7.4.5 -}
 
 -- We show that (nat-Fin (mod-succ-ℕ n x)) is congruent to x modulo n+1. --
 
@@ -425,7 +446,7 @@ cong-nat-mod-succ-ℕ k (succ-ℕ x) =
     ( cong-nat-succ-Fin (succ-ℕ k) (mod-succ-ℕ k x) )
     ( cong-nat-mod-succ-ℕ k x)
 
-{- Proposition 7.3.5 -}
+{- Proposition 7.4.6 -}
 
 is-zero-div-ℕ :
   (d x : ℕ) → le-ℕ x d → div-ℕ d x → is-zero-ℕ x
@@ -454,7 +475,7 @@ eq-cong-le-ℕ :
 eq-cong-le-ℕ k x y H K =
   eq-cong-le-dist-ℕ k x y (strict-upper-bound-dist-ℕ k x y H K)
 
-{- Theorem 7.3.6 -}
+{- Theorem 7.4.7 -}
 
 {- We show that if mod-succ-ℕ k x = mod-succ-ℕ k y, then x and y must be
    congruent modulo succ-ℕ n. This is the forward direction of the theorm. -}
@@ -507,7 +528,7 @@ div-succ-eq-zero-ℕ :
 div-succ-eq-zero-ℕ k x p =
   tr (div-ℕ (succ-ℕ k)) (right-unit-law-dist-ℕ x) (cong-eq-ℕ k x zero-ℕ p)
 
-{- Theorem 7.3.7 -}
+{- Theorem 7.4.8 -}
 
 issec-nat-Fin :
   {k : ℕ} (x : Fin (succ-ℕ k)) → Id (mod-succ-ℕ k (nat-Fin x)) x
@@ -521,11 +542,16 @@ issec-nat-Fin {k} x =
       ( strict-upper-bound-nat-Fin x)
       ( cong-nat-mod-succ-ℕ k (nat-Fin x)))
 
+is-split-surjective-mod-succ-ℕ :
+  {k : ℕ} → is-split-surjective (mod-succ-ℕ k)
+is-split-surjective-mod-succ-ℕ {k} x =
+  pair (nat-Fin x) (issec-nat-Fin x)
+
 --------------------------------------------------------------------------------
 
-{- Section 7.4 The cyclic group structure on the finite types -}
+{- Section 7.5 The cyclic group structure on the finite types -}
 
-{- Definition 7.4.1 -}
+{- Definition 7.5.1 -}
 
 -- Addition on finite sets --
 
@@ -549,7 +575,7 @@ neg-Fin :
 neg-Fin {succ-ℕ k} x =
   mod-succ-ℕ k (dist-ℕ (nat-Fin x) (succ-ℕ k))
 
-{- Remark 7.4.2 -}
+{- Remark 7.5.2 -}
 
 cong-nat-zero-Fin :
   {k : ℕ} → cong-ℕ (succ-ℕ k) (nat-Fin (zero-Fin {k})) zero-ℕ
@@ -567,7 +593,7 @@ cong-neg-Fin :
 cong-neg-Fin {succ-ℕ k} x = 
   cong-nat-mod-succ-ℕ k (dist-ℕ (nat-Fin x) (succ-ℕ k))
 
-{- Proposition 7.4.3 -}
+{- Proposition 7.5.3 -}
 
 -- We show that congruence is translation invariant --
 
@@ -598,7 +624,7 @@ congruence-add-ℕ k {x} {y} {x'} {y'} H K =
     ( translation-invariant-cong-ℕ k y y' x K)
     ( translation-invariant-cong-ℕ' k x x' y' H)
 
-{- Theorem 7.4.4 -}
+{- Theorem 7.5.4 -}
 
 -- We show that addition is commutative --
 
@@ -694,7 +720,7 @@ right-inverse-law-add-Fin :
 right-inverse-law-add-Fin x =
   ( commutative-add-Fin x (neg-Fin x)) ∙ (left-inverse-law-add-Fin x)
 
-{- Definition 7.4.5 -}
+{- Definition 7.5.5 -}
 
 iterate : {l : Level} {X : UU l} → ℕ → (X → X) → (X → X)
 iterate zero-ℕ f x = x
@@ -739,7 +765,7 @@ eq-is-cyclic-map H x y = pr2 (H x y)
 
 {- Exercise 7.1 -}
 
--- See Proposition 7.1.3
+-- See Proposition 7.1.5
 
 {- Exercise 7.2 -}
 
@@ -919,15 +945,64 @@ pred-succ-Fin {succ-ℕ (succ-ℕ k)} (inr star) = pred-zero-Fin
 
 {- Exercise 7.6 -}
 
-fin-bounded-nat :
-  {k : ℕ} → Σ ℕ (λ x → le-ℕ x k) → Fin k
-fin-bounded-nat {succ-ℕ k} (pair x H) = mod-succ-ℕ k x
+-- We introduce the type of bounded natural numbers
+
+bounded-ℕ : ℕ → UU lzero
+bounded-ℕ k = Σ ℕ (λ x → le-ℕ x k)
+
+nat-bounded-ℕ : (k : ℕ) → bounded-ℕ k → ℕ
+nat-bounded-ℕ k = pr1
+
+-- We introduce an observational equality relation on the bounded naturals
+
+Eq-bounded-ℕ : (k : ℕ) (x y : bounded-ℕ k) → UU lzero
+Eq-bounded-ℕ k x y = Id (nat-bounded-ℕ k x) (nat-bounded-ℕ k y)
+
+eq-succ-bounded-ℕ :
+  (k : ℕ) (x y : bounded-ℕ k) → Id {A = bounded-ℕ k} x y →
+  Id {A = bounded-ℕ (succ-ℕ k)}
+     ( pair (succ-ℕ (pr1 x)) (pr2 x))
+     ( pair (succ-ℕ (pr1 y)) (pr2 y))
+eq-succ-bounded-ℕ k x .x refl = refl
+
+eq-Eq-bounded-ℕ :
+  (k : ℕ) (x y : bounded-ℕ k) → Eq-bounded-ℕ k x y → Id x y
+eq-Eq-bounded-ℕ (succ-ℕ k) (pair zero-ℕ star) (pair zero-ℕ star) e = refl
+eq-Eq-bounded-ℕ (succ-ℕ k) (pair (succ-ℕ x) p) (pair (succ-ℕ y) q) e =
+  eq-succ-bounded-ℕ k
+    ( pair x p)
+    ( pair y q)
+    ( eq-Eq-bounded-ℕ k (pair x p) (pair y q) (is-injective-succ-ℕ e))
+
+{- We define maps back and forth between the standard finite sets and the
+   bounded natural numbers -}
+
+fin-bounded-ℕ : {k : ℕ} → bounded-ℕ k → Fin k
+fin-bounded-ℕ {succ-ℕ k} (pair x H) = mod-succ-ℕ k x
 
 bounded-nat-Fin :
-  {k : ℕ} → Fin k → Σ ℕ (λ x → le-ℕ x k)
-bounded-nat-Fin {k} x = pair (nat-Fin x) (strict-upper-bound-nat-Fin x)
+  (k : ℕ) → Fin k → bounded-ℕ k
+bounded-nat-Fin k x = pair (nat-Fin x) (strict-upper-bound-nat-Fin x)
 
--- We still need to construct the identifications stated in the exercise
+{- We show that these maps are mutual inverses -}
+
+issec-bounded-nat-Fin :
+  {k : ℕ} (x : Fin k) → Id (fin-bounded-ℕ (bounded-nat-Fin k x)) x
+issec-bounded-nat-Fin {succ-ℕ k} x = issec-nat-Fin x
+
+isretr-bounded-nat-Fin :
+  {k : ℕ} (x : bounded-ℕ k) → Id (bounded-nat-Fin k (fin-bounded-ℕ x)) x
+isretr-bounded-nat-Fin {succ-ℕ k} (pair x p) =
+  eq-Eq-bounded-ℕ (succ-ℕ k)
+    ( bounded-nat-Fin (succ-ℕ k) (fin-bounded-ℕ (pair x p)))
+    ( pair x p)
+    ( eq-cong-le-ℕ
+      ( succ-ℕ k)
+      ( nat-Fin (mod-succ-ℕ k x))
+      ( x)
+      ( strict-upper-bound-nat-Fin (mod-succ-ℕ k x))
+      ( p)
+      ( cong-nat-mod-succ-ℕ k x))
 
 {- Exercise 7.7 -}
 
