@@ -55,3 +55,40 @@ eq-Eq-based-ℕ
   ( pair e f) with eq-Eq-Fin {succ-ℕ k} {x} {y} e
 ... | refl =
   ap (unary-op-based-ℕ (succ-ℕ k) x) (eq-Eq-based-ℕ (succ-ℕ k) n m f)
+
+--------------------------------------------------------------------------------
+
+add-based-ℕ : {k : ℕ} → based-ℕ k → based-ℕ k → based-ℕ k
+add-based-ℕ {succ-ℕ k}
+  ( constant-based-ℕ .(succ-ℕ k) x)
+  ( constant-based-ℕ .(succ-ℕ k) y) with
+  is-decidable-le-ℕ (add-ℕ (nat-Fin x) (nat-Fin y)) (succ-ℕ k)
+... | inl t = constant-based-ℕ (succ-ℕ k) (add-Fin x y)
+... | inr f = unary-op-based-ℕ (succ-ℕ k) (add-Fin x y) (zero-based-ℕ k)
+add-based-ℕ {succ-ℕ k}
+  ( constant-based-ℕ .(succ-ℕ k) x)
+  ( unary-op-based-ℕ .(succ-ℕ k) y m) with
+  is-decidable-le-ℕ (add-ℕ (nat-Fin x) (nat-Fin y)) (succ-ℕ k)
+... | inl t = unary-op-based-ℕ (succ-ℕ k) (add-Fin x y) m
+... | inr f =
+  unary-op-based-ℕ (succ-ℕ k) (add-Fin x y) (succ-based-ℕ (succ-ℕ k) m)
+add-based-ℕ {succ-ℕ k}
+  ( unary-op-based-ℕ .(succ-ℕ k) x n)
+  ( constant-based-ℕ .(succ-ℕ k) y) with
+  is-decidable-le-ℕ (add-ℕ (nat-Fin x) (nat-Fin y)) (succ-ℕ k)
+... | inl t = unary-op-based-ℕ (succ-ℕ k) (add-Fin x y) n
+... | inr f =
+  unary-op-based-ℕ (succ-ℕ k) (add-Fin x y) (succ-based-ℕ (succ-ℕ k) n)
+add-based-ℕ {succ-ℕ k}
+  ( unary-op-based-ℕ .(succ-ℕ k) x n)
+  ( unary-op-based-ℕ .(succ-ℕ k) y m) with
+  is-decidable-le-ℕ (add-ℕ (nat-Fin x) (nat-Fin y)) (succ-ℕ k)
+... | inl t = unary-op-based-ℕ (succ-ℕ k) (add-Fin x y) (add-based-ℕ n m)
+... | inr f =
+  unary-op-based-ℕ (succ-ℕ k)
+    ( add-Fin x y)
+    ( succ-based-ℕ (succ-ℕ k) (add-based-ℕ n m))
+
+last-digit-based-ℕ : {k : ℕ} → based-ℕ k → Fin k
+last-digit-based-ℕ {k} (constant-based-ℕ .k x) = x
+last-digit-based-ℕ {k} (unary-op-based-ℕ .k x n) = x
