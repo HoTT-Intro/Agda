@@ -34,3 +34,5 @@ open import book.25-cubical-diagrams public
 open import book.26-descent public
 open import book.26-id-pushout public
 open import book.27-sequences public
+open import book.b-systems public
+open import book.W-types public

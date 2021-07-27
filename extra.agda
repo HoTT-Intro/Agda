@@ -2,7 +2,6 @@
 
 module extra where
 
-open import extra.W-types public
 open import extra.abelian-groups public
 open import extra.abelian-subgroups public
 open import extra.categories public

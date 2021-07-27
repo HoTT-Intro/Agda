@@ -1,9 +1,8 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module extra.W-types where
+module book.W-types where
 
-import book
-open book public
+open import book.b-systems public
 
 --------------------------------------------------------------------------------
 
