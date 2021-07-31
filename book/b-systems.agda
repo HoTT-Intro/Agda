@@ -1,9 +1,8 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module type-theories.b-systems where
+module book.b-systems where
 
-import book
-open book public
+open import book.27-sequences public
 
 module B where
   

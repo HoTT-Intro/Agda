@@ -7,11 +7,11 @@ open book.12-truncation-levels public
 
 --------------------------------------------------------------------------------
 
--- Section 12.1 Equivalent forms of Function Extensionality.
+-- Section 13.1 Equivalent forms of Function Extensionality.
 
--- Proposition 12.1.1
+-- Proposition 13.1.1
 
--- Proposition 12.1.1, condition (i)
+-- Proposition 13.1.1, condition (i)
 
 htpy-eq :
   {i j : Level} {A : UU i} {B : A → UU j} {f g : (x : A) → B x} →
@@ -23,7 +23,7 @@ FUNEXT :
   (f : (x : A) → B x) → UU (i ⊔ j)
 FUNEXT f = is-fiberwise-equiv (λ g → htpy-eq {f = f} {g = g})
 
--- Proposition 12.1.1, condition (iii)
+-- Proposition 13.1.1, condition (iii)
 
 ev-refl-htpy :
   {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2}
@@ -37,7 +37,7 @@ IND-HTPY :
 IND-HTPY {l1} {l2} {l3} {A} {B} f =
   (C : (g : (x : A) → B x) → (f ~ g) → UU l3) → sec (ev-refl-htpy f C)
 
--- Proposition 12.1.1, (i) implies (ii)
+-- Proposition 13.1.1, (i) implies (ii)
 
 abstract
   is-contr-total-htpy-FUNEXT :
@@ -46,7 +46,7 @@ abstract
   is-contr-total-htpy-FUNEXT f funext-f =
     fundamental-theorem-id' f refl-htpy (λ g → htpy-eq {g = g}) funext-f
 
--- Proposition 12.1.1, (i) implies (iii)
+-- Proposition 13.1.1, (i) implies (iii)
 
 abstract
   IND-HTPY-FUNEXT :
@@ -57,7 +57,7 @@ abstract
       ( refl-htpy)
       ( is-contr-total-htpy-FUNEXT f funext-f)
 
--- Proposition 12.1.1, (iii) implies (i)
+-- Proposition 13.1.1, (iii) implies (i)
 
 abstract
   FUNEXT-IND-HTPY :
@@ -69,7 +69,7 @@ abstract
       ( ind-htpy-f)
       ( λ g → htpy-eq)
 
--- Theorem 12.1.4
+-- Theorem 13.1.4
 
 WEAK-FUNEXT :
   {i j : Level} (A : UU i) (B : A → UU j) → UU (i ⊔ j)
@@ -196,7 +196,7 @@ abstract
     ((x : A) → is-contr (B x)) → is-contr ((x : A) → B x)
   is-contr-Π {A = A} {B = B} = WEAK-FUNEXT-FUNEXT (λ X Y → funext) A B
 
--- Theorem 12.1.5
+-- Theorem 13.1.5
 
 abstract
   is-trunc-Π :
@@ -241,7 +241,7 @@ abstract
     ((x : A) → is-1-type (B x)) → is-1-type ((x : A) → B x)
   is-1-type-Π = is-trunc-Π one-𝕋
 
--- Corollary 12.1.6
+-- Corollary 13.1.6
 
 abstract
   is-trunc-function-type :
@@ -528,7 +528,7 @@ hom-Truncated-Type k A B =
 
 --------------------------------------------------------------------------------
 
--- Section 12.2 The type theoretic principle of choice
+-- Section 13.2 Identity systems on Π-types
 
 {- The type theoretic principle of choice is the assertion that Π distributes
    over Σ. In other words, there is an equivalence
@@ -550,9 +550,6 @@ type-choice-∞ :
   {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2}
   (C : (x : A) → B x → UU l3) → UU (l1 ⊔ (l2 ⊔ l3))
 type-choice-∞ {A = A} {B} C = Σ ((x : A) → B x) (λ f → (x : A) → C x (f x))
-
-{- We compute the identity type of Π-total-fam. Note that its characterization
-   is again of the form Π-total-fam. -}
 
 {- We compute the identity type of type-choice-∞. Note that its identity 
    type is again of the form type-choice-∞. -}
@@ -602,14 +599,12 @@ abstract
   eq-Eq-type-choice-∞ C {t} {t'} =
     map-inv-is-equiv (is-equiv-Eq-type-choice-∞-eq C t t')
 
--- We define the map choice-∞, which is not given its own definition environment
+-- Theorem 13.2.1
 
 choice-∞ :
   {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {C : (x : A) → B x → UU l3} →
   Π-total-fam C → type-choice-∞ C
 choice-∞ φ = pair (λ x → pr1 (φ x)) (λ x → pr2 (φ x))
-
--- Theorem 12.2.1
 
 inv-choice-∞ :
   {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {C : (x : A) → B x → UU l3} →
@@ -645,6 +640,11 @@ equiv-choice-∞ :
   Π-total-fam C ≃ type-choice-∞ C
 equiv-choice-∞ = pair choice-∞ is-equiv-choice-∞
 
+distributive-Π-Σ :
+  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {C : (x : A) → B x → UU l3} →
+  Π-total-fam C ≃ type-choice-∞ C
+distributive-Π-Σ = equiv-choice-∞
+
 abstract
   is-equiv-inv-choice-∞ :
     {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {C : (x : A) → B x → UU l3} →
@@ -660,7 +660,12 @@ equiv-inv-choice-∞ :
   (type-choice-∞ C) ≃ (Π-total-fam C)
 equiv-inv-choice-∞ C = pair inv-choice-∞ is-equiv-inv-choice-∞
 
--- Corollary 12.2.2
+inv-distributive-Π-Σ :
+  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} (C : (x : A) → B x → UU l3) →
+  (type-choice-∞ C) ≃ (Π-total-fam C)
+inv-distributive-Π-Σ = equiv-inv-choice-∞
+
+-- Corollary 13.2.2
 
 mapping-into-Σ :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : B → UU l3} →
@@ -727,7 +732,9 @@ eq-Eq-Π-total-fam :
   (t t' : (a : A) → Σ (B a) (C a)) → Eq-Π-total-fam C t t' → Id t t'
 eq-Eq-Π-total-fam C t t' = map-inv-is-equiv (is-equiv-Eq-Π-total-fam-eq C t t')
 
--- Corollary 12.2.3
+-- Corollary 13.2.3
+
+-- Theorem 13.2.4
 
 is-contr-total-Eq-Π :
   { l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} (C : (x : A) → B x → UU l3) →
@@ -741,9 +748,9 @@ is-contr-total-Eq-Π {A = A} {B} C is-contr-total-C =
 
 --------------------------------------------------------------------------------
 
--- Section 12.3 Universal properties
+-- Section 13.3 Universal properties
 
--- Theorem 12.3.1
+-- Theorem 13.3.1
 
 abstract
   is-equiv-ev-pair :
@@ -763,9 +770,9 @@ equiv-ev-pair :
   ((x : Σ A B) → C x) ≃ ((a : A) (b : B a) → C (pair a b))
 equiv-ev-pair = pair ev-pair is-equiv-ev-pair
 
--- Corollary 12.3.2
+-- Corollary 13.3.2
 
--- Theorem 12.3.3
+-- Theorem 13.3.3
 
 ev-refl :
   {l1 l2 : Level} {A : UU l1} (a : A) {B : (x : A) → Id a x → UU l2} →
@@ -793,14 +800,14 @@ equiv-ev-refl a = pair (ev-refl a) (is-equiv-ev-refl a)
 
 --------------------------------------------------------------------------------
 
--- Section 12.4 Composing with equivalences.
+-- Section 13.4 Composing with equivalences.
 
 precomp-Π :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (f : A → B) (C : B → UU l3) →
   ((b : B) → C b) → ((a : A) → C (f a))
 precomp-Π f C h a = h (f a)
 
--- Theorem 12.4.1
+-- Theorem 13.4.1
 
 tr-precompose-fam :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (C : B → UU l3)
@@ -927,7 +934,7 @@ abstract
 
 --------------------------------------------------------------------------------
 
--- Section 12.5 The strong induction principle of ℕ
+-- Section 13.5 The strong induction principle of ℕ
 
 -- We prove that the induction principle for ℕ implies strong induction.
 
