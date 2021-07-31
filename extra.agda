@@ -10,6 +10,7 @@ open import extra.cofibonacci public
 open import extra.combinatorial-objects public
 open import extra.dependent-preorders public
 open import extra.dn-sheaves public
+open import extra.Euclidean-algorithm public
 open import extra.final-coalgebras public
 open import extra.flat-modality public
 open import extra.free-group public
