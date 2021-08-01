@@ -2253,3 +2253,175 @@ is-finite-im f e d =
     {!!}
     {!!}
     {!!}
+
+--------------------------------------------------------------------------------
+
+-- Exercises
+
+--------------------------------------------------------------------------------
+
+-- Exercise 16.15
+
+is-inl-Fin : {k : ℕ} → Fin (succ-ℕ k) → UU lzero
+is-inl-Fin {k} x = Σ (Fin k) (λ y → Id (inl y) x)
+
+is-star-Fin : {k : ℕ} → Fin (succ-ℕ k) → UU lzero
+is-star-Fin x = Id (inr star) x
+
+is-star-is-not-inl-Fin :
+  {k : ℕ} (x : Fin (succ-ℕ k)) → ¬ (is-inl-Fin x) → is-star-Fin x
+is-star-is-not-inl-Fin (inl x) H = ex-falso (H (pair x refl))
+is-star-is-not-inl-Fin (inr star) H = refl
+
+skip-Fin :
+  {k : ℕ} → Fin (succ-ℕ k) → Fin k → Fin (succ-ℕ k)
+skip-Fin {succ-ℕ k} (inl x) (inl y) = inl (skip-Fin x y)
+skip-Fin {succ-ℕ k} (inl x) (inr y) = inr star
+skip-Fin {succ-ℕ k} (inr x) y = inl y
+
+is-injective-skip-Fin :
+  {k : ℕ} (x : Fin (succ-ℕ k)) → is-injective (skip-Fin x)
+is-injective-skip-Fin {succ-ℕ k} (inl x) {inl y} {inl z} p =
+  ap ( inl)
+     ( is-injective-skip-Fin x
+       ( is-injective-is-emb (is-emb-inl (Fin (succ-ℕ k)) unit) p))
+is-injective-skip-Fin {succ-ℕ k} (inl x) {inr star} {inr star} p = refl
+is-injective-skip-Fin {succ-ℕ k} (inr star) {y} {z} p =
+  is-injective-is-emb (is-emb-inl (Fin (succ-ℕ k)) unit) p
+
+is-emb-skip-Fin :
+  {k : ℕ} (x : Fin (succ-ℕ k)) → is-emb (skip-Fin x)
+is-emb-skip-Fin {k} x =
+  is-emb-is-injective
+    ( is-set-Fin (succ-ℕ k))
+    ( is-injective-skip-Fin x)
+
+repeat-Fin :
+  {k : ℕ} (x : Fin k) → Fin (succ-ℕ k) → Fin k
+repeat-Fin {succ-ℕ k} (inl x) (inl y) = inl (repeat-Fin x y)
+repeat-Fin {succ-ℕ k} (inl x) (inr star) = inr star
+repeat-Fin {succ-ℕ k} (inr star) (inl y) = y
+repeat-Fin {succ-ℕ k} (inr star) (inr star) = inr star
+
+is-almost-injective-repeat-Fin :
+  {k : ℕ} (x : Fin k) {y z : Fin (succ-ℕ k)} →
+  ¬ (Id (inl x) y) → ¬ (Id (inl x) z) →
+  Id (repeat-Fin x y) (repeat-Fin x z) → Id y z
+is-almost-injective-repeat-Fin {succ-ℕ k} (inl x) {inl y} {inl z} f g p =
+  ap ( inl)
+     ( is-almost-injective-repeat-Fin x
+       ( λ q → f (ap inl q))
+       ( λ q → g (ap inl q))
+       ( is-injective-inl p))
+is-almost-injective-repeat-Fin {succ-ℕ k} (inl x) {inl y} {inr star} f g p =
+  ex-falso (Eq-Fin-eq p)
+is-almost-injective-repeat-Fin {succ-ℕ k} (inl x) {inr star} {inl z} f g p =
+  ex-falso (Eq-Fin-eq p)
+is-almost-injective-repeat-Fin {succ-ℕ k} (inl x) {inr star} {inr star} f g p =
+  refl
+is-almost-injective-repeat-Fin {succ-ℕ k} (inr star) {inl y} {inl z} f g p =
+  ap inl p
+is-almost-injective-repeat-Fin {succ-ℕ k} (inr star) {inl y} {inr star} f g p =
+  ex-falso (f (ap inl (inv p)))
+is-almost-injective-repeat-Fin {succ-ℕ k} (inr star) {inr star} {inl z} f g p =
+  ex-falso (g (ap inl p))
+is-almost-injective-repeat-Fin
+  {succ-ℕ k} (inr star) {inr star} {inr star} f g p = refl
+
+is-decidable-is-inl-Fin :
+  {k : ℕ} (x : Fin (succ-ℕ k)) → is-decidable (is-inl-Fin x)
+is-decidable-is-inl-Fin (inl x) = inl (pair x refl)
+is-decidable-is-inl-Fin (inr star) = inr α
+  where
+  α : is-inl-Fin (inr star) → empty
+  α (pair y p) = Eq-Fin-eq p 
+
+cases-map-reduce-emb-Fin :
+  {k l : ℕ} (f : Fin (succ-ℕ k) ↪ Fin (succ-ℕ l)) →
+  is-decidable (is-inl-Fin (map-emb f (inr star))) → (x : Fin k) →
+  is-decidable (is-inl-Fin (map-emb f (inl x))) → Fin l
+cases-map-reduce-emb-Fin f (inl (pair t p)) x d = repeat-Fin t (map-emb f (inl x))
+cases-map-reduce-emb-Fin f (inr g) x (inl (pair y p)) = y
+cases-map-reduce-emb-Fin f (inr g) x (inr h) =
+  ex-falso (Eq-Fin-eq (is-injective-emb f ((inv p) ∙ q)))
+  where
+  p : is-star-Fin (map-emb f (inr star))
+  p = is-star-is-not-inl-Fin (map-emb f (inr star)) g
+  q : is-star-Fin (map-emb f (inl x))
+  q = is-star-is-not-inl-Fin (map-emb f (inl x)) h
+
+map-reduce-emb-Fin :
+  {k l : ℕ} (f : Fin (succ-ℕ k) ↪ Fin (succ-ℕ l)) → Fin k → Fin l
+map-reduce-emb-Fin f x =
+  cases-map-reduce-emb-Fin f
+    ( is-decidable-is-inl-Fin (map-emb f (inr star)))
+    ( x)
+    ( is-decidable-is-inl-Fin (map-emb f (inl x)))
+
+is-injective-cases-map-reduce-emb-Fin :
+  {k l : ℕ} (f : Fin (succ-ℕ k) ↪ Fin (succ-ℕ l))
+  (d : is-decidable (is-inl-Fin (map-emb f (inr star))))
+  (x : Fin k) (e : is-decidable (is-inl-Fin (map-emb f (inl x))))
+  (x' : Fin k) (e' : is-decidable  (is-inl-Fin (map-emb f (inl x')))) →
+  Id (cases-map-reduce-emb-Fin f d x e) (cases-map-reduce-emb-Fin f d x' e') →
+  Id x x'
+is-injective-cases-map-reduce-emb-Fin f (inl (pair t q)) x e x' e' p =
+  is-injective-inl
+    ( is-injective-is-emb
+      ( is-emb-map-emb f)
+      ( is-almost-injective-repeat-Fin t
+        ( λ α → Eq-Fin-eq (is-injective-emb f ((inv q) ∙ α)))
+        ( λ α → Eq-Fin-eq (is-injective-emb f ((inv q) ∙ α)))
+        ( p)))
+is-injective-cases-map-reduce-emb-Fin
+  f (inr g) x (inl (pair y q)) x' (inl (pair y' q')) p =
+  is-injective-inl (is-injective-emb f ((inv q) ∙ (ap inl p ∙ q')))
+is-injective-cases-map-reduce-emb-Fin
+  f (inr g) x (inl (pair y q)) x' (inr h) p =
+  ex-falso
+   ( Eq-Fin-eq
+     ( is-injective-emb f
+       ( ( inv (is-star-is-not-inl-Fin (pr1 f (inr star)) g)) ∙
+         ( is-star-is-not-inl-Fin (pr1 f (inl x')) h))))
+is-injective-cases-map-reduce-emb-Fin
+  f (inr g) x (inr h) x' (inl (pair y' q')) p =
+  ex-falso
+    ( Eq-Fin-eq
+      ( is-injective-emb f
+        ( ( inv (is-star-is-not-inl-Fin (pr1 f (inr star)) g)) ∙
+          ( is-star-is-not-inl-Fin (pr1 f (inl x)) h))))
+is-injective-cases-map-reduce-emb-Fin f (inr g) x (inr h) x' (inr k) p =
+  ex-falso
+    ( Eq-Fin-eq
+      ( is-injective-emb f
+        ( ( inv (is-star-is-not-inl-Fin (pr1 f (inr star)) g)) ∙
+          ( is-star-is-not-inl-Fin (pr1 f (inl x)) h))))
+
+is-injective-map-reduce-emb-Fin :
+  {k l : ℕ} (f : Fin (succ-ℕ k) ↪ Fin (succ-ℕ l)) →
+  is-injective (map-reduce-emb-Fin f)
+is-injective-map-reduce-emb-Fin f {x} {y} =
+  is-injective-cases-map-reduce-emb-Fin f
+    ( is-decidable-is-inl-Fin (map-emb f (inr star)))
+    ( x)
+    ( is-decidable-is-inl-Fin (map-emb f (inl x)))
+    ( y)
+    ( is-decidable-is-inl-Fin (map-emb f (inl y)))
+
+is-emb-map-reduce-emb-Fin :
+  {k l : ℕ} (f : Fin (succ-ℕ k) ↪ Fin (succ-ℕ l)) →
+  is-emb (map-reduce-emb-Fin f)
+is-emb-map-reduce-emb-Fin f =
+  is-emb-is-injective (is-set-Fin _) (is-injective-map-reduce-emb-Fin f)
+
+reduce-emb-Fin :
+  (k l : ℕ) → Fin (succ-ℕ k) ↪ Fin (succ-ℕ l) → Fin k ↪ Fin l
+reduce-emb-Fin k l f =
+  pair (map-reduce-emb-Fin f) (is-emb-map-reduce-emb-Fin f)
+
+leq-emb-Fin :
+  (k l : ℕ) → Fin k ↪ Fin l → k ≤-ℕ l
+leq-emb-Fin zero-ℕ zero-ℕ f = refl-leq-ℕ zero-ℕ
+leq-emb-Fin (succ-ℕ k) zero-ℕ f = ex-falso (map-emb f (inr star))
+leq-emb-Fin zero-ℕ (succ-ℕ l) f = leq-zero-ℕ (succ-ℕ l)
+leq-emb-Fin (succ-ℕ k) (succ-ℕ l) f = leq-emb-Fin k l (reduce-emb-Fin k l f)

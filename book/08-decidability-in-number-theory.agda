@@ -1231,6 +1231,10 @@ is-decidable-strictly-bounded-Σ-ℕ' P d m =
     ( m)
     ( λ x → id)
 
+-- Exercise 8.13
+
+-- We solve this exercise in extra/cofibonacci.agda
+
 --------------------------------------------------------------------------------
 
 {- The binary natural numbers -}

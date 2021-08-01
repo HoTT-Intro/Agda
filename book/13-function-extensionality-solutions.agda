@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --exact-split #-}
+{-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
 module book.13-function-extensionality-solutions where
 
@@ -207,63 +207,50 @@ map-inv-sec-pr1-Π :
   sec (pr1 {B = B}) → ((x : A) → B x)
 map-inv-sec-pr1-Π {B = B} s x = tr B (pr2 s x) (pr2 (pr1 s x))
 
+{- We introduce the type hom-coslice -}
+
+module _
+  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3} (f : X → A) (g : X → B)
+  where
+
+  hom-coslice = Σ (A → B) (λ h → (h ∘ f) ~ g)
+
+  map-hom-coslice : hom-coslice → (A → B)
+  map-hom-coslice = pr1
+
+  triangle-map-hom-coslice : (h : hom-coslice) → ((map-hom-coslice h) ∘ f) ~ g
+  triangle-map-hom-coslice = pr2
+
+  htpy-hom-coslice :
+    (h k : hom-coslice) → UU (l1 ⊔ l2 ⊔ l3)
+  htpy-hom-coslice h k =
+    Σ ( map-hom-coslice h ~ map-hom-coslice k)
+      ( λ H → {!!})
+
 {- We characterize the identity type of the type of retractions of f -}
 
-isretr-section-comp :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
-  (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) (sec-h : sec h) →
-  ((section-comp f g h H sec-h) ∘ (section-comp' f g h H sec-h)) ~ id
-isretr-section-comp f g h H (pair k K) (pair l L) =
-  eq-htpy-sec
-    ( ( section-comp f g h H (pair k K) ∘
-        section-comp' f g h H (pair k K))
-      ( pair l L))
-    ( pair l L)
-    ( K ·r l)
-    ( ( inv-htpy
-        ( assoc-htpy
-          ( inv-htpy (H ·r (k ∘ l)))
-          ( H ·r (k ∘ l))
-          ( (g ·l (K ·r l)) ∙h L))) ∙h
-      ( htpy-ap-concat'
-        ( (inv-htpy (H ·r (k ∘ l))) ∙h (H ·r (k ∘ l)))
-        ( refl-htpy)
-        ( (g ·l (K ·r l)) ∙h L)
-        ( left-inv-htpy (H ·r (k ∘ l)))))
-
-sec-left-factor-retract-of-sec-composition :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
-  (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) →
-  sec h → (sec g) retract-of (sec f)
-sec-left-factor-retract-of-sec-composition {X = X} f g h H sec-h =
-  pair
-    ( section-comp' f g h H sec-h)
-    ( pair
-      ( section-comp f g h H sec-h)
-      ( isretr-section-comp f g h H sec-h))
-
-Eq-retr :
+htpy-retr :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
   retr f → retr f → UU (l1 ⊔ l2)
-Eq-retr f retr-f retr-f' =
+htpy-retr f retr-f retr-f' =
   Σ ( (pr1 retr-f) ~ (pr1 retr-f'))
     ( λ H → (pr2 retr-f) ~ ((H ·r f) ∙h (pr2 retr-f')))
 
-reflexive-Eq-retr :
+refl-htpy-retr :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  (retr-f : retr f) → Eq-retr f retr-f retr-f
-reflexive-Eq-retr f (pair h H) = pair refl-htpy refl-htpy
+  (retr-f : retr f) → htpy-retr f retr-f retr-f
+refl-htpy-retr f (pair h H) = pair refl-htpy refl-htpy
 
-Eq-retr-eq :
+htpy-eq-retr :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  (retr-f retr-f' : retr f) → Id retr-f retr-f' → Eq-retr f retr-f retr-f'
-Eq-retr-eq f retr-f .retr-f refl = reflexive-Eq-retr f retr-f
+  (retr-f retr-f' : retr f) → Id retr-f retr-f' → htpy-retr f retr-f retr-f'
+htpy-eq-retr f retr-f .retr-f refl = refl-htpy-retr f retr-f
 
 abstract
-  is-contr-total-Eq-retr :
+  is-contr-total-htpy-retr :
     {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) (retr-f : retr f) →
-    is-contr (Σ (retr f) (Eq-retr f retr-f))
-  is-contr-total-Eq-retr f (pair h H) =
+    is-contr (Σ (retr f) (htpy-retr f retr-f))
+  is-contr-total-htpy-retr f (pair h H) =
     is-contr-total-Eq-structure
       ( λ h' H' K → H ~ ((K ·r f) ∙h H'))
       ( is-contr-total-htpy h)
@@ -271,51 +258,20 @@ abstract
       ( is-contr-total-htpy H)
 
 abstract
-  is-equiv-Eq-retr-eq :
+  is-equiv-htpy-eq-retr :
     {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-    (retr-f retr-f' : retr f) → is-equiv (Eq-retr-eq f retr-f retr-f')
-  is-equiv-Eq-retr-eq f retr-f =
+    (retr-f retr-f' : retr f) → is-equiv (htpy-eq-retr f retr-f retr-f')
+  is-equiv-htpy-eq-retr f retr-f =
     fundamental-theorem-id retr-f
-      ( reflexive-Eq-retr f retr-f)
-      ( is-contr-total-Eq-retr f retr-f)
-      ( Eq-retr-eq f retr-f)
+      ( refl-htpy-retr f retr-f)
+      ( is-contr-total-htpy-retr f retr-f)
+      ( htpy-eq-retr f retr-f)
   
-  eq-Eq-retr :
+  eq-htpy-retr :
     {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-    {retr-f retr-f' : retr f} → Eq-retr f retr-f retr-f' → Id retr-f retr-f'
-  eq-Eq-retr f {retr-f} {retr-f'} =
-    map-inv-is-equiv (is-equiv-Eq-retr-eq f retr-f retr-f')
-
-isretr-retraction-comp :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
-  (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) (retr-g : retr g) →
-  ((retraction-comp f g h H retr-g) ∘ (retraction-comp' f g h H retr-g)) ~ id
-isretr-retraction-comp f g h H (pair l L) (pair k K) =
-  eq-Eq-retr h
-    ( pair
-      ( k ·l L)
-      ( ( inv-htpy
-          ( assoc-htpy
-            ( inv-htpy ((k ∘ l) ·l H))
-            ( (k ∘ l) ·l H)
-            ( (k ·l (L ·r h)) ∙h K))) ∙h
-        ( htpy-ap-concat'
-          ( (inv-htpy ((k ∘ l) ·l H)) ∙h ((k ∘ l) ·l H))
-          ( refl-htpy)
-          ( (k ·l (L ·r h)) ∙h K)
-          ( left-inv-htpy ((k ∘ l) ·l H)))))
-  
-sec-right-factor-retract-of-sec-left-factor :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
-  (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) →
-  retr g → (retr h) retract-of (retr f)
-sec-right-factor-retract-of-sec-left-factor f g h H retr-g =
-  pair
-    ( retraction-comp' f g h H retr-g)
-    ( pair
-      ( retraction-comp f g h H retr-g)
-      ( isretr-retraction-comp f g h H retr-g))
-
+    {retr-f retr-f' : retr f} → htpy-retr f retr-f retr-f' → Id retr-f retr-f'
+  eq-htpy-retr f {retr-f} {retr-f'} =
+    map-inv-is-equiv (is-equiv-htpy-eq-retr f retr-f retr-f')
 
 -- Exercise 13.2
 
@@ -1247,6 +1203,71 @@ is-emb-is-emb-postcomp f is-emb-post-f =
       ( λ A → is-prop-map-is-emb (is-emb-post-f A)))
 
 -- Exercise 13.5
+
+-- Exercise 13.11
+
+isretr-section-comp :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
+  (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) (sec-h : sec h) →
+  ((section-comp f g h H sec-h) ∘ (section-comp' f g h H sec-h)) ~ id
+isretr-section-comp f g h H (pair k K) (pair l L) =
+  eq-htpy-sec
+    ( ( section-comp f g h H (pair k K) ∘
+        section-comp' f g h H (pair k K))
+      ( pair l L))
+    ( pair l L)
+    ( K ·r l)
+    ( ( inv-htpy
+        ( assoc-htpy
+          ( inv-htpy (H ·r (k ∘ l)))
+          ( H ·r (k ∘ l))
+          ( (g ·l (K ·r l)) ∙h L))) ∙h
+      ( htpy-ap-concat'
+        ( (inv-htpy (H ·r (k ∘ l))) ∙h (H ·r (k ∘ l)))
+        ( refl-htpy)
+        ( (g ·l (K ·r l)) ∙h L)
+        ( left-inv-htpy (H ·r (k ∘ l)))))
+
+sec-left-factor-retract-of-sec-composition :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
+  (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) →
+  sec h → (sec g) retract-of (sec f)
+sec-left-factor-retract-of-sec-composition {X = X} f g h H sec-h =
+  pair
+    ( section-comp' f g h H sec-h)
+    ( pair
+      ( section-comp f g h H sec-h)
+      ( isretr-section-comp f g h H sec-h))
+
+isretr-retraction-comp :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
+  (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) (retr-g : retr g) →
+  ((retraction-comp f g h H retr-g) ∘ (retraction-comp' f g h H retr-g)) ~ id
+isretr-retraction-comp f g h H (pair l L) (pair k K) =
+  eq-htpy-retr h
+    ( pair
+      ( k ·l L)
+      ( ( inv-htpy
+          ( assoc-htpy
+            ( inv-htpy ((k ∘ l) ·l H))
+            ( (k ∘ l) ·l H)
+            ( (k ·l (L ·r h)) ∙h K))) ∙h
+        ( htpy-ap-concat'
+          ( (inv-htpy ((k ∘ l) ·l H)) ∙h ((k ∘ l) ·l H))
+          ( refl-htpy)
+          ( (k ·l (L ·r h)) ∙h K)
+          ( left-inv-htpy ((k ∘ l) ·l H)))))
+  
+sec-right-factor-retract-of-sec-left-factor :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
+  (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) →
+  retr g → (retr h) retract-of (retr f)
+sec-right-factor-retract-of-sec-left-factor f g h H retr-g =
+  pair
+    ( retraction-comp' f g h H retr-g)
+    ( pair
+      ( retraction-comp f g h H retr-g)
+      ( isretr-retraction-comp f g h H retr-g))
 
 -- Exercise 13.13
 

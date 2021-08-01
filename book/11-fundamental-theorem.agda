@@ -848,6 +848,60 @@ abstract
     {i : Level} (A : UU i) → is-emb (ex-falso {A = A})
   is-emb-ex-falso A ()
 
+abstract
+  is-emb-inl :
+    {i j : Level} (A : UU i) (B : UU j) → is-emb (inl {A = A} {B = B})
+  is-emb-inl A B x =
+    fundamental-theorem-id x refl
+      ( is-contr-is-equiv
+        ( Σ A (λ y → Eq-coprod A B (inl x) (inl y)))
+        ( tot (λ y → Eq-coprod-eq A B (inl x) (inl y)))
+        ( is-equiv-tot-is-fiberwise-equiv
+          ( λ y → is-equiv-Eq-coprod-eq A B (inl x) (inl y)))
+        ( is-contr-equiv'
+          ( Σ A (Id x))
+          ( equiv-tot (λ y → equiv-raise _ (Id x y)))
+          ( is-contr-total-path x)))
+      ( λ y → ap inl)
+
+abstract
+  is-emb-inr :
+    {i j : Level} (A : UU i) (B : UU j) → is-emb (inr {A = A} {B = B})
+  is-emb-inr A B x =
+    fundamental-theorem-id x refl
+      ( is-contr-is-equiv
+        ( Σ B (λ y → Eq-coprod A B (inr x) (inr y)))
+        ( tot (λ y → Eq-coprod-eq A B (inr x) (inr y)))
+        ( is-equiv-tot-is-fiberwise-equiv
+          ( λ y → is-equiv-Eq-coprod-eq A B (inr x) (inr y)))
+        ( is-contr-equiv'
+          ( Σ B (Id x))
+          ( equiv-tot (λ y → equiv-raise _ (Id x y)))
+          ( is-contr-total-path x)))
+      ( λ y → ap inr)
+
+is-empty-right-summand-is-equiv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} → is-equiv (inl {A = A} {B = B}) →
+  is-empty B
+is-empty-right-summand-is-equiv {A = A} {B} H b =
+  map-inv-raise
+    ( Eq-coprod-eq A B
+      ( inl (pr1 (center (is-contr-map-is-equiv H (inr b)))))
+      ( inr b)
+      ( pr2 (center (is-contr-map-is-equiv H (inr b)))))
+
+is-empty-left-summand-is-equiv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} → is-equiv (inr {A = A} {B = B}) →
+  is-empty A
+is-empty-left-summand-is-equiv {A = A} {B} H a =
+  map-inv-raise
+    ( Eq-coprod-eq A B
+      ( inr (pr1 (center (is-contr-map-is-equiv H (inl a)))))
+      ( inl a)
+      ( pr2 (center (is-contr-map-is-equiv H (inl a)))))
+
+-- Exercise 11.2
+
 -- Exercise 11.2
 
 eq-transpose-equiv :
@@ -1011,38 +1065,6 @@ abstract
       ( is-emb-f)
 
 -- Exercise 11.5
-
-abstract
-  is-emb-inl :
-    {i j : Level} (A : UU i) (B : UU j) → is-emb (inl {A = A} {B = B})
-  is-emb-inl A B x =
-    fundamental-theorem-id x refl
-      ( is-contr-is-equiv
-        ( Σ A (λ y → Eq-coprod A B (inl x) (inl y)))
-        ( tot (λ y → Eq-coprod-eq A B (inl x) (inl y)))
-        ( is-equiv-tot-is-fiberwise-equiv
-          ( λ y → is-equiv-Eq-coprod-eq A B (inl x) (inl y)))
-        ( is-contr-equiv'
-          ( Σ A (Id x))
-          ( equiv-tot (λ y → equiv-raise _ (Id x y)))
-          ( is-contr-total-path x)))
-      ( λ y → ap inl)
-
-abstract
-  is-emb-inr :
-    {i j : Level} (A : UU i) (B : UU j) → is-emb (inr {A = A} {B = B})
-  is-emb-inr A B x =
-    fundamental-theorem-id x refl
-      ( is-contr-is-equiv
-        ( Σ B (λ y → Eq-coprod A B (inr x) (inr y)))
-        ( tot (λ y → Eq-coprod-eq A B (inr x) (inr y)))
-        ( is-equiv-tot-is-fiberwise-equiv
-          ( λ y → is-equiv-Eq-coprod-eq A B (inr x) (inr y)))
-        ( is-contr-equiv'
-          ( Σ B (Id x))
-          ( equiv-tot (λ y → equiv-raise _ (Id x y)))
-          ( is-contr-total-path x)))
-      ( λ y → ap inr)
 
 -- Exercise 11.6
 
@@ -1273,12 +1295,6 @@ abstract
 -- Extra material
 
 -- Equivalent finite sets have the same cardinality
-
-skip-Fin :
-  {n : ℕ} → Fin (succ-ℕ n) → Fin n → Fin (succ-ℕ n)
-skip-Fin {succ-ℕ n} (inl x) (inl y) = inl (skip-Fin x y)
-skip-Fin {succ-ℕ n} (inl x) (inr y) = inr star
-skip-Fin {succ-ℕ n} (inr x) y = inl y
 
 swap-top-two-Fin :
   {n : ℕ} → Fin (succ-ℕ (succ-ℕ n)) → Fin (succ-ℕ (succ-ℕ n))
