@@ -84,6 +84,243 @@ equiv-concat-htpy' f K =
 
 -- Exercise 13.2 (a)
 
+hom-slice :
+  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
+  (f : A → X) (g : B → X) → UU (l1 ⊔ (l2 ⊔ l3))
+hom-slice {A = A} {B} f g = Σ (A → B) (λ h → f ~ (g ∘ h))
+
+map-hom-slice :
+  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
+  (f : A → X) (g : B → X) → hom-slice f g → A → B
+map-hom-slice f g h = pr1 h
+
+triangle-hom-slice :
+  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
+  (f : A → X) (g : B → X) (h : hom-slice f g) →
+  f ~ (g ∘ (map-hom-slice f g h))
+triangle-hom-slice f g h = pr2 h
+
+{- We characterize the identity type of hom-slice -}
+
+htpy-hom-slice :
+  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
+  (f : A → X) (g : B → X) (h h' : hom-slice f g) → UU (l1 ⊔ l2 ⊔ l3)
+htpy-hom-slice f g h h' =
+  Σ ( map-hom-slice f g h ~ map-hom-slice f g h')
+    ( λ K →
+      ( (triangle-hom-slice f g h) ∙h (g ·l K)) ~
+      ( triangle-hom-slice f g h'))
+
+refl-htpy-hom-slice :
+  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
+  (f : A → X) (g : B → X) (h : hom-slice f g) →
+  htpy-hom-slice f g h h
+refl-htpy-hom-slice f g h = pair refl-htpy right-unit-htpy
+
+htpy-hom-slice-eq :
+  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
+  (f : A → X) (g : B → X) (h h' : hom-slice f g) →
+  Id h h' → htpy-hom-slice f g h h'
+htpy-hom-slice-eq f g h .h refl = refl-htpy-hom-slice f g h
+
+is-contr-total-htpy-hom-slice :
+  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
+  (f : A → X) (g : B → X) (h : hom-slice f g) →
+  is-contr (Σ (hom-slice f g) (htpy-hom-slice f g h))
+is-contr-total-htpy-hom-slice f g h =
+  is-contr-total-Eq-structure
+    ( λ h' H' K → ((triangle-hom-slice f g h) ∙h (g ·l K)) ~ H')
+    ( is-contr-total-htpy (map-hom-slice f g h))
+    ( pair (map-hom-slice f g h) refl-htpy)
+    ( is-contr-equiv'
+      ( Σ ( f ~ (g ∘ (map-hom-slice f g h)))
+          ( λ H' → (triangle-hom-slice f g h) ~ H'))
+      ( equiv-tot (equiv-concat-htpy right-unit-htpy))
+      ( is-contr-total-htpy (triangle-hom-slice f g h)))
+
+is-equiv-htpy-hom-slice-eq :
+  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
+  (f : A → X) (g : B → X) (h h' : hom-slice f g) →
+  is-equiv (htpy-hom-slice-eq f g h h')
+is-equiv-htpy-hom-slice-eq f g h =
+  fundamental-theorem-id h
+    ( refl-htpy-hom-slice f g h)
+    ( is-contr-total-htpy-hom-slice f g h)
+    ( htpy-hom-slice-eq f g h)
+
+eq-htpy-hom-slice :
+  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
+  (f : A → X) (g : B → X) (h h' : hom-slice f g) →
+  htpy-hom-slice f g h h' → Id h h'
+eq-htpy-hom-slice f g h h' = map-inv-is-equiv (is-equiv-htpy-hom-slice-eq f g h h')
+
+{- We characterize the identity type of the type of sections of a map -}
+
+htpy-sec :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B)
+  (s t : sec f) → UU (l1 ⊔ l2)
+htpy-sec f s t = Σ (pr1 s ~ pr1 t) (λ H → pr2 s ~ ((f ·l H) ∙h pr2 t))
+
+refl-htpy-sec :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  (s : sec f) → htpy-sec f s s
+refl-htpy-sec f s = pair refl-htpy refl-htpy
+
+htpy-eq-sec :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  (s t : sec f) → Id s t → htpy-sec f s t
+htpy-eq-sec f s .s refl = refl-htpy-sec f s
+
+is-contr-total-htpy-sec :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) (s : sec f) →
+  is-contr (Σ (sec f) (htpy-sec f s))
+is-contr-total-htpy-sec f s =
+  is-contr-total-Eq-structure
+    ( λ g G H → pr2 s ~ ((f ·l H) ∙h G))
+    ( is-contr-total-htpy (pr1 s))
+    ( pair (pr1 s) refl-htpy)
+    ( is-contr-total-htpy (pr2 s))
+
+is-equiv-htpy-eq-sec :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  (s t : sec f) → is-equiv (htpy-eq-sec f s t)
+is-equiv-htpy-eq-sec f s =
+  fundamental-theorem-id s
+    ( refl-htpy-sec f s)
+    ( is-contr-total-htpy-sec f s)
+    ( htpy-eq-sec f s)
+
+eq-htpy-sec :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} (s t : sec f) →
+  (H : (pr1 s) ~ (pr1 t)) (K : (pr2 s) ~ ((f ·l H) ∙h (pr2 t))) →
+  Id s t
+eq-htpy-sec {f = f} s t H K =
+  map-inv-is-equiv (is-equiv-htpy-eq-sec f s t) (pair H K)
+
+sec-pr1-Π :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  ((x : A) → B x) → sec (pr1 {B = B})
+sec-pr1-Π f = pair (λ x → pair x (f x)) refl-htpy
+
+map-inv-sec-pr1-Π :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  sec (pr1 {B = B}) → ((x : A) → B x)
+map-inv-sec-pr1-Π {B = B} s x = tr B (pr2 s x) (pr2 (pr1 s x))
+
+{- We characterize the identity type of the type of retractions of f -}
+
+isretr-section-comp :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
+  (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) (sec-h : sec h) →
+  ((section-comp f g h H sec-h) ∘ (section-comp' f g h H sec-h)) ~ id
+isretr-section-comp f g h H (pair k K) (pair l L) =
+  eq-htpy-sec
+    ( ( section-comp f g h H (pair k K) ∘
+        section-comp' f g h H (pair k K))
+      ( pair l L))
+    ( pair l L)
+    ( K ·r l)
+    ( ( inv-htpy
+        ( assoc-htpy
+          ( inv-htpy (H ·r (k ∘ l)))
+          ( H ·r (k ∘ l))
+          ( (g ·l (K ·r l)) ∙h L))) ∙h
+      ( htpy-ap-concat'
+        ( (inv-htpy (H ·r (k ∘ l))) ∙h (H ·r (k ∘ l)))
+        ( refl-htpy)
+        ( (g ·l (K ·r l)) ∙h L)
+        ( left-inv-htpy (H ·r (k ∘ l)))))
+
+sec-left-factor-retract-of-sec-composition :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
+  (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) →
+  sec h → (sec g) retract-of (sec f)
+sec-left-factor-retract-of-sec-composition {X = X} f g h H sec-h =
+  pair
+    ( section-comp' f g h H sec-h)
+    ( pair
+      ( section-comp f g h H sec-h)
+      ( isretr-section-comp f g h H sec-h))
+
+Eq-retr :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  retr f → retr f → UU (l1 ⊔ l2)
+Eq-retr f retr-f retr-f' =
+  Σ ( (pr1 retr-f) ~ (pr1 retr-f'))
+    ( λ H → (pr2 retr-f) ~ ((H ·r f) ∙h (pr2 retr-f')))
+
+reflexive-Eq-retr :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  (retr-f : retr f) → Eq-retr f retr-f retr-f
+reflexive-Eq-retr f (pair h H) = pair refl-htpy refl-htpy
+
+Eq-retr-eq :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  (retr-f retr-f' : retr f) → Id retr-f retr-f' → Eq-retr f retr-f retr-f'
+Eq-retr-eq f retr-f .retr-f refl = reflexive-Eq-retr f retr-f
+
+abstract
+  is-contr-total-Eq-retr :
+    {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) (retr-f : retr f) →
+    is-contr (Σ (retr f) (Eq-retr f retr-f))
+  is-contr-total-Eq-retr f (pair h H) =
+    is-contr-total-Eq-structure
+      ( λ h' H' K → H ~ ((K ·r f) ∙h H'))
+      ( is-contr-total-htpy h)
+      ( pair h refl-htpy)
+      ( is-contr-total-htpy H)
+
+abstract
+  is-equiv-Eq-retr-eq :
+    {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+    (retr-f retr-f' : retr f) → is-equiv (Eq-retr-eq f retr-f retr-f')
+  is-equiv-Eq-retr-eq f retr-f =
+    fundamental-theorem-id retr-f
+      ( reflexive-Eq-retr f retr-f)
+      ( is-contr-total-Eq-retr f retr-f)
+      ( Eq-retr-eq f retr-f)
+  
+  eq-Eq-retr :
+    {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+    {retr-f retr-f' : retr f} → Eq-retr f retr-f retr-f' → Id retr-f retr-f'
+  eq-Eq-retr f {retr-f} {retr-f'} =
+    map-inv-is-equiv (is-equiv-Eq-retr-eq f retr-f retr-f')
+
+isretr-retraction-comp :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
+  (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) (retr-g : retr g) →
+  ((retraction-comp f g h H retr-g) ∘ (retraction-comp' f g h H retr-g)) ~ id
+isretr-retraction-comp f g h H (pair l L) (pair k K) =
+  eq-Eq-retr h
+    ( pair
+      ( k ·l L)
+      ( ( inv-htpy
+          ( assoc-htpy
+            ( inv-htpy ((k ∘ l) ·l H))
+            ( (k ∘ l) ·l H)
+            ( (k ·l (L ·r h)) ∙h K))) ∙h
+        ( htpy-ap-concat'
+          ( (inv-htpy ((k ∘ l) ·l H)) ∙h ((k ∘ l) ·l H))
+          ( refl-htpy)
+          ( (k ·l (L ·r h)) ∙h K)
+          ( left-inv-htpy ((k ∘ l) ·l H)))))
+  
+sec-right-factor-retract-of-sec-left-factor :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
+  (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) →
+  retr g → (retr h) retract-of (retr f)
+sec-right-factor-retract-of-sec-left-factor f g h H retr-g =
+  pair
+    ( retraction-comp' f g h H retr-g)
+    ( pair
+      ( retraction-comp f g h H retr-g)
+      ( isretr-retraction-comp f g h H retr-g))
+
+
+-- Exercise 13.2
+
+-- Exercise 13.2 (a)
+
 abstract
   is-subtype-is-contr :
     {l : Level} → is-subtype {lsuc l} {A = UU l} is-contr
@@ -288,44 +525,39 @@ equiv-Set A B =
 
 -- Exercise 13.4
 
-dependent-universal-property-empty :
-  (l : Level) {l1 : Level} (A : UU l1) → UU (l1 ⊔ lsuc l)
-dependent-universal-property-empty l A =
-  (P : A → UU l) → is-contr ((x : A) → P x)
+module _
+  {l1 : Level} (A : UU l1)
+  where
 
-universal-property-empty :
-  (l : Level) {l1 : Level} (A : UU l1) → UU (l1 ⊔ lsuc l)
-universal-property-empty l A =
-  (X : UU l) → is-contr (A → X)
+  dependent-universal-property-empty : (l : Level) → UU (l1 ⊔ lsuc l)
+  dependent-universal-property-empty l =
+    (P : A → UU l) → is-contr ((x : A) → P x)
 
-universal-property-dependent-universal-property-empty :
-  {l1 : Level} (A : UU l1) →
-  ({l : Level} → dependent-universal-property-empty l A) →
-  ({l : Level} → universal-property-empty l A)
-universal-property-dependent-universal-property-empty A dup-empty {l} X =
-  dup-empty {l} (λ a → X)
+  universal-property-empty : (l : Level) → UU (l1 ⊔ lsuc l)
+  universal-property-empty l = (X : UU l) → is-contr (A → X)
 
-is-empty-universal-property-empty :
-  {l1 : Level} (A : UU l1) →
-  ({l : Level} → universal-property-empty l A) → is-empty A
-is-empty-universal-property-empty A up-empty =
-  center (up-empty empty)
+  universal-property-dependent-universal-property-empty :
+    ({l : Level} → dependent-universal-property-empty l) →
+    ({l : Level} → universal-property-empty l)
+  universal-property-dependent-universal-property-empty dup-empty {l} X =
+    dup-empty {l} (λ a → X)
 
-dependent-universal-property-empty-is-empty :
-  {l1 : Level} (A : UU l1) (H : is-empty A) →
-  {l : Level} → dependent-universal-property-empty l A
-dependent-universal-property-empty-is-empty A H {l} P =
-  pair
-    ( λ x → ex-falso (H x))
-    ( λ f → eq-htpy (λ x → ex-falso (H x)))
+  is-empty-universal-property-empty :
+    ({l : Level} → universal-property-empty l) → is-empty A
+  is-empty-universal-property-empty up-empty = center (up-empty empty)
+
+  dependent-universal-property-empty-is-empty :
+    {l : Level} (H : is-empty A) → dependent-universal-property-empty l
+  dependent-universal-property-empty-is-empty {l} H P =
+    pair ( λ x → ex-falso (H x))
+         ( λ f → eq-htpy (λ x → ex-falso (H x)))
 
 abstract
   dependent-universal-property-empty' :
     {l : Level} (P : empty → UU l) → is-contr ((x : empty) → P x)
   dependent-universal-property-empty' P =
-    pair
-      ( ind-empty {P = P})
-      ( λ f → eq-htpy ind-empty)
+    pair ( ind-empty {P = P})
+         ( λ f → eq-htpy ind-empty)
 
 abstract
   universal-property-empty' :
@@ -357,104 +589,99 @@ abstract
 
 -- Exercise 13.5
 
-ev-point :
-  {l1 l2 : Level} {A : UU l1} (a : A) {P : A → UU l2} →
-  ((x : A) → P x) → P a
-ev-point a f = f a
+module _
+  {l1 : Level} {A : UU l1}
+  where
 
-ev-point' :
-  {l1 l2 : Level} {A : UU l1} (a : A) {X : UU l2} → (A → X) → X
-ev-point' a f = f a
+  ev-point : {l2 : Level} (a : A) {P : A → UU l2} → ((x : A) → P x) → P a
+  ev-point a f = f a
 
-dependent-universal-property-contr :
-  (l : Level) {l1 : Level} {A : UU l1} (a : A) → UU (l1 ⊔ lsuc l)
-dependent-universal-property-contr l {l1} {A} a =
-  (P : A → UU l) → is-equiv (ev-point a {P})
+  ev-point' : {l2 : Level} (a : A) {X : UU l2} → (A → X) → X
+  ev-point' a f = f a
 
-universal-property-contr :
-  (l : Level) {l1 : Level} {A : UU l1} (a : A) → UU (l1 ⊔ lsuc l)
-universal-property-contr l {l1} {A} a =
-  (X : UU l) → is-equiv (ev-point' a {X})
+  dependent-universal-property-contr : (l : Level) (a : A) → UU (l1 ⊔ lsuc l)
+  dependent-universal-property-contr l a =
+    (P : A → UU l) → is-equiv (ev-point a {P})
 
-universal-property-dependent-universal-property-contr :
-  {l1 : Level} {A : UU l1} (a : A) →
-  ({l : Level} → dependent-universal-property-contr l a) →
-  ({l : Level} → universal-property-contr l a)
-universal-property-dependent-universal-property-contr a dup-contr {l} X =
-  dup-contr {l} (λ x → X)
+  universal-property-contr : (l : Level) (a : A) → UU (l1 ⊔ lsuc l)
+  universal-property-contr l a =
+    (X : UU l) → is-equiv (ev-point' a {X})
 
-is-equiv-ev-point-universal-property-contr :
-  {l1 : Level} {A : UU l1} (a : A) →
-  ({l : Level} → universal-property-contr l a) →
-  is-equiv (ev-point' a {A})
-is-equiv-ev-point-universal-property-contr {l1} {A} a up-contr =
-  up-contr A
+  universal-property-dependent-universal-property-contr :
+    (a : A) →
+    ({l : Level} → dependent-universal-property-contr l a) →
+    ({l : Level} → universal-property-contr l a)
+  universal-property-dependent-universal-property-contr a dup-contr {l} X =
+    dup-contr {l} (λ x → X)
 
-is-contr-is-equiv-ev-point :
-  {l1 : Level} {A : UU l1} (a : A) →
-  is-equiv (ev-point' a {A}) → is-contr A
-is-contr-is-equiv-ev-point a H =
-  pair a ( htpy-eq
-           ( ap
-             ( pr1)
-             ( eq-is-contr'
-               ( is-contr-map-is-equiv H a)
-               ( pair (λ x → a) refl)
-               ( pair id refl))))
+  is-equiv-ev-point-universal-property-contr :
+    (a : A) → ({l : Level} → universal-property-contr l a) →
+    is-equiv (ev-point' a {A})
+  is-equiv-ev-point-universal-property-contr a up-contr =
+    up-contr A
 
-is-contr-universal-property-contr :
-  {l1 : Level} {A : UU l1} (a : A) →
-  ({l : Level} → universal-property-contr l a) → is-contr A
-is-contr-universal-property-contr {l1} {A} a up-contr =
-  is-contr-is-equiv-ev-point a
-    ( is-equiv-ev-point-universal-property-contr a up-contr)
+  is-contr-is-equiv-ev-point :
+    (a : A) → is-equiv (ev-point' a) → is-contr A
+  is-contr-is-equiv-ev-point a H =
+    pair a ( htpy-eq
+             ( ap
+               ( pr1)
+               ( eq-is-contr'
+                 ( is-contr-map-is-equiv H a)
+                 ( pair (λ x → a) refl)
+                 ( pair id refl))))
 
-is-contr-dependent-universal-property-contr :
-  {l1 : Level} {A : UU l1} (a : A) →
-  ({l : Level} → dependent-universal-property-contr l a) → is-contr A
-is-contr-dependent-universal-property-contr a dup-contr =
-  is-contr-universal-property-contr a
-    ( universal-property-dependent-universal-property-contr a dup-contr)
+  is-contr-universal-property-contr :
+    (a : A) →
+    ({l : Level} → universal-property-contr l a) → is-contr A
+  is-contr-universal-property-contr a up-contr =
+    is-contr-is-equiv-ev-point a
+      ( is-equiv-ev-point-universal-property-contr a up-contr)
 
-dependent-universal-property-contr-is-contr :
-  {l1 : Level} {A : UU l1} (a : A) → is-contr A →
-  {l : Level} → dependent-universal-property-contr l a
-dependent-universal-property-contr-is-contr a H {l} P =
-  is-equiv-has-inverse
-    ( ind-singleton-is-contr a H P)
-    ( comp-singleton-is-contr a H P)
-    ( λ f →
-      eq-htpy
-        ( ind-singleton-is-contr a H
-          ( λ x → Id (ind-singleton-is-contr a H P (f a) x) (f x))
-          ( comp-singleton-is-contr a H P (f a))))
+  is-contr-dependent-universal-property-contr :
+    (a : A) →
+    ({l : Level} → dependent-universal-property-contr l a) → is-contr A
+  is-contr-dependent-universal-property-contr a dup-contr =
+    is-contr-universal-property-contr a
+      ( universal-property-dependent-universal-property-contr a dup-contr)
 
-is-equiv-self-diagonal-is-equiv-diagonal :
-  {l1 : Level} {A : UU l1} →
-  ({l : Level} (X : UU l) → is-equiv (λ x → const A X x)) →
-  is-equiv (λ x → const A A x)
-is-equiv-self-diagonal-is-equiv-diagonal {l1} {A} H = H A
+  dependent-universal-property-contr-is-contr :
+    (a : A) → is-contr A →
+    {l : Level} → dependent-universal-property-contr l a
+  dependent-universal-property-contr-is-contr a H {l} P =
+    is-equiv-has-inverse
+      ( ind-singleton-is-contr a H P)
+      ( comp-singleton-is-contr a H P)
+      ( λ f →
+        eq-htpy
+          ( ind-singleton-is-contr a H
+            ( λ x → Id (ind-singleton-is-contr a H P (f a) x) (f x))
+            ( comp-singleton-is-contr a H P (f a))))
 
-is-contr-is-equiv-self-diagonal :
-  {l1 : Level} {A : UU l1} → is-equiv (λ x → const A A x) → is-contr A
-is-contr-is-equiv-self-diagonal H =
-  tot (λ x → htpy-eq) (center (is-contr-map-is-equiv H id))
+  is-equiv-self-diagonal-is-equiv-diagonal :
+    ({l : Level} (X : UU l) → is-equiv (λ x → const A X x)) →
+    is-equiv (λ x → const A A x)
+  is-equiv-self-diagonal-is-equiv-diagonal H = H A
 
-is-contr-is-equiv-diagonal :
-  {l1 : Level} {A : UU l1} →
-  ({l : Level} (X : UU l) → is-equiv (λ x → const A X x)) → is-contr A
-is-contr-is-equiv-diagonal H =
-  is-contr-is-equiv-self-diagonal
-    ( is-equiv-self-diagonal-is-equiv-diagonal H)
+  is-contr-is-equiv-self-diagonal :
+    is-equiv (λ x → const A A x) → is-contr A
+  is-contr-is-equiv-self-diagonal H =
+    tot (λ x → htpy-eq) (center (is-contr-map-is-equiv H id))
 
-is-equiv-diagonal-is-contr :
-  {l1 : Level} {A : UU l1} → is-contr A →
-  {l : Level} (X : UU l) → is-equiv (λ x → const A X x)
-is-equiv-diagonal-is-contr {l1} {A} H X =
-  is-equiv-has-inverse
-    ( ev-point' (center H))
-    ( λ f → eq-htpy (λ x → ap f (contraction H x)))
-    ( λ x → refl)
+  is-contr-is-equiv-diagonal :
+    ({l : Level} (X : UU l) → is-equiv (λ x → const A X x)) → is-contr A
+  is-contr-is-equiv-diagonal H =
+    is-contr-is-equiv-self-diagonal
+      ( is-equiv-self-diagonal-is-equiv-diagonal H)
+
+  is-equiv-diagonal-is-contr :
+    is-contr A →
+    {l : Level} (X : UU l) → is-equiv (λ x → const A X x)
+  is-equiv-diagonal-is-contr H X =
+    is-equiv-has-inverse
+      ( ev-point' (center H))
+      ( λ f → eq-htpy (λ x → ap f (contraction H x)))
+      ( λ x → refl)
 
 -- We conclude that the properties in the exercise hold for the unit type
 
@@ -554,160 +781,230 @@ abstract
   
 -- Exercise 13.6
 
-ev-inl-inr :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (P : coprod A B → UU l3) →
-  ((t : coprod A B) → P t) → ((x : A) → P (inl x)) × ((y : B) → P (inr y))
-ev-inl-inr P s = pair (λ x → s (inl x)) (λ y → s (inr y))
+module _
+  {l1 l2 : Level} {A : UU l1} {B : UU l2}
+  where
 
-abstract
-  dependent-universal-property-coprod :
-    {l1 l2 l3 : Level} {A : UU l1} {B : UU l2}
-    (P : coprod A B → UU l3) → is-equiv (ev-inl-inr P)
-  dependent-universal-property-coprod P =
-    is-equiv-has-inverse
-      ( λ p → ind-coprod P (pr1 p) (pr2 p))
-      ( ind-Σ (λ f g → eq-pair refl refl))
-      ( λ s → eq-htpy (ind-coprod _ (λ x → refl) λ y → refl))
+  ev-inl-inr :
+    {l3 : Level} (P : coprod A B → UU l3) →
+    ((t : coprod A B) → P t) → ((x : A) → P (inl x)) × ((y : B) → P (inr y))
+  ev-inl-inr P s = pair (λ x → s (inl x)) (λ y → s (inr y))
 
-equiv-dependent-universal-property-coprod :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (P : coprod A B → UU l3) →
-  ((x : coprod A B) → P x) ≃ (((a : A) → P (inl a)) × ((b : B) → P (inr b)))
-equiv-dependent-universal-property-coprod P =
-  pair (ev-inl-inr P) (dependent-universal-property-coprod P)
+  abstract
+    dependent-universal-property-coprod :
+      {l3 : Level} (P : coprod A B → UU l3) → is-equiv (ev-inl-inr P)
+    dependent-universal-property-coprod P =
+      is-equiv-has-inverse
+        ( λ p → ind-coprod P (pr1 p) (pr2 p))
+        ( ind-Σ (λ f g → eq-pair refl refl))
+        ( λ s → eq-htpy (ind-coprod _ (λ x → refl) λ y → refl))
 
-abstract
-  universal-property-coprod :
-    {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (X : UU l3) →
-    is-equiv (ev-inl-inr (λ (t : coprod A B) → X))
-  universal-property-coprod X = dependent-universal-property-coprod (λ t → X)
+  equiv-dependent-universal-property-coprod :
+    {l3 : Level} (P : coprod A B → UU l3) →
+    ((x : coprod A B) → P x) ≃ (((a : A) → P (inl a)) × ((b : B) → P (inr b)))
+  equiv-dependent-universal-property-coprod P =
+    pair (ev-inl-inr P) (dependent-universal-property-coprod P)
 
-equiv-universal-property-coprod :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (X : UU l3) →
-  (coprod A B → X) ≃ ((A → X) × (B → X))
-equiv-universal-property-coprod X =
-  equiv-dependent-universal-property-coprod (λ t → X)
+  abstract
+    universal-property-coprod :
+      {l3 : Level} (X : UU l3) →
+      is-equiv (ev-inl-inr (λ (t : coprod A B) → X))
+    universal-property-coprod X = dependent-universal-property-coprod (λ t → X)
+  
+  equiv-universal-property-coprod :
+    {l3 : Level} (X : UU l3) →
+    (coprod A B → X) ≃ ((A → X) × (B → X))
+  equiv-universal-property-coprod X =
+    equiv-dependent-universal-property-coprod (λ t → X)
+  
+  abstract
+    uniqueness-coprod :
+      {l3 : Level} {Y : UU l3} (i : A → Y) (j : B → Y) →
+      ((l : Level) (X : UU l) →
+        is-equiv (λ (s : Y → X) → pair' (s ∘ i) (s ∘ j))) →
+      is-equiv (ind-coprod (λ t → Y) i j)
+    uniqueness-coprod {Y = Y} i j H =
+      is-equiv-is-equiv-precomp
+        ( ind-coprod _ i j)
+        ( λ l X → is-equiv-right-factor'
+          ( ev-inl-inr (λ t → X))
+          ( precomp (ind-coprod (λ t → Y) i j) X)
+          ( universal-property-coprod X)
+          ( H _ X))
 
-abstract
-  uniqueness-coprod :
-    { l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {Y : UU l3}
-    ( i : A → Y) (j : B → Y) →
-    ( (l : Level) (X : UU l) →
-      is-equiv (λ (s : Y → X) → pair' (s ∘ i) (s ∘ j))) →
-    is-equiv (ind-coprod (λ t → Y) i j)
-  uniqueness-coprod {Y = Y} i j H =
-    is-equiv-is-equiv-precomp
-      ( ind-coprod _ i j)
-      ( λ l X → is-equiv-right-factor'
-        ( ev-inl-inr (λ t → X))
-        ( precomp (ind-coprod (λ t → Y) i j) X)
-        ( universal-property-coprod X)
-        ( H _ X))
-
-abstract
-  universal-property-coprod-is-equiv-ind-coprod :
-    { l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (X : UU l3)
-    ( i : A → X) (j : B → X) → is-equiv (ind-coprod (λ t → X) i j) →
-    ( (l4 : Level) (Y : UU l4) →
-      is-equiv (λ (s : X → Y) → pair' (s ∘ i) (s ∘ j)))
-  universal-property-coprod-is-equiv-ind-coprod X i j is-equiv-ind-coprod l Y =
-    is-equiv-comp
-      ( λ s → pair (s ∘ i) (s ∘ j))
-      ( ev-inl-inr (λ t → Y))
-      ( precomp (ind-coprod (λ t → X) i j) Y)
-      ( λ s → refl)
-      ( is-equiv-precomp-is-equiv
-        ( ind-coprod (λ t → X) i j)
-        ( is-equiv-ind-coprod)
-        ( Y))
-      ( universal-property-coprod Y)
+  abstract
+    universal-property-coprod-is-equiv-ind-coprod :
+      {l3 : Level} (X : UU l3) (i : A → X) (j : B → X) →
+      is-equiv (ind-coprod (λ t → X) i j) →
+      (l4 : Level) (Y : UU l4) →
+        is-equiv (λ (s : X → Y) → pair' (s ∘ i) (s ∘ j))
+    universal-property-coprod-is-equiv-ind-coprod X i j H l Y =
+      is-equiv-comp
+        ( λ s → pair (s ∘ i) (s ∘ j))
+        ( ev-inl-inr (λ t → Y))
+        ( precomp (ind-coprod (λ t → X) i j) Y)
+        ( λ s → refl)
+        ( is-equiv-precomp-is-equiv
+          ( ind-coprod (λ t → X) i j)
+          ( H)
+          ( Y))
+        ( universal-property-coprod Y)
 
 -- Exercise 13.7
 
-successor-preserving-map-ℕ : UU lzero
-successor-preserving-map-ℕ = 
-  Σ (ℕ → ℕ) (λ f → (f ∘ succ-ℕ) ~ (succ-ℕ ∘ f))
+module _
+  {l : Level} {X : UU l} (x : X) (f : X → X)
+  where
 
--- We characterize the identity type of successor-preserving-map-ℕ
+  structure-preserving-map-ℕ : UU l
+  structure-preserving-map-ℕ =
+    Σ (ℕ → X) (λ h → (Id (h zero-ℕ) x) × ((h ∘ succ-ℕ) ~ (f ∘ h)))
 
-htpy-successor-preserving-map-ℕ :
-  (f g : successor-preserving-map-ℕ) → UU lzero
-htpy-successor-preserving-map-ℕ f g = pr1 f ~ pr1 g
+  htpy-structure-preserving-map-ℕ :
+    (h k : structure-preserving-map-ℕ) → UU l
+  htpy-structure-preserving-map-ℕ h k =
+    Σ ( pr1 h ~ pr1 k)
+      ( λ H →
+        ( Id (pr1 (pr2 h)) (H zero-ℕ ∙ pr1 (pr2 k))) ×
+        ( (n : ℕ) →
+          Id (pr2 (pr2 h) n ∙ ap f (H n)) (H (succ-ℕ n) ∙ pr2 (pr2 k) n)))
 
-refl-htpy-successor-preserving-map-ℕ :
-  (f : successor-preserving-map-ℕ) → htpy-successor-preserving-map-ℕ f f
-refl-htpy-successor-preserving-map-ℕ f = refl-htpy
+  refl-htpy-structure-preserving-map-ℕ :
+    (h : structure-preserving-map-ℕ) → htpy-structure-preserving-map-ℕ h h
+  refl-htpy-structure-preserving-map-ℕ h =
+    triple refl-htpy refl (λ n → right-unit)
 
-is-contr-total-htpy-successor-preserving-map-ℕ :
-  (f : successor-preserving-map-ℕ) →
-  is-contr (Σ successor-preserving-map-ℕ (htpy-successor-preserving-map-ℕ f))
-is-contr-total-htpy-successor-preserving-map-ℕ f =
-  is-contr-total-Eq-substructure
-    ( is-contr-total-htpy (pr1 f))
-    ( λ g → is-prop-Π (λ n → is-set-ℕ (g (succ-ℕ n)) (succ-ℕ (g n))))
-    ( pr1 f)
-    ( refl-htpy)
-    ( pr2 f) 
+  htpy-eq-structure-preserving-map-ℕ :
+    {h k : structure-preserving-map-ℕ} → Id h k →
+    htpy-structure-preserving-map-ℕ h k
+  htpy-eq-structure-preserving-map-ℕ {h} refl =
+    refl-htpy-structure-preserving-map-ℕ h
 
-htpy-successor-preserving-map-ℕ-eq :
-  (f g : successor-preserving-map-ℕ) →
-  Id f g → htpy-successor-preserving-map-ℕ f g
-htpy-successor-preserving-map-ℕ-eq f .f refl =
-  refl-htpy-successor-preserving-map-ℕ f
+  is-contr-total-htpy-structure-preserving-map-ℕ :
+    (h : structure-preserving-map-ℕ) →
+    is-contr (Σ structure-preserving-map-ℕ (htpy-structure-preserving-map-ℕ h))
+  is-contr-total-htpy-structure-preserving-map-ℕ h =
+    is-contr-total-Eq-structure
+      ( λ g p (H : pr1 h ~ g) →
+        ( Id (pr1 (pr2 h)) (H zero-ℕ ∙ pr1 p)) ×
+        ( (n : ℕ) →
+          Id (pr2 (pr2 h) n ∙ ap f (H n)) (H (succ-ℕ n) ∙ pr2 p n)))
+      ( is-contr-total-htpy (pr1 h))
+      ( pair (pr1 h) refl-htpy)
+      ( is-contr-total-Eq-structure
+        ( λ p0 pS q →
+          (n : ℕ) → Id (pr2 (pr2 h) n ∙ refl) (pS n))
+        ( is-contr-total-path (pr1 (pr2 h)))
+        ( pair (pr1 (pr2 h)) refl)
+        ( is-contr-total-htpy (λ n → (pr2 (pr2 h) n ∙ refl))))
 
-is-equiv-htpy-successor-preserving-map-ℕ-eq :
-  (f g : successor-preserving-map-ℕ) →
-  is-equiv (htpy-successor-preserving-map-ℕ-eq f g)
-is-equiv-htpy-successor-preserving-map-ℕ-eq f =
-  fundamental-theorem-id f
-    ( refl-htpy-successor-preserving-map-ℕ f)
-    ( is-contr-total-htpy-successor-preserving-map-ℕ f)
-    ( htpy-successor-preserving-map-ℕ-eq f)
+  is-equiv-htpy-eq-structure-preserving-map-ℕ :
+    (h k : structure-preserving-map-ℕ) →
+    is-equiv (htpy-eq-structure-preserving-map-ℕ {h} {k})
+  is-equiv-htpy-eq-structure-preserving-map-ℕ h =
+    fundamental-theorem-id h
+      ( refl-htpy-structure-preserving-map-ℕ h)
+      ( is-contr-total-htpy-structure-preserving-map-ℕ h)
+      ( λ k → htpy-eq-structure-preserving-map-ℕ {h} {k})
 
-eq-htpy-successor-preserving-map-ℕ :
-  {f g : successor-preserving-map-ℕ} →
-  htpy-successor-preserving-map-ℕ f g → Id f g
-eq-htpy-successor-preserving-map-ℕ {f} {g} =
-  map-inv-is-equiv (is-equiv-htpy-successor-preserving-map-ℕ-eq f g)
+  eq-htpy-structure-preserving-map-ℕ :
+    {h k : structure-preserving-map-ℕ} →
+    htpy-structure-preserving-map-ℕ h k → Id h k
+  eq-htpy-structure-preserving-map-ℕ {h} {k} =
+    map-inv-is-equiv (is-equiv-htpy-eq-structure-preserving-map-ℕ h k)
 
--- We solve the exercise now
+  center-structure-preserving-map-ℕ : structure-preserving-map-ℕ
+  center-structure-preserving-map-ℕ = triple h p H
+    where
+    h : ℕ → X
+    h zero-ℕ = x
+    h (succ-ℕ n) = f (h n)
+    p : Id (h zero-ℕ) x
+    p = refl
+    H : (h ∘ succ-ℕ) ~ (f ∘ h)
+    H = refl-htpy
 
-ev-zero-successor-preserving-map-ℕ :
-  successor-preserving-map-ℕ → ℕ
-ev-zero-successor-preserving-map-ℕ (pair f H) = f zero-ℕ
+  contraction-structure-preserving-map-ℕ :
+    (h : structure-preserving-map-ℕ) →
+    Id center-structure-preserving-map-ℕ h
+  contraction-structure-preserving-map-ℕ h =
+    eq-htpy-structure-preserving-map-ℕ (triple α β γ)
+    where
+    α : pr1 center-structure-preserving-map-ℕ ~ pr1 h
+    α zero-ℕ = inv (pr1 (pr2 h))
+    α (succ-ℕ n) = ap f (α n) ∙ inv (pr2 (pr2 h) n)
+    β : Id (pr1 (pr2 center-structure-preserving-map-ℕ)) (α zero-ℕ ∙ pr1 (pr2 h))
+    β = inv (left-inv (pr1 (pr2 h)))
+    γ : (n : ℕ) →
+        Id ( pr2 (pr2 center-structure-preserving-map-ℕ) n ∙ ap f (α n))
+           ( α (succ-ℕ n) ∙ pr2 (pr2 h) n)
+    γ n = ( ( inv right-unit) ∙
+            ( ap (λ q → (ap f (α n) ∙ q)) (inv (left-inv (pr2 (pr2 h) n))))) ∙
+          ( inv (assoc (ap f (α n)) (inv (pr2 (pr2 h) n)) (pr2 (pr2 h) n)))
 
-inv-ev-zero-successor-preserving-map-ℕ :
-  ℕ → successor-preserving-map-ℕ
-inv-ev-zero-successor-preserving-map-ℕ n =
-  pair (add-ℕ n) refl-htpy
+  is-contr-structure-preserving-map-ℕ : is-contr structure-preserving-map-ℕ
+  is-contr-structure-preserving-map-ℕ =
+    pair center-structure-preserving-map-ℕ
+         contraction-structure-preserving-map-ℕ
 
-issec-inv-ev-zero-successor-preserving-map-ℕ :
-  ( ev-zero-successor-preserving-map-ℕ ∘
-    inv-ev-zero-successor-preserving-map-ℕ) ~ id
-issec-inv-ev-zero-successor-preserving-map-ℕ n = refl
+-- Exercise 13.8
 
-htpy-isretr-inv-ev-zero-successor-preserving-map-ℕ :
-  ( f : ℕ → ℕ) (H : (f ∘ succ-ℕ) ~ (succ-ℕ ∘ f)) →
-  ( add-ℕ (f zero-ℕ)) ~ f
-htpy-isretr-inv-ev-zero-successor-preserving-map-ℕ f H zero-ℕ =
-  refl
-htpy-isretr-inv-ev-zero-successor-preserving-map-ℕ f H (succ-ℕ n) =
-  ( ap succ-ℕ (htpy-isretr-inv-ev-zero-successor-preserving-map-ℕ f H n)) ∙
-  ( inv (H n))
+-- We show that induction on ℕ implies ordinal induction.
 
-isretr-inv-ev-zero-successor-preserving-map-ℕ :
-  ( inv-ev-zero-successor-preserving-map-ℕ ∘
-    ev-zero-successor-preserving-map-ℕ) ~ id
-isretr-inv-ev-zero-successor-preserving-map-ℕ (pair f H) =
-  eq-htpy-successor-preserving-map-ℕ
-    ( htpy-isretr-inv-ev-zero-successor-preserving-map-ℕ f H)
+□-<-ℕ :
+  {l : Level} → (ℕ → UU l) → ℕ → UU l
+□-<-ℕ P n = (m : ℕ) → (le-ℕ m n) → P m
 
-is-equiv-ev-zero-successor-preserving-map-ℕ :
-  is-equiv ev-zero-successor-preserving-map-ℕ
-is-equiv-ev-zero-successor-preserving-map-ℕ =
-  is-equiv-has-inverse
-    inv-ev-zero-successor-preserving-map-ℕ
-    issec-inv-ev-zero-successor-preserving-map-ℕ
-    isretr-inv-ev-zero-successor-preserving-map-ℕ
+reflect-□-<-ℕ :
+  {l : Level} (P : ℕ → UU l) →
+  (( n : ℕ) → □-<-ℕ P n) → (n : ℕ) → P n
+reflect-□-<-ℕ P f n = f (succ-ℕ n) n (succ-le-ℕ n)
+
+le-zero-ℕ :
+  (m : ℕ) → (le-ℕ m zero-ℕ) → empty
+le-zero-ℕ zero-ℕ ()
+le-zero-ℕ (succ-ℕ m) ()
+
+le-one-ℕ :
+  (n : ℕ) → le-ℕ (succ-ℕ n) one-ℕ → empty
+le-one-ℕ zero-ℕ ()
+le-one-ℕ (succ-ℕ n) ()
+
+zero-ordinal-ind-ℕ :
+  { l : Level} (P : ℕ → UU l) → □-<-ℕ P zero-ℕ
+zero-ordinal-ind-ℕ P m t = ind-empty (le-zero-ℕ m t)
+
+transitive-le-ℕ' :
+  (k l m : ℕ) → (le-ℕ k l) → (le-ℕ l (succ-ℕ m)) → le-ℕ k m
+transitive-le-ℕ' zero-ℕ zero-ℕ m () s
+transitive-le-ℕ' (succ-ℕ k) zero-ℕ m () s
+transitive-le-ℕ' zero-ℕ (succ-ℕ l) zero-ℕ star s = ind-empty (le-one-ℕ l s)
+transitive-le-ℕ' (succ-ℕ k) (succ-ℕ l) zero-ℕ t s = ind-empty (le-one-ℕ l s)
+transitive-le-ℕ' zero-ℕ (succ-ℕ l) (succ-ℕ m) star s = star
+transitive-le-ℕ' (succ-ℕ k) (succ-ℕ l) (succ-ℕ m) t s =
+  transitive-le-ℕ' k l m t s
+
+succ-ordinal-ind-ℕ :
+  {l : Level} (P : ℕ → UU l) → ((n : ℕ) → (□-<-ℕ P n) → P n) →
+  (k : ℕ) → □-<-ℕ P k → □-<-ℕ P (succ-ℕ k)
+succ-ordinal-ind-ℕ P f k g m t =
+  f m (λ m' t' → g m' (transitive-le-ℕ' m' m k t' t))
+
+induction-ordinal-ind-ℕ :
+  { l : Level} (P : ℕ → UU l) →
+  ( qS : (k : ℕ) → □-<-ℕ P k → □-<-ℕ P (succ-ℕ k))
+  ( n : ℕ) → □-<-ℕ P n
+induction-ordinal-ind-ℕ P qS zero-ℕ = zero-ordinal-ind-ℕ P 
+induction-ordinal-ind-ℕ P qS (succ-ℕ n) =
+  qS n (induction-ordinal-ind-ℕ P qS n)
+
+ordinal-ind-ℕ :
+  { l : Level} (P : ℕ → UU l) →
+  ( (n : ℕ) → (□-<-ℕ P n) → P n) →
+  ( n : ℕ) → P n
+ordinal-ind-ℕ P f =
+  reflect-□-<-ℕ P
+    ( induction-ordinal-ind-ℕ P (succ-ordinal-ind-ℕ P f))
 
 -- Exercise 13.9
 
@@ -1055,154 +1352,6 @@ abstract
     
 -- Exercise 13.12
 
-Eq-sec :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  sec f → sec f → UU (l1 ⊔ l2)
-Eq-sec f sec-f sec-f' =
-  Σ ( (pr1 sec-f) ~ (pr1 sec-f'))
-    ( λ H → (pr2 sec-f) ~ ((f ·l H) ∙h (pr2 sec-f')))
-
-reflexive-Eq-sec :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  (sec-f : sec f) → Eq-sec f sec-f sec-f
-reflexive-Eq-sec f (pair g G) = pair refl-htpy refl-htpy
-
-Eq-sec-eq :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  (sec-f sec-f' : sec f) → Id sec-f sec-f' → Eq-sec f sec-f sec-f'
-Eq-sec-eq f sec-f .sec-f refl = reflexive-Eq-sec f sec-f
-
-abstract
-  is-contr-total-Eq-sec :
-    {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) (sec-f : sec f) →
-    is-contr (Σ (sec f) (Eq-sec f sec-f))
-  is-contr-total-Eq-sec f (pair g G) =
-    is-contr-total-Eq-structure
-      ( λ g' G' H → G ~ ((f ·l H) ∙h G'))
-      ( is-contr-total-htpy g)
-      ( pair g refl-htpy)
-      ( is-contr-total-htpy G)
-
-abstract
-  is-equiv-Eq-sec-eq :
-    {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-    (sec-f sec-f' : sec f) → is-equiv (Eq-sec-eq f sec-f sec-f')
-  is-equiv-Eq-sec-eq f sec-f =
-    fundamental-theorem-id sec-f
-      ( reflexive-Eq-sec f sec-f)
-      ( is-contr-total-Eq-sec f sec-f)
-      ( Eq-sec-eq f sec-f)
-  
-  eq-Eq-sec :
-    {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-    {sec-f sec-f' : sec f} → Eq-sec f sec-f sec-f' → Id sec-f sec-f'
-  eq-Eq-sec f {sec-f} {sec-f'} =
-    map-inv-is-equiv (is-equiv-Eq-sec-eq f sec-f sec-f')
-
-isretr-section-comp :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
-  (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) (sec-h : sec h) →
-  ((section-comp f g h H sec-h) ∘ (section-comp' f g h H sec-h)) ~ id
-isretr-section-comp f g h H (pair k K) (pair l L) =
-  eq-Eq-sec g
-    ( pair
-      ( K ·r l)
-      ( ( inv-htpy
-          ( assoc-htpy
-            ( inv-htpy (H ·r (k ∘ l)))
-            ( H ·r (k ∘ l))
-            ( (g ·l (K ·r l)) ∙h L))) ∙h
-        ( htpy-ap-concat'
-          ( (inv-htpy (H ·r (k ∘ l))) ∙h (H ·r (k ∘ l)))
-          ( refl-htpy)
-          ( (g ·l (K ·r l)) ∙h L)
-          ( left-inv-htpy (H ·r (k ∘ l))))))
-
-sec-left-factor-retract-of-sec-composition :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
-  (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) →
-  sec h → (sec g) retract-of (sec f)
-sec-left-factor-retract-of-sec-composition {X = X} f g h H sec-h =
-  pair
-    ( section-comp' f g h H sec-h)
-    ( pair
-      ( section-comp f g h H sec-h)
-      ( isretr-section-comp f g h H sec-h))
-
-Eq-retr :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  retr f → retr f → UU (l1 ⊔ l2)
-Eq-retr f retr-f retr-f' =
-  Σ ( (pr1 retr-f) ~ (pr1 retr-f'))
-    ( λ H → (pr2 retr-f) ~ ((H ·r f) ∙h (pr2 retr-f')))
-
-reflexive-Eq-retr :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  (retr-f : retr f) → Eq-retr f retr-f retr-f
-reflexive-Eq-retr f (pair h H) = pair refl-htpy refl-htpy
-
-Eq-retr-eq :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  (retr-f retr-f' : retr f) → Id retr-f retr-f' → Eq-retr f retr-f retr-f'
-Eq-retr-eq f retr-f .retr-f refl = reflexive-Eq-retr f retr-f
-
-abstract
-  is-contr-total-Eq-retr :
-    {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) (retr-f : retr f) →
-    is-contr (Σ (retr f) (Eq-retr f retr-f))
-  is-contr-total-Eq-retr f (pair h H) =
-    is-contr-total-Eq-structure
-      ( λ h' H' K → H ~ ((K ·r f) ∙h H'))
-      ( is-contr-total-htpy h)
-      ( pair h refl-htpy)
-      ( is-contr-total-htpy H)
-
-abstract
-  is-equiv-Eq-retr-eq :
-    {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-    (retr-f retr-f' : retr f) → is-equiv (Eq-retr-eq f retr-f retr-f')
-  is-equiv-Eq-retr-eq f retr-f =
-    fundamental-theorem-id retr-f
-      ( reflexive-Eq-retr f retr-f)
-      ( is-contr-total-Eq-retr f retr-f)
-      ( Eq-retr-eq f retr-f)
-  
-  eq-Eq-retr :
-    {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-    {retr-f retr-f' : retr f} → Eq-retr f retr-f retr-f' → Id retr-f retr-f'
-  eq-Eq-retr f {retr-f} {retr-f'} =
-    map-inv-is-equiv (is-equiv-Eq-retr-eq f retr-f retr-f')
-
-isretr-retraction-comp :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
-  (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) (retr-g : retr g) →
-  ((retraction-comp f g h H retr-g) ∘ (retraction-comp' f g h H retr-g)) ~ id
-isretr-retraction-comp f g h H (pair l L) (pair k K) =
-  eq-Eq-retr h
-    ( pair
-      ( k ·l L)
-      ( ( inv-htpy
-          ( assoc-htpy
-            ( inv-htpy ((k ∘ l) ·l H))
-            ( (k ∘ l) ·l H)
-            ( (k ·l (L ·r h)) ∙h K))) ∙h
-        ( htpy-ap-concat'
-          ( (inv-htpy ((k ∘ l) ·l H)) ∙h ((k ∘ l) ·l H))
-          ( refl-htpy)
-          ( (k ·l (L ·r h)) ∙h K)
-          ( left-inv-htpy ((k ∘ l) ·l H)))))
-  
-sec-right-factor-retract-of-sec-left-factor :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
-  (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h)) →
-  retr g → (retr h) retract-of (retr f)
-sec-right-factor-retract-of-sec-left-factor f g h H retr-g =
-  pair
-    ( retraction-comp' f g h H retr-g)
-    ( pair
-      ( retraction-comp f g h H retr-g)
-      ( isretr-retraction-comp f g h H retr-g))
-
 -- Exercise 13.15
 
 {- Getting rid of fib in a Π-type -}
@@ -1263,77 +1412,7 @@ reduce-Π-fib f C = reduce-Π-fib' f (λ y z → C y)
 
 -- Exercise 13.16
 
-hom-slice :
-  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
-  (f : A → X) (g : B → X) → UU (l1 ⊔ (l2 ⊔ l3))
-hom-slice {A = A} {B} f g = Σ (A → B) (λ h → f ~ (g ∘ h))
-
-map-hom-slice :
-  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
-  (f : A → X) (g : B → X) → hom-slice f g → A → B
-map-hom-slice f g h = pr1 h
-
-triangle-hom-slice :
-  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
-  (f : A → X) (g : B → X) (h : hom-slice f g) →
-  f ~ (g ∘ (map-hom-slice f g h))
-triangle-hom-slice f g h = pr2 h
-
-{- We characterize the identity type of hom-slice -}
-
-htpy-hom-slice :
-  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
-  (f : A → X) (g : B → X) (h h' : hom-slice f g) → UU (l1 ⊔ l2 ⊔ l3)
-htpy-hom-slice f g h h' =
-  Σ ( map-hom-slice f g h ~ map-hom-slice f g h')
-    ( λ K →
-      ( (triangle-hom-slice f g h) ∙h (g ·l K)) ~
-      ( triangle-hom-slice f g h'))
-
-refl-htpy-hom-slice :
-  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
-  (f : A → X) (g : B → X) (h : hom-slice f g) →
-  htpy-hom-slice f g h h
-refl-htpy-hom-slice f g h = pair refl-htpy right-unit-htpy
-
-htpy-hom-slice-eq :
-  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
-  (f : A → X) (g : B → X) (h h' : hom-slice f g) →
-  Id h h' → htpy-hom-slice f g h h'
-htpy-hom-slice-eq f g h .h refl = refl-htpy-hom-slice f g h
-
-is-contr-total-htpy-hom-slice :
-  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
-  (f : A → X) (g : B → X) (h : hom-slice f g) →
-  is-contr (Σ (hom-slice f g) (htpy-hom-slice f g h))
-is-contr-total-htpy-hom-slice f g h =
-  is-contr-total-Eq-structure
-    ( λ h' H' K → ((triangle-hom-slice f g h) ∙h (g ·l K)) ~ H')
-    ( is-contr-total-htpy (map-hom-slice f g h))
-    ( pair (map-hom-slice f g h) refl-htpy)
-    ( is-contr-equiv'
-      ( Σ ( f ~ (g ∘ (map-hom-slice f g h)))
-          ( λ H' → (triangle-hom-slice f g h) ~ H'))
-      ( equiv-tot (equiv-concat-htpy right-unit-htpy))
-      ( is-contr-total-htpy (triangle-hom-slice f g h)))
-
-is-equiv-htpy-hom-slice-eq :
-  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
-  (f : A → X) (g : B → X) (h h' : hom-slice f g) →
-  is-equiv (htpy-hom-slice-eq f g h h')
-is-equiv-htpy-hom-slice-eq f g h =
-  fundamental-theorem-id h
-    ( refl-htpy-hom-slice f g h)
-    ( is-contr-total-htpy-hom-slice f g h)
-    ( htpy-hom-slice-eq f g h)
-
-eq-htpy-hom-slice :
-  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
-  (f : A → X) (g : B → X) (h h' : hom-slice f g) →
-  htpy-hom-slice f g h h' → Id h h'
-eq-htpy-hom-slice f g h h' = map-inv-is-equiv (is-equiv-htpy-hom-slice-eq f g h h')
-
-{- Now we relate morphisms in the slice category to fiberwise morphisms -}
+{- We relate morphisms in the slice category to fiberwise morphisms -}
   
 fiberwise-hom-hom-slice :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
@@ -1660,79 +1739,50 @@ abstract
 
 -- Exercise 13.19
 
--- We first characterize the identity type of sec f
-
-htpy-sec :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B)
-  (s t : sec f) → UU (l1 ⊔ l2)
-htpy-sec f s t = Σ (pr1 s ~ pr1 t) (λ H → pr2 s ~ ((f ·l H) ∙h pr2 t))
-
-refl-htpy-sec :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  (s : sec f) → htpy-sec f s s
-refl-htpy-sec f s = pair refl-htpy refl-htpy
-
-htpy-eq-sec :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  (s t : sec f) → Id s t → htpy-sec f s t
-htpy-eq-sec f s .s refl = refl-htpy-sec f s
-
-is-contr-total-htpy-sec :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) (s : sec f) →
-  is-contr (Σ (sec f) (htpy-sec f s))
-is-contr-total-htpy-sec f s =
-  is-contr-total-Eq-structure
-    ( λ g G H → pr2 s ~ ((f ·l H) ∙h G))
-    ( is-contr-total-htpy (pr1 s))
-    ( pair (pr1 s) refl-htpy)
-    ( is-contr-total-htpy (pr2 s))
-
-is-equiv-htpy-eq-sec :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  (s t : sec f) → is-equiv (htpy-eq-sec f s t)
-is-equiv-htpy-eq-sec f s =
-  fundamental-theorem-id s
-    ( refl-htpy-sec f s)
-    ( is-contr-total-htpy-sec f s)
-    ( htpy-eq-sec f s)
-
-eq-htpy-sec :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} (s t : sec f) →
-  (H : (pr1 s) ~ (pr1 t)) (K : (pr2 s) ~ ((f ·l H) ∙h (pr2 t))) →
-  Id s t
-eq-htpy-sec {f = f} s t H K =
-  map-inv-is-equiv (is-equiv-htpy-eq-sec f s t) (pair H K)
-
-sec-pr1-Π :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  ((x : A) → B x) → sec (pr1 {B = B})
-sec-pr1-Π f = pair (λ x → pair x (f x)) refl-htpy
-
-map-inv-sec-pr1-Π :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  sec (pr1 {B = B}) → ((x : A) → B x)
-map-inv-sec-pr1-Π {B = B} s x = tr B (pr2 s x) (pr2 (pr1 s x))
-
-{-
-issec-map-inv-sec-pr1-Π :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  (sec-pr1-Π {B = B} ∘ map-inv-sec-pr1-Π {B = B}) ~ id
-issec-map-inv-sec-pr1-Π {A = A} {B = B} s =
-  eq-htpy-sec
-    { A = Σ A B}
-    { A}
-    { pr1}
-    ( sec-pr1-Π (map-inv-sec-pr1-Π s))
-    ( s)
-    ( λ x → inv (eq-pair-Σ (pr2 s x) refl))
-    ( λ x → inv {x = (ap pr1 (inv (eq-pair-Σ (pr2 s x) refl))) ∙ pr2 s x} {y = refl} (ap (concat' x (pr2 s x)) (ap-inv pr1 (eq-pair-Σ (pr2 s x) refl)) ∙ {!!}))
--}
-
 -- Exercise 13.20
 
 -- Exercise 13.21
 
+-- Exercise 13.15
 
+cases-function-converse-weak-funext :
+  {l1 l2 : Level} {I : UU l1} {A : I → UU l2} (d : has-decidable-equality I)
+  (H : is-contr ((i : I) → A i)) (i : I) (x : A i)
+  (j : I) (e : is-decidable (Id i j)) → A j
+cases-function-converse-weak-funext d H i x .i (inl refl) = x
+cases-function-converse-weak-funext d H i x j (inr f) = center H j
+
+function-converse-weak-funext :
+  {l1 l2 : Level} {I : UU l1} {A : I → UU l2} (d : has-decidable-equality I)
+  (H : is-contr ((i : I) → A i)) (i : I) (x : A i) (j : I) → A j
+function-converse-weak-funext d H i x j =
+  cases-function-converse-weak-funext d H i x j (d i j)
+
+cases-eq-function-converse-weak-funext :
+  {l1 l2 : Level} {I : UU l1} {A : I → UU l2} (d : has-decidable-equality I)
+  (H : is-contr ((i : I) → A i)) (i : I) (x : A i) (e : is-decidable (Id i i)) →
+  Id (cases-function-converse-weak-funext d H i x i e) x
+cases-eq-function-converse-weak-funext d H i x (inl p) =
+  ap ( λ t → cases-function-converse-weak-funext d H i x i (inl t))
+     ( eq-is-prop (is-set-has-decidable-equality d i i) {p} {refl})
+cases-eq-function-converse-weak-funext d H i x (inr f) = ex-falso (f refl)
+
+eq-function-converse-weak-funext :
+  {l1 l2 : Level} {I : UU l1} {A : I → UU l2} (d : has-decidable-equality I)
+  (H : is-contr ((i : I) → A i)) (i : I) (x : A i) →
+  Id (function-converse-weak-funext d H i x i) x
+eq-function-converse-weak-funext d H i x =
+  cases-eq-function-converse-weak-funext d H i x (d i i)
+
+converse-weak-funext :
+  {l1 l2 : Level} {I : UU l1} {A : I → UU l2} →
+  has-decidable-equality I → is-contr ((i : I) → A i) → (i : I) → is-contr (A i)
+converse-weak-funext d (pair x H) i =
+  pair ( x i) ( λ y →
+                ( htpy-eq
+                  ( H (function-converse-weak-funext d (pair x H) i y)) i) ∙
+                ( eq-function-converse-weak-funext d (pair x H) i y))
+                
 --------------------------------------------------------------------------------
 
 {- Some lemmas about equivalences on Π-types -}
@@ -1946,63 +1996,3 @@ htpy-hom-pointed-successor-algebra H K h1 h2 =
       {! Id (comp-base-hom-pointed-successor-algebra H K h1) ? × ?!})
 
 -}
-
--- Exercise 13.8
-
--- We show that induction on ℕ implies ordinal induction.
-
-fam-ordinal-ind-ℕ :
-  { l : Level} → (ℕ → UU l) → ℕ → UU l
-fam-ordinal-ind-ℕ P n = (m : ℕ) → (le-ℕ m n) → P m
-
-le-zero-ℕ :
-  (m : ℕ) → (le-ℕ m zero-ℕ) → empty
-le-zero-ℕ zero-ℕ ()
-le-zero-ℕ (succ-ℕ m) ()
-
-zero-ordinal-ind-ℕ :
-  { l : Level} (P : ℕ → UU l) → fam-ordinal-ind-ℕ P zero-ℕ
-zero-ordinal-ind-ℕ P m t = ind-empty (le-zero-ℕ m t)
-
-le-one-ℕ :
-  (n : ℕ) → le-ℕ (succ-ℕ n) one-ℕ → empty
-le-one-ℕ zero-ℕ ()
-le-one-ℕ (succ-ℕ n) ()
-
-transitive-le-ℕ' :
-  (k l m : ℕ) → (le-ℕ k l) → (le-ℕ l (succ-ℕ m)) → le-ℕ k m
-transitive-le-ℕ' zero-ℕ zero-ℕ m () s
-transitive-le-ℕ' (succ-ℕ k) zero-ℕ m () s
-transitive-le-ℕ' zero-ℕ (succ-ℕ l) zero-ℕ star s = ind-empty (le-one-ℕ l s)
-transitive-le-ℕ' (succ-ℕ k) (succ-ℕ l) zero-ℕ t s = ind-empty (le-one-ℕ l s)
-transitive-le-ℕ' zero-ℕ (succ-ℕ l) (succ-ℕ m) star s = star
-transitive-le-ℕ' (succ-ℕ k) (succ-ℕ l) (succ-ℕ m) t s =
-  transitive-le-ℕ' k l m t s
-
-succ-ordinal-ind-ℕ :
-  { l : Level} (P : ℕ → UU l) →
-  ( (n : ℕ) → (fam-ordinal-ind-ℕ P n) → P n) →
-  ( k : ℕ) → fam-ordinal-ind-ℕ P k → fam-ordinal-ind-ℕ P (succ-ℕ k)
-succ-ordinal-ind-ℕ P f k g m t =
-  f m (λ m' t' → g m' (transitive-le-ℕ' m' m k t' t))
-
-induction-ordinal-ind-ℕ :
-  { l : Level} (P : ℕ → UU l) →
-  ( qS : (k : ℕ) → fam-ordinal-ind-ℕ P k → fam-ordinal-ind-ℕ P (succ-ℕ k))
-  ( n : ℕ) → fam-ordinal-ind-ℕ P n
-induction-ordinal-ind-ℕ P qS zero-ℕ = zero-ordinal-ind-ℕ P 
-induction-ordinal-ind-ℕ P qS (succ-ℕ n) =
-  qS n (induction-ordinal-ind-ℕ P qS n)
-
-conclusion-ordinal-ind-ℕ :
-  { l : Level} (P : ℕ → UU l) →
-  (( n : ℕ) → fam-ordinal-ind-ℕ P n) → (n : ℕ) → P n
-conclusion-ordinal-ind-ℕ P f n = f (succ-ℕ n) n (succ-le-ℕ n)
-
-ordinal-ind-ℕ :
-  { l : Level} (P : ℕ → UU l) →
-  ( (n : ℕ) → (fam-ordinal-ind-ℕ P n) → P n) →
-  ( n : ℕ) → P n
-ordinal-ind-ℕ P f =
-  conclusion-ordinal-ind-ℕ P
-    ( induction-ordinal-ind-ℕ P (succ-ordinal-ind-ℕ P f))

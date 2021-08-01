@@ -968,22 +968,22 @@ cases-leq-succ-ℕ {succ-ℕ m} {zero-ℕ} p =
 cases-leq-succ-ℕ {succ-ℕ m} {succ-ℕ n} p =
   map-coprod id (ap succ-ℕ) (cases-leq-succ-ℕ p)
 
-□-ℕ : {l : Level} → (ℕ → UU l) → ℕ → UU l
-□-ℕ P n = (m : ℕ) → (m ≤-ℕ n) → P m
+□-≤-ℕ : {l : Level} → (ℕ → UU l) → ℕ → UU l
+□-≤-ℕ P n = (m : ℕ) → (m ≤-ℕ n) → P m
 
-η-□-ℕ : {l : Level} {P : ℕ → UU l} → ((n : ℕ) → P n) → (n : ℕ) → □-ℕ P n
-η-□-ℕ f n m p = f m
+η-□-≤-ℕ : {l : Level} {P : ℕ → UU l} → ((n : ℕ) → P n) → (n : ℕ) → □-≤-ℕ P n
+η-□-≤-ℕ f n m p = f m
 
-ε-□-ℕ :
-  {l : Level} {P : ℕ → UU l} → ((n : ℕ) → □-ℕ P n) → ((n : ℕ) → P n)
-ε-□-ℕ f n = f n n (refl-leq-ℕ n)
+ε-□-≤-ℕ :
+  {l : Level} {P : ℕ → UU l} → ((n : ℕ) → □-≤-ℕ P n) → ((n : ℕ) → P n)
+ε-□-≤-ℕ f n = f n n (refl-leq-ℕ n)
 
 -- Now we begin with the proof of the theorem
  
 -- We first take care of the zero case, with appropriate computation rule.
 
 zero-strong-ind-ℕ :
-  {l : Level} (P : ℕ → UU l) → P zero-ℕ → □-ℕ P zero-ℕ
+  {l : Level} (P : ℕ → UU l) → P zero-ℕ → □-≤-ℕ P zero-ℕ
 zero-strong-ind-ℕ P p0 zero-ℕ t = p0
 
 eq-zero-strong-ind-ℕ :
@@ -995,29 +995,29 @@ eq-zero-strong-ind-ℕ P p0 t = refl
 
 {- In the successor case, we need to define a map
 
-   □-ℕ P k → □-ℕ P (succ-ℕ k).
+   □-≤-ℕ P k → □-≤-ℕ P (succ-ℕ k).
 
    The dependent function in the codomain is defined by case analysis, where
    the cases are that either m ≤ k or m = k+1.
    -}
    
 cases-succ-strong-ind-ℕ :
-  {l : Level} (P : ℕ → UU l) (pS : (n : ℕ) → (□-ℕ P n) → P (succ-ℕ n)) (n : ℕ)
-  (H : □-ℕ P n) (m : ℕ) (c : coprod (leq-ℕ m n) (Id m (succ-ℕ n))) → P m
+  {l : Level} (P : ℕ → UU l) (pS : (n : ℕ) → (□-≤-ℕ P n) → P (succ-ℕ n)) (n : ℕ)
+  (H : □-≤-ℕ P n) (m : ℕ) (c : coprod (leq-ℕ m n) (Id m (succ-ℕ n))) → P m
 cases-succ-strong-ind-ℕ P pS n H m (inl q) = H m q
 cases-succ-strong-ind-ℕ P pS n H .(succ-ℕ n) (inr refl) = pS n H
 
 succ-strong-ind-ℕ :
-  {l : Level} (P : ℕ → UU l) → ((k : ℕ) → (□-ℕ P k) → P (succ-ℕ k)) →
-  (k : ℕ) → (□-ℕ P k) → (□-ℕ P (succ-ℕ k))
+  {l : Level} (P : ℕ → UU l) → ((k : ℕ) → (□-≤-ℕ P k) → P (succ-ℕ k)) →
+  (k : ℕ) → (□-≤-ℕ P k) → (□-≤-ℕ P (succ-ℕ k))
 succ-strong-ind-ℕ P pS k H m p =
   cases-succ-strong-ind-ℕ P pS k H m (cases-leq-succ-ℕ p)
 
 -- We use a similar case analysis to obtain the computation rule.
 
 cases-htpy-succ-strong-ind-ℕ :
-  {l : Level} (P : ℕ → UU l) (pS : (k : ℕ) → (□-ℕ P k) → P (succ-ℕ k)) →
-  (k : ℕ) (H : □-ℕ P k) (m : ℕ) (c : coprod (leq-ℕ m k) (Id m (succ-ℕ k))) →
+  {l : Level} (P : ℕ → UU l) (pS : (k : ℕ) → (□-≤-ℕ P k) → P (succ-ℕ k)) →
+  (k : ℕ) (H : □-≤-ℕ P k) (m : ℕ) (c : coprod (leq-ℕ m k) (Id m (succ-ℕ k))) →
   (q : leq-ℕ m k) →
   Id ( cases-succ-strong-ind-ℕ P pS k H m c)
      ( H m q)
@@ -1027,16 +1027,16 @@ cases-htpy-succ-strong-ind-ℕ P pS k H m (inr α) q =
   ex-falso (neg-succ-leq-ℕ k (leq-eq-left-ℕ α k q))
 
 htpy-succ-strong-ind-ℕ :
-  {l : Level} (P : ℕ → UU l) → (pS : (k : ℕ) → (□-ℕ P k) → P (succ-ℕ k)) →
-  (k : ℕ) (H : □-ℕ P k) (m : ℕ) (p : leq-ℕ m (succ-ℕ k)) (q : leq-ℕ m k) →
+  {l : Level} (P : ℕ → UU l) → (pS : (k : ℕ) → (□-≤-ℕ P k) → P (succ-ℕ k)) →
+  (k : ℕ) (H : □-≤-ℕ P k) (m : ℕ) (p : leq-ℕ m (succ-ℕ k)) (q : leq-ℕ m k) →
   Id ( succ-strong-ind-ℕ P pS k H m p)
      ( H m q)
 htpy-succ-strong-ind-ℕ P pS k H m p q =
   cases-htpy-succ-strong-ind-ℕ P pS k H m (cases-leq-succ-ℕ p) q
 
 cases-eq-succ-strong-ind-ℕ :
-  {l : Level} (P : ℕ → UU l) (pS : (k : ℕ) → (□-ℕ P k) → P (succ-ℕ k)) →
-  (k : ℕ) (H : □-ℕ P k)
+  {l : Level} (P : ℕ → UU l) (pS : (k : ℕ) → (□-≤-ℕ P k) → P (succ-ℕ k)) →
+  (k : ℕ) (H : □-≤-ℕ P k)
   (c : coprod (leq-ℕ (succ-ℕ k) k) (Id (succ-ℕ k) (succ-ℕ k))) →
   Id ( (cases-succ-strong-ind-ℕ P pS k H (succ-ℕ k) c))
      ( pS k H)
@@ -1046,8 +1046,8 @@ cases-eq-succ-strong-ind-ℕ P pS k H (inr α) =
      ( eq-is-prop' (is-set-ℕ (succ-ℕ k) (succ-ℕ k)) α refl)
 
 eq-succ-strong-ind-ℕ :
-  {l : Level} (P : ℕ → UU l) (pS : (k : ℕ) → (□-ℕ P k) → P (succ-ℕ k)) →
-  (k : ℕ) (H : □-ℕ P k) (p : leq-ℕ (succ-ℕ k) (succ-ℕ k)) →
+  {l : Level} (P : ℕ → UU l) (pS : (k : ℕ) → (□-≤-ℕ P k) → P (succ-ℕ k)) →
+  (k : ℕ) (H : □-≤-ℕ P k) (p : leq-ℕ (succ-ℕ k) (succ-ℕ k)) →
   Id ( (succ-strong-ind-ℕ P pS k H (succ-ℕ k) p))
      ( pS k H)
 eq-succ-strong-ind-ℕ P pS k H p =
@@ -1057,15 +1057,15 @@ eq-succ-strong-ind-ℕ P pS k H p =
    by induction. -}
 
 induction-strong-ind-ℕ :
-  {l : Level} (P : ℕ → UU l) → (□-ℕ P zero-ℕ) →
-  ((k : ℕ) → (□-ℕ P k) → (□-ℕ P (succ-ℕ k))) → (n : ℕ) → □-ℕ P n
+  {l : Level} (P : ℕ → UU l) → (□-≤-ℕ P zero-ℕ) →
+  ((k : ℕ) → (□-≤-ℕ P k) → (□-≤-ℕ P (succ-ℕ k))) → (n : ℕ) → □-≤-ℕ P n
 induction-strong-ind-ℕ P q0 qS zero-ℕ = q0
 induction-strong-ind-ℕ P q0 qS (succ-ℕ n) =
   qS n (induction-strong-ind-ℕ P q0 qS n)
 
 computation-succ-strong-ind-ℕ :
-  {l : Level} (P : ℕ → UU l) (q0 : □-ℕ P zero-ℕ) →
-  (qS : (k : ℕ) → (□-ℕ P k) → (□-ℕ P (succ-ℕ k))) →
+  {l : Level} (P : ℕ → UU l) (q0 : □-≤-ℕ P zero-ℕ) →
+  (qS : (k : ℕ) → (□-≤-ℕ P k) → (□-≤-ℕ P (succ-ℕ k))) →
   (n : ℕ) →
   Id ( induction-strong-ind-ℕ P q0 qS (succ-ℕ n))
      ( qS n (induction-strong-ind-ℕ P q0 qS n))
@@ -1075,9 +1075,9 @@ computation-succ-strong-ind-ℕ P q0 qS n = refl
 
 strong-ind-ℕ :
   {l : Level} → (P : ℕ → UU l) (p0 : P zero-ℕ) →
-  (pS : (k : ℕ) → (□-ℕ P k) → P (succ-ℕ k)) (n : ℕ) → P n
+  (pS : (k : ℕ) → (□-≤-ℕ P k) → P (succ-ℕ k)) (n : ℕ) → P n
 strong-ind-ℕ P p0 pS = 
-  ε-□-ℕ
+  ε-□-≤-ℕ
     ( induction-strong-ind-ℕ P
       ( zero-strong-ind-ℕ P p0)
       ( succ-strong-ind-ℕ P pS))
@@ -1086,7 +1086,7 @@ strong-ind-ℕ P p0 pS =
 
 comp-zero-strong-ind-ℕ :
   {l : Level} (P : ℕ → UU l) (p0 : P zero-ℕ) →
-  (pS : (k : ℕ) → (□-ℕ P k) → P (succ-ℕ k)) →
+  (pS : (k : ℕ) → (□-≤-ℕ P k) → P (succ-ℕ k)) →
   Id (strong-ind-ℕ P p0 pS zero-ℕ) p0
 comp-zero-strong-ind-ℕ P p0 pS = refl
 
@@ -1100,7 +1100,7 @@ cases-leq-succ-reflexive-leq-ℕ {succ-ℕ n} =
   
 cases-eq-comp-succ-strong-ind-ℕ :
   { l : Level} (P : ℕ → UU l) (p0 : P zero-ℕ) →
-  ( pS : (k : ℕ) → (□-ℕ P k) → P (succ-ℕ k)) →
+  ( pS : (k : ℕ) → (□-≤-ℕ P k) → P (succ-ℕ k)) →
   ( n : ℕ) →
   ( α :
     ( m : ℕ) (p : leq-ℕ m n) →
@@ -1142,7 +1142,7 @@ cases-eq-comp-succ-strong-ind-ℕ P p0 pS n α .(succ-ℕ n) p (inr refl) =
 
 eq-comp-succ-strong-ind-ℕ :
   { l : Level} (P : ℕ → UU l) (p0 : P zero-ℕ) →
-  ( pS : (k : ℕ) → (□-ℕ P k) → P (succ-ℕ k)) →
+  ( pS : (k : ℕ) → (□-≤-ℕ P k) → P (succ-ℕ k)) →
   ( n : ℕ) →
   ( m : ℕ) (p : leq-ℕ m n) →
   Id ( induction-strong-ind-ℕ P (zero-strong-ind-ℕ P p0)
@@ -1159,7 +1159,7 @@ eq-comp-succ-strong-ind-ℕ P p0 pS (succ-ℕ n) m p =
 
 comp-succ-strong-ind-ℕ :
   { l : Level} (P : ℕ → UU l) (p0 : P zero-ℕ) →
-  ( pS : (k : ℕ) → (□-ℕ P k) → P (succ-ℕ k)) →
+  ( pS : (k : ℕ) → (□-≤-ℕ P k) → P (succ-ℕ k)) →
   ( n : ℕ) →
   Id (strong-ind-ℕ P p0 pS (succ-ℕ n)) (pS n (λ m p → strong-ind-ℕ P p0 pS m))
 comp-succ-strong-ind-ℕ P p0 pS n = 
@@ -1176,7 +1176,7 @@ comp-succ-strong-ind-ℕ P p0 pS n =
 
 total-strong-ind-ℕ :
   { l : Level} (P : ℕ → UU l) (p0 : P zero-ℕ) →
-  ( pS : (k : ℕ) → (□-ℕ P k) → P (succ-ℕ k)) →
+  ( pS : (k : ℕ) → (□-≤-ℕ P k) → P (succ-ℕ k)) →
   Σ ( (n : ℕ) → P n)
     ( λ h →
       ( Id (h zero-ℕ) p0) ×
