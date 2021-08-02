@@ -4,6 +4,7 @@ module extra where
 
 open import extra.abelian-groups public
 open import extra.abelian-subgroups public
+open import extra.based-natural-numbers public
 open import extra.binary-natural-numbers public
 open import extra.categories public
 open import extra.cofibonacci public
