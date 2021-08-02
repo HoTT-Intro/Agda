@@ -2436,12 +2436,12 @@ is-not-emb-le-Fin {k} {l} f p =
   functor-neg (leq-is-emb-Fin) (contradiction-le-ℕ l k p)
 
 is-not-injective-le-Fin :
-  {k l : ℕ} (f : Fin k → Fin l) → le-ℕ l k → ¬ (is-injective f)
+  {k l : ℕ} (f : Fin k → Fin l) → le-ℕ l k → is-not-injective f
 is-not-injective-le-Fin {k} {l} f p =
   functor-neg (is-emb-is-injective (is-set-Fin l)) (is-not-emb-le-Fin f p)
 
 is-not-injective-map-Fin-succ-Fin :
-  {k : ℕ} (f : Fin (succ-ℕ k) → Fin k) → ¬ (is-injective f)
+  {k : ℕ} (f : Fin (succ-ℕ k) → Fin k) → is-not-injective f
 is-not-injective-map-Fin-succ-Fin {k} f =
   is-not-injective-le-Fin f (le-succ-ℕ {k})
 

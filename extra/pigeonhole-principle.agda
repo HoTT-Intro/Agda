@@ -4,11 +4,7 @@ module extra.pigeonhole-principle where
 
 open import book.16-finite-types public
 
--- We show that every function ℕ → Fin k repeats itself
-
-is-not-injective :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) → UU (l1 ⊔ l2)
-is-not-injective f = ¬ (is-injective f)
+-- We show that every function Fin k → Fin l repeats itself if l < k.
 
 is-repetition :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) (a : A) → UU (l1 ⊔ l2)

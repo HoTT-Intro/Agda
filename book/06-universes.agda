@@ -41,6 +41,10 @@ eq-Eq-ℕ (succ-ℕ x) (succ-ℕ y) e = ap succ-ℕ (eq-Eq-ℕ x y e)
 is-injective : {l1 l2 : Level} {A : UU l1} {B : UU l2} → (A → B) → UU (l1 ⊔ l2)
 is-injective {l1} {l2} {A} {B} f = ({x y : A} → Id (f x) (f y) → Id x y)
 
+is-not-injective :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) → UU (l1 ⊔ l2)
+is-not-injective f = ¬ (is-injective f)
+
 is-injective-succ-ℕ : is-injective succ-ℕ
 is-injective-succ-ℕ {x} {y} e = eq-Eq-ℕ x y (Eq-ℕ-eq e)
 
