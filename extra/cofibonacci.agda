@@ -2,8 +2,7 @@
 
 module extra.cofibonacci where
 
-import book
-open book public
+open import book.16-finite-types public
 
 {-------------------------------------------------------------------------------
 
@@ -15,6 +14,56 @@ open book public
 -------------------------------------------------------------------------------}
 
 -- We show that every function ℕ → Fin k repeats itself
+
+is-not-injective :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) → UU (l1 ⊔ l2)
+is-not-injective f = ¬ (is-injective f)
+
+is-repetition :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) (a : A) → UU (l1 ⊔ l2)
+is-repetition {l1} {l2} {A} {B} f a = Σ A (λ x → ¬ (Id a x) × (Id (f a) (f x)))
+
+is-decidable-is-repetition-Fin :
+  {k l : ℕ} (f : Fin k → Fin l) (x : Fin k) → is-decidable (is-repetition f x)
+is-decidable-is-repetition-Fin f x =
+  is-decidable-Σ-Fin
+    ( λ y →
+      is-decidable-prod
+        ( is-decidable-neg (has-decidable-equality-Fin x y))
+        ( has-decidable-equality-Fin (f x) (f y)))
+
+has-repetition :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) → UU (l1 ⊔ l2)
+has-repetition {A = A} f = Σ A (is-repetition f)
+
+is-decidable-has-repetition-Fin :
+  {k l : ℕ} (f : Fin k → Fin l) → is-decidable (has-repetition f)
+is-decidable-has-repetition-Fin f =
+  is-decidable-Σ-Fin (is-decidable-is-repetition-Fin f)
+
+exists-not-not-forall-Fin :
+  {l : Level} {k : ℕ} {P : Fin k → UU l} → (is-decidable-fam P) →
+  ¬ ((x : Fin k) → P x) → Σ (Fin k) (λ x → ¬ (P x))
+exists-not-not-forall-Fin {l} {zero-ℕ} d H = ex-falso (H ind-empty)
+exists-not-not-forall-Fin {l} {succ-ℕ k} {P} d H with d (inr star)
+... | inl p =
+  map-Σ
+    ( λ x → ¬ (P x))
+    ( inl)
+    ( λ x → id)
+    ( exists-not-not-forall-Fin
+      ( λ x → d (inl x))
+      ( λ f → H (ind-coprod P f (ind-unit p))))
+... | inr f = pair (inr star) f
+
+has-repetition-is-not-injective-Fin :
+  {k l : ℕ} (f : Fin l → Fin k) → is-not-injective f → has-repetition f
+has-repetition-is-not-injective-Fin {l = zero-ℕ} f H =
+  ex-falso (H (λ {x} {y} → α x y))
+  where
+  α : (x y : empty) → Id (f x) (f y) → Id x y
+  α = ind-empty
+has-repetition-is-not-injective-Fin {l = succ-ℕ l} f H = {!!}
 
 is-repetition-nat-to-Fin :
   (k : ℕ) (f : ℕ → Fin k) (x : ℕ) → UU lzero

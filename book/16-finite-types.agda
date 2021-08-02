@@ -2420,8 +2420,22 @@ reduce-emb-Fin k l f =
   pair (map-reduce-emb-Fin f) (is-emb-map-reduce-emb-Fin f)
 
 leq-emb-Fin :
-  (k l : ℕ) → Fin k ↪ Fin l → k ≤-ℕ l
-leq-emb-Fin zero-ℕ zero-ℕ f = refl-leq-ℕ zero-ℕ
-leq-emb-Fin (succ-ℕ k) zero-ℕ f = ex-falso (map-emb f (inr star))
-leq-emb-Fin zero-ℕ (succ-ℕ l) f = leq-zero-ℕ (succ-ℕ l)
-leq-emb-Fin (succ-ℕ k) (succ-ℕ l) f = leq-emb-Fin k l (reduce-emb-Fin k l f)
+  {k l : ℕ} → Fin k ↪ Fin l → k ≤-ℕ l
+leq-emb-Fin {zero-ℕ} {zero-ℕ} f = refl-leq-ℕ zero-ℕ
+leq-emb-Fin {succ-ℕ k} {zero-ℕ} f = ex-falso (map-emb f (inr star))
+leq-emb-Fin {zero-ℕ} {succ-ℕ l} f = leq-zero-ℕ (succ-ℕ l)
+leq-emb-Fin {succ-ℕ k} {succ-ℕ l} f = leq-emb-Fin (reduce-emb-Fin k l f)
+
+leq-is-emb-Fin :
+  {k l : ℕ} {f : Fin k → Fin l} → is-emb f → k ≤-ℕ l
+leq-is-emb-Fin {f = f} H = leq-emb-Fin (pair f H)
+
+no-embedding-ℕ-Fin :
+  (k : ℕ) → ¬ (ℕ ↪ Fin k)
+no-embedding-ℕ-Fin k e =
+  contradiction-leq-ℕ k k
+    ( refl-leq-ℕ k)
+    ( leq-emb-Fin
+      ( comp-emb e
+        ( pair ( nat-Fin {succ-ℕ k})
+               ( is-emb-is-injective is-set-ℕ is-injective-nat-Fin))))
