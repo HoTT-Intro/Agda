@@ -1370,12 +1370,8 @@ compute-number-of-elements-is-finite :
   Id (number-of-elements-count e) (number-of-elements-is-finite f)
 compute-number-of-elements-is-finite e f =
   ind-trunc-Prop
-    ( λ g →
-      pair
-        ( Id (number-of-elements-count e) (number-of-elements-is-finite g))
-        ( is-set-ℕ
-          ( number-of-elements-count e)
-          ( number-of-elements-is-finite g)))
+    ( λ g → Id-Prop ℕ-Set ( number-of-elements-count e)
+                          ( number-of-elements-is-finite g))
     ( λ g →
       ( is-injective-Fin ((inv-equiv (equiv-count g)) ∘e (equiv-count e))) ∙
       ( ap pr1
@@ -2237,6 +2233,7 @@ is-weakly-constant-map-fold-count-μ-is-commutative-monoid-Magma M H {k} e f = {
 
 {- We characterize when im(f) is finite, given that the domain of f is finite -}
 
+{-
 is-prop-Π-is-decidable-Id :
   {l : Level} {A : UU l} (x : A) → is-prop ((y : A) → is-decidable (Id x y))
 is-prop-Π-is-decidable-Id {l} {A} x =
@@ -2253,6 +2250,7 @@ is-finite-im f e d =
     {!!}
     {!!}
     {!!}
+-}
 
 --------------------------------------------------------------------------------
 
@@ -2441,7 +2439,7 @@ is-not-injective-le-Fin {k} {l} f p =
   functor-neg (is-emb-is-injective (is-set-Fin l)) (is-not-emb-le-Fin f p)
 
 is-not-injective-map-Fin-succ-Fin :
-  {k : ℕ} (f : Fin (succ-ℕ k) → Fin k) → is-not-injective f
+  {k : ℕ} (f : Fin (succ-ℕ k) → Fin k) → is-not-injective f 
 is-not-injective-map-Fin-succ-Fin {k} f =
   is-not-injective-le-Fin f (le-succ-ℕ {k})
 
@@ -2454,3 +2452,29 @@ no-embedding-ℕ-Fin k e =
       ( comp-emb e
         ( pair ( nat-Fin {succ-ℕ k})
                ( is-emb-is-injective is-set-ℕ is-injective-nat-Fin))))
+
+leq-emb-count :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  (eA : count A) (eB : count B) → (A ↪ B) →
+  (number-of-elements-count eA) ≤-ℕ (number-of-elements-count eB)
+leq-emb-count (pair m e) (pair n d) f =
+  leq-emb-Fin (comp-emb (comp-emb (emb-equiv (inv-equiv d)) f) (emb-equiv e))
+
+leq-emb-is-finite :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  (H : is-finite A) (K : is-finite B) → (A ↪ B) →
+  (number-of-elements-is-finite H) ≤-ℕ (number-of-elements-is-finite K)
+leq-emb-is-finite H K f =
+  apply-universal-property-trunc-Prop H P
+    ( λ eA →
+      apply-universal-property-trunc-Prop K P
+        ( λ eB →
+          concatenate-eq-leq-eq-ℕ
+            ( inv (compute-number-of-elements-is-finite eA H))
+            ( leq-emb-count eA eB f)
+            ( compute-number-of-elements-is-finite eB K)))
+  where
+  P : UU-Prop lzero
+  P = leq-ℕ-Prop
+        ( number-of-elements-is-finite H)
+        ( number-of-elements-is-finite K)

@@ -71,31 +71,66 @@ has-repetition-is-not-injective-Fin {l = succ-ℕ l} f H with
   α : has-repetition (f ∘ inl) → has-repetition f
   α (pair x (pair y (pair h q))) =
     pair (inl x) (pair (inl y) (pair (λ r → h (is-injective-inl r)) q))
-  
 
-is-repetition-nat-to-Fin :
-  (k : ℕ) (f : ℕ → Fin k) (x : ℕ) → UU lzero
-is-repetition-nat-to-Fin k f x = Σ ℕ (λ y → (le-ℕ y x) × (Id (f x) (f y)))
+has-repetition-le-Fin :
+  {k l : ℕ} (f : Fin k → Fin l) → le-ℕ l k → has-repetition f
+has-repetition-le-Fin f p =
+  has-repetition-is-not-injective-Fin f (is-not-injective-le-Fin f p)
 
-is-decidable-is-repetition-nat-to-Fin :
-  (k : ℕ) (f : ℕ → Fin k) (x : ℕ) →
-  is-decidable (is-repetition-nat-to-Fin k f x)
-is-decidable-is-repetition-nat-to-Fin k f x =
-  is-decidable-strictly-bounded-Σ-ℕ'
-    ( λ y → Id (f x) (f y))
-    ( λ y → has-decidable-equality-Fin (f x) (f y))
-    ( x)
+has-repetition-Fin-succ-to-Fin :
+  {k : ℕ} (f : Fin (succ-ℕ k) → Fin k) → has-repetition f
+has-repetition-Fin-succ-to-Fin {k} f =
+  has-repetition-le-Fin f (le-succ-ℕ {k})
 
-repeats-nat-to-Fin' :
-  (k : ℕ) (f : ℕ → Fin k) →
-  Σ ℕ (λ x → (leq-ℕ x (succ-ℕ k)) × (is-repetition-nat-to-Fin k f x))
-repeats-nat-to-Fin' zero-ℕ f = ex-falso (f zero-ℕ)
-repeats-nat-to-Fin' (succ-ℕ k) f with
-  is-decidable-is-repetition-nat-to-Fin (succ-ℕ k) f (succ-ℕ (succ-ℕ k))
-... | inl r =
-  pair
-    ( succ-ℕ (succ-ℕ k))
-    ( pair
-      ( refl-leq-ℕ (succ-ℕ (succ-ℕ k)))
-      ( r))
-... | inr g = {!!}
+has-repetition-left-factor :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {g : B → C}
+  {f : A → B} → is-injective f → has-repetition (g ∘ f) → has-repetition g
+has-repetition-left-factor {g = g} {f} H (pair a (pair b (pair K p))) =
+  pair (f a) (pair (f b) (pair (λ q → K (H q)) p))
+
+has-repetition-nat-to-Fin :
+  {k : ℕ} (f : ℕ → Fin k) → has-repetition f
+has-repetition-nat-to-Fin {k} f =
+  has-repetition-left-factor
+    ( is-injective-nat-Fin {succ-ℕ k})
+    ( has-repetition-Fin-succ-to-Fin (f ∘ nat-Fin))
+
+has-ordered-repetition-ℕ :
+  {l1 : Level} {A : UU l1} (f : ℕ → A) → UU l1
+has-ordered-repetition-ℕ f = Σ ℕ (λ x → Σ ℕ (λ y → (le-ℕ y x) × Id (f y) (f x)))
+
+has-ordered-repetition-nat-to-Fin :
+  {k : ℕ} (f : ℕ → Fin k) → has-ordered-repetition-ℕ f
+has-ordered-repetition-nat-to-Fin f with
+  has-repetition-nat-to-Fin f
+... | pair x (pair y (pair H p)) with is-decidable-le-ℕ y x
+... | inl t = pair x (pair y (pair t (inv p)))
+... | inr t = pair y (pair x (pair L p))
+  where
+  L : le-ℕ x y
+  L = map-left-unit-law-coprod-is-empty
+        ( Id y x)
+        ( le-ℕ x y)
+        ( λ q → H (inv q))
+        ( map-left-unit-law-coprod-is-empty
+          ( le-ℕ y x)
+          ( coprod (Id y x)
+          ( le-ℕ x y))
+          ( t)
+          ( linear-le-ℕ y x))
+
+first-repetition-nat-to-Fin :
+  {k : ℕ} (f : ℕ → Fin k) →
+  minimal-element-ℕ (λ x → Σ ℕ (λ y → (le-ℕ y x) × (Id (f y) (f x))))
+first-repetition-nat-to-Fin f =
+  well-ordering-principle-ℕ
+    ( λ x → Σ ℕ (λ y → (le-ℕ y x) × (Id (f y) (f x))))
+    ( λ x →
+      is-decidable-strictly-bounded-Σ-ℕ
+        ( λ y → le-ℕ y x)
+        ( λ y → Id (f y) (f x))
+        ( λ y → is-decidable-le-ℕ y x)
+        ( λ y → has-decidable-equality-Fin (f y) (f x))
+        ( x)
+        ( λ y → id))
+    ( has-ordered-repetition-nat-to-Fin f)

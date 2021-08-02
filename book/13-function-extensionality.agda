@@ -947,6 +947,9 @@ is-prop-leq-ℕ zero-ℕ (succ-ℕ n) = is-prop-unit
 is-prop-leq-ℕ (succ-ℕ m) zero-ℕ = is-prop-empty
 is-prop-leq-ℕ (succ-ℕ m) (succ-ℕ n) = is-prop-leq-ℕ m n
 
+leq-ℕ-Prop : ℕ → ℕ → UU-Prop lzero
+leq-ℕ-Prop m n = pair (leq-ℕ m n) (is-prop-leq-ℕ m n)
+
 neg-succ-leq-ℕ :
   (n : ℕ) → ¬ (leq-ℕ (succ-ℕ n) n)
 neg-succ-leq-ℕ zero-ℕ = id

@@ -542,6 +542,13 @@ le-leq-neq-ℕ {zero-ℕ} {succ-ℕ y} l f = star
 le-leq-neq-ℕ {succ-ℕ x} {succ-ℕ y} l f =
   le-leq-neq-ℕ {x} {y} l (λ p → f (ap succ-ℕ p))
 
+linear-le-ℕ : (x y : ℕ) → coprod (le-ℕ x y) (coprod (Id x y) (le-ℕ y x))
+linear-le-ℕ zero-ℕ zero-ℕ = inr (inl refl)
+linear-le-ℕ zero-ℕ (succ-ℕ y) = inl star
+linear-le-ℕ (succ-ℕ x) zero-ℕ = inr (inr star)
+linear-le-ℕ (succ-ℕ x) (succ-ℕ y) =
+  map-coprod id (map-coprod (ap succ-ℕ) id) (linear-le-ℕ x y)
+
 -- Exercise 6.5
 
 -- Exercise 6.5 (a)
