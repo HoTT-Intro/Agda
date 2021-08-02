@@ -2430,6 +2430,21 @@ leq-is-emb-Fin :
   {k l : ℕ} {f : Fin k → Fin l} → is-emb f → k ≤-ℕ l
 leq-is-emb-Fin {f = f} H = leq-emb-Fin (pair f H)
 
+is-not-emb-le-Fin :
+  {k l : ℕ} (f : Fin k → Fin l) → le-ℕ l k → ¬ (is-emb f)
+is-not-emb-le-Fin {k} {l} f p =
+  functor-neg (leq-is-emb-Fin) (contradiction-le-ℕ l k p)
+
+is-not-injective-le-Fin :
+  {k l : ℕ} (f : Fin k → Fin l) → le-ℕ l k → ¬ (is-injective f)
+is-not-injective-le-Fin {k} {l} f p =
+  functor-neg (is-emb-is-injective (is-set-Fin l)) (is-not-emb-le-Fin f p)
+
+is-not-injective-map-Fin-succ-Fin :
+  {k : ℕ} (f : Fin (succ-ℕ k) → Fin k) → ¬ (is-injective f)
+is-not-injective-map-Fin-succ-Fin {k} f =
+  is-not-injective-le-Fin f (le-succ-ℕ {k})
+
 no-embedding-ℕ-Fin :
   (k : ℕ) → ¬ (ℕ ↪ Fin k)
 no-embedding-ℕ-Fin k e =
