@@ -1211,15 +1211,6 @@ is-decidable-strictly-bounded-Σ-ℕ' P d m =
 
 -- We solve this exercise in extra/cofibonacci.agda
 
-{-
-associative-add-ℕ₂ :
-  (x y z : ℕ₂) → Id (add-ℕ₂ (add-ℕ₂ x y) z) (add-ℕ₂ x (add-ℕ₂ y z))
-associative-add-ℕ₂ x y zero-ℕ₂ = refl
-associative-add-ℕ₂ x y one-ℕ₂ = {!!}
-associative-add-ℕ₂ x y (double-plus-two-ℕ₂ z) = {!!}
-associative-add-ℕ₂ x y (double-plus-three-ℕ₂ z) = {!!}
--}
-
 --------------------------------------------------------------------------------
 
 leq-Fin :

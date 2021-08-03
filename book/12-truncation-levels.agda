@@ -694,7 +694,7 @@ abstract
     is-contr-is-equiv B f is-equiv-f H
   is-trunc-is-equiv (succ-𝕋 k) B f is-equiv-f H x y =
     is-trunc-is-equiv k (Id (f x) (f y)) (ap f {x} {y})
-      (is-emb-is-equiv is-equiv-f x y) (H (f x) (f y))
+      ( is-emb-is-equiv is-equiv-f x y) (H (f x) (f y))
 
 abstract
   is-set-is-equiv :
