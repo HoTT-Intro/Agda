@@ -262,6 +262,10 @@ leq-ℕ (succ-ℕ n) (succ-ℕ m) = leq-ℕ n m
 
 _≤-ℕ_ = leq-ℕ
 
+data leq-ℕ' : ℕ → ℕ → UU lzero where
+  refl-leq-ℕ' : (n : ℕ) → leq-ℕ' n n
+  propagate-leq-ℕ' : {x y z : ℕ} → Id (succ-ℕ y) z → (leq-ℕ' x y) → (leq-ℕ' x z) 
+
 -- Some trivialities that will be useful later
 
 leq-zero-ℕ :
