@@ -41,6 +41,10 @@ eq-Eq-ℕ (succ-ℕ x) (succ-ℕ y) e = ap succ-ℕ (eq-Eq-ℕ x y e)
 is-injective : {l1 l2 : Level} {A : UU l1} {B : UU l2} → (A → B) → UU (l1 ⊔ l2)
 is-injective {l1} {l2} {A} {B} f = ({x y : A} → Id (f x) (f y) → Id x y)
 
+is-not-injective :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) → UU (l1 ⊔ l2)
+is-not-injective f = ¬ (is-injective f)
+
 is-injective-succ-ℕ : is-injective succ-ℕ
 is-injective-succ-ℕ {x} {y} e = eq-Eq-ℕ x y (Eq-ℕ-eq e)
 
@@ -532,6 +536,10 @@ concatenate-le-leq-ℕ {zero-ℕ} {succ-ℕ y} {succ-ℕ z} H K = star
 concatenate-le-leq-ℕ {succ-ℕ x} {succ-ℕ y} {succ-ℕ z} H K =
   concatenate-le-leq-ℕ {x} {y} {z} H K
 
+concatenate-eq-le-eq-ℕ :
+  {x y z w : ℕ} → Id x y → le-ℕ y z → Id z w → le-ℕ x w
+concatenate-eq-le-eq-ℕ refl p refl = p
+
 le-succ-ℕ : {x : ℕ} → le-ℕ x (succ-ℕ x)
 le-succ-ℕ {zero-ℕ} = star
 le-succ-ℕ {succ-ℕ x} = le-succ-ℕ {x}
@@ -541,6 +549,13 @@ le-leq-neq-ℕ {zero-ℕ} {zero-ℕ} l f = ex-falso (f refl)
 le-leq-neq-ℕ {zero-ℕ} {succ-ℕ y} l f = star
 le-leq-neq-ℕ {succ-ℕ x} {succ-ℕ y} l f =
   le-leq-neq-ℕ {x} {y} l (λ p → f (ap succ-ℕ p))
+
+linear-le-ℕ : (x y : ℕ) → coprod (le-ℕ x y) (coprod (Id x y) (le-ℕ y x))
+linear-le-ℕ zero-ℕ zero-ℕ = inr (inl refl)
+linear-le-ℕ zero-ℕ (succ-ℕ y) = inl star
+linear-le-ℕ (succ-ℕ x) zero-ℕ = inr (inr star)
+linear-le-ℕ (succ-ℕ x) (succ-ℕ y) =
+  map-coprod id (map-coprod (ap succ-ℕ) id) (linear-le-ℕ x y)
 
 -- Exercise 6.5
 

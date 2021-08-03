@@ -3,7 +3,6 @@
 module extra.final-coalgebras where
 
 open import extra.sequential-limits public
-open import extra.W-types public
 
 -- Coalgebras for polynomial endofunctors
 

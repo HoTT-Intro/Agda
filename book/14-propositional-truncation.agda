@@ -29,10 +29,6 @@ abstract
       ( is-prop-function-type (pr2 Q))
       ( is-prop-function-type (pr2 P))
 
-equiv-Prop :
-  { l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) → UU (l1 ⊔ l2)
-equiv-Prop P Q = (type-Prop P) ≃ (type-Prop Q)
-
 abstract
   is-prop-equiv-Prop :
     {l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) →
@@ -203,7 +199,7 @@ is-uniquely-unique-propositional-truncation :
   (f : A → type-Prop P) (f' : A → type-Prop P') →
   ({l : Level} → is-propositional-truncation l P f) →
   ({l : Level} → is-propositional-truncation l P' f') →
-  is-contr (Σ (equiv-Prop P P') (λ e → (map-equiv e ∘ f) ~ f'))
+  is-contr (Σ (type-equiv-Prop P P') (λ e → (map-equiv e ∘ f) ~ f'))
 is-uniquely-unique-propositional-truncation P P' f f' is-ptr-f is-ptr-f' =
   is-contr-total-Eq-substructure
     ( universal-property-is-propositional-truncation _ P f is-ptr-f P' f')
@@ -708,7 +704,9 @@ is-propositional-truncation-prod P f P' f' is-ptr-f is-ptr-f' Q =
 
 equiv-prod-trunc-Prop :
   {l1 l2 : Level} (A : UU l1) (A' : UU l2) →
-  equiv-Prop (trunc-Prop (A × A')) (prod-Prop (trunc-Prop A) (trunc-Prop A'))
+  type-equiv-Prop
+    ( trunc-Prop (A × A'))
+    ( prod-Prop (trunc-Prop A) (trunc-Prop A'))
 equiv-prod-trunc-Prop A A' =
   pr1
     ( center
@@ -812,7 +810,7 @@ is-propositional-truncation-is-equiv P Q {f} is-equiv-f R =
   is-equiv-precomp-is-equiv f is-equiv-f (type-Prop R)
 
 is-propositional-truncation-map-equiv :
-  { l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) (e : equiv-Prop P Q) →
+  { l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) (e : type-equiv-Prop P Q) →
   ( l : Level) → is-propositional-truncation l Q (map-equiv e)
 is-propositional-truncation-map-equiv P Q e l R =
   is-equiv-precomp-is-equiv (map-equiv e) (is-equiv-map-equiv e) (type-Prop R)

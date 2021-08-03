@@ -4,11 +4,14 @@ module extra where
 
 open import extra.abelian-groups public
 open import extra.abelian-subgroups public
+open import extra.based-natural-numbers public
+open import extra.binary-natural-numbers public
 open import extra.categories public
 open import extra.cofibonacci public
 open import extra.combinatorial-objects public
 open import extra.dependent-preorders public
 open import extra.dn-sheaves public
+open import extra.Euclidean-algorithm public
 open import extra.final-coalgebras public
 open import extra.flat-modality public
 open import extra.free-group public

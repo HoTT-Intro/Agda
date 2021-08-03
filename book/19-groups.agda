@@ -402,7 +402,7 @@ loop-space-1-type-Group A a =
 
 aut-Set :
   {l : Level} (X : UU-Set l) → UU-Set l
-aut-Set X = set-equiv X X
+aut-Set X = equiv-Set X X
 
 associative-comp-equiv :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {D : UU l4} →

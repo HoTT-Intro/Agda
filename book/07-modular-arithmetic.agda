@@ -627,6 +627,24 @@ congruence-add-ℕ k {x} {y} {x'} {y'} H K =
     ( translation-invariant-cong-ℕ k y y' x K)
     ( translation-invariant-cong-ℕ' k x x' y' H)
 
+mod-succ-add-ℕ :
+  (k x y : ℕ) →
+  Id (mod-succ-ℕ k (add-ℕ x y)) (add-Fin (mod-succ-ℕ k x) (mod-succ-ℕ k y))
+mod-succ-add-ℕ k x y =
+  eq-cong-ℕ k
+    ( add-ℕ x y)
+    ( add-ℕ (nat-Fin (mod-succ-ℕ k x)) (nat-Fin (mod-succ-ℕ k y)))
+    ( congruence-add-ℕ
+      ( succ-ℕ k)
+      { x}
+      { y}
+      { nat-Fin (mod-succ-ℕ k x)}
+      { nat-Fin (mod-succ-ℕ k y)}
+      ( symmetric-cong-ℕ (succ-ℕ k) (nat-Fin (mod-succ-ℕ k x)) x
+        ( cong-nat-mod-succ-ℕ k x))
+      ( symmetric-cong-ℕ (succ-ℕ k) (nat-Fin (mod-succ-ℕ k y)) y
+        ( cong-nat-mod-succ-ℕ k y)))
+
 {- Theorem 7.5.4 -}
 
 -- We show that addition is commutative --

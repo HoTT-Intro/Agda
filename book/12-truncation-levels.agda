@@ -673,6 +673,20 @@ set-Prop P = truncated-type-succ-Truncated-Type neg-one-𝕋 P
   {l : Level} → UU-Set l → UU-1-Type l
 1-type-Set A = truncated-type-succ-Truncated-Type zero-𝕋 A
 
+-- We conclude that a contractible type is k-truncated for any k
+
+is-trunc-is-contr :
+  { l : Level} (k : 𝕋) {A : UU l} → is-contr A → is-trunc k A
+is-trunc-is-contr neg-two-𝕋 is-contr-A = is-contr-A
+is-trunc-is-contr (succ-𝕋 k) is-contr-A =
+  is-trunc-succ-is-trunc k (is-trunc-is-contr k is-contr-A)
+
+-- We also conclude that a proposition is (k+1)-truncated for any k
+
+is-trunc-is-prop :
+  { l : Level} (k : 𝕋) {A : UU l} → is-prop A → is-trunc (succ-𝕋 k) A
+is-trunc-is-prop k is-prop-A x y = is-trunc-is-contr k (is-prop-A x y)
+
 -- We show that k-truncated types are closed under equivalences --
 
 abstract

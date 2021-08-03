@@ -2,8 +2,7 @@
 
 module extra.abelian-groups where
 
-import book
-open book public
+open import book public
 
 is-abelian-Group :
   {l : Level} (G : Group l) → UU l
