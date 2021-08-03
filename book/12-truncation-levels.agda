@@ -112,10 +112,7 @@ abstract
     {l1 : Level} {A : UU l1} → is-proof-irrelevant A → is-subterminal A
   is-subterminal-is-proof-irrelevant H =
     is-emb-is-emb
-      ( λ x →
-        is-emb-is-equiv
-          ( terminal-map)
-          ( is-equiv-is-contr _ (H x) is-contr-unit))
+      ( λ x → is-emb-is-equiv (is-equiv-is-contr _ (H x) is-contr-unit))
 
 abstract
   is-subterminal-is-prop' :
@@ -189,7 +186,7 @@ abstract
     {l1 l2 : Level} {A : UU l1} (B : UU l2) (f : A → B) (E : is-equiv f) →
     is-prop B → is-prop A
   is-prop-is-equiv B f E H x y =
-    is-contr-is-equiv _ (ap f {x} {y}) (is-emb-is-equiv f E x y) (H (f x) (f y))
+    is-contr-is-equiv _ (ap f {x} {y}) (is-emb-is-equiv E x y) (H (f x) (f y))
 
 is-prop-equiv :
   {l1 l2 : Level} {A : UU l1} (B : UU l2) (e : A ≃ B) → is-prop B → is-prop A
@@ -697,7 +694,7 @@ abstract
     is-contr-is-equiv B f is-equiv-f H
   is-trunc-is-equiv (succ-𝕋 k) B f is-equiv-f H x y =
     is-trunc-is-equiv k (Id (f x) (f y)) (ap f {x} {y})
-      (is-emb-is-equiv f is-equiv-f x y) (H (f x) (f y))
+      (is-emb-is-equiv is-equiv-f x y) (H (f x) (f y))
 
 abstract
   is-set-is-equiv :
@@ -1471,3 +1468,13 @@ is-emb-map-Σ-map-base f C is-emb-f =
         ( fib f (pr1 x))
         ( equiv-fib-map-Σ-map-base-fib f C x)
         ( is-prop-map-is-emb is-emb-f (pr1 x)))
+
+--------------------------------------------------------------------------------
+
+-- We conclude that some maps, that were known to be injective, are embeddings
+                                                                    
+is-emb-nat-Fin : {k : ℕ} → is-emb (nat-Fin {k})
+is-emb-nat-Fin {k} = is-emb-is-injective is-set-ℕ is-injective-nat-Fin
+
+emb-nat-Fin : (k : ℕ) → Fin k ↪ ℕ
+emb-nat-Fin k = pair nat-Fin is-emb-nat-Fin

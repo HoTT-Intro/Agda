@@ -580,7 +580,7 @@ eq-Eq-ℤ {x} {y} = map-inv-is-equiv (is-equiv-Eq-ℤ-eq x y)
 is-emb-add-ℤ :
   (x : ℤ) → is-emb (add-ℤ x)
 is-emb-add-ℤ x =
-  is-emb-is-equiv (add-ℤ x) (is-equiv-add-ℤ x)
+  is-emb-is-equiv (is-equiv-add-ℤ x)
 
 is-injective-add-ℤ :
   (x y z : ℤ) → Id (add-ℤ x y) (add-ℤ x z) → Id y z
@@ -588,7 +588,7 @@ is-injective-add-ℤ x y z = map-inv-is-equiv (is-emb-add-ℤ x y z)
 
 is-emb-add-ℤ' :
   (y : ℤ) → is-emb (add-ℤ' y)
-is-emb-add-ℤ' y = is-emb-is-equiv (add-ℤ' y) (is-equiv-add-ℤ' y)
+is-emb-add-ℤ' y = is-emb-is-equiv (is-equiv-add-ℤ' y)
 
 is-injective-add-ℤ' :
   (y x w : ℤ) → Id (add-ℤ x y) (add-ℤ w y) → Id x w
@@ -599,7 +599,7 @@ is-injective-add-ℤ' y x w = map-inv-is-equiv (is-emb-add-ℤ' y x w)
 {- We show that multiplication by neg-one-ℤ is an equivalence. -}
 
 is-emb-neg-ℤ : is-emb neg-ℤ
-is-emb-neg-ℤ = is-emb-is-equiv neg-ℤ is-equiv-neg-ℤ
+is-emb-neg-ℤ = is-emb-is-equiv is-equiv-neg-ℤ
 
 is-injective-neg-ℤ :
   (x y : ℤ) → Id (neg-ℤ x) (neg-ℤ y) → Id x y

@@ -5,6 +5,72 @@ module extra.lists where
 import book
 open book public
 
+Eq-list : {l1 : Level} {A : UU l1} → list A → list A → UU l1
+Eq-list {l1} nil nil = raise-unit l1
+Eq-list {l1} nil (cons x l') = raise-empty l1
+Eq-list {l1} (cons x l) nil = raise-empty l1
+Eq-list {l1} (cons x l) (cons x' l') = (Id x x') × Eq-list l l'
+
+reflexive-Eq-list : {l1 : Level} {A : UU l1} (l : list A) → Eq-list l l
+reflexive-Eq-list nil = raise-star
+reflexive-Eq-list (cons x l) = pair refl (reflexive-Eq-list l)
+
+Eq-list-eq :
+  {l1 : Level} {A : UU l1} (l l' : list A) → Id l l' → Eq-list l l'
+Eq-list-eq l .l refl = reflexive-Eq-list l
+
+eq-Eq-list :
+  {l1 : Level} {A : UU l1} (l l' : list A) → Eq-list l l' → Id l l'
+eq-Eq-list nil nil (map-raise star) = refl
+eq-Eq-list nil (cons x l') (map-raise f) = ex-falso f
+eq-Eq-list (cons x l) nil (map-raise f) = ex-falso f
+eq-Eq-list (cons x l) (cons .x l') (pair refl e) =
+  ap (cons x) (eq-Eq-list l l' e)
+
+has-decidable-equality-list :
+  {l1 : Level} {A : UU l1} →
+  has-decidable-equality A → has-decidable-equality (list A)
+has-decidable-equality-list d nil nil = inl refl
+has-decidable-equality-list d nil (cons x l) =
+  inr (map-inv-raise ∘ Eq-list-eq nil (cons x l))
+has-decidable-equality-list d (cons x l) nil =
+  inr (map-inv-raise ∘ Eq-list-eq (cons x l) nil)
+has-decidable-equality-list d (cons x l) (cons x' l') =
+  is-decidable-iff
+    ( eq-Eq-list (cons x l) (cons x' l'))
+    ( Eq-list-eq (cons x l) (cons x' l'))
+    ( is-decidable-prod
+      ( d x x')
+      ( is-decidable-iff
+        ( Eq-list-eq l l')
+        ( eq-Eq-list l l')
+        ( has-decidable-equality-list d l l')))
+
+is-decidable-left-factor :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  is-decidable (A × B) → B → is-decidable A
+is-decidable-left-factor (inl (pair x y)) b = inl x
+is-decidable-left-factor (inr f) b = inr (λ a → f (pair a b))
+
+is-decidable-right-factor :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  is-decidable (A × B) → A → is-decidable B
+is-decidable-right-factor (inl (pair x y)) a = inl y
+is-decidable-right-factor (inr f) a = inr (λ b → f (pair a b))
+
+has-decidable-equality-has-decidable-equality-list :
+  {l1 : Level} {A : UU l1} →
+  has-decidable-equality (list A) → has-decidable-equality A
+has-decidable-equality-has-decidable-equality-list d x y =
+  is-decidable-left-factor
+    ( is-decidable-iff
+      ( Eq-list-eq (cons x nil) (cons y nil))
+      ( eq-Eq-list (cons x nil) (cons y nil))
+      ( d (cons x nil) (cons y nil)))
+    ( raise-star)
+
+--------------------------------------------------------------------------------
+
 unit-list :
   {l1 : Level} {A : UU l1} → A → list A
 unit-list a = cons a nil

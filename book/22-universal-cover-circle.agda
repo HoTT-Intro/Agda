@@ -210,7 +210,7 @@ abstract
             ( naturality-tr-fiberwise-transformation f l p₀)
             ( f x p₀))
           ( ap (f x))
-          ( is-emb-is-equiv (f x) (is-equiv-f x) (tr P l p₀) p₀)
+          ( is-emb-is-equiv (is-equiv-f x) (tr P l p₀) p₀)
           ( is-equiv-concat
             ( naturality-tr-fiberwise-transformation f l p₀)
             ( f x p₀)))

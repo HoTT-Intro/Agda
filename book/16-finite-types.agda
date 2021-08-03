@@ -2312,6 +2312,9 @@ is-emb-skip-Fin {k} x =
     ( is-set-Fin (succ-ℕ k))
     ( is-injective-skip-Fin x)
 
+emb-skip-Fin : {k : ℕ} (x : Fin (succ-ℕ k)) → Fin k ↪ Fin (succ-ℕ k)
+emb-skip-Fin x = pair (skip-Fin x) (is-emb-skip-Fin x)
+
 repeat-Fin :
   {k : ℕ} (x : Fin k) → Fin (succ-ℕ k) → Fin k
 repeat-Fin {succ-ℕ k} (inl x) (inl y) = inl (repeat-Fin x y)
@@ -2472,10 +2475,7 @@ no-embedding-ℕ-Fin :
 no-embedding-ℕ-Fin k e =
   contradiction-leq-ℕ k k
     ( refl-leq-ℕ k)
-    ( leq-emb-Fin
-      ( comp-emb e
-        ( pair ( nat-Fin {succ-ℕ k})
-               ( is-emb-is-injective is-set-ℕ is-injective-nat-Fin))))
+    ( leq-emb-Fin (comp-emb e (emb-nat-Fin (succ-ℕ k))))
 
 -- We generalise the main results to types equipped with a counting
 

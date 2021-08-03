@@ -866,7 +866,7 @@ abstract
     ( pair (pair H is-set-H) (pair μ-H assoc-H))
     ( pair f μ-f) is-equiv-f x y =
     map-inv-is-equiv
-      ( is-emb-is-equiv f is-equiv-f
+      ( is-emb-is-equiv is-equiv-f
         ( map-inv-is-equiv is-equiv-f (μ-H x y))
         ( μ-G (map-inv-is-equiv is-equiv-f x) (map-inv-is-equiv is-equiv-f y)))
       ( ( ( issec-map-inv-is-equiv is-equiv-f (μ-H x y)) ∙

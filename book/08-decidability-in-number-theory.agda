@@ -953,13 +953,29 @@ Collatz-conjecture =
 
 {- Exercise 8.2 -}
 
--- Exercise 8.2 (a)
+exists-not-not-forall-Fin :
+  {l : Level} {k : ℕ} {P : Fin k → UU l} → (is-decidable-fam P) →
+  ¬ ((x : Fin k) → P x) → Σ (Fin k) (λ x → ¬ (P x))
+exists-not-not-forall-Fin {l} {zero-ℕ} d H = ex-falso (H ind-empty)
+exists-not-not-forall-Fin {l} {succ-ℕ k} {P} d H with d (inr star)
+... | inl p =
+  T ( exists-not-not-forall-Fin
+      ( λ x → d (inl x))
+      ( λ f → H (ind-coprod P f (ind-unit p))))
+  where
+  T : Σ (Fin k) (λ x → ¬ (P (inl x))) → Σ (Fin (succ-ℕ k)) (λ x → ¬ (P x))
+  T z = pair (inl (pr1 z)) (pr2 z)
+... | inr f = pair (inr star) f
+
+{- Exercise 8.3 -}
+
+-- Exercise 8.3 (a)
 
 prime-ℕ : ℕ → ℕ
 prime-ℕ zero-ℕ = two-ℕ
 prime-ℕ (succ-ℕ n) = pr1 (infinitude-of-primes-ℕ (prime-ℕ n))
 
--- Exercise 8.2 (b)
+-- Exercise 8.3 (b)
 
 prime-counting-ℕ : ℕ → ℕ
 prime-counting-ℕ zero-ℕ = zero-ℕ
@@ -969,7 +985,11 @@ prime-counting-ℕ (succ-ℕ n) with is-decidable-is-prime-ℕ (succ-ℕ n)
 
 --------------------------------------------------------------------------------
 
-{- Exercise 8.3 -}
+{- Exercise 8.4 -}
+
+--------------------------------------------------------------------------------
+
+{- Exercise 8.5 -}
 
 has-decidable-equality-prod' :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} →
@@ -1005,7 +1025,7 @@ has-decidable-equality-right-factor d a x y with d (pair a x) (pair a y)
 
 --------------------------------------------------------------------------------
 
-{- Exercise 8.4 -}
+{- Exercise 8.6 -}
 
 -- We define observational equality of coproducts.
 
@@ -1017,7 +1037,7 @@ Eq-coprod {l1} {l2} A B (inl x) (inr y) = raise-empty (l1 ⊔ l2)
 Eq-coprod {l1} {l2} A B (inr x) (inl y) = raise-empty (l1 ⊔ l2)
 Eq-coprod {l1} {l2} A B (inr x) (inr y) = raise (l1 ⊔ l2) (Id x y)
 
--- Exercise 8.4 (a)
+-- Exercise 8.6 (a)
 
 reflexive-Eq-coprod :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) →
@@ -1044,7 +1064,7 @@ neq-inl-inr :
 neq-inl-inr {l1} {l2} {A} {B} x y =
   map-inv-raise ∘ Eq-coprod-eq A B (inl x) (inr y)
 
--- Exercise 8.4 (b)
+-- Exercise 8.6 (b)
 
 has-decidable-equality-coprod :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} →
@@ -1085,79 +1105,17 @@ has-decidable-equality-right-summand {l1} {l2} {A} {B} d x y =
 
 --------------------------------------------------------------------------------
 
-{- Exercise 8.5 -}
-
--- Exercies 8.5 (a)
-
--- Exercise 8.5 (c)
-
-Eq-list : {l1 : Level} {A : UU l1} → list A → list A → UU l1
-Eq-list {l1} nil nil = raise-unit l1
-Eq-list {l1} nil (cons x l') = raise-empty l1
-Eq-list {l1} (cons x l) nil = raise-empty l1
-Eq-list {l1} (cons x l) (cons x' l') = (Id x x') × Eq-list l l'
-
-reflexive-Eq-list : {l1 : Level} {A : UU l1} (l : list A) → Eq-list l l
-reflexive-Eq-list nil = raise-star
-reflexive-Eq-list (cons x l) = pair refl (reflexive-Eq-list l)
-
-Eq-list-eq :
-  {l1 : Level} {A : UU l1} (l l' : list A) → Id l l' → Eq-list l l'
-Eq-list-eq l .l refl = reflexive-Eq-list l
-
-eq-Eq-list :
-  {l1 : Level} {A : UU l1} (l l' : list A) → Eq-list l l' → Id l l'
-eq-Eq-list nil nil (map-raise star) = refl
-eq-Eq-list nil (cons x l') (map-raise f) = ex-falso f
-eq-Eq-list (cons x l) nil (map-raise f) = ex-falso f
-eq-Eq-list (cons x l) (cons .x l') (pair refl e) =
-  ap (cons x) (eq-Eq-list l l' e)
-
-has-decidable-equality-list :
-  {l1 : Level} {A : UU l1} →
-  has-decidable-equality A → has-decidable-equality (list A)
-has-decidable-equality-list d nil nil = inl refl
-has-decidable-equality-list d nil (cons x l) =
-  inr (map-inv-raise ∘ Eq-list-eq nil (cons x l))
-has-decidable-equality-list d (cons x l) nil =
-  inr (map-inv-raise ∘ Eq-list-eq (cons x l) nil)
-has-decidable-equality-list d (cons x l) (cons x' l') =
-  is-decidable-iff
-    ( eq-Eq-list (cons x l) (cons x' l'))
-    ( Eq-list-eq (cons x l) (cons x' l'))
-    ( is-decidable-prod
-      ( d x x')
-      ( is-decidable-iff
-        ( Eq-list-eq l l')
-        ( eq-Eq-list l l')
-        ( has-decidable-equality-list d l l')))
-
-is-decidable-left-factor :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-  is-decidable (A × B) → B → is-decidable A
-is-decidable-left-factor (inl (pair x y)) b = inl x
-is-decidable-left-factor (inr f) b = inr (λ a → f (pair a b))
-
-is-decidable-right-factor :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-  is-decidable (A × B) → A → is-decidable B
-is-decidable-right-factor (inl (pair x y)) a = inl y
-is-decidable-right-factor (inr f) a = inr (λ b → f (pair a b))
-
-has-decidable-equality-has-decidable-equality-list :
-  {l1 : Level} {A : UU l1} →
-  has-decidable-equality (list A) → has-decidable-equality A
-has-decidable-equality-has-decidable-equality-list d x y =
-  is-decidable-left-factor
-    ( is-decidable-iff
-      ( Eq-list-eq (cons x nil) (cons y nil))
-      ( eq-Eq-list (cons x nil) (cons y nil))
-      ( d (cons x nil) (cons y nil)))
-    ( raise-star)
+{- Exercise 8.7 -}
 
 --------------------------------------------------------------------------------
 
--- Exercise 8.8
+{- Exercise 8.8 -}
+
+--------------------------------------------------------------------------------
+
+{- Exercise 8.9 -}
+
+-- Exercise 8.9 (a)
 
 -- Decidability of bounded Σ-types
 
@@ -1231,140 +1189,27 @@ is-decidable-strictly-bounded-Σ-ℕ' P d m =
     ( m)
     ( λ x → id)
 
--- Exercise 8.13
+--------------------------------------------------------------------------------
 
--- We solve this exercise in extra/cofibonacci.agda
+{- Exercise 8.10 -}
 
 --------------------------------------------------------------------------------
 
-{- The binary natural numbers -}
+{- Exercise 8.11 -}
 
-data ℕ₂ : UU lzero where
-  zero-ℕ₂ : ℕ₂
-  one-ℕ₂ : ℕ₂
-  double-plus-two-ℕ₂ : ℕ₂ → ℕ₂
-  double-plus-three-ℕ₂ : ℕ₂ → ℕ₂
+--------------------------------------------------------------------------------
 
-two-ℕ₂ : ℕ₂
-two-ℕ₂ = double-plus-two-ℕ₂ zero-ℕ₂
+{- Exercise 8.12 -}
 
--- The successor function on ℕ₂
-succ-ℕ₂ : ℕ₂ → ℕ₂
-succ-ℕ₂ zero-ℕ₂ = one-ℕ₂
-succ-ℕ₂ one-ℕ₂ = two-ℕ₂
-succ-ℕ₂ (double-plus-two-ℕ₂ n) = double-plus-three-ℕ₂ n
-succ-ℕ₂ (double-plus-three-ℕ₂ n) = double-plus-two-ℕ₂ (succ-ℕ₂ n)
+--------------------------------------------------------------------------------
 
--- The function that turns a natural number into a binary natural number
-binary-ℕ : ℕ → ℕ₂
-binary-ℕ zero-ℕ = zero-ℕ₂
-binary-ℕ (succ-ℕ n) = succ-ℕ₂ (binary-ℕ n)
+{- Exercise 8.13 -}
 
--- The function that turns a binary natural number into a natural number
-double-plus-two-ℕ : ℕ → ℕ
-double-plus-two-ℕ n = succ-ℕ (succ-ℕ (mul-ℕ two-ℕ n))
+--------------------------------------------------------------------------------
 
-double-plus-three-ℕ : ℕ → ℕ
-double-plus-three-ℕ = succ-ℕ ∘ double-plus-two-ℕ
+{- Exercise 8.14 -}
 
-unary-ℕ₂ : ℕ₂ → ℕ
-unary-ℕ₂ zero-ℕ₂ = zero-ℕ
-unary-ℕ₂ one-ℕ₂ = one-ℕ
-unary-ℕ₂ (double-plus-two-ℕ₂ n) = double-plus-two-ℕ (unary-ℕ₂ n)
-unary-ℕ₂ (double-plus-three-ℕ₂ n) = double-plus-three-ℕ (unary-ℕ₂ n)
-
--- We show that unary-ℕ ∘ binary-ℕ is homotopic to the identity function
-mul-two-succ-ℕ :
-  (x : ℕ) → Id (mul-ℕ two-ℕ (succ-ℕ x)) (succ-ℕ (succ-ℕ (mul-ℕ two-ℕ x)))
-mul-two-succ-ℕ x =
-  ( right-successor-law-mul-ℕ two-ℕ x) ∙
-  ( commutative-add-ℕ two-ℕ (mul-ℕ two-ℕ x))
-
-unary-succ-ℕ₂ : (n : ℕ₂) → Id (unary-ℕ₂ (succ-ℕ₂ n)) (succ-ℕ (unary-ℕ₂ n))
-unary-succ-ℕ₂ zero-ℕ₂ = refl
-unary-succ-ℕ₂ one-ℕ₂ = refl
-unary-succ-ℕ₂ (double-plus-two-ℕ₂ n) = refl
-unary-succ-ℕ₂ (double-plus-three-ℕ₂ n) =
-  ap ( succ-ℕ ∘ succ-ℕ)
-     ( ( ap (mul-ℕ two-ℕ) (unary-succ-ℕ₂ n)) ∙
-       ( mul-two-succ-ℕ (unary-ℕ₂ n)))
-
-unary-binary-ℕ₂ : (n : ℕ) → Id (unary-ℕ₂ (binary-ℕ n)) n
-unary-binary-ℕ₂ zero-ℕ = refl
-unary-binary-ℕ₂ (succ-ℕ n) =
-  ( unary-succ-ℕ₂ (binary-ℕ n)) ∙
-  ( ap succ-ℕ (unary-binary-ℕ₂ n))
-
--- We show that binary-ℕ ∘ unary-ℕ₂ is homotopic to the identity function
-double-plus-two-succ-ℕ :
-  (n : ℕ) →
-  Id (double-plus-two-ℕ (succ-ℕ n)) (succ-ℕ (succ-ℕ (double-plus-two-ℕ n)))
-double-plus-two-succ-ℕ n =
-  ap ( succ-ℕ ∘ succ-ℕ)
-     ( ( right-successor-law-mul-ℕ two-ℕ n) ∙
-       ( commutative-add-ℕ two-ℕ (mul-ℕ two-ℕ n)))
-  
-binary-double-plus-two-ℕ :
-  (n : ℕ) →
-  Id (binary-ℕ (double-plus-two-ℕ n)) (double-plus-two-ℕ₂ (binary-ℕ n))
-binary-double-plus-two-ℕ zero-ℕ = refl
-binary-double-plus-two-ℕ (succ-ℕ n) =
-  ( ap binary-ℕ (double-plus-two-succ-ℕ n)) ∙
-  ( ap (succ-ℕ₂ ∘ succ-ℕ₂) (binary-double-plus-two-ℕ n))
-
-double-plus-three-succ-ℕ :
-  (n : ℕ) →
-  Id (double-plus-three-ℕ (succ-ℕ n)) (succ-ℕ (succ-ℕ (double-plus-three-ℕ n)))
-double-plus-three-succ-ℕ n =
-  ap succ-ℕ (double-plus-two-succ-ℕ n)
-
-binary-double-plus-three-ℕ :
-  (n : ℕ) →
-  Id (binary-ℕ (double-plus-three-ℕ n)) (double-plus-three-ℕ₂ (binary-ℕ n))
-binary-double-plus-three-ℕ zero-ℕ = refl
-binary-double-plus-three-ℕ (succ-ℕ n) =
-  ( ap binary-ℕ (double-plus-three-succ-ℕ n)) ∙
-  ( ap (succ-ℕ₂ ∘ succ-ℕ₂) (binary-double-plus-three-ℕ n))
-
-binary-unary-ℕ₂ : (n : ℕ₂) → Id (binary-ℕ (unary-ℕ₂ n)) n
-binary-unary-ℕ₂ zero-ℕ₂ = refl
-binary-unary-ℕ₂ one-ℕ₂ = refl
-binary-unary-ℕ₂ (double-plus-two-ℕ₂ n) =
-  ( binary-double-plus-two-ℕ (unary-ℕ₂ n)) ∙
-  ( ap double-plus-two-ℕ₂ (binary-unary-ℕ₂ n))
-binary-unary-ℕ₂ (double-plus-three-ℕ₂ n) =
-  ( binary-double-plus-three-ℕ (unary-ℕ₂ n)) ∙
-  ( ap double-plus-three-ℕ₂ (binary-unary-ℕ₂ n))
-
--- Addition on the binary natural numbers
-add-ℕ₂ : ℕ₂ → ℕ₂ → ℕ₂
-add-ℕ₂ m zero-ℕ₂ = m
-add-ℕ₂ m one-ℕ₂ = succ-ℕ₂ m
-add-ℕ₂ zero-ℕ₂ (double-plus-two-ℕ₂ n) =
-  double-plus-two-ℕ₂ n
-add-ℕ₂ one-ℕ₂ (double-plus-two-ℕ₂ n) =
-  double-plus-three-ℕ₂ n
-add-ℕ₂ (double-plus-two-ℕ₂ m) (double-plus-two-ℕ₂ n) =
-  double-plus-two-ℕ₂ (succ-ℕ₂ (add-ℕ₂ m n))
-add-ℕ₂ (double-plus-three-ℕ₂ m) (double-plus-two-ℕ₂ n) =
-  double-plus-three-ℕ₂ (succ-ℕ₂ (add-ℕ₂ m n))
-add-ℕ₂ zero-ℕ₂ (double-plus-three-ℕ₂ n) =
-  double-plus-three-ℕ₂ n
-add-ℕ₂ one-ℕ₂ (double-plus-three-ℕ₂ n) =
-  succ-ℕ₂ (double-plus-three-ℕ₂ n)
-add-ℕ₂ (double-plus-two-ℕ₂ m) (double-plus-three-ℕ₂ n) =
-  double-plus-three-ℕ₂ (succ-ℕ₂ (add-ℕ₂ m n))
-add-ℕ₂ (double-plus-three-ℕ₂ m) (double-plus-three-ℕ₂ n) =
-  double-plus-two-ℕ₂ (succ-ℕ₂ (succ-ℕ₂ (add-ℕ₂ m n)))
-
-right-unit-law-add-ℕ₂ : (n : ℕ₂) → Id (add-ℕ₂ n zero-ℕ₂) n
-right-unit-law-add-ℕ₂ n = refl
-
-left-unit-law-add-ℕ₂ : (n : ℕ₂) → Id (add-ℕ₂ zero-ℕ₂ n) n
-left-unit-law-add-ℕ₂ zero-ℕ₂ = refl
-left-unit-law-add-ℕ₂ one-ℕ₂ = refl
-left-unit-law-add-ℕ₂ (double-plus-two-ℕ₂ n) = refl
-left-unit-law-add-ℕ₂ (double-plus-three-ℕ₂ n) = refl
+-- We solve this exercise in extra/cofibonacci.agda
 
 {-
 associative-add-ℕ₂ :

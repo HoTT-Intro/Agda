@@ -1,4 +1,4 @@
-{-# OPTIONS --with-K --exact-split --allow-unsolved-metas #-}
+{-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
 module type-theories.e-systems where
 

@@ -1,8 +1,8 @@
-{-# OPTIONS --without-K --exact-split #-}
+{-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module extra.c-systems where
+module type-theories.c-systems where
 
-open import extra.dependent-type-theories public
+open import type-theories.dependent-type-theories public
 open dependent
 
 object' : {l1 l2 : Level} → type-theory l1 l2 → ℕ → UU l1

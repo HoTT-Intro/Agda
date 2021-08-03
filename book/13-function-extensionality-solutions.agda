@@ -1286,7 +1286,7 @@ abstract
         ( is-contr-sec-is-equiv is-equiv-f)
         ( is-contr-Π
           ( λ x → is-contr-Π
-            ( λ y → is-contr-sec-is-equiv (is-emb-is-equiv f is-equiv-f x y)))))
+            ( λ y → is-contr-sec-is-equiv (is-emb-is-equiv is-equiv-f x y)))))
 
 abstract
   is-equiv-is-path-split-is-equiv :
@@ -1325,7 +1325,7 @@ abstract
                 ( equiv-tot
                   ( λ p → equiv-inv (ap f p) ((pr2 sf) (f x))))
                 ( is-contr-map-is-equiv
-                  ( is-emb-is-equiv f is-equiv-f (pr1 sf (f x)) x)
+                  ( is-emb-is-equiv is-equiv-f (pr1 sf (f x)) x)
                   ( (pr2 sf) (f x))))))))
 
 abstract

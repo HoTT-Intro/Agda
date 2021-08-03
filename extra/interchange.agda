@@ -65,7 +65,7 @@ is-emb-fix-left-is-binary-equiv :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} (f : A → B → C) →
   is-binary-equiv f → {a : A} → is-emb (fix-left f a)
 is-emb-fix-left-is-binary-equiv f H {a} =
-  is-emb-is-equiv (λ y → f a y) (is-equiv-fix-left f H)
+  is-emb-is-equiv (is-equiv-fix-left f H)
 
 is-equiv-fix-right :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} (f : A → B → C) →
@@ -76,7 +76,7 @@ is-emb-fix-right-is-binary-equiv :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} (f : A → B → C) →
   is-binary-equiv f → {b : B} → is-emb (fix-right f b)
 is-emb-fix-right-is-binary-equiv f H {b} =
-  is-emb-is-equiv (λ x → f x b) (is-equiv-fix-right f H)
+  is-emb-is-equiv (is-equiv-fix-right f H)
 
 is-binary-equiv-concat :
   {l : Level} {A : UU l} {x y z : A} →

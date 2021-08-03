@@ -4,11 +4,13 @@ module extra.pigeonhole-principle where
 
 open import book.16-finite-types public
 
--- We show that every function Fin k → Fin l repeats itself if l < k.
+-- We define the predicate that the value of f at x is a value of f at another y
 
 is-repetition :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) (a : A) → UU (l1 ⊔ l2)
 is-repetition {l1} {l2} {A} {B} f a = Σ A (λ x → ¬ (Id a x) × (Id (f a) (f x)))
+
+-- On the standard finite sets, is-repetition f a is decidable
 
 is-decidable-is-repetition-Fin :
   {k l : ℕ} (f : Fin k → Fin l) (x : Fin k) → is-decidable (is-repetition f x)
@@ -19,29 +21,38 @@ is-decidable-is-repetition-Fin f x =
         ( is-decidable-neg (has-decidable-equality-Fin x y))
         ( has-decidable-equality-Fin (f x) (f y)))
 
+-- We define the predicate that f maps two different elements to the same value
+
 has-repetition :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) → UU (l1 ⊔ l2)
 has-repetition {A = A} f = Σ A (is-repetition f)
+
+has-repetition-comp :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} (g : B → C)
+  {f : A → B} → has-repetition f → has-repetition (g ∘ f)
+has-repetition-comp g (pair x (pair y (pair s t))) =
+  pair x (pair y (pair s (ap g t)))
+
+has-repetition-left-factor :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {g : B → C}
+  {f : A → B} → is-emb f → has-repetition (g ∘ f) → has-repetition g
+has-repetition-left-factor {g = g} {f} H (pair a (pair b (pair K p))) =
+  pair (f a) (pair (f b) (pair (λ q → K (is-injective-is-emb H q)) p))
+
+has-repetition-right-factor :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {g : B → C}
+  {f : A → B} → is-emb g → has-repetition (g ∘ f) → has-repetition f
+has-repetition-right-factor {g = g} {f} H (pair a (pair b (pair K p))) =
+  pair a (pair b (pair K (is-injective-is-emb H p)))
+
+-- On the standard finite sets, has-repetition f is decidable
 
 is-decidable-has-repetition-Fin :
   {k l : ℕ} (f : Fin k → Fin l) → is-decidable (has-repetition f)
 is-decidable-has-repetition-Fin f =
   is-decidable-Σ-Fin (is-decidable-is-repetition-Fin f)
 
-exists-not-not-forall-Fin :
-  {l : Level} {k : ℕ} {P : Fin k → UU l} → (is-decidable-fam P) →
-  ¬ ((x : Fin k) → P x) → Σ (Fin k) (λ x → ¬ (P x))
-exists-not-not-forall-Fin {l} {zero-ℕ} d H = ex-falso (H ind-empty)
-exists-not-not-forall-Fin {l} {succ-ℕ k} {P} d H with d (inr star)
-... | inl p =
-  map-Σ
-    ( λ x → ¬ (P x))
-    ( inl)
-    ( λ x → id)
-    ( exists-not-not-forall-Fin
-      ( λ x → d (inl x))
-      ( λ f → H (ind-coprod P f (ind-unit p))))
-... | inr f = pair (inr star) f
+-- If f is not injective, then it has a repetition.
 
 is-injective-map-Fin-zero-Fin :
   {k : ℕ} (f : Fin zero-ℕ → Fin k) → is-injective f
@@ -72,32 +83,65 @@ has-repetition-is-not-injective-Fin {l = succ-ℕ l} f H with
   α (pair x (pair y (pair h q))) =
     pair (inl x) (pair (inl y) (pair (λ r → h (is-injective-inl r)) q))
 
+-- If f : Fin k → Fin l and l < k, then f has a repetition
+
 has-repetition-le-Fin :
   {k l : ℕ} (f : Fin k → Fin l) → le-ℕ l k → has-repetition f
 has-repetition-le-Fin f p =
   has-repetition-is-not-injective-Fin f (is-not-injective-le-Fin f p)
+
+has-repetition-le-count :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (eA : count A) (eB : count B) →
+  (f : A → B) →
+  le-ℕ (number-of-elements-count eB) (number-of-elements-count eA) →
+  has-repetition f
+has-repetition-le-count eA eB f p =
+  has-repetition-right-factor
+    ( is-emb-is-equiv (is-equiv-map-inv-equiv (equiv-count eB)))
+    ( has-repetition-left-factor
+      ( is-emb-is-equiv (is-equiv-map-equiv (equiv-count eA)))
+      ( has-repetition-le-Fin
+        ( map-equiv (inv-equiv-count eB) ∘ (f ∘ map-equiv-count eA))
+        ( p)))
 
 has-repetition-Fin-succ-to-Fin :
   {k : ℕ} (f : Fin (succ-ℕ k) → Fin k) → has-repetition f
 has-repetition-Fin-succ-to-Fin {k} f =
   has-repetition-le-Fin f (le-succ-ℕ {k})
 
-has-repetition-left-factor :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {g : B → C}
-  {f : A → B} → is-injective f → has-repetition (g ∘ f) → has-repetition g
-has-repetition-left-factor {g = g} {f} H (pair a (pair b (pair K p))) =
-  pair (f a) (pair (f b) (pair (λ q → K (H q)) p))
-
 has-repetition-nat-to-Fin :
   {k : ℕ} (f : ℕ → Fin k) → has-repetition f
 has-repetition-nat-to-Fin {k} f =
   has-repetition-left-factor
-    ( is-injective-nat-Fin {succ-ℕ k})
+    ( is-emb-nat-Fin {succ-ℕ k})
     ( has-repetition-Fin-succ-to-Fin (f ∘ nat-Fin))
+
+has-repetition-nat-to-count :
+  {l : Level} {A : UU l} (e : count A) (f : ℕ → A) → has-repetition f
+has-repetition-nat-to-count e f =
+  has-repetition-right-factor
+    ( is-emb-is-equiv (is-equiv-map-inv-equiv (equiv-count e)))
+    ( has-repetition-nat-to-Fin (map-inv-equiv-count e ∘ f))
+
+--------------------------------------------------------------------------------
+
+{- We also formalize ordered repetitions of maps ℕ → A -}
 
 has-ordered-repetition-ℕ :
   {l1 : Level} {A : UU l1} (f : ℕ → A) → UU l1
 has-ordered-repetition-ℕ f = Σ ℕ (λ x → Σ ℕ (λ y → (le-ℕ y x) × Id (f y) (f x)))
+
+has-ordered-repetition-comp-ℕ :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (g : A → B) {f : ℕ → A} →
+  has-ordered-repetition-ℕ f → has-ordered-repetition-ℕ (g ∘ f)
+has-ordered-repetition-comp-ℕ g (pair a (pair b (pair H p))) =
+  pair a (pair b (pair H (ap g p)))
+
+has-ordered-repetition-right-factor-ℕ :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {g : A → B} {f : ℕ → A} →
+  is-emb g → has-ordered-repetition-ℕ (g ∘ f) → has-ordered-repetition-ℕ f
+has-ordered-repetition-right-factor-ℕ E (pair a (pair b (pair H p))) =
+  pair a (pair b (pair H (is-injective-is-emb E p)))
 
 has-ordered-repetition-nat-to-Fin :
   {k : ℕ} (f : ℕ → Fin k) → has-ordered-repetition-ℕ f
@@ -118,6 +162,14 @@ has-ordered-repetition-nat-to-Fin f with
           ( le-ℕ x y))
           ( t)
           ( linear-le-ℕ y x))
+
+has-ordered-repetition-nat-to-count :
+  {l : Level} {A : UU l} (e : count A) (f : ℕ → A) → has-ordered-repetition-ℕ f
+has-ordered-repetition-nat-to-count e f =
+  has-ordered-repetition-right-factor-ℕ
+    ( is-emb-is-equiv (is-equiv-map-inv-equiv (equiv-count e)))
+    ( has-ordered-repetition-nat-to-Fin
+      ( map-inv-equiv-count e ∘ f))
 
 first-repetition-nat-to-Fin :
   {k : ℕ} (f : ℕ → Fin k) →

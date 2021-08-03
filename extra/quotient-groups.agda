@@ -29,7 +29,7 @@ is-prop-left-coset-relation G H x =
     ( is-emb-comp'
       ( mul-Group G x)
       ( incl-group-Subgroup G H)
-      ( is-emb-is-equiv (mul-Group G x) (is-equiv-mul-Group G x))
+      ( is-emb-is-equiv (is-equiv-mul-Group G x))
       ( is-emb-incl-group-Subgroup G H))
 
 is-reflexive-left-coset-relation :
@@ -73,7 +73,7 @@ is-prop-right-coset-relation G H x =
     ( is-emb-comp'
       ( mul-Group' G x)
       ( incl-group-Subgroup G H)
-      ( is-emb-is-equiv (mul-Group' G x) (is-equiv-mul-Group' G x))
+      ( is-emb-is-equiv (is-equiv-mul-Group' G x))
       ( is-emb-incl-group-Subgroup G H))
 
 is-reflexive-right-coset-relation :

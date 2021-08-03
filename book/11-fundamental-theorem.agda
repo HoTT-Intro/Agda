@@ -359,8 +359,8 @@ is-injective-emb e {x} {y} = map-inv-is-equiv (is-emb-map-emb e x y)
 
 abstract
   is-emb-is-equiv :
-    {i j : Level} {A : UU i} {B : UU j} (f : A → B) → is-equiv f → is-emb f
-  is-emb-is-equiv {i} {j} {A} {B} f is-equiv-f x =
+    {i j : Level} {A : UU i} {B : UU j} {f : A → B} → is-equiv f → is-emb f
+  is-emb-is-equiv {i} {j} {A} {B} {f} is-equiv-f x =
     fundamental-theorem-id x refl
       ( is-contr-equiv
         ( fib f (f x))
@@ -371,7 +371,7 @@ abstract
 emb-equiv :
   {i j : Level} {A : UU i} {B : UU j} → (A ≃ B) → (A ↪ B)
 emb-equiv e =
-  pair (map-equiv e) (is-emb-is-equiv (map-equiv e) (is-equiv-map-equiv e))
+  pair (map-equiv e) (is-emb-is-equiv (is-equiv-map-equiv e))
 
 emb-id :
   {i : Level} {A : UU i} → (A ↪ A)
@@ -383,7 +383,7 @@ equiv-ap :
 equiv-ap e x y =
   pair
     ( ap (map-equiv e) {x} {y})
-    ( is-emb-is-equiv (map-equiv e) (is-equiv-map-equiv e) x y)
+    ( is-emb-is-equiv (is-equiv-map-equiv e) x y)
 
 -- Section 11.3 Identity systems
 
@@ -1052,7 +1052,7 @@ abstract
     (f : A → X) (g : B → X) (e : A → B) (H : f ~ (g ∘ e)) →
     is-equiv e → is-emb g → is-emb f
   is-emb-triangle-is-equiv f g e H is-equiv-e is-emb-g =
-    is-emb-comp f g e H is-emb-g (is-emb-is-equiv e is-equiv-e)
+    is-emb-comp f g e H is-emb-g (is-emb-is-equiv is-equiv-e)
 
 abstract
   is-emb-triangle-is-equiv' :
@@ -1158,7 +1158,7 @@ abstract
     {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
     is-equiv f → is-path-split f
   is-path-split-is-equiv f is-equiv-f =
-    pair (pr1 is-equiv-f) (λ x y → pr1 (is-emb-is-equiv f is-equiv-f x y))
+    pair (pr1 is-equiv-f) (λ x y → pr1 (is-emb-is-equiv is-equiv-f x y))
 
 abstract
   is-coherently-invertible-is-path-split :
