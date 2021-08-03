@@ -6,14 +6,24 @@ open import extra.pigeonhole-principle public
 
 {-------------------------------------------------------------------------------
 
-  In this file we construct the cofibonacci sequence, which is the unique
+  The Cofibonacci Sequence
+  ------------------------
+
+  In this file we construct the cofibonacci sequence [1], which is the unique
   function G : ℕ → ℕ satisfying the property that
   
   div-ℕ (G m) n ↔ div-ℕ m (Fibonacci-ℕ n).
 
+  It is closely related to the sequence of Pisano periods [2], which is the
+  sequence P : ℕ → ℕ, where P n is the period of the Fibonacci sequence modulo
+  n. We will construct the Pisano periods along the way.
+
+  [1] https://oeis.org/A001177
+  [2] https://oeis.org/A001175
+
 -------------------------------------------------------------------------------}
 
--- We prove some basic properties of the Fibonacci sequence
+-- Elementary properties of the Fibonacci sequence
 
 Fibonacci-add-ℕ :
   (m n : ℕ) →
@@ -88,7 +98,9 @@ div-Fibonacci-div-ℕ d (succ-ℕ m) .(succ-ℕ (add-ℕ (mul-ℕ k (succ-ℕ m)
        ( H))
      ( H)
 
--- We show that for every m : ℕ there is an x : ℕ such that m | F x
+--------------------------------------------------------------------------------
+
+-- The Pisano sequence
 
 generating-map-Fibonacci-pair-mod-succ-ℕ :
   (k : ℕ) → Fin (succ-ℕ k) × Fin (succ-ℕ k) → Fin (succ-ℕ k) × Fin (succ-ℕ k)
@@ -150,7 +162,30 @@ compute-Fibonacci-pair-mod-succ-ℕ k (succ-ℕ (succ-ℕ n)) =
           ( Fibonacci-ℕ (succ-ℕ (succ-ℕ n)))
           ( Fibonacci-ℕ (succ-ℕ n)))))
 
--- Now we proceed with the construction of the cofibonacci sequence
+has-ordered-repetition-Fibonacci-pair-mod-succ-ℕ :
+  (k : ℕ) → has-ordered-repetition-ℕ (Fibonacci-pair-mod-succ-ℕ k)
+has-ordered-repetition-Fibonacci-pair-mod-succ-ℕ k =
+  has-ordered-repetition-nat-to-count
+    ( count-prod (count-Fin (succ-ℕ k)) (count-Fin (succ-ℕ k)))
+    ( Fibonacci-pair-mod-succ-ℕ k)
+
+minimal-ordered-repetition-Fibonacci-pair-mod-succ-ℕ :
+  (k : ℕ) →
+  minimal-element-ℕ (is-ordered-repetition-ℕ (Fibonacci-pair-mod-succ-ℕ k))
+minimal-ordered-repetition-Fibonacci-pair-mod-succ-ℕ k =
+  well-ordering-principle-ℕ
+    ( is-ordered-repetition-ℕ (Fibonacci-pair-mod-succ-ℕ k))
+    ( is-decidable-is-ordered-repetition-ℕ-count
+        ( count-prod (count-Fin (succ-ℕ k)) (count-Fin (succ-ℕ k)))
+        ( Fibonacci-pair-mod-succ-ℕ k))
+    ( has-ordered-repetition-Fibonacci-pair-mod-succ-ℕ k)
+
+pisano-period : ℕ → ℕ
+pisano-period k = pr1 (minimal-ordered-repetition-Fibonacci-pair-mod-succ-ℕ k)
+
+--------------------------------------------------------------------------------
+
+-- The cofibonacci sequence
 
 is-multiple-of-cofibonacci : (m x : ℕ) → UU lzero
 is-multiple-of-cofibonacci m x =

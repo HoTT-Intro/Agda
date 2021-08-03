@@ -1120,18 +1120,17 @@ has-decidable-equality-right-summand {l1} {l2} {A} {B} d x y =
 -- Decidability of bounded Σ-types
 
 is-decidable-Σ-ℕ :
-  {l : Level} (P : ℕ → UU l) (d : is-decidable-fam P) (m : ℕ) →
+  {l : Level} (m : ℕ) (P : ℕ → UU l) (d : is-decidable-fam P) →
   is-decidable (Σ ℕ (λ x → (leq-ℕ m x) × (P x))) → is-decidable (Σ ℕ P)
-is-decidable-Σ-ℕ P d m (inl (pair x (pair l p))) = inl (pair x p)
-is-decidable-Σ-ℕ P d zero-ℕ (inr f) =
+is-decidable-Σ-ℕ m P d (inl (pair x (pair l p))) = inl (pair x p)
+is-decidable-Σ-ℕ zero-ℕ P d (inr f) =
   inr (λ p → f (pair (pr1 p) (pair star (pr2 p))))
-is-decidable-Σ-ℕ P d (succ-ℕ m) (inr f) with d zero-ℕ
+is-decidable-Σ-ℕ (succ-ℕ m) P d (inr f) with d zero-ℕ
 ... | inl p = inl (pair zero-ℕ p)
 ... | inr g with
-  is-decidable-Σ-ℕ
+  is-decidable-Σ-ℕ m
     ( P ∘ succ-ℕ)
     ( λ x → d (succ-ℕ x))
-    ( m)
     ( inr (λ p → f (pair (succ-ℕ (pr1 p)) (pr2 p))))
 ... | inl p = inl (pair (succ-ℕ (pr1 p)) (pr2 p))
 ... | inr h = inr α
@@ -1141,14 +1140,14 @@ is-decidable-Σ-ℕ P d (succ-ℕ m) (inr f) with d zero-ℕ
   α (pair (succ-ℕ x) p) = h (pair x p)
 
 is-decidable-bounded-Σ-ℕ :
-  {l1 l2 : Level} (P : ℕ → UU l1) (Q : ℕ → UU l2) (dP : is-decidable-fam P) →
-  (dQ : is-decidable-fam Q) (m : ℕ) (H : is-upper-bound-ℕ P m) →
-  is-decidable (Σ ℕ (λ x → (P x) × (Q x)))
-is-decidable-bounded-Σ-ℕ P Q dP dQ m H =
+  {l1 l2 : Level} (m : ℕ) (P : ℕ → UU l1) (Q : ℕ → UU l2)
+  (dP : is-decidable-fam P) (dQ : is-decidable-fam Q)
+  (H : is-upper-bound-ℕ P m) → is-decidable (Σ ℕ (λ x → (P x) × (Q x)))
+is-decidable-bounded-Σ-ℕ m P Q dP dQ H =
   is-decidable-Σ-ℕ
+    ( succ-ℕ m)
     ( λ x → (P x) × (Q x))
     ( λ x → is-decidable-prod (dP x) (dQ x))
-    ( succ-ℕ m)
     ( inr
       ( λ p →
         contradiction-leq-ℕ
@@ -1158,35 +1157,34 @@ is-decidable-bounded-Σ-ℕ P Q dP dQ m H =
           ( pr1 (pr2 p))))
 
 is-decidable-bounded-Σ-ℕ' :
-  {l : Level} (P : ℕ → UU l) (d : is-decidable-fam P) (m : ℕ) →
+  {l : Level} (m : ℕ) (P : ℕ → UU l) (d : is-decidable-fam P) →
   is-decidable (Σ ℕ (λ x → (leq-ℕ x m) × (P x)))
-is-decidable-bounded-Σ-ℕ' P d m =
-  is-decidable-bounded-Σ-ℕ
+is-decidable-bounded-Σ-ℕ' m P d =
+  is-decidable-bounded-Σ-ℕ m
     ( λ x → leq-ℕ x m)
     ( P)
     ( λ x → is-decidable-leq-ℕ x m)
     ( d)
-    ( m)
     ( λ x → id)
 
 is-decidable-strictly-bounded-Σ-ℕ :
-  {l1 l2 : Level} (P : ℕ → UU l1) (Q : ℕ → UU l2) (dP : is-decidable-fam P) →
-  (dQ : is-decidable-fam Q) (m : ℕ) (H : is-strict-upper-bound-ℕ P m) →
+  {l1 l2 : Level} (m : ℕ) (P : ℕ → UU l1) (Q : ℕ → UU l2)
+  (dP : is-decidable-fam P) (dQ : is-decidable-fam Q)
+  (H : is-strict-upper-bound-ℕ P m) →
   is-decidable (Σ ℕ (λ x → (P x) × (Q x)))
-is-decidable-strictly-bounded-Σ-ℕ P Q dP dQ m H =
-  is-decidable-bounded-Σ-ℕ P Q dP dQ m
+is-decidable-strictly-bounded-Σ-ℕ m P Q dP dQ H =
+  is-decidable-bounded-Σ-ℕ m P Q dP dQ
     ( is-upper-bound-is-strict-upper-bound-ℕ P m H)
 
 is-decidable-strictly-bounded-Σ-ℕ' :
-  {l : Level} (P : ℕ → UU l) (d : is-decidable-fam P) (m : ℕ) →
+  {l : Level} (m : ℕ) (P : ℕ → UU l) (d : is-decidable-fam P) →
   is-decidable (Σ ℕ (λ x → (le-ℕ x m) × (P x)))
-is-decidable-strictly-bounded-Σ-ℕ' P d m =
-  is-decidable-strictly-bounded-Σ-ℕ
+is-decidable-strictly-bounded-Σ-ℕ' m P d =
+  is-decidable-strictly-bounded-Σ-ℕ m
     ( λ x → le-ℕ x m)
     ( P)
     ( λ x → is-decidable-le-ℕ x m)
     ( d)
-    ( m)
     ( λ x → id)
 
 --------------------------------------------------------------------------------

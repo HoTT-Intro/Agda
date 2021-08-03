@@ -4,6 +4,18 @@ module extra.pigeonhole-principle where
 
 open import book.16-finite-types public
 
+{-------------------------------------------------------------------------------
+
+  The Pigeonhole Principle
+  ------------------------
+
+  In this file we prove some facts related to the pigeonhole principle, which
+  asserts that for n < m, a map f : X → Y from a set X with m elements to a set
+  Y with n elements, maps at least two distinct elements in X to the same
+  element in Y.
+
+-------------------------------------------------------------------------------}
+
 -- We define the predicate that the value of f at x is a value of f at another y
 
 is-repetition :
@@ -127,9 +139,28 @@ has-repetition-nat-to-count e f =
 
 {- We also formalize ordered repetitions of maps ℕ → A -}
 
+is-ordered-repetition-ℕ :
+  {l1 : Level} {A : UU l1} (f : ℕ → A) (x : ℕ) → UU l1
+is-ordered-repetition-ℕ f x = Σ ℕ (λ y → (le-ℕ y x) × Id (f y) (f x))
+
+is-decidable-is-ordered-repetition-ℕ-Fin :
+  {k : ℕ} (f : ℕ → Fin k) (x : ℕ) → is-decidable (is-ordered-repetition-ℕ f x)
+is-decidable-is-ordered-repetition-ℕ-Fin f x =
+  is-decidable-strictly-bounded-Σ-ℕ' x
+    ( λ y → Id (f y) (f x))
+    ( λ y → has-decidable-equality-Fin (f y) (f x))
+
+is-decidable-is-ordered-repetition-ℕ-count :
+  {l : Level} {A : UU l} (e : count A) (f : ℕ → A) (x : ℕ) →
+  is-decidable (is-ordered-repetition-ℕ f x)
+is-decidable-is-ordered-repetition-ℕ-count e f x =
+  is-decidable-strictly-bounded-Σ-ℕ' x
+    ( λ y → Id (f y) (f x))
+    ( λ y → has-decidable-equality-count e (f y) (f x))
+
 has-ordered-repetition-ℕ :
   {l1 : Level} {A : UU l1} (f : ℕ → A) → UU l1
-has-ordered-repetition-ℕ f = Σ ℕ (λ x → Σ ℕ (λ y → (le-ℕ y x) × Id (f y) (f x)))
+has-ordered-repetition-ℕ f = Σ ℕ (is-ordered-repetition-ℕ f)
 
 has-ordered-repetition-comp-ℕ :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (g : A → B) {f : ℕ → A} →
@@ -177,12 +208,7 @@ first-repetition-nat-to-Fin :
 first-repetition-nat-to-Fin f =
   well-ordering-principle-ℕ
     ( λ x → Σ ℕ (λ y → (le-ℕ y x) × (Id (f y) (f x))))
-    ( λ x →
-      is-decidable-strictly-bounded-Σ-ℕ
-        ( λ y → le-ℕ y x)
-        ( λ y → Id (f y) (f x))
-        ( λ y → is-decidable-le-ℕ y x)
-        ( λ y → has-decidable-equality-Fin (f y) (f x))
-        ( x)
-        ( λ y → id))
+    ( λ x → is-decidable-strictly-bounded-Σ-ℕ' x
+              ( λ y → Id (f y) (f x))
+              ( λ y → has-decidable-equality-Fin (f y) (f x)))
     ( has-ordered-repetition-nat-to-Fin f)
