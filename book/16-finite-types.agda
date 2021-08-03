@@ -17,20 +17,31 @@ open import book.15-image public
 count : {l : Level} → UU l → UU l
 count X = Σ ℕ (λ k → Fin k ≃ X)
 
-number-of-elements-count : {l : Level} {X : UU l} → count X → ℕ
-number-of-elements-count = pr1
-
-equiv-count :
-  {l : Level} {X : UU l} (e : count X) → Fin (number-of-elements-count e) ≃ X
-equiv-count = pr2
-
-map-equiv-count :
-  {l : Level} {X : UU l} (e : count X) → Fin (number-of-elements-count e) → X
-map-equiv-count e = map-equiv (equiv-count e)
-
-map-inv-equiv-count :
-  {l : Level} {X : UU l} (e : count X) → X → Fin (number-of-elements-count e)
-map-inv-equiv-count e = map-inv-equiv (equiv-count e)
+module _
+  {l : Level} {X : UU l} (e : count X)
+  where
+  
+  number-of-elements-count : ℕ
+  number-of-elements-count = pr1 e
+  
+  equiv-count : Fin number-of-elements-count ≃ X
+  equiv-count = pr2 e
+  
+  map-equiv-count : Fin number-of-elements-count → X
+  map-equiv-count = map-equiv equiv-count
+  
+  map-inv-equiv-count : X → Fin number-of-elements-count
+  map-inv-equiv-count = map-inv-equiv equiv-count
+  
+  inv-equiv-count : X ≃ Fin number-of-elements-count
+  inv-equiv-count = inv-equiv equiv-count
+  
+  is-set-count : is-set X
+  is-set-count =
+    is-set-equiv'
+      ( Fin number-of-elements-count)
+      ( equiv-count)
+      ( is-set-Fin number-of-elements-count)
 
 -- Example 16.1.2
 
@@ -1242,6 +1253,13 @@ is-finite-count :
   {l : Level} {X : UU l} → count X → is-finite X
 is-finite-count = unit-trunc-Prop
 
+is-set-is-finite :
+  {l : Level} {X : UU l} → is-finite X → is-set X
+is-set-is-finite {l} {X} H =
+  apply-universal-property-trunc-Prop H
+    ( is-set-Prop X)
+    ( λ e → is-set-count e)
+
 𝔽 : UU (lsuc lzero)
 𝔽 = Σ (UU lzero) is-finite
 
@@ -2417,6 +2435,8 @@ reduce-emb-Fin :
 reduce-emb-Fin k l f =
   pair (map-reduce-emb-Fin f) (is-emb-map-reduce-emb-Fin f)
 
+-- We now come to the main result
+
 leq-emb-Fin :
   {k l : ℕ} → Fin k ↪ Fin l → k ≤-ℕ l
 leq-emb-Fin {zero-ℕ} {zero-ℕ} f = refl-leq-ℕ zero-ℕ
@@ -2427,6 +2447,10 @@ leq-emb-Fin {succ-ℕ k} {succ-ℕ l} f = leq-emb-Fin (reduce-emb-Fin k l f)
 leq-is-emb-Fin :
   {k l : ℕ} {f : Fin k → Fin l} → is-emb f → k ≤-ℕ l
 leq-is-emb-Fin {f = f} H = leq-emb-Fin (pair f H)
+
+leq-is-injective-Fin :
+  {k l : ℕ} {f : Fin k → Fin l} → is-injective f → k ≤-ℕ l
+leq-is-injective-Fin H = leq-is-emb-Fin (is-emb-is-injective (is-set-Fin _) H)
 
 is-not-emb-le-Fin :
   {k l : ℕ} (f : Fin k → Fin l) → le-ℕ l k → ¬ (is-emb f)
@@ -2453,28 +2477,117 @@ no-embedding-ℕ-Fin k e =
         ( pair ( nat-Fin {succ-ℕ k})
                ( is-emb-is-injective is-set-ℕ is-injective-nat-Fin))))
 
-leq-emb-count :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-  (eA : count A) (eB : count B) → (A ↪ B) →
-  (number-of-elements-count eA) ≤-ℕ (number-of-elements-count eB)
-leq-emb-count (pair m e) (pair n d) f =
-  leq-emb-Fin (comp-emb (comp-emb (emb-equiv (inv-equiv d)) f) (emb-equiv e))
+-- We generalise the main results to types equipped with a counting
 
-leq-emb-is-finite :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-  (H : is-finite A) (K : is-finite B) → (A ↪ B) →
-  (number-of-elements-is-finite H) ≤-ℕ (number-of-elements-is-finite K)
-leq-emb-is-finite H K f =
-  apply-universal-property-trunc-Prop H P
-    ( λ eA →
-      apply-universal-property-trunc-Prop K P
-        ( λ eB →
-          concatenate-eq-leq-eq-ℕ
-            ( inv (compute-number-of-elements-is-finite eA H))
-            ( leq-emb-count eA eB f)
-            ( compute-number-of-elements-is-finite eB K)))
+module _
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (eA : count A) (eB : count B)
   where
-  P : UU-Prop lzero
-  P = leq-ℕ-Prop
-        ( number-of-elements-is-finite H)
-        ( number-of-elements-is-finite K)
+
+  leq-emb-count :
+    (A ↪ B) → (number-of-elements-count eA) ≤-ℕ (number-of-elements-count eB)
+  leq-emb-count f =
+    leq-emb-Fin
+      ( comp-emb
+        ( comp-emb (emb-equiv (inv-equiv-count eB)) f)
+        ( emb-equiv (equiv-count eA)))
+
+  leq-is-emb-count :
+    {f : A → B} → is-emb f → 
+    (number-of-elements-count eA) ≤-ℕ (number-of-elements-count eB)
+  leq-is-emb-count {f} H = leq-emb-count (pair f H)
+
+  leq-is-injective-count :
+    {f : A → B} → is-injective f →
+    (number-of-elements-count eA) ≤-ℕ (number-of-elements-count eB)
+  leq-is-injective-count H =
+    leq-is-emb-count (is-emb-is-injective (is-set-count eB) H)
+
+  is-not-emb-le-count :
+    (f : A → B) →
+    le-ℕ (number-of-elements-count eB) (number-of-elements-count eA) →
+    ¬ (is-emb f)
+  is-not-emb-le-count f p H =
+    is-not-emb-le-Fin (map-emb h) p (is-emb-map-emb h)
+    where
+    h : Fin (number-of-elements-count eA) ↪ Fin (number-of-elements-count eB)
+    h = comp-emb
+          ( emb-equiv (inv-equiv-count eB))
+          ( comp-emb (pair f H) (emb-equiv (equiv-count eA)))
+
+  is-not-injective-le-count :
+    (f : A → B) →
+    le-ℕ (number-of-elements-count eB) (number-of-elements-count eA) →
+    is-not-injective f
+  is-not-injective-le-count f p H =
+    is-not-emb-le-count f p (is-emb-is-injective (is-set-count eB) H)
+
+no-embedding-ℕ-count :
+  {l : Level} {A : UU l} (e : count A) → ¬ (ℕ ↪ A)
+no-embedding-ℕ-count e f =
+  no-embedding-ℕ-Fin
+    ( number-of-elements-count e)
+    ( comp-emb (emb-equiv (inv-equiv-count e)) f)
+
+-- We generalise the main results to finite types
+
+module _
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (H : is-finite A) (K : is-finite B)
+  where
+  
+  leq-emb-is-finite :
+    (A ↪ B) →
+    (number-of-elements-is-finite H) ≤-ℕ (number-of-elements-is-finite K)
+  leq-emb-is-finite f =
+    apply-universal-property-trunc-Prop H P
+      ( λ eA →
+        apply-universal-property-trunc-Prop K P
+          ( λ eB →
+            concatenate-eq-leq-eq-ℕ
+              ( inv (compute-number-of-elements-is-finite eA H))
+              ( leq-emb-count eA eB f)
+              ( compute-number-of-elements-is-finite eB K)))
+    where
+    P : UU-Prop lzero
+    P = leq-ℕ-Prop
+          ( number-of-elements-is-finite H)
+          ( number-of-elements-is-finite K)
+
+  leq-is-emb-is-finite :
+    {f : A → B} → is-emb f →
+    (number-of-elements-is-finite H) ≤-ℕ (number-of-elements-is-finite K)
+  leq-is-emb-is-finite {f} H =
+    leq-emb-is-finite (pair f H)
+
+  leq-is-injective-is-finite :
+    {f : A → B} → is-injective f →
+    (number-of-elements-is-finite H) ≤-ℕ (number-of-elements-is-finite K)
+  leq-is-injective-is-finite I =
+    leq-is-emb-is-finite (is-emb-is-injective (is-set-is-finite K) I)
+
+  is-not-emb-le-is-finite :
+    (f : A → B) →
+    le-ℕ (number-of-elements-is-finite K) (number-of-elements-is-finite H) →
+    ¬ (is-emb f)
+  is-not-emb-le-is-finite f p E =
+    apply-universal-property-trunc-Prop H empty-Prop
+      ( λ e →
+        apply-universal-property-trunc-Prop K empty-Prop
+          ( λ d → is-not-emb-le-count e d f
+            ( concatenate-eq-le-eq-ℕ
+              ( compute-number-of-elements-is-finite d K)
+              ( p)
+              ( inv (compute-number-of-elements-is-finite e H)))
+            ( E)))
+
+  is-not-injective-le-is-finite :
+    (f : A → B) →
+    le-ℕ (number-of-elements-is-finite K) (number-of-elements-is-finite H) →
+    is-not-injective f
+  is-not-injective-le-is-finite f p I =
+    is-not-emb-le-is-finite f p (is-emb-is-injective (is-set-is-finite K) I)
+
+no-embedding-ℕ-is-finite :
+  {l : Level} {A : UU l} (H : is-finite A) → ¬ (ℕ ↪ A)
+no-embedding-ℕ-is-finite H f =
+  apply-universal-property-trunc-Prop H empty-Prop
+    ( λ e → no-embedding-ℕ-count e f)

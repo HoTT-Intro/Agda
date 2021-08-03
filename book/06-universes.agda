@@ -532,6 +532,10 @@ concatenate-le-leq-ℕ {zero-ℕ} {succ-ℕ y} {succ-ℕ z} H K = star
 concatenate-le-leq-ℕ {succ-ℕ x} {succ-ℕ y} {succ-ℕ z} H K =
   concatenate-le-leq-ℕ {x} {y} {z} H K
 
+concatenate-eq-le-eq-ℕ :
+  {x y z w : ℕ} → Id x y → le-ℕ y z → Id z w → le-ℕ x w
+concatenate-eq-le-eq-ℕ refl p refl = p
+
 le-succ-ℕ : {x : ℕ} → le-ℕ x (succ-ℕ x)
 le-succ-ℕ {zero-ℕ} = star
 le-succ-ℕ {succ-ℕ x} = le-succ-ℕ {x}
