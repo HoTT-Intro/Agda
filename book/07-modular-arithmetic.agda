@@ -16,6 +16,18 @@ open book.06-universes public
 div-ℕ : ℕ → ℕ → UU lzero
 div-ℕ m n = Σ ℕ (λ k → Id (mul-ℕ k m) n)
 
+concatenate-eq-div-ℕ :
+  {x y z : ℕ} → Id x y → div-ℕ y z → div-ℕ x z
+concatenate-eq-div-ℕ refl p = p
+
+concatenate-div-eq-ℕ :
+  {x y z : ℕ} → div-ℕ x y → Id y z → div-ℕ x z
+concatenate-div-eq-ℕ p refl = p
+
+concatenate-eq-div-eq-ℕ :
+  {x y z w : ℕ} → Id x y → div-ℕ y z → Id z w → div-ℕ x w
+concatenate-eq-div-eq-ℕ refl p refl = p
+
 is-even-ℕ : ℕ → UU lzero
 is-even-ℕ n = div-ℕ two-ℕ n
 
@@ -80,7 +92,7 @@ div-left-summand-ℕ (succ-ℕ d) x y (pair m q) (pair n p) =
 div-right-summand-ℕ :
   (d x y : ℕ) → div-ℕ d x → div-ℕ d (add-ℕ x y) → div-ℕ d y
 div-right-summand-ℕ d x y H1 H2 =
-  div-left-summand-ℕ d y x H1 (tr (div-ℕ d) (commutative-add-ℕ x y) H2)
+  div-left-summand-ℕ d y x H1 (concatenate-div-eq-ℕ H2 (commutative-add-ℕ x y))
 
 {- Section 7.2 The congruence relations -}
 
@@ -251,11 +263,13 @@ transitive-cong-ℕ :
   cong-ℕ k x y → cong-ℕ k y z → cong-ℕ k x z
 transitive-cong-ℕ k x y z d e with is-total-dist-ℕ x y z
 transitive-cong-ℕ k x y z d e | inl α =
-  tr (div-ℕ k) α (div-add-ℕ k (dist-ℕ x y) (dist-ℕ y z) d e)
+  concatenate-div-eq-ℕ (div-add-ℕ k (dist-ℕ x y) (dist-ℕ y z) d e) α
 transitive-cong-ℕ k x y z d e | inr (inl α) =
-  div-right-summand-ℕ k (dist-ℕ y z) (dist-ℕ x z) e (tr (div-ℕ k) (inv α) d)
+  div-right-summand-ℕ k (dist-ℕ y z) (dist-ℕ x z) e
+    ( concatenate-div-eq-ℕ d (inv α))
 transitive-cong-ℕ k x y z d e | inr (inr α) =
-  div-left-summand-ℕ k (dist-ℕ x z) (dist-ℕ x y) d (tr (div-ℕ k) (inv α) e)
+  div-left-summand-ℕ k (dist-ℕ x z) (dist-ℕ x y) d
+    ( concatenate-div-eq-ℕ e (inv α))
 
 concatenate-cong-eq-cong-ℕ :
   {k x1 x2 x3 x4 : ℕ} →
@@ -520,16 +534,16 @@ eq-cong-ℕ k x y H =
 
 -- We record some immediate corollaries
 
-eq-zero-div-succ-ℕ :
+is-zero-Fin-div-ℕ :
   (k x : ℕ) → div-ℕ (succ-ℕ k) x → is-zero-Fin (mod-succ-ℕ k x)
-eq-zero-div-succ-ℕ k x d =
+is-zero-Fin-div-ℕ k x d =
   eq-cong-ℕ k x zero-ℕ
-    ( tr (div-ℕ (succ-ℕ k)) (inv (right-unit-law-dist-ℕ x)) d)
+    ( concatenate-div-eq-ℕ d (inv (right-unit-law-dist-ℕ x)))
 
-div-succ-eq-zero-ℕ :
+div-ℕ-is-zero-Fin :
   (k x : ℕ) → is-zero-Fin (mod-succ-ℕ k x) → div-ℕ (succ-ℕ k) x
-div-succ-eq-zero-ℕ k x p =
-  tr (div-ℕ (succ-ℕ k)) (right-unit-law-dist-ℕ x) (cong-eq-ℕ k x zero-ℕ p)
+div-ℕ-is-zero-Fin k x p =
+  concatenate-div-eq-ℕ (cong-eq-ℕ k x zero-ℕ p) (right-unit-law-dist-ℕ x)
 
 {- Theorem 7.4.8 -}
 

@@ -162,8 +162,8 @@ is-decidable-div-ℕ zero-ℕ x =
     ( is-decidable-is-zero-ℕ' x)
 is-decidable-div-ℕ (succ-ℕ d) x =
   is-decidable-iff
-    ( div-succ-eq-zero-ℕ d x)
-    ( eq-zero-div-succ-ℕ d x)
+    ( div-ℕ-is-zero-Fin d x)
+    ( is-zero-Fin-div-ℕ d x)
     ( is-decidable-is-zero-Fin (mod-succ-ℕ d x))
 
 is-decidable-is-even-ℕ : (x : ℕ) → is-decidable (is-even-ℕ x)
@@ -382,6 +382,10 @@ is-zero-well-ordering-principle-ℕ P d (pair (succ-ℕ m) p) =
 is-common-divisor-ℕ : (a b x : ℕ) → UU lzero
 is-common-divisor-ℕ a b x = (div-ℕ x a) × (div-ℕ x b)
 
+refl-is-common-divisor-ℕ :
+  (x : ℕ) → is-common-divisor-ℕ x x x
+refl-is-common-divisor-ℕ x = pair (refl-div-ℕ x) (refl-div-ℕ x)
+
 is-decidable-is-common-divisor-ℕ :
   (a b : ℕ) → is-decidable-fam (is-common-divisor-ℕ a b)
 is-decidable-is-common-divisor-ℕ a b x =
@@ -430,7 +434,7 @@ leq-sum-is-common-divisor-ℕ' :
   is-successor-ℕ (add-ℕ a b) → is-common-divisor-ℕ a b d → leq-ℕ d (add-ℕ a b)
 leq-sum-is-common-divisor-ℕ' a zero-ℕ d (pair k p) H =
   concatenate-leq-eq-ℕ d
-    ( leq-div-succ-ℕ d k (tr (div-ℕ d) p (pr1 H)))
+    ( leq-div-succ-ℕ d k (concatenate-div-eq-ℕ (pr1 H) p))
     ( inv p)
 leq-sum-is-common-divisor-ℕ' a (succ-ℕ b) d (pair k p) H =
   leq-div-succ-ℕ d (add-ℕ a b) (div-add-ℕ d a (succ-ℕ b) (pr1 H) (pr2 H))
@@ -521,7 +525,7 @@ div-gcd-is-common-divisor-ℕ :
   (a b x : ℕ) → is-common-divisor-ℕ a b x → div-ℕ x (gcd-ℕ a b)
 div-gcd-is-common-divisor-ℕ a b x H with
   is-decidable-is-zero-ℕ (add-ℕ a b)
-... | inl p = tr (div-ℕ x) (inv (is-zero-gcd-ℕ a b p)) (div-zero-ℕ x)
+... | inl p = concatenate-div-eq-ℕ (div-zero-ℕ x) (inv (is-zero-gcd-ℕ a b p))
 ... | inr np = pr2 (is-multiple-of-gcd-gcd-ℕ a b np) x H
 
 -- if every common divisor divides a number r < gcd a b, then r = 0.
@@ -541,7 +545,7 @@ is-divisor-left-div-gcd-ℕ :
 is-divisor-left-div-gcd-ℕ a b x d with
   is-decidable-is-zero-ℕ (add-ℕ a b)
 ... | inl p =
-  tr (div-ℕ x) (inv (is-zero-left-is-zero-add-ℕ a b p)) (div-zero-ℕ x)
+  concatenate-div-eq-ℕ (div-zero-ℕ x) (inv (is-zero-left-is-zero-add-ℕ a b p))
 ... | inr np =
   transitive-div-ℕ x (gcd-ℕ a b) a d
     ( pair q
@@ -551,7 +555,7 @@ is-divisor-left-div-gcd-ℕ a b x d with
                    div-right-summand-ℕ x (mul-ℕ q (gcd-ℕ a b)) r
                      ( div-mul-ℕ q x (gcd-ℕ a b)
                        ( div-gcd-is-common-divisor-ℕ a b x H))
-                     ( tr (div-ℕ x) (inv β) (pr1 H)))))) ∙
+                     ( concatenate-div-eq-ℕ (pr1 H) (inv β)))))) ∙
         ( right-unit-law-dist-ℕ a)))
   where
   r = remainder-euclidean-division-ℕ (gcd-ℕ a b) a (is-nonzero-gcd-ℕ a b np)
@@ -567,7 +571,7 @@ is-divisor-right-div-gcd-ℕ :
 is-divisor-right-div-gcd-ℕ a b x d with
   is-decidable-is-zero-ℕ (add-ℕ a b)
 ... | inl p =
-  tr (div-ℕ x) (inv (is-zero-right-is-zero-add-ℕ a b p)) (div-zero-ℕ x)
+  concatenate-div-eq-ℕ (div-zero-ℕ x) (inv (is-zero-right-is-zero-add-ℕ a b p))
 ... | inr np =
   transitive-div-ℕ x (gcd-ℕ a b) b d
     ( pair q
@@ -577,7 +581,7 @@ is-divisor-right-div-gcd-ℕ a b x d with
                    div-right-summand-ℕ x (mul-ℕ q (gcd-ℕ a b)) r
                      ( div-mul-ℕ q x (gcd-ℕ a b)
                        ( div-gcd-is-common-divisor-ℕ a b x H))
-                     ( tr (div-ℕ x) (inv β) (pr2 H)))))) ∙
+                     ( concatenate-div-eq-ℕ (pr2 H) (inv β)))))) ∙
         ( right-unit-law-dist-ℕ b)))
   where
   r = remainder-euclidean-division-ℕ (gcd-ℕ a b) b (is-nonzero-gcd-ℕ a b np)

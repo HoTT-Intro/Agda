@@ -23,7 +23,7 @@ open import extra.pigeonhole-principle public
 
 -------------------------------------------------------------------------------}
 
--- Elementary properties of the Fibonacci sequence
+-- We show that Fibonacci-ℕ is a functor on ℕ ordered by divisibility
 
 Fibonacci-add-ℕ :
   (m n : ℕ) →
@@ -64,6 +64,15 @@ Fibonacci-add-ℕ m (succ-ℕ n) =
                      ( Fibonacci-ℕ (succ-ℕ n))
                      ( Fibonacci-ℕ n)))))))))
 
+{-
+   We prove that if an two of the following three properties hold, then so does
+   the third:
+
+   1. d | Fibonacci-ℕ m
+   2. d | Fibonacci-ℕ n
+   3. d | Fibonacci-ℕ (add-ℕ m n).
+-}
+
 div-Fibonacci-add-ℕ :
   (d m n : ℕ) → div-ℕ d (Fibonacci-ℕ m) → div-ℕ d (Fibonacci-ℕ n) →
   div-ℕ d (Fibonacci-ℕ (add-ℕ m n))
@@ -78,6 +87,11 @@ div-Fibonacci-add-ℕ d m (succ-ℕ n) H1 H2 =
        ( tr ( div-ℕ d)
             ( commutative-mul-ℕ (Fibonacci-ℕ n) (Fibonacci-ℕ m))
             ( div-mul-ℕ (Fibonacci-ℕ n) d (Fibonacci-ℕ m) H1)))
+
+div-Fibonacci-left-summand-ℕ :
+  (d m n : ℕ) → div-ℕ d (Fibonacci-ℕ n) → div-ℕ d (Fibonacci-ℕ (add-ℕ m n)) →
+  div-ℕ d (Fibonacci-ℕ m)
+div-Fibonacci-left-summand-ℕ d m n H1 H2 = {!!}
 
 div-Fibonacci-div-ℕ :
   (d m n : ℕ) → div-ℕ m n → div-ℕ d (Fibonacci-ℕ m) → div-ℕ d (Fibonacci-ℕ n)
@@ -98,38 +112,45 @@ div-Fibonacci-div-ℕ d (succ-ℕ m) .(succ-ℕ (add-ℕ (mul-ℕ k (succ-ℕ m)
        ( H))
      ( H)
 
+-- Fibonacci-ℕ is an order preserving map on ℕ ordered by divisibility.
+
+preserves-div-Fibonacci-ℕ :
+  (m n : ℕ) → div-ℕ m n → div-ℕ (Fibonacci-ℕ m) (Fibonacci-ℕ n)
+preserves-div-Fibonacci-ℕ m n H =
+  div-Fibonacci-div-ℕ (Fibonacci-ℕ m) m n H (refl-div-ℕ (Fibonacci-ℕ m))
+
 --------------------------------------------------------------------------------
 
 -- The Pisano sequence
 
-generating-map-Fibonacci-pair-mod-succ-ℕ :
+generating-map-fibonacci-pair-Fin :
   (k : ℕ) → Fin (succ-ℕ k) × Fin (succ-ℕ k) → Fin (succ-ℕ k) × Fin (succ-ℕ k)
-generating-map-Fibonacci-pair-mod-succ-ℕ k p =
+generating-map-fibonacci-pair-Fin k p =
   pair (pr2 p) (add-Fin (pr2 p) (pr1 p))
 
-inv-generating-map-Fibonacci-pair-mod-succ-ℕ :
+inv-generating-map-fibonacci-pair-Fin :
   (k : ℕ) → Fin (succ-ℕ k) × Fin (succ-ℕ k) → Fin (succ-ℕ k) × Fin (succ-ℕ k)
-inv-generating-map-Fibonacci-pair-mod-succ-ℕ k (pair x y) =
+inv-generating-map-fibonacci-pair-Fin k (pair x y) =
   pair (add-Fin y (neg-Fin x)) x
 
-issec-inv-generating-map-Fibonacci-pair-mod-succ-ℕ :
+issec-inv-generating-map-fibonacci-pair-Fin :
   (k : ℕ) (p : Fin (succ-ℕ k) × Fin (succ-ℕ k)) →
-  Id ( generating-map-Fibonacci-pair-mod-succ-ℕ k
-       ( inv-generating-map-Fibonacci-pair-mod-succ-ℕ k p))
+  Id ( generating-map-fibonacci-pair-Fin k
+       ( inv-generating-map-fibonacci-pair-Fin k p))
      ( p)
-issec-inv-generating-map-Fibonacci-pair-mod-succ-ℕ k (pair x y) =
+issec-inv-generating-map-fibonacci-pair-Fin k (pair x y) =
   ap-binary pair refl
     ( ( commutative-add-Fin x (add-Fin y (neg-Fin x))) ∙
       ( ( associative-add-Fin y (neg-Fin x) x) ∙
         ( ( ap (add-Fin y) (left-inverse-law-add-Fin x)) ∙
           ( right-unit-law-add-Fin y))))
 
-isretr-inv-generating-map-Fibonacci-pair-mod-succ-ℕ :
+isretr-inv-generating-map-fibonacci-pair-Fin :
   (k : ℕ ) (p : Fin (succ-ℕ k) × Fin (succ-ℕ k)) →
-  Id ( inv-generating-map-Fibonacci-pair-mod-succ-ℕ k
-       ( generating-map-Fibonacci-pair-mod-succ-ℕ k p))
+  Id ( inv-generating-map-fibonacci-pair-Fin k
+       ( generating-map-fibonacci-pair-Fin k p))
      ( p)
-isretr-inv-generating-map-Fibonacci-pair-mod-succ-ℕ k (pair x y) =
+isretr-inv-generating-map-fibonacci-pair-Fin k (pair x y) =
   ap-binary pair
     ( commutative-add-Fin (add-Fin y x) (neg-Fin y) ∙
       ( ( inv (associative-add-Fin (neg-Fin y) y x)) ∙
@@ -137,51 +158,145 @@ isretr-inv-generating-map-Fibonacci-pair-mod-succ-ℕ k (pair x y) =
           ( left-unit-law-add-Fin x))))
     ( refl)
 
-Fibonacci-pair-mod-succ-ℕ :
-  (k : ℕ) → ℕ → Fin (succ-ℕ k) × Fin (succ-ℕ k)
-Fibonacci-pair-mod-succ-ℕ k zero-ℕ = pair zero-Fin one-Fin
-Fibonacci-pair-mod-succ-ℕ k (succ-ℕ n) =
-  generating-map-Fibonacci-pair-mod-succ-ℕ k (Fibonacci-pair-mod-succ-ℕ k n)
+is-equiv-generating-map-fibonacci-pair-Fin :
+  (k : ℕ) → is-equiv (generating-map-fibonacci-pair-Fin k)
+is-equiv-generating-map-fibonacci-pair-Fin k =
+  is-equiv-has-inverse
+    ( inv-generating-map-fibonacci-pair-Fin k)
+    ( issec-inv-generating-map-fibonacci-pair-Fin k)
+    ( isretr-inv-generating-map-fibonacci-pair-Fin k)
 
-compute-Fibonacci-pair-mod-succ-ℕ :
+fibonacci-pair-Fin :
+  (k : ℕ) → ℕ → Fin (succ-ℕ k) × Fin (succ-ℕ k)
+fibonacci-pair-Fin k zero-ℕ = pair zero-Fin one-Fin
+fibonacci-pair-Fin k (succ-ℕ n) =
+  generating-map-fibonacci-pair-Fin k (fibonacci-pair-Fin k n)
+
+compute-fibonacci-pair-Fin :
   (k : ℕ) (n : ℕ) →
-  Id ( Fibonacci-pair-mod-succ-ℕ k n)
+  Id ( fibonacci-pair-Fin k n)
      ( pair ( mod-succ-ℕ k (Fibonacci-ℕ n))
             ( mod-succ-ℕ k (Fibonacci-ℕ (succ-ℕ n))))
-compute-Fibonacci-pair-mod-succ-ℕ k zero-ℕ = refl
-compute-Fibonacci-pair-mod-succ-ℕ k (succ-ℕ zero-ℕ) =
+compute-fibonacci-pair-Fin k zero-ℕ = refl
+compute-fibonacci-pair-Fin k (succ-ℕ zero-ℕ) =
   ap-binary pair refl (right-unit-law-add-Fin one-Fin)
-compute-Fibonacci-pair-mod-succ-ℕ k (succ-ℕ (succ-ℕ n)) =
+compute-fibonacci-pair-Fin k (succ-ℕ (succ-ℕ n)) =
   ap-binary pair
-    ( ap pr2 (compute-Fibonacci-pair-mod-succ-ℕ k (succ-ℕ n)))
+    ( ap pr2 (compute-fibonacci-pair-Fin k (succ-ℕ n)))
     ( ( ap-binary add-Fin
-        ( ap pr2 (compute-Fibonacci-pair-mod-succ-ℕ k (succ-ℕ n)))
-        ( ap pr1 (compute-Fibonacci-pair-mod-succ-ℕ k (succ-ℕ n)))) ∙
+        ( ap pr2 (compute-fibonacci-pair-Fin k (succ-ℕ n)))
+        ( ap pr1 (compute-fibonacci-pair-Fin k (succ-ℕ n)))) ∙
       ( inv
         ( mod-succ-add-ℕ k
           ( Fibonacci-ℕ (succ-ℕ (succ-ℕ n)))
           ( Fibonacci-ℕ (succ-ℕ n)))))
 
-has-ordered-repetition-Fibonacci-pair-mod-succ-ℕ :
-  (k : ℕ) → has-ordered-repetition-ℕ (Fibonacci-pair-mod-succ-ℕ k)
-has-ordered-repetition-Fibonacci-pair-mod-succ-ℕ k =
+has-ordered-repetition-fibonacci-pair-Fin :
+  (k : ℕ) → has-ordered-repetition-ℕ (fibonacci-pair-Fin k)
+has-ordered-repetition-fibonacci-pair-Fin k =
   has-ordered-repetition-nat-to-count
     ( count-prod (count-Fin (succ-ℕ k)) (count-Fin (succ-ℕ k)))
-    ( Fibonacci-pair-mod-succ-ℕ k)
+    ( fibonacci-pair-Fin k)
 
-minimal-ordered-repetition-Fibonacci-pair-mod-succ-ℕ :
+minimal-ordered-repetition-fibonacci-pair-Fin :
   (k : ℕ) →
-  minimal-element-ℕ (is-ordered-repetition-ℕ (Fibonacci-pair-mod-succ-ℕ k))
-minimal-ordered-repetition-Fibonacci-pair-mod-succ-ℕ k =
+  minimal-element-ℕ (is-ordered-repetition-ℕ (fibonacci-pair-Fin k))
+minimal-ordered-repetition-fibonacci-pair-Fin k =
   well-ordering-principle-ℕ
-    ( is-ordered-repetition-ℕ (Fibonacci-pair-mod-succ-ℕ k))
+    ( is-ordered-repetition-ℕ (fibonacci-pair-Fin k))
     ( is-decidable-is-ordered-repetition-ℕ-count
         ( count-prod (count-Fin (succ-ℕ k)) (count-Fin (succ-ℕ k)))
-        ( Fibonacci-pair-mod-succ-ℕ k))
-    ( has-ordered-repetition-Fibonacci-pair-mod-succ-ℕ k)
+        ( fibonacci-pair-Fin k))
+    ( has-ordered-repetition-fibonacci-pair-Fin k)
 
 pisano-period : ℕ → ℕ
-pisano-period k = pr1 (minimal-ordered-repetition-Fibonacci-pair-mod-succ-ℕ k)
+pisano-period k = pr1 (minimal-ordered-repetition-fibonacci-pair-Fin k)
+
+is-ordered-repetition-pisano-period :
+  (k : ℕ) →
+  is-ordered-repetition-ℕ (fibonacci-pair-Fin k) (pisano-period k)
+is-ordered-repetition-pisano-period k =
+  pr1 (pr2 (minimal-ordered-repetition-fibonacci-pair-Fin k))
+
+is-lower-bound-pisano-period :
+  (k : ℕ) →
+  is-lower-bound-ℕ
+    ( is-ordered-repetition-ℕ (fibonacci-pair-Fin k))
+    ( pisano-period k)
+is-lower-bound-pisano-period k =
+  pr2 (pr2 (minimal-ordered-repetition-fibonacci-pair-Fin k))
+
+cases-is-repetition-of-zero-pisano-period :
+  (k x y : ℕ) → Id (pr1 (is-ordered-repetition-pisano-period k)) x →
+  Id (pisano-period k) y → is-zero-ℕ x
+cases-is-repetition-of-zero-pisano-period k zero-ℕ y p q = refl
+cases-is-repetition-of-zero-pisano-period k (succ-ℕ x) zero-ℕ p q =
+   ex-falso
+     ( concatenate-eq-le-eq-ℕ
+       ( inv p)
+       ( pr1 (pr2 (is-ordered-repetition-pisano-period k)))
+       ( q))
+cases-is-repetition-of-zero-pisano-period k (succ-ℕ x) (succ-ℕ y) p q =
+  ex-falso
+    ( contradiction-leq-ℕ y y (refl-leq-ℕ y)
+      ( concatenate-eq-leq-ℕ y (inv q) (is-lower-bound-pisano-period k y R)))
+  where
+  R : is-ordered-repetition-ℕ (fibonacci-pair-Fin k) y
+  R = triple x
+        ( concatenate-eq-le-eq-ℕ
+          ( inv p)
+          ( pr1 (pr2 (is-ordered-repetition-pisano-period k)))
+          ( q))
+        ( is-injective-is-equiv
+          ( is-equiv-generating-map-fibonacci-pair-Fin k)
+          ( ( ap (fibonacci-pair-Fin k) (inv p)) ∙
+            ( ( pr2 (pr2 (is-ordered-repetition-pisano-period k))) ∙
+              ( ap (fibonacci-pair-Fin k) q))))
+
+is-repetition-of-zero-pisano-period :
+  (k : ℕ) → is-zero-ℕ (pr1 (is-ordered-repetition-pisano-period k))
+is-repetition-of-zero-pisano-period k =
+  cases-is-repetition-of-zero-pisano-period k
+    ( pr1 (is-ordered-repetition-pisano-period k))
+    ( pisano-period k)
+    ( refl)
+    ( refl)
+
+compute-fibonacci-pair-Fin-pisano-period :
+  (k : ℕ) →
+  Id (fibonacci-pair-Fin k (pisano-period k)) (fibonacci-pair-Fin k zero-ℕ)
+compute-fibonacci-pair-Fin-pisano-period k =
+  ( inv (pr2 (pr2 (is-ordered-repetition-pisano-period k)))) ∙
+  ( ap (fibonacci-pair-Fin k) (is-repetition-of-zero-pisano-period k)) 
+
+le-zero-pisano-period :
+  (k : ℕ) → le-ℕ zero-ℕ (pisano-period k)
+le-zero-pisano-period k =
+  concatenate-eq-le-ℕ
+    { x = zero-ℕ}
+    { y = pr1 (is-ordered-repetition-pisano-period k)}
+    { z = pisano-period k}
+    ( inv (is-repetition-of-zero-pisano-period k))
+    ( pr1 (pr2 (is-ordered-repetition-pisano-period k)))
+
+is-nonzero-pisano-period :
+  (k : ℕ) → is-nonzero-ℕ (pisano-period k)
+is-nonzero-pisano-period k p =
+  ex-falso (concatenate-le-eq-ℕ (le-zero-pisano-period k) p)
+
+div-fibonacci-pisano-period :
+  (k : ℕ) → div-ℕ (succ-ℕ k) (Fibonacci-ℕ (pisano-period k))
+div-fibonacci-pisano-period k =
+  div-ℕ-is-zero-Fin k
+    ( Fibonacci-ℕ (pisano-period k))
+    ( ( ap pr1 (inv (compute-fibonacci-pair-Fin k (pisano-period k)))) ∙
+      ( inv
+        ( ap pr1
+          { x = fibonacci-pair-Fin k zero-ℕ}
+          { y = fibonacci-pair-Fin k (pisano-period k)}
+          ( ( ap ( fibonacci-pair-Fin k)
+                 ( inv (is-repetition-of-zero-pisano-period k))) ∙
+            ( pr2 (pr2 (is-ordered-repetition-pisano-period k)))))))
 
 --------------------------------------------------------------------------------
 
@@ -200,9 +315,13 @@ is-decidable-is-multiple-of-cofibonacci m x =
       ( is-decidable-is-nonzero-ℕ x)
       ( is-decidable-div-ℕ m (Fibonacci-ℕ x)))
 
-fibonacci-multiple :
+cofibonacci-multiple :
   (m : ℕ) → Σ ℕ (is-multiple-of-cofibonacci m)
-fibonacci-multiple m = {!minimal-element-ℕ!}
+cofibonacci-multiple zero-ℕ = pair zero-ℕ (λ f → (ex-falso (f refl)))
+cofibonacci-multiple (succ-ℕ m) =
+  pair ( pisano-period m)
+       ( λ f →
+         pair (is-nonzero-pisano-period m) (div-fibonacci-pisano-period m))
 
 least-multiple-of-cofibonacci :
   (m : ℕ) → minimal-element-ℕ (is-multiple-of-cofibonacci m)
@@ -210,7 +329,7 @@ least-multiple-of-cofibonacci m =
   well-ordering-principle-ℕ
     ( is-multiple-of-cofibonacci m)
     ( is-decidable-is-multiple-of-cofibonacci m)
-    ( fibonacci-multiple m)
+    ( cofibonacci-multiple m)
 
 cofibonacci : ℕ → ℕ
 cofibonacci m = pr1 (least-multiple-of-cofibonacci m)
@@ -220,16 +339,16 @@ is-multiple-of-cofibonacci-cofibonacci :
 is-multiple-of-cofibonacci-cofibonacci m =
   pr1 (pr2 (least-multiple-of-cofibonacci m))
 
-is-least-multiple-of-cofibonacci-cofibonacci :
+is-lower-bound-cofibonacci :
   (m x : ℕ) → is-multiple-of-cofibonacci m x → cofibonacci m ≤-ℕ x
-is-least-multiple-of-cofibonacci-cofibonacci m =
+is-lower-bound-cofibonacci m =
   pr2 (pr2 (least-multiple-of-cofibonacci m))
 
 is-zero-cofibonacci-zero-ℕ : is-zero-ℕ (cofibonacci zero-ℕ)
 is-zero-cofibonacci-zero-ℕ =
   is-zero-leq-zero-ℕ
     ( cofibonacci zero-ℕ)
-    ( is-least-multiple-of-cofibonacci-cofibonacci zero-ℕ zero-ℕ
+    ( is-lower-bound-cofibonacci zero-ℕ zero-ℕ
       ( λ f → ex-falso (f refl)))
 
 forward-is-left-adjoint-cofibonacci :
@@ -242,12 +361,22 @@ forward-is-left-adjoint-cofibonacci zero-ℕ n H =
               ( tr (λ t → div-ℕ t n) is-zero-cofibonacci-zero-ℕ H))))
      ( refl-div-ℕ zero-ℕ)
 forward-is-left-adjoint-cofibonacci (succ-ℕ m) zero-ℕ H = div-zero-ℕ (succ-ℕ m)
-forward-is-left-adjoint-cofibonacci (succ-ℕ m) (succ-ℕ n) H = {!!}
-{-
-  div-Fibonacci-div-ℕ m (cofibonacci m) n H
-    {!is-multiple-!}
--}
+forward-is-left-adjoint-cofibonacci (succ-ℕ m) (succ-ℕ n) H =
+  div-Fibonacci-div-ℕ
+    ( succ-ℕ m)
+    ( cofibonacci (succ-ℕ m))
+    ( succ-ℕ n)
+    ( H)
+    ( pr2
+      ( is-multiple-of-cofibonacci-cofibonacci
+        ( succ-ℕ m)
+        ( is-nonzero-succ-ℕ m)))
+
+converse-is-left-adjoint-cofibonacci :
+  (m n : ℕ) → div-ℕ m (Fibonacci-ℕ n) → div-ℕ (cofibonacci m) n
+converse-is-left-adjoint-cofibonacci m n H = {!!}
 
 is-left-adjoint-cofibonacci :
   (m n : ℕ) → div-ℕ (cofibonacci m) n ↔ div-ℕ m (Fibonacci-ℕ n)
-is-left-adjoint-cofibonacci m n = {!!}
+is-left-adjoint-cofibonacci zero-ℕ n = {!!}
+is-left-adjoint-cofibonacci (succ-ℕ m) n = {!!}

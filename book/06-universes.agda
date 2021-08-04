@@ -540,6 +540,14 @@ concatenate-eq-le-eq-ℕ :
   {x y z w : ℕ} → Id x y → le-ℕ y z → Id z w → le-ℕ x w
 concatenate-eq-le-eq-ℕ refl p refl = p
 
+concatenate-eq-le-ℕ :
+  {x y z : ℕ} → Id x y → le-ℕ y z → le-ℕ x z
+concatenate-eq-le-ℕ refl p = p
+
+concatenate-le-eq-ℕ :
+  {x y z : ℕ} → le-ℕ x y → Id y z → le-ℕ x z
+concatenate-le-eq-ℕ p refl = p
+
 le-succ-ℕ : {x : ℕ} → le-ℕ x (succ-ℕ x)
 le-succ-ℕ {zero-ℕ} = star
 le-succ-ℕ {succ-ℕ x} = le-succ-ℕ {x}
