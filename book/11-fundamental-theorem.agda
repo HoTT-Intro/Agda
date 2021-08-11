@@ -348,25 +348,23 @@ equiv-ap-emb :
   Id x y ≃ Id (map-emb e x) (map-emb e y)
 equiv-ap-emb e {x} {y} = pair (ap (map-emb e)) (is-emb-map-emb e x y)
 
-abstract
-  is-injective-is-emb : {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
-    is-emb f → is-injective f
-  is-injective-is-emb is-emb-f {x} {y} = map-inv-is-equiv (is-emb-f x y)
+is-injective-is-emb : {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
+  is-emb f → is-injective f
+is-injective-is-emb is-emb-f {x} {y} = map-inv-is-equiv (is-emb-f x y)
 
 is-injective-emb :
   {i j : Level} {A : UU i} {B : UU j} (e : A ↪ B) → is-injective (map-emb e)
 is-injective-emb e {x} {y} = map-inv-is-equiv (is-emb-map-emb e x y)
 
-abstract
-  is-emb-is-equiv :
-    {i j : Level} {A : UU i} {B : UU j} {f : A → B} → is-equiv f → is-emb f
-  is-emb-is-equiv {i} {j} {A} {B} {f} is-equiv-f x =
-    fundamental-theorem-id x refl
-      ( is-contr-equiv
-        ( fib f (f x))
-        ( equiv-tot (λ y → equiv-inv (f x) (f y)))
-        ( is-contr-map-is-equiv is-equiv-f (f x)))
-      ( λ y p → ap f p)
+is-emb-is-equiv :
+  {i j : Level} {A : UU i} {B : UU j} {f : A → B} → is-equiv f → is-emb f
+is-emb-is-equiv {i} {j} {A} {B} {f} is-equiv-f x =
+  fundamental-theorem-id x refl
+    ( is-contr-equiv
+      ( fib f (f x))
+      ( equiv-tot (λ y → equiv-inv (f x) (f y)))
+      ( is-contr-map-is-equiv is-equiv-f (f x)))
+    ( λ y p → ap f p)
 
 emb-equiv :
   {i j : Level} {A : UU i} {B : UU j} → (A ≃ B) → (A ↪ B)

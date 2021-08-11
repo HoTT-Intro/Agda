@@ -6,13 +6,13 @@ open import book.16-finite-types public
 
 --------------------------------------------------------------------------------
 
--- Section 15 The univalence axiom
+-- Section 17 The univalence axiom
 
 --------------------------------------------------------------------------------
 
--- Section 15.1 Equivalent forms of the univalence axiom
+-- Section 17.1 Equivalent forms of the univalence axiom
 
--- Definition 15.1.1
+-- Definition 17.1.1
 
 equiv-eq : {i : Level} {A : UU i} {B : UU i} → Id A B → A ≃ B
 equiv-eq refl = equiv-id
@@ -20,7 +20,7 @@ equiv-eq refl = equiv-id
 UNIVALENCE : {i : Level} (A B : UU i) → UU (lsuc i)
 UNIVALENCE A B = is-equiv (equiv-eq {A = A} {B = B})
 
--- Theorem 15.1.2
+-- Theorem 17.1.2
 
 is-contr-total-equiv-UNIVALENCE : {i : Level} (A : UU i) →
   ((B : UU i) → UNIVALENCE A B) → is-contr (Σ (UU i) (λ X → A ≃ X))
@@ -97,23 +97,6 @@ abstract
     is-contr (Σ (UU i) (λ X → A ≃ X))
   is-contr-total-equiv A = is-contr-total-equiv-UNIVALENCE A (univalence A)
 
-inv-inv-equiv :
-  {i j : Level} {A : UU i} {B : UU j} (e : A ≃ B) →
-  Id (inv-equiv (inv-equiv e)) e
-inv-inv-equiv (pair f (pair (pair g G) (pair h H))) = eq-htpy-equiv refl-htpy
-
-is-equiv-inv-equiv :
-  {i j : Level} {A : UU i} {B : UU j} → is-equiv (inv-equiv {A = A} {B = B})
-is-equiv-inv-equiv =
-  is-equiv-has-inverse
-    ( inv-equiv)
-    ( inv-inv-equiv)
-    ( inv-inv-equiv)
-
-equiv-inv-equiv :
-  {i j : Level} {A : UU i} {B : UU j} → (A ≃ B) ≃ (B ≃ A)
-equiv-inv-equiv = pair inv-equiv is-equiv-inv-equiv
-
 is-contr-total-equiv' : {i : Level} (A : UU i) →
   is-contr (Σ (UU i) (λ X → X ≃ A))
 is-contr-total-equiv' A =
@@ -136,9 +119,9 @@ ind-equiv A P p {B} = pr1 (Ind-equiv A P) p B
 
 --------------------------------------------------------------------------------
 
--- Section 15.2 Univalence implies function extensionality
+-- Section 17.2 Univalence implies function extensionality
 
--- Lemma 15.2.1
+-- Lemma 17.2.1
 
 is-equiv-postcomp-univalence :
   {l1 l2 : Level} {X Y : UU l1} (A : UU l2) (e : X ≃ Y) →
@@ -146,7 +129,7 @@ is-equiv-postcomp-univalence :
 is-equiv-postcomp-univalence {X = X} A =
   ind-equiv X (λ Y e → is-equiv (postcomp A (map-equiv e))) is-equiv-id
 
--- Theorem 15.2.2
+-- Theorem 17.2.2
 
 weak-funext-univalence :
   {l : Level} {A : UU l} {B : A → UU l} → WEAK-FUNEXT A B
@@ -318,13 +301,13 @@ has-decidable-equality-retract-of (pair i (pair r H)) d x y =
 
 -- Exercises
 
--- Exercise 15.1
+-- Exercise 17.1
 
 tr-equiv-eq-ap : {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {x y : A}
   (p : Id x y) → (map-equiv (equiv-eq (ap B p))) ~ tr B p
 tr-equiv-eq-ap refl = refl-htpy
 
--- Exercise 15.2
+-- Exercise 17.2
 
 is-small :
   (l : Level) {l1 : Level} (A : UU l1) → UU (lsuc l ⊔ l1)
@@ -436,6 +419,7 @@ equiv-comp-equiv' e C =
           is-equiv-left-factor'
             g (map-equiv e) is-equiv-eg (is-equiv-map-equiv e)))
 
+{-
 equiv-comp-equiv :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} →
   (A ≃ B) → (C : UU l3) → (C ≃ A) ≃ (C ≃ B)
@@ -449,6 +433,7 @@ equiv-comp-equiv e C =
         ( λ H → is-equiv-comp' (map-equiv e) g H (is-equiv-map-equiv e))
         ( λ H →
           is-equiv-right-factor' (map-equiv e) g (is-equiv-map-equiv e) H))
+-}
 
 is-prop-is-small :
   (l : Level) {l1 : Level} (A : UU l1) → is-prop (is-small l A)
@@ -470,7 +455,7 @@ is-emb-raise :
 is-emb-raise l1 l2 =
   is-emb-is-prop-map (λ X → is-prop-equiv (is-small l1 X) (equiv-tot (λ Y → (equiv-inv-equiv ∘e {!equiv-precomp-equiv (equiv-raise l2 Y) X!}) ∘e equiv-univalence)) {!!})
 
--- Exercise 15.3
+-- Exercise 17.3
 
 subuniverse-is-contr :
   {i : Level} → subuniverse i i

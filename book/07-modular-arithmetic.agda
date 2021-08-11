@@ -82,7 +82,7 @@ div-left-summand-ℕ (succ-ℕ d) x y (pair m q) (pair n p) =
               ( mul-ℕ (dist-ℕ m n) (succ-ℕ d))))) ∙ 
         ( ( ap
             ( mul-ℕ' (succ-ℕ d))
-            ( leq-dist-ℕ m n
+            ( is-additive-right-inverse-dist-ℕ m n
               ( leq-leq-mul-ℕ' m n d
                 ( concatenate-eq-leq-eq-ℕ q
                   ( leq-add-ℕ' y x)
