@@ -30,4 +30,4 @@ const A B b x = b
 -- Exercise 2.4
 Π-swap : {i j k : Level} {A : UU i} {B : UU j} {C : A → (B → UU k)} →
   ((x : A) (y : B) → C x y) → ((y : B) (x : A) → C x y)
-Π-swap f y x = f x y
+Π-swap f y x = f x y 
