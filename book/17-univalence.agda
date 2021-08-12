@@ -653,3 +653,59 @@ issec-bool-aut-bool e =
     ( issec-bool-aut-bool' e
       ( has-decidable-equality-𝟚 (map-equiv e true) true))
 -}
+
+--------------------------------------------------------------------------------
+
+add-free-point-UU-Fin' :
+  {l1 : Level} {k : ℕ} → UU-Fin' l1 k → UU-Fin' l1 (succ-ℕ k)
+add-free-point-UU-Fin' X = coprod-UU-Fin' X unit-UU-Fin
+
+complement-point-UU-Fin' :
+  {l1 : Level} {k : ℕ} → Σ (UU-Fin' l1 (succ-ℕ k)) type-UU-Fin' → UU-Fin' l1 k
+complement-point-UU-Fin' {l1} {k} (pair (pair X H) x) =
+  pair X'
+    ( apply-universal-property-trunc-Prop H (mere-equiv-Prop (Fin k) X')
+    ( λ e →
+      unit-trunc-Prop
+        ( equiv-equiv-Maybe
+          { X = Fin k}
+          { Y = X'}
+          ( pair g (is-equiv-has-inverse f K G) ∘e e))))
+  where
+  X' : UU l1
+  X' = Σ X (λ y → ¬ (Id x y))
+  f : Maybe X' → X
+  f (inl (pair y K)) = y
+  f (inr star) = x
+  g' : (y : X) → is-decidable (Id x y) → Maybe X'
+  g' y (inl x) = inr star
+  g' y (inr p) = inl (pair y p)
+  g : X → Maybe X'
+  g y = g' y (has-decidable-equality-has-cardinality H x y)
+  G' : (y : X) (d : is-decidable (Id x y)) → Id (f (g' y d)) y
+  G' y (inl refl) = refl
+  G' y (inr p) = refl
+  G : (y : X) → Id (f (g y)) y
+  G y = G' y (has-decidable-equality-has-cardinality H x y)
+  K : (y : Maybe X') → Id (g (f y)) y
+  K (inl (pair y p)) =
+    ap ( g' y)
+       ( eq-is-prop
+         ( is-prop-is-decidable
+           ( is-set-is-finite (is-finite-has-cardinality H) x y)))
+  K (inr star) =
+    ap ( g' x)
+       ( eq-is-prop
+         ( is-prop-is-decidable
+           ( is-set-is-finite (is-finite-has-cardinality H) x x))
+           { _}
+           { inl refl})
+
+type-complement-point-UU-Fin' :
+  {l1 : Level} {k : ℕ} → Σ (UU-Fin' l1 (succ-ℕ k)) type-UU-Fin' → UU l1
+type-complement-point-UU-Fin' X = type-UU-Fin' (complement-point-UU-Fin' X)
+
+inclusion-complement-point-UU-Fin' :
+  {l1 : Level} {k : ℕ} (X : Σ (UU-Fin' l1 (succ-ℕ k)) type-UU-Fin') →
+  type-complement-point-UU-Fin' X → type-UU-Fin' (pr1 X)
+inclusion-complement-point-UU-Fin' (pair (pair X H) x) = pr1

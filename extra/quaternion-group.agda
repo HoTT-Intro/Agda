@@ -10,8 +10,18 @@ cube d = Σ (UU-Fin d) (λ X → type-UU-Fin X → UU-Fin two-ℕ)
 dim-cube-UU-Fin : {d : ℕ} (c : cube d) → UU-Fin d
 dim-cube-UU-Fin c = pr1 c
 
-dim-cube : {d : ℕ} → cube d → UU lzero
+dim-cube : {k : ℕ} → cube k → UU lzero
 dim-cube c = type-UU-Fin (dim-cube-UU-Fin c)
+
+has-finite-cardinality-dim-cube :
+  {k : ℕ} (c : cube k) → has-finite-cardinality (dim-cube c)
+has-finite-cardinality-dim-cube {k} c =
+  pair k (pr2 (dim-cube-UU-Fin c))
+
+is-finite-dim-cube :
+  {k : ℕ} (c : cube k) → is-finite (dim-cube c)
+is-finite-dim-cube c =
+  is-finite-has-finite-cardinality (has-finite-cardinality-dim-cube c)
 
 axis-cube-UU-2 :
   {d : ℕ} (c : cube d) → dim-cube c → UU-Fin two-ℕ
@@ -40,8 +50,7 @@ orientation-cube {k} c =
         Id ( iterate
              ( number-of-elements-is-finite
                ( is-finite-Σ
-                 ( is-finite-has-finite-cardinality
-                   ( pair k (pr2 (dim-cube-UU-Fin c))))
+                 ( is-finite-dim-cube c)
                  ( λ d →
                    is-finite-function-type
                      ( is-finite-eq
@@ -55,33 +64,11 @@ orientation-cube {k} c =
              ( h x))
            ( h y))
 
-coprod-UU-Fin' :
-  {l1 l2 : Level} {k l : ℕ} → UU-Fin' l1 k → UU-Fin' l2 l →
-  UU-Fin' (l1 ⊔ l2) (add-ℕ k l)
-coprod-UU-Fin' {l1} {l2} {k} {l} (pair X H) (pair Y K) =
-  pair
-    ( coprod X Y)
-    ( apply-universal-property-trunc-Prop H
-      ( mere-equiv-Prop (Fin (add-ℕ k l)) (coprod X Y))
-      ( λ e1 →
-        apply-universal-property-trunc-Prop K
-          ( mere-equiv-Prop (Fin (add-ℕ k l)) (coprod X Y))
-          ( λ e2 →
-            unit-trunc-Prop
-              ( equiv-coprod e1 e2 ∘e inv-equiv (coprod-Fin k l)))))
-
-coprod-UU-Fin :
-  {k l : ℕ} → UU-Fin k → UU-Fin l → UU-Fin (add-ℕ k l)
-coprod-UU-Fin X Y = coprod-UU-Fin' X Y
-
-unit-UU-Fin : UU-Fin one-ℕ
-unit-UU-Fin = pair unit (unit-trunc-Prop (left-unit-law-coprod unit))
-
-add-free-point-UU-Fin' :
-  {l1 : Level} {k : ℕ} → UU-Fin' l1 k → UU-Fin' l1 (succ-ℕ k)
-add-free-point-UU-Fin' X = coprod-UU-Fin' X unit-UU-Fin
-
 face-cube :
-  (d : ℕ) (c : cube (succ-ℕ d)) (i : dim-cube c) (a : axis-cube c i) →
-  cube d
-face-cube c i a = {!!}
+  {k : ℕ} (c : cube (succ-ℕ k)) (d : dim-cube c) (a : axis-cube c d) → cube k
+face-cube c d a =
+  pair ( complement-point-UU-Fin' (pair (dim-cube-UU-Fin c) d))
+       ( λ d' →
+         axis-cube-UU-2 c
+           ( inclusion-complement-point-UU-Fin'
+             ( pair (dim-cube-UU-Fin c) d) d'))

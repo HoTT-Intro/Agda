@@ -24,6 +24,7 @@ open import extra.lists public
 open import extra.localizations-rings public
 open import extra.models public
 open import extra.polynomial-rings public
+open import extra.quaternion-group public
 open import extra.quotient-groups public
 open import extra.rational-numbers public
 open import extra.rings-with-properties public

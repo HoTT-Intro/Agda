@@ -1373,6 +1373,11 @@ is-finite-has-finite-cardinality {l} {X} (pair k K) =
     ( is-finite-Prop X)
     ( is-finite-count ∘ (pair k))
 
+is-finite-has-cardinality :
+  {l : Level} {X : UU l} {k : ℕ} → has-cardinality X k → is-finite X
+is-finite-has-cardinality {k = k} H =
+  is-finite-has-finite-cardinality (pair k H)
+
 has-finite-cardinality-count :
   {l1  : Level} {X : UU l1} → count X → has-finite-cardinality X
 has-finite-cardinality-count e =
@@ -1426,6 +1431,9 @@ is-finite-is-empty H = is-finite-count (count-is-empty H)
 empty-𝔽 : 𝔽
 empty-𝔽 = pair empty (is-finite-is-empty id)
 
+empty-UU-Fin : UU-Fin zero-ℕ
+empty-UU-Fin = pair empty (unit-trunc-Prop equiv-id)
+
 has-finite-cardinality-is-empty :
   {l1 : Level} {X : UU l1} → is-empty X → has-finite-cardinality X
 has-finite-cardinality-is-empty f =
@@ -1447,6 +1455,9 @@ is-finite-unit = is-finite-count count-unit
 unit-𝔽 : 𝔽
 unit-𝔽 = pair unit is-finite-unit
 
+unit-UU-Fin : UU-Fin one-ℕ
+unit-UU-Fin = pair unit (unit-trunc-Prop (left-unit-law-coprod unit))
+
 is-finite-is-contr :
   {l1 : Level} {X : UU l1} → is-contr X → is-finite X
 is-finite-is-contr H = is-finite-count (count-is-contr H)
@@ -1456,6 +1467,9 @@ is-finite-Fin {k} = is-finite-count (count-Fin k)
 
 Fin-𝔽 : ℕ → 𝔽
 Fin-𝔽 k = pair (Fin k) (is-finite-Fin)
+
+Fin-UU-Fin : (k : ℕ) → UU-Fin k
+Fin-UU-Fin k = pair (Fin k) (unit-trunc-Prop equiv-id)
 
 {- Finiteness and coproducts -}
 
@@ -1484,6 +1498,25 @@ is-finite-right-coprod :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → is-finite (coprod X Y) → is-finite Y
 is-finite-right-coprod =
   functor-trunc-Prop count-right-coprod
+
+coprod-UU-Fin' :
+  {l1 l2 : Level} {k l : ℕ} → UU-Fin' l1 k → UU-Fin' l2 l →
+  UU-Fin' (l1 ⊔ l2) (add-ℕ k l)
+coprod-UU-Fin' {l1} {l2} {k} {l} (pair X H) (pair Y K) =
+  pair
+    ( coprod X Y)
+    ( apply-universal-property-trunc-Prop H
+      ( mere-equiv-Prop (Fin (add-ℕ k l)) (coprod X Y))
+      ( λ e1 →
+        apply-universal-property-trunc-Prop K
+          ( mere-equiv-Prop (Fin (add-ℕ k l)) (coprod X Y))
+          ( λ e2 →
+            unit-trunc-Prop
+              ( equiv-coprod e1 e2 ∘e inv-equiv (coprod-Fin k l)))))
+
+coprod-UU-Fin :
+  {k l : ℕ} → UU-Fin k → UU-Fin l → UU-Fin (add-ℕ k l)
+coprod-UU-Fin X Y = coprod-UU-Fin' X Y
 
 {- Finiteness and products -}
 
@@ -1514,6 +1547,24 @@ is-finite-right-factor :
   is-finite (X × Y) → X → is-finite Y
 is-finite-right-factor f x =
   functor-trunc-Prop (λ e → count-right-factor e x) f
+
+prod-UU-Fin' :
+  {l1 l2 : Level} {k l : ℕ} → UU-Fin' l1 k → UU-Fin' l2 l →
+  UU-Fin' (l1 ⊔ l2) (mul-ℕ k l)
+prod-UU-Fin' {l1} {l2} {k} {l} (pair X H) (pair Y K) =
+  pair
+    ( X × Y)
+    ( apply-universal-property-trunc-Prop H
+      ( mere-equiv-Prop (Fin (mul-ℕ k l)) (X × Y))
+      ( λ e1 →
+        apply-universal-property-trunc-Prop K
+          ( mere-equiv-Prop (Fin (mul-ℕ k l)) (X × Y))
+          ( λ e2 →
+            unit-trunc-Prop (equiv-prod e1 e2 ∘e inv-equiv (prod-Fin k l)))))
+
+prod-UU-Fin :
+  {k l : ℕ} → UU-Fin k → UU-Fin l → UU-Fin (mul-ℕ k l)
+prod-UU-Fin = prod-UU-Fin'
 
 {- Finite choice -}
 
@@ -1618,6 +1669,12 @@ has-decidable-equality-is-finite {l1} {X} is-finite-X =
     ( pair (has-decidable-equality X) is-prop-has-decidable-equality)
     ( λ e →
       has-decidable-equality-equiv' (equiv-count e) has-decidable-equality-Fin)
+
+has-decidable-equality-has-cardinality :
+  {l1 : Level} {X : UU l1} {k : ℕ} →
+  has-cardinality X k → has-decidable-equality X
+has-decidable-equality-has-cardinality H =
+  has-decidable-equality-is-finite (is-finite-has-cardinality H)
 
 is-finite-eq :
   {l1 : Level} {X : UU l1} →
@@ -2042,6 +2099,10 @@ is-finite-base-is-finite-complement {l1} {l2} {A} {B} K f g h =
       ( h))  
 
 --------------------------------------------------------------------------------
+
+Π-ℕ : (k : ℕ) → (Fin k → ℕ) → ℕ
+Π-ℕ zero-ℕ x = one-ℕ
+Π-ℕ (succ-ℕ k) x = mul-ℕ (Π-ℕ k (λ i → x (inl i))) (x (inr star))
 
 count-Π-Fin :
   {l1 : Level} {k : ℕ} {B : Fin k → UU l1} →

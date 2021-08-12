@@ -111,7 +111,9 @@ module B where
     {l1 l2 : Level} (A : system l1 l2) (n : ℕ) {m : ℕ} (p : n ≤-ℕ m) →
     system.type A m → system.type A n
   iterate-using-leq-system-ft A n {m} p X =
-    iterate-using-add-system-ft A n (dist-ℕ n m) (leq-dist-ℕ n m p) X
+    iterate-using-add-system-ft A n
+      ( dist-ℕ n m)
+      ( is-additive-right-inverse-dist-ℕ n m p) X
     
   iterate-system-ft :
     {l1 l2 : Level} (A : system l1 l2) (n k : ℕ) →
