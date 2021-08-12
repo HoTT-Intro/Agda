@@ -998,9 +998,7 @@ vertex-cube X = (d : dim-cube X) → axis-cube X d
 
 standard-cube : (k : ℕ) → cube k
 standard-cube k =
-  pair
-    ( pair (Fin k) (unit-trunc-Prop equiv-id))
-    ( λ x → pair (Fin two-ℕ) (unit-trunc-Prop equiv-id))
+  pair (Fin-UU-Fin k) (λ x → Fin-UU-Fin two-ℕ)
 
 labelling-cube : {k : ℕ} (X : cube k) → UU (lsuc lzero)
 labelling-cube {k} X = Id (standard-cube k) X
