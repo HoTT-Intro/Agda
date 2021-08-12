@@ -1315,8 +1315,21 @@ has-cardinality X k = mere-equiv (Fin k) X
 UU-Fin' : (l : Level) → ℕ → UU (lsuc l)
 UU-Fin' l k = Σ (UU l) (mere-equiv (Fin k))
 
+type-UU-Fin' : {l : Level} {k : ℕ} → UU-Fin' l k → UU l
+type-UU-Fin' X = pr1 X
+
+mere-equiv-UU-Fin' :
+  {l : Level} {k : ℕ} (X : UU-Fin' l k) → mere-equiv (Fin k) (type-UU-Fin' X)
+mere-equiv-UU-Fin' X = pr2 X
+
 UU-Fin : ℕ → UU (lsuc lzero)
 UU-Fin k = UU-Fin' lzero k
+
+type-UU-Fin : {k : ℕ} → UU-Fin k → UU lzero
+type-UU-Fin X = pr1 X
+
+mere-equiv-UU-Fin : {k : ℕ} (X : UU-Fin k) → mere-equiv (Fin k) (type-UU-Fin X)
+mere-equiv-UU-Fin X = pr2 X
 
 has-finite-cardinality :
   {l : Level} → UU l → UU l
