@@ -656,13 +656,17 @@ issec-bool-aut-bool e =
 
 --------------------------------------------------------------------------------
 
-add-free-point-UU-Fin' :
-  {l1 : Level} {k : ℕ} → UU-Fin' l1 k → UU-Fin' l1 (succ-ℕ k)
-add-free-point-UU-Fin' X = coprod-UU-Fin' X unit-UU-Fin
+add-free-point-UU-Fin-Level :
+  {l1 : Level} {k : ℕ} → UU-Fin-Level l1 k → UU-Fin-Level l1 (succ-ℕ k)
+add-free-point-UU-Fin-Level X = coprod-UU-Fin-Level X unit-UU-Fin
 
-complement-point-UU-Fin' :
-  {l1 : Level} {k : ℕ} → Σ (UU-Fin' l1 (succ-ℕ k)) type-UU-Fin' → UU-Fin' l1 k
-complement-point-UU-Fin' {l1} {k} (pair (pair X H) x) =
+add-free-point-UU-Fin : {k : ℕ} → UU-Fin k → UU-Fin (succ-ℕ k)
+add-free-point-UU-Fin X = add-free-point-UU-Fin-Level X
+
+complement-point-UU-Fin-Level :
+  {l1 : Level} {k : ℕ} →
+  Σ (UU-Fin-Level l1 (succ-ℕ k)) type-UU-Fin-Level → UU-Fin-Level l1 k
+complement-point-UU-Fin-Level {l1} {k} (pair (pair X H) x) =
   pair X'
     ( apply-universal-property-trunc-Prop H (mere-equiv-Prop (Fin k) X')
     ( λ e →
@@ -701,47 +705,188 @@ complement-point-UU-Fin' {l1} {k} (pair (pair X H) x) =
            { _}
            { inl refl})
 
-type-complement-point-UU-Fin' :
-  {l1 : Level} {k : ℕ} → Σ (UU-Fin' l1 (succ-ℕ k)) type-UU-Fin' → UU l1
-type-complement-point-UU-Fin' X = type-UU-Fin' (complement-point-UU-Fin' X)
+complement-point-UU-Fin :
+  {k : ℕ} → Σ (UU-Fin (succ-ℕ k)) type-UU-Fin → UU-Fin k
+complement-point-UU-Fin X = complement-point-UU-Fin-Level X
 
-inclusion-complement-point-UU-Fin' :
-  {l1 : Level} {k : ℕ} (X : Σ (UU-Fin' l1 (succ-ℕ k)) type-UU-Fin') →
-  type-complement-point-UU-Fin' X → type-UU-Fin' (pr1 X)
-inclusion-complement-point-UU-Fin' (pair (pair X H) x) = pr1
+type-complement-point-UU-Fin-Level :
+  {l1 : Level} {k : ℕ} →
+  Σ (UU-Fin-Level l1 (succ-ℕ k)) type-UU-Fin-Level → UU l1
+type-complement-point-UU-Fin-Level X =
+  type-UU-Fin-Level (complement-point-UU-Fin-Level X)
+
+type-complement-point-UU-Fin :
+  {k : ℕ} → Σ (UU-Fin (succ-ℕ k)) type-UU-Fin → UU lzero
+type-complement-point-UU-Fin X =
+  type-complement-point-UU-Fin-Level X
+
+inclusion-complement-point-UU-Fin-Level :
+  {l1 : Level} {k : ℕ} (X : Σ (UU-Fin-Level l1 (succ-ℕ k)) type-UU-Fin-Level) →
+  type-complement-point-UU-Fin-Level X → type-UU-Fin-Level (pr1 X)
+inclusion-complement-point-UU-Fin-Level (pair (pair X H) x) = pr1
+
+inclusion-complement-point-UU-Fin :
+  {k : ℕ} (X : Σ (UU-Fin (succ-ℕ k)) type-UU-Fin) →
+  type-complement-point-UU-Fin X → type-UU-Fin (pr1 X)
+inclusion-complement-point-UU-Fin X =
+  inclusion-complement-point-UU-Fin-Level X
 
 --------------------------------------------------------------------------------
 
-equiv-UU-Fin' : {l : Level} {k : ℕ} → (X Y : UU-Fin' l k) → UU l
-equiv-UU-Fin' X Y = type-UU-Fin' X ≃ type-UU-Fin' Y
+-- Connected components of the universe
 
-id-equiv-UU-Fin' : {l : Level} {k : ℕ} (X : UU-Fin' l k) → equiv-UU-Fin' X X
-id-equiv-UU-Fin' X = equiv-id
+component-UU-Level :
+  (l1 : Level) {l2 : Level} (A : UU l2) → UU (lsuc l1 ⊔ l2)
+component-UU-Level l1 A = Σ (UU l1) (mere-equiv A)
 
-equiv-eq-UU-Fin' :
-  {l : Level} {k : ℕ} {X Y : UU-Fin' l k} → Id X Y → equiv-UU-Fin' X Y
-equiv-eq-UU-Fin' {X = X} refl = id-equiv-UU-Fin' X
+type-component-UU-Level :
+  {l1 l2 : Level} {A : UU l2} → component-UU-Level l1 A → UU l1
+type-component-UU-Level X = pr1 X
 
-is-contr-total-equiv-UU-Fin' :
-  {l : Level} {k : ℕ} (X : UU-Fin' l k) →
-  is-contr (Σ (UU-Fin' l k) (equiv-UU-Fin' X))
-is-contr-total-equiv-UU-Fin' {l} {k} X =
+mere-equiv-component-UU-Level :
+  {l1 l2 : Level} {A : UU l2} (X : component-UU-Level l1 A) →
+  mere-equiv A (type-component-UU-Level X)
+mere-equiv-component-UU-Level X = pr2 X
+
+component-UU :
+  {l1 : Level} (A : UU l1) → UU (lsuc l1)
+component-UU {l1} A = component-UU-Level l1 A
+
+type-component-UU : {l1 : Level} {A : UU l1} (X : component-UU A) → UU l1
+type-component-UU X = type-component-UU-Level X
+
+mere-equiv-component-UU :
+  {l1 : Level} {A : UU l1} (X : component-UU A) →
+  mere-equiv A (type-component-UU X)
+mere-equiv-component-UU X = mere-equiv-component-UU-Level X
+
+-- We characterize the identity types of connected components of the universe
+
+equiv-component-UU-Level :
+  {l1 l2 : Level} {A : UU l2} (X Y : component-UU-Level l1 A) → UU l1
+equiv-component-UU-Level X Y =
+  type-component-UU-Level X ≃ type-component-UU-Level Y
+
+id-equiv-component-UU-Level :
+  {l1 l2 : Level} {A : UU l2} (X : component-UU-Level l1 A) →
+  equiv-component-UU-Level X X
+id-equiv-component-UU-Level X = equiv-id
+
+equiv-eq-component-UU-Level :
+  {l1 l2 : Level} {A : UU l2} {X Y : component-UU-Level l1 A} →
+  Id X Y → equiv-component-UU-Level X Y
+equiv-eq-component-UU-Level {X = X} refl =
+  id-equiv-component-UU-Level X
+
+is-contr-total-equiv-component-UU-Level :
+  {l1 l2 : Level} {A : UU l2} (X : component-UU-Level l1 A) →
+  is-contr (Σ (component-UU-Level l1 A) (equiv-component-UU-Level X))
+is-contr-total-equiv-component-UU-Level X =
   is-contr-total-Eq-substructure
-    ( is-contr-total-equiv (type-UU-Fin' X))
-    ( λ Y → is-prop-mere-equiv (Fin k) Y)
-    ( type-UU-Fin' X)
+    ( is-contr-total-equiv (type-component-UU-Level X))
+    ( λ Y → is-prop-mere-equiv _ Y)
+    ( type-component-UU-Level X)
     ( equiv-id)
-    ( mere-equiv-UU-Fin' X)
+    ( mere-equiv-component-UU-Level X)
 
-is-equiv-equiv-eq-UU-Fin' :
-  {l : Level} {k : ℕ} (X Y : UU-Fin' l k) →
-  is-equiv (equiv-eq-UU-Fin' {X = X} {Y})
-is-equiv-equiv-eq-UU-Fin' X =
+is-equiv-equiv-eq-component-UU-Level :
+  {l1 l2 : Level} {A : UU l2} (X Y : component-UU-Level l1 A) →
+  is-equiv (equiv-eq-component-UU-Level {X = X} {Y})
+is-equiv-equiv-eq-component-UU-Level X =
   fundamental-theorem-id X
-    ( id-equiv-UU-Fin' X)
-    ( is-contr-total-equiv-UU-Fin' X)
-    ( λ Y → equiv-eq-UU-Fin' {X = X} {Y})
+    ( id-equiv-component-UU-Level X)
+    ( is-contr-total-equiv-component-UU-Level X)
+    ( λ Y → equiv-eq-component-UU-Level {X = X} {Y})
 
-eq-equiv-UU-Fin' :
-  {l : Level} {k : ℕ} (X Y : UU-Fin' l k) → equiv-UU-Fin' X Y → Id X Y
-eq-equiv-UU-Fin' X Y = map-inv-is-equiv (is-equiv-equiv-eq-UU-Fin' X Y)
+eq-equiv-component-UU-Level :
+  {l1 l2 : Level} {A : UU l2} (X Y : component-UU-Level l1 A) →
+  equiv-component-UU-Level X Y → Id X Y
+eq-equiv-component-UU-Level X Y =
+  map-inv-is-equiv (is-equiv-equiv-eq-component-UU-Level X Y)
+
+equiv-component-UU :
+  {l1 : Level} {A : UU l1} (X Y : component-UU A) → UU l1
+equiv-component-UU X Y = equiv-component-UU-Level X Y
+
+id-equiv-component-UU :
+  {l1 : Level} {A : UU l1} (X : component-UU A) → equiv-component-UU X X
+id-equiv-component-UU X = id-equiv-component-UU-Level X
+
+equiv-eq-component-UU :
+  {l1 : Level} {A : UU l1} {X Y : component-UU A} →
+  Id X Y → equiv-component-UU X Y
+equiv-eq-component-UU p = equiv-eq-component-UU-Level p
+
+is-contr-total-equiv-component-UU :
+  {l1 : Level} {A : UU l1} (X : component-UU A) →
+  is-contr (Σ (component-UU A) (equiv-component-UU X))
+is-contr-total-equiv-component-UU X =
+  is-contr-total-equiv-component-UU-Level X
+
+is-equiv-equiv-eq-component-UU :
+  {l1 : Level} {A : UU l1} (X Y : component-UU A) →
+  is-equiv (equiv-eq-component-UU {X = X} {Y})
+is-equiv-equiv-eq-component-UU X Y =
+  is-equiv-equiv-eq-component-UU-Level X Y
+
+eq-equiv-component-UU :
+  {l1 : Level} {A : UU l1} (X Y : component-UU A) →
+  equiv-component-UU X Y → Id X Y
+eq-equiv-component-UU X Y =
+  eq-equiv-component-UU-Level X Y
+
+--------------------------------------------------------------------------------
+
+equiv-UU-Fin-Level : {l : Level} {k : ℕ} → (X Y : UU-Fin-Level l k) → UU l
+equiv-UU-Fin-Level X Y = equiv-component-UU-Level X Y
+
+equiv-UU-Fin : {k : ℕ} (X Y : UU-Fin k) → UU lzero
+equiv-UU-Fin X Y = equiv-component-UU X Y
+
+id-equiv-UU-Fin-Level :
+  {l : Level} {k : ℕ} (X : UU-Fin-Level l k) → equiv-UU-Fin-Level X X
+id-equiv-UU-Fin-Level X = id-equiv-component-UU-Level X
+
+id-equiv-UU-Fin :
+  {k : ℕ} (X : UU-Fin k) → equiv-UU-Fin X X
+id-equiv-UU-Fin X = id-equiv-component-UU X
+
+equiv-eq-UU-Fin-Level :
+  {l : Level} {k : ℕ} {X Y : UU-Fin-Level l k} → Id X Y → equiv-UU-Fin-Level X Y
+equiv-eq-UU-Fin-Level p = equiv-eq-component-UU-Level p
+
+equiv-eq-UU-Fin :
+  {k : ℕ} {X Y : UU-Fin k} → Id X Y → equiv-UU-Fin X Y
+equiv-eq-UU-Fin p = equiv-eq-component-UU p
+
+is-contr-total-equiv-UU-Fin-Level :
+  {l : Level} {k : ℕ} (X : UU-Fin-Level l k) →
+  is-contr (Σ (UU-Fin-Level l k) (equiv-UU-Fin-Level X))
+is-contr-total-equiv-UU-Fin-Level {l} {k} X =
+  is-contr-total-equiv-component-UU-Level X
+
+is-contr-total-equiv-UU-Fin :
+  {k : ℕ} (X : UU-Fin k) → is-contr (Σ (UU-Fin k) (equiv-UU-Fin X))
+is-contr-total-equiv-UU-Fin X =
+  is-contr-total-equiv-component-UU X
+
+is-equiv-equiv-eq-UU-Fin-Level :
+  {l : Level} {k : ℕ} (X Y : UU-Fin-Level l k) →
+  is-equiv (equiv-eq-UU-Fin-Level {X = X} {Y})
+is-equiv-equiv-eq-UU-Fin-Level X =
+  is-equiv-equiv-eq-component-UU-Level X
+
+is-equiv-equiv-eq-UU-Fin :
+  {k : ℕ} (X Y : UU-Fin k) → is-equiv (equiv-eq-UU-Fin {X = X} {Y})
+is-equiv-equiv-eq-UU-Fin X =
+  is-equiv-equiv-eq-component-UU X
+
+eq-equiv-UU-Fin-Level :
+  {l : Level} {k : ℕ} (X Y : UU-Fin-Level l k) →
+  equiv-UU-Fin-Level X Y → Id X Y
+eq-equiv-UU-Fin-Level X Y =
+  eq-equiv-component-UU-Level X Y
+
+eq-equiv-UU-Fin :
+  {k : ℕ} (X Y : UU-Fin k) → equiv-UU-Fin X Y → Id X Y
+eq-equiv-UU-Fin X Y = eq-equiv-component-UU X Y

@@ -953,13 +953,13 @@ is-contr-total-equiv-cube :
 is-contr-total-equiv-cube X =
   is-contr-total-Eq-structure
     ( λ D (A : type-UU-Fin D → UU-Fin two-ℕ)
-          (e : equiv-UU-Fin' (dim-cube-UU-Fin X) D) →
+          (e : equiv-UU-Fin (dim-cube-UU-Fin X) D) →
           (i : dim-cube X) → axis-cube X i ≃ pr1 (A (map-equiv e i)))
-    ( is-contr-total-equiv-UU-Fin' (dim-cube-UU-Fin X))
-    ( pair (dim-cube-UU-Fin X) (id-equiv-UU-Fin' (dim-cube-UU-Fin X)))
+    ( is-contr-total-equiv-UU-Fin (dim-cube-UU-Fin X))
+    ( pair (dim-cube-UU-Fin X) (id-equiv-UU-Fin (dim-cube-UU-Fin X)))
     ( is-contr-total-Eq-Π
-      ( λ i (A : UU-Fin two-ℕ) → equiv-UU-Fin' (axis-cube-UU-2 X i) A)
-      ( λ i → is-contr-total-equiv-UU-Fin' (axis-cube-UU-2 X i)))
+      ( λ i (A : UU-Fin two-ℕ) → equiv-UU-Fin (axis-cube-UU-2 X i) A)
+      ( λ i → is-contr-total-equiv-UU-Fin (axis-cube-UU-2 X i)))
 
 is-equiv-equiv-eq-cube :
   {k : ℕ} (X Y : cube k) → is-equiv (equiv-eq-cube {k} {X} {Y})
@@ -1011,8 +1011,8 @@ orientation-cube {k} c =
 face-cube :
   {k : ℕ} (c : cube (succ-ℕ k)) (d : dim-cube c) (a : axis-cube c d) → cube k
 face-cube c d a =
-  pair ( complement-point-UU-Fin' (pair (dim-cube-UU-Fin c) d))
+  pair ( complement-point-UU-Fin (pair (dim-cube-UU-Fin c) d))
        ( λ d' →
          axis-cube-UU-2 c
-           ( inclusion-complement-point-UU-Fin'
+           ( inclusion-complement-point-UU-Fin
              ( pair (dim-cube-UU-Fin c) d) d'))

@@ -1312,18 +1312,18 @@ has-cardinality :
   {l : Level} → UU l → ℕ → UU l
 has-cardinality X k = mere-equiv (Fin k) X
 
-UU-Fin' : (l : Level) → ℕ → UU (lsuc l)
-UU-Fin' l k = Σ (UU l) (mere-equiv (Fin k))
+UU-Fin-Level : (l : Level) → ℕ → UU (lsuc l)
+UU-Fin-Level l k = Σ (UU l) (mere-equiv (Fin k))
 
-type-UU-Fin' : {l : Level} {k : ℕ} → UU-Fin' l k → UU l
-type-UU-Fin' X = pr1 X
+type-UU-Fin-Level : {l : Level} {k : ℕ} → UU-Fin-Level l k → UU l
+type-UU-Fin-Level X = pr1 X
 
-mere-equiv-UU-Fin' :
-  {l : Level} {k : ℕ} (X : UU-Fin' l k) → mere-equiv (Fin k) (type-UU-Fin' X)
-mere-equiv-UU-Fin' X = pr2 X
+mere-equiv-UU-Fin-Level :
+  {l : Level} {k : ℕ} (X : UU-Fin-Level l k) → mere-equiv (Fin k) (type-UU-Fin-Level X)
+mere-equiv-UU-Fin-Level X = pr2 X
 
 UU-Fin : ℕ → UU (lsuc lzero)
-UU-Fin k = UU-Fin' lzero k
+UU-Fin k = UU-Fin-Level lzero k
 
 type-UU-Fin : {k : ℕ} → UU-Fin k → UU lzero
 type-UU-Fin X = pr1 X
@@ -1499,10 +1499,10 @@ is-finite-right-coprod :
 is-finite-right-coprod =
   functor-trunc-Prop count-right-coprod
 
-coprod-UU-Fin' :
-  {l1 l2 : Level} {k l : ℕ} → UU-Fin' l1 k → UU-Fin' l2 l →
-  UU-Fin' (l1 ⊔ l2) (add-ℕ k l)
-coprod-UU-Fin' {l1} {l2} {k} {l} (pair X H) (pair Y K) =
+coprod-UU-Fin-Level :
+  {l1 l2 : Level} {k l : ℕ} → UU-Fin-Level l1 k → UU-Fin-Level l2 l →
+  UU-Fin-Level (l1 ⊔ l2) (add-ℕ k l)
+coprod-UU-Fin-Level {l1} {l2} {k} {l} (pair X H) (pair Y K) =
   pair
     ( coprod X Y)
     ( apply-universal-property-trunc-Prop H
@@ -1516,7 +1516,7 @@ coprod-UU-Fin' {l1} {l2} {k} {l} (pair X H) (pair Y K) =
 
 coprod-UU-Fin :
   {k l : ℕ} → UU-Fin k → UU-Fin l → UU-Fin (add-ℕ k l)
-coprod-UU-Fin X Y = coprod-UU-Fin' X Y
+coprod-UU-Fin X Y = coprod-UU-Fin-Level X Y
 
 {- Finiteness and products -}
 
@@ -1548,10 +1548,10 @@ is-finite-right-factor :
 is-finite-right-factor f x =
   functor-trunc-Prop (λ e → count-right-factor e x) f
 
-prod-UU-Fin' :
-  {l1 l2 : Level} {k l : ℕ} → UU-Fin' l1 k → UU-Fin' l2 l →
-  UU-Fin' (l1 ⊔ l2) (mul-ℕ k l)
-prod-UU-Fin' {l1} {l2} {k} {l} (pair X H) (pair Y K) =
+prod-UU-Fin-Level :
+  {l1 l2 : Level} {k l : ℕ} → UU-Fin-Level l1 k → UU-Fin-Level l2 l →
+  UU-Fin-Level (l1 ⊔ l2) (mul-ℕ k l)
+prod-UU-Fin-Level {l1} {l2} {k} {l} (pair X H) (pair Y K) =
   pair
     ( X × Y)
     ( apply-universal-property-trunc-Prop H
@@ -1564,7 +1564,7 @@ prod-UU-Fin' {l1} {l2} {k} {l} (pair X H) (pair Y K) =
 
 prod-UU-Fin :
   {k l : ℕ} → UU-Fin k → UU-Fin l → UU-Fin (mul-ℕ k l)
-prod-UU-Fin = prod-UU-Fin'
+prod-UU-Fin = prod-UU-Fin-Level
 
 {- Finite choice -}
 
