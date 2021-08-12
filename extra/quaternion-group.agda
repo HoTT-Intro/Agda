@@ -829,6 +829,78 @@ Q8-Group =
         ( pair left-unit-law-mul-Q8 right-unit-law-mul-Q8))
       ( pair inv-Q8 (pair left-inverse-law-mul-Q8 right-inverse-law-mul-Q8)))
 
+map-equiv-count-Q8 : Fin eight-ℕ → Q8
+map-equiv-count-Q8 (inl (inl (inl (inl (inl (inl (inl (inr star)))))))) = e-Q8
+map-equiv-count-Q8 (inl (inl (inl (inl (inl (inl (inr star))))))) = -e-Q8
+map-equiv-count-Q8 (inl (inl (inl (inl (inl (inr star)))))) = i-Q8
+map-equiv-count-Q8 (inl (inl (inl (inl (inr star))))) = -i-Q8
+map-equiv-count-Q8 (inl (inl (inl (inr star)))) = j-Q8
+map-equiv-count-Q8 (inl (inl (inr star))) = -j-Q8
+map-equiv-count-Q8 (inl (inr star)) = k-Q8
+map-equiv-count-Q8 (inr star) = -k-Q8
+
+map-inv-equiv-count-Q8 : Q8 → Fin eight-ℕ
+map-inv-equiv-count-Q8 e-Q8 = inl (inl (inl (inl (inl (inl (inl (inr star)))))))
+map-inv-equiv-count-Q8 -e-Q8 = inl (inl (inl (inl (inl (inl (inr star))))))
+map-inv-equiv-count-Q8 i-Q8 = inl (inl (inl (inl (inl (inr star)))))
+map-inv-equiv-count-Q8 -i-Q8 = inl (inl (inl (inl (inr star))))
+map-inv-equiv-count-Q8 j-Q8 = inl (inl (inl (inr star)))
+map-inv-equiv-count-Q8 -j-Q8 = inl (inl (inr star))
+map-inv-equiv-count-Q8 k-Q8 = inl (inr star)
+map-inv-equiv-count-Q8 -k-Q8 = inr star
+
+issec-map-inv-equiv-count-Q8 :
+  ( map-equiv-count-Q8 ∘ map-inv-equiv-count-Q8) ~ id
+issec-map-inv-equiv-count-Q8 e-Q8 = refl
+issec-map-inv-equiv-count-Q8 -e-Q8 = refl
+issec-map-inv-equiv-count-Q8 i-Q8 = refl
+issec-map-inv-equiv-count-Q8 -i-Q8 = refl
+issec-map-inv-equiv-count-Q8 j-Q8 = refl
+issec-map-inv-equiv-count-Q8 -j-Q8 = refl
+issec-map-inv-equiv-count-Q8 k-Q8 = refl
+issec-map-inv-equiv-count-Q8 -k-Q8 = refl
+
+isretr-map-inv-equiv-count-Q8 :
+  ( map-inv-equiv-count-Q8 ∘ map-equiv-count-Q8) ~ id
+isretr-map-inv-equiv-count-Q8
+  (inl (inl (inl (inl (inl (inl (inl (inr star)))))))) = refl
+isretr-map-inv-equiv-count-Q8
+  (inl (inl (inl (inl (inl (inl (inr star))))))) = refl
+isretr-map-inv-equiv-count-Q8 (inl (inl (inl (inl (inl (inr star)))))) = refl
+isretr-map-inv-equiv-count-Q8 (inl (inl (inl (inl (inr star))))) = refl
+isretr-map-inv-equiv-count-Q8 (inl (inl (inl (inr star)))) = refl
+isretr-map-inv-equiv-count-Q8 (inl (inl (inr star))) = refl
+isretr-map-inv-equiv-count-Q8 (inl (inr star)) = refl
+isretr-map-inv-equiv-count-Q8 (inr star) = refl
+
+is-equiv-map-equiv-count-Q8 : is-equiv map-equiv-count-Q8
+is-equiv-map-equiv-count-Q8 =
+  is-equiv-has-inverse
+    map-inv-equiv-count-Q8
+    issec-map-inv-equiv-count-Q8
+    isretr-map-inv-equiv-count-Q8
+
+equiv-count-Q8 : Fin eight-ℕ ≃ Q8
+equiv-count-Q8 = pair map-equiv-count-Q8 is-equiv-map-equiv-count-Q8
+
+count-Q8 : count Q8
+count-Q8 = pair eight-ℕ equiv-count-Q8
+
+is-finite-Q8 : is-finite Q8
+is-finite-Q8 = unit-trunc-Prop count-Q8
+
+Q8-𝔽 : 𝔽
+Q8-𝔽 = pair Q8 is-finite-Q8
+
+has-cardinality-eight-Q8 : has-cardinality Q8 eight-ℕ
+has-cardinality-eight-Q8 = unit-trunc-Prop equiv-count-Q8
+
+Q8-UU-Fin-eight-ℕ : UU-Fin eight-ℕ
+Q8-UU-Fin-eight-ℕ = pair Q8 has-cardinality-eight-Q8
+
+has-finite-cardinality-Q8 : has-finite-cardinality Q8
+has-finite-cardinality-Q8 = pair eight-ℕ has-cardinality-eight-Q8
+
 --------------------------------------------------------------------------------
 
 cube : ℕ → UU (lsuc lzero)
