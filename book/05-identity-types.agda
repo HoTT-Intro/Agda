@@ -123,6 +123,10 @@ right-unit-ap-binary :
   Id (ap-binary f p refl) (ap (λ z → f z y) p)
 right-unit-ap-binary f refl = refl
 
+ap-add-ℕ :
+  {m n m' n' : ℕ} → Id m m' → Id n n' → Id (add-ℕ m n) (add-ℕ m' n')
+ap-add-ℕ p q = ap-binary add-ℕ p q
+
 -- Definition 5.3.2
 
 ap-refl :

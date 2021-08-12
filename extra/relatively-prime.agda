@@ -37,6 +37,14 @@ relatively-prime-is-one-gcd-ℕ x y p d H =
   is-one-div-one-ℕ d
     ( concatenate-div-eq-ℕ (div-gcd-is-common-divisor-ℕ x y d H) p)
 
+is-decidable-relatively-prime-ℕ :
+  (x y : ℕ) → is-decidable (relatively-prime-ℕ x y)
+is-decidable-relatively-prime-ℕ x y =
+  is-decidable-iff
+    ( relatively-prime-is-one-gcd-ℕ x y)
+    ( is-one-gcd-relatively-prime-ℕ x y)
+    ( is-decidable-is-one-ℕ (gcd-ℕ x y))
+
 antireflexive-relatively-prime-ℕ :
   (x : ℕ) → relatively-prime-ℕ x x → is-one-ℕ x
 antireflexive-relatively-prime-ℕ x H = H x (refl-is-common-divisor-ℕ x)
@@ -98,3 +106,15 @@ decide-relatively-prime-is-prime-ℕ :
   (x p : ℕ) → is-prime-ℕ p → coprod (div-ℕ p x) (relatively-prime-ℕ x p)
 decide-relatively-prime-is-prime-ℕ x p H =
   map-coprod id (relatively-prime-is-prime-ℕ x p H) (is-decidable-div-ℕ p x)
+
+div-right-factor-ℕ :
+  (x y z : ℕ) → relatively-prime-ℕ x y → div-ℕ x (mul-ℕ y z) → div-ℕ x z
+div-right-factor-ℕ x y z H1 H2 = {!!}
+
+A ↪ A × A
+Σ (X : U), ||X ≃ Fin n||
+Π (A : Bℤ₂), A+A ≃ A×A
+
+Π (A : U) → (is an n-element set (A)) -> (A ↪ A×A)
+
+∥[n]≃X∥

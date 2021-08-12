@@ -623,10 +623,6 @@ right-unit-law-dist-ℕ (succ-ℕ n) = refl
 
 -- We prove the triangle inequality --
 
-ap-add-ℕ :
-  {m n m' n' : ℕ} → Id m m' → Id n n' → Id (add-ℕ m n) (add-ℕ m' n')
-ap-add-ℕ p q = ap-binary add-ℕ p q
-
 triangle-inequality-dist-ℕ :
   (m n k : ℕ) → (dist-ℕ m n) ≤-ℕ (add-ℕ (dist-ℕ m k) (dist-ℕ k n))
 triangle-inequality-dist-ℕ zero-ℕ zero-ℕ zero-ℕ = star
@@ -671,13 +667,13 @@ triangle-inequality-dist-ℕ (succ-ℕ m) (succ-ℕ n) (succ-ℕ k) =
 
 -- We show that dist-ℕ x y is a solution to a simple equation.
 
-leq-dist-ℕ :
+is-additive-right-inverse-dist-ℕ :
   (x y : ℕ) → x ≤-ℕ y → Id (add-ℕ x (dist-ℕ x y)) y
-leq-dist-ℕ zero-ℕ zero-ℕ H = refl
-leq-dist-ℕ zero-ℕ (succ-ℕ y) star = left-unit-law-add-ℕ (succ-ℕ y)
-leq-dist-ℕ (succ-ℕ x) (succ-ℕ y) H =
+is-additive-right-inverse-dist-ℕ zero-ℕ zero-ℕ H = refl
+is-additive-right-inverse-dist-ℕ zero-ℕ (succ-ℕ y) star = left-unit-law-add-ℕ (succ-ℕ y)
+is-additive-right-inverse-dist-ℕ (succ-ℕ x) (succ-ℕ y) H =
   ( left-successor-law-add-ℕ x (dist-ℕ x y)) ∙
-  ( ap succ-ℕ (leq-dist-ℕ x y H))
+  ( ap succ-ℕ (is-additive-right-inverse-dist-ℕ x y H))
 
 -- If three elements are ordered linearly, then their distances add up.
 
@@ -689,7 +685,7 @@ triangle-equality-dist-ℕ zero-ℕ zero-ℕ (succ-ℕ z) star star =
   ap succ-ℕ (left-unit-law-add-ℕ z)
 triangle-equality-dist-ℕ zero-ℕ (succ-ℕ y) (succ-ℕ z) star H2 =
   left-successor-law-add-ℕ y (dist-ℕ y z) ∙
-  ap succ-ℕ (leq-dist-ℕ y z H2)
+  ap succ-ℕ (is-additive-right-inverse-dist-ℕ y z H2)
 triangle-equality-dist-ℕ (succ-ℕ x) (succ-ℕ y) (succ-ℕ z) H1 H2 =
   triangle-equality-dist-ℕ x y z H1 H2
 
@@ -708,7 +704,7 @@ rewrite-left-dist-add-ℕ :
   (x y z : ℕ) → y ≤-ℕ z → Id x (dist-ℕ y z) → Id (add-ℕ x y) z
 rewrite-left-dist-add-ℕ .(dist-ℕ y z) y z H refl =
   ( commutative-add-ℕ (dist-ℕ y z) y) ∙
-  ( leq-dist-ℕ y z H)
+  ( is-additive-right-inverse-dist-ℕ y z H)
 
 rewrite-right-add-dist-ℕ :
   (x y z : ℕ) → Id (add-ℕ x y) z → Id y (dist-ℕ x z)
@@ -718,7 +714,14 @@ rewrite-right-add-dist-ℕ x y z p =
 rewrite-right-dist-add-ℕ :
   (x y z : ℕ) → x ≤-ℕ z → Id y (dist-ℕ x z) → Id (add-ℕ x y) z
 rewrite-right-dist-add-ℕ x .(dist-ℕ x z) z H refl =
-  leq-dist-ℕ x z H
+  is-additive-right-inverse-dist-ℕ x z H
+
+leq-dist-ℕ :
+  (x y : ℕ) → x ≤-ℕ y → dist-ℕ x y ≤-ℕ y
+leq-dist-ℕ zero-ℕ zero-ℕ H = refl-leq-ℕ zero-ℕ
+leq-dist-ℕ zero-ℕ (succ-ℕ y) H = refl-leq-ℕ y
+leq-dist-ℕ (succ-ℕ x) (succ-ℕ y) H =
+  transitive-leq-ℕ (dist-ℕ x y) y (succ-ℕ y) (leq-dist-ℕ x y H) (succ-leq-ℕ y)
 
 -- We show that dist-ℕ is translation invariant
 

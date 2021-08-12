@@ -479,6 +479,51 @@ equiv-Set A B =
     ( type-equiv-Set A B)
     ( is-set-equiv-is-set (is-set-type-Set A) (is-set-type-Set B))
 
+inv-inv-equiv :
+  {i j : Level} {A : UU i} {B : UU j} (e : A ≃ B) →
+  Id (inv-equiv (inv-equiv e)) e
+inv-inv-equiv (pair f (pair (pair g G) (pair h H))) = eq-htpy-equiv refl-htpy
+
+is-equiv-inv-equiv :
+  {i j : Level} {A : UU i} {B : UU j} → is-equiv (inv-equiv {A = A} {B = B})
+is-equiv-inv-equiv =
+  is-equiv-has-inverse
+    ( inv-equiv)
+    ( inv-inv-equiv)
+    ( inv-inv-equiv)
+
+equiv-inv-equiv :
+  {i j : Level} {A : UU i} {B : UU j} → (A ≃ B) ≃ (B ≃ A)
+equiv-inv-equiv = pair inv-equiv is-equiv-inv-equiv
+
+compose-inv-equiv-compose-equiv :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3}
+  (f : B ≃ C) (e : A ≃ B) →
+  Id (inv-equiv f ∘e (f ∘e e)) e
+compose-inv-equiv-compose-equiv f e =
+  eq-htpy-equiv (λ x → isretr-map-inv-equiv f (map-equiv e x))
+
+compose-equiv-compose-inv-equiv :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3}
+  (f : B ≃ C) (e : A ≃ C) →
+  Id (f ∘e (inv-equiv f ∘e e)) e
+compose-equiv-compose-inv-equiv f e =
+  eq-htpy-equiv (λ x → issec-map-inv-equiv f (map-equiv e x))
+
+is-equiv-comp-equiv :
+  {l1 l2 l3 : Level} {B : UU l2} {C : UU l3}
+  (f : B ≃ C) (A : UU l1) → is-equiv (λ (e : A ≃ B) → f ∘e e)
+is-equiv-comp-equiv f A =
+  is-equiv-has-inverse
+    ( λ e → inv-equiv f ∘e e)
+    ( compose-equiv-compose-inv-equiv f)
+    ( compose-inv-equiv-compose-equiv f)
+
+equiv-comp-equiv :
+  {l1 l2 l3 : Level} {B : UU l2} {C : UU l3} →
+  (f : B ≃ C) → (A : UU l1) → (A ≃ B) ≃ (A ≃ C)
+equiv-comp-equiv f A = pair (λ e → f ∘e e) (is-equiv-comp-equiv f A)
+
 -- Exercise 13.4
 
 module _

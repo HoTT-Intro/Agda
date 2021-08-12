@@ -1195,6 +1195,128 @@ is-decidable-strictly-bounded-Σ-ℕ' m P d =
 
 {- Exercise 8.10 -}
 
+is-linear-combination-dist-ℕ' : ℕ → ℕ → ℕ → ℕ → UU lzero
+is-linear-combination-dist-ℕ' x y z k =
+  Σ ℕ (λ l → Id (dist-ℕ (mul-ℕ k x) (mul-ℕ l y)) z)
+
+cases-div-or-cong-is-linear-combination-dist-ℕ' :
+  (x y z k : ℕ) (H : is-linear-combination-dist-ℕ' x y z k) →
+  coprod (mul-ℕ k x ≤-ℕ mul-ℕ (pr1 H) y) (mul-ℕ (pr1 H) y ≤-ℕ mul-ℕ k x) →
+  coprod ( div-ℕ y (add-ℕ (mul-ℕ k x) z))
+         ( leq-ℕ z (mul-ℕ k x) × cong-ℕ y (mul-ℕ k x) z)
+cases-div-or-cong-is-linear-combination-dist-ℕ' x y z k (pair l p) (inl K) =
+  inl (pair l α)
+  where
+  α : Id (mul-ℕ l y) (add-ℕ (mul-ℕ k x) z)
+  α = ( inv (is-additive-right-inverse-dist-ℕ (mul-ℕ k x) (mul-ℕ l y) K)) ∙
+      ( ap (add-ℕ (mul-ℕ k x)) p)
+cases-div-or-cong-is-linear-combination-dist-ℕ' x y z k (pair l p) (inr K) =
+  inr
+    ( pair
+      ( concatenate-eq-leq-eq-ℕ
+        ( inv p)
+        ( leq-add-ℕ' (dist-ℕ (mul-ℕ k x) (mul-ℕ l y)) (mul-ℕ l y))
+        ( ( ap (add-ℕ (mul-ℕ l y)) (symmetric-dist-ℕ (mul-ℕ k x) (mul-ℕ l y))) ∙
+          ( is-additive-right-inverse-dist-ℕ (mul-ℕ l y) (mul-ℕ k x) K)))
+      ( pair l ( ( rewrite-left-add-dist-ℕ (mul-ℕ l y) z (mul-ℕ k x) (inv α)) ∙
+                 ( symmetric-dist-ℕ z (mul-ℕ k x)))))
+  where
+  α : Id (mul-ℕ k x) (add-ℕ (mul-ℕ l y) z)
+  α = ( inv (is-additive-right-inverse-dist-ℕ (mul-ℕ l y) (mul-ℕ k x) K)) ∙
+      ( ap (add-ℕ (mul-ℕ l y)) (symmetric-dist-ℕ (mul-ℕ l y) (mul-ℕ k x) ∙ p))
+
+div-or-cong-is-linear-combination-dist-ℕ' :
+  (x y z k : ℕ) (H : is-linear-combination-dist-ℕ' x y z k) →
+  coprod ( div-ℕ y (add-ℕ (mul-ℕ k x) z))
+         ( leq-ℕ z (mul-ℕ k x) × cong-ℕ y (mul-ℕ k x) z)
+div-or-cong-is-linear-combination-dist-ℕ' x y z k H =
+  cases-div-or-cong-is-linear-combination-dist-ℕ' x y z k H
+    ( decide-leq-ℕ (mul-ℕ k x) (mul-ℕ (pr1 H) y))
+
+is-linear-combination-dist-div-or-cong-ℕ' :
+  (x y z k : ℕ) →
+  coprod ( div-ℕ y (add-ℕ (mul-ℕ k x) z))
+         ( leq-ℕ z (mul-ℕ k x) × cong-ℕ y (mul-ℕ k x) z) →
+  is-linear-combination-dist-ℕ' x y z k
+is-linear-combination-dist-div-or-cong-ℕ' x y z k (inl (pair l p)) =
+  pair l (inv (rewrite-right-add-dist-ℕ (mul-ℕ k x) z (mul-ℕ l y) (inv p)))
+is-linear-combination-dist-div-or-cong-ℕ' x y z k (inr (pair H (pair l p))) =
+  pair l ( inv
+           ( ( rewrite-right-add-dist-ℕ
+               ( mul-ℕ l y)
+               ( z)
+               ( mul-ℕ k x)
+               ( ( ap (add-ℕ' z) (p ∙ symmetric-dist-ℕ (mul-ℕ k x) z)) ∙
+                 ( ( commutative-add-ℕ (dist-ℕ z (mul-ℕ k x)) z) ∙
+                   ( is-additive-right-inverse-dist-ℕ z (mul-ℕ k x) H)))) ∙
+             ( symmetric-dist-ℕ (mul-ℕ l y) (mul-ℕ k x))))
+
+is-decidable-is-linear-combination-dist-ℕ' :
+  (x y z k : ℕ) →
+  is-decidable (Σ ℕ (λ l → Id (dist-ℕ (mul-ℕ k x) (mul-ℕ l y)) z))
+is-decidable-is-linear-combination-dist-ℕ' x y z k =
+  is-decidable-iff
+    ( is-linear-combination-dist-div-or-cong-ℕ' x y z k)
+    ( div-or-cong-is-linear-combination-dist-ℕ' x y z k)
+    ( is-decidable-coprod
+      ( is-decidable-div-ℕ y (add-ℕ (mul-ℕ k x) z))
+      ( is-decidable-prod
+        ( is-decidable-leq-ℕ z (mul-ℕ k x))
+        ( is-decidable-div-ℕ y (dist-ℕ (mul-ℕ k x) z))))
+
+is-linear-combination-dist-ℕ : ℕ → ℕ → ℕ → UU lzero
+is-linear-combination-dist-ℕ x y z =
+  Σ ℕ (is-linear-combination-dist-ℕ' x y z)
+
+is-bounded-linear-combination-dist-ℕ : ℕ → ℕ → ℕ → UU lzero
+is-bounded-linear-combination-dist-ℕ x y z =
+  Σ ℕ (λ k → (le-ℕ k y) × Σ ℕ (λ l → Id (dist-ℕ (mul-ℕ k x) (mul-ℕ l y)) z))
+
+is-linear-combination-dist-is-bounded-linear-combination-dist-ℕ :
+  (x y z : ℕ) → is-bounded-linear-combination-dist-ℕ x y z →
+  is-linear-combination-dist-ℕ x y z
+is-linear-combination-dist-is-bounded-linear-combination-dist-ℕ x y z
+  (pair k (pair H (pair l p))) =
+  pair k (pair l p)
+
+{-
+is-bounded-linear-combination-dist-is-linear-combination-dist-ℕ :
+  (x y z : ℕ) → is-linear-combination-dist-ℕ (succ-ℕ x) (succ-ℕ y) z →
+  is-bounded-linear-combination-dist-ℕ (succ-ℕ x) (succ-ℕ y) z
+is-bounded-linear-combination-dist-is-linear-combination-dist-ℕ x y z
+  (pair k (pair l p)) =
+  pair r (pair P (pair {!!} {!!}))
+  where
+  r : ℕ
+  r = remainder-euclidean-division-succ-ℕ y k
+  P : le-ℕ r (succ-ℕ y)
+  P = strict-upper-bound-remainder-euclidean-division-succ-ℕ y k
+  q : ℕ
+  q = quotient-euclidean-division-succ-ℕ y k
+  α : Id (add-ℕ (mul-ℕ q (succ-ℕ y)) r) k
+  α = eq-euclidean-division-succ-ℕ y k
+
+is-decidable-is-linear-combination-dist-ℕ :
+  (x y z : ℕ) → is-decidable (is-linear-combination-dist-ℕ x y z)
+is-decidable-is-linear-combination-dist-ℕ x y z = {!!}
+
+Bezout :
+  (x y : ℕ) →
+  Σ ℕ (λ k → Σ ℕ (λ l → Id (dist-ℕ (mul-ℕ k x) (mul-ℕ l y)) (gcd-ℕ x y)))
+Bezout x y =
+  pair
+    {!!}
+    ( pair
+      {!!}
+      {!!})
+-}
+
+{-
+ l := x / gcd x y
+ k := y / gcd x y
+ k x + l y = (x y / gcd x y) + (x y / gcd x y) = 2 * lcm x y
+-}
+
 --------------------------------------------------------------------------------
 
 {- Exercise 8.11 -}

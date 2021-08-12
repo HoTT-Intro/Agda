@@ -91,7 +91,8 @@ div-Fibonacci-add-ℕ d m (succ-ℕ n) H1 H2 =
 div-Fibonacci-left-summand-ℕ :
   (d m n : ℕ) → div-ℕ d (Fibonacci-ℕ n) → div-ℕ d (Fibonacci-ℕ (add-ℕ m n)) →
   div-ℕ d (Fibonacci-ℕ m)
-div-Fibonacci-left-summand-ℕ d m n H1 H2 = {!!}
+div-Fibonacci-left-summand-ℕ d m n H1 H2 =
+  {!!}
 
 div-Fibonacci-div-ℕ :
   (d m n : ℕ) → div-ℕ m n → div-ℕ d (Fibonacci-ℕ m) → div-ℕ d (Fibonacci-ℕ n)
