@@ -910,30 +910,49 @@ has-finite-cardinality-Q8 = pair eight-ℕ has-cardinality-eight-Q8
 -- We define the concrete group Q8
 
 cube : ℕ → UU (lsuc lzero)
-cube d = Σ (UU-Fin d) (λ X → type-UU-Fin X → UU-Fin two-ℕ)
+cube k = Σ (UU-Fin k) (λ X → type-UU-Fin X → UU-Fin two-ℕ)
 
-dim-cube-UU-Fin : {d : ℕ} (c : cube d) → UU-Fin d
-dim-cube-UU-Fin c = pr1 c
+dim-cube-UU-Fin : {k : ℕ} (X : cube k) → UU-Fin k
+dim-cube-UU-Fin X = pr1 X
 
 dim-cube : {k : ℕ} → cube k → UU lzero
-dim-cube c = type-UU-Fin (dim-cube-UU-Fin c)
+dim-cube X = type-UU-Fin (dim-cube-UU-Fin X)
+
+has-cardinality-dim-cube :
+  {k : ℕ} (X : cube k) → has-cardinality (dim-cube X) k
+has-cardinality-dim-cube X =
+  pr2 (dim-cube-UU-Fin X)
 
 has-finite-cardinality-dim-cube :
-  {k : ℕ} (c : cube k) → has-finite-cardinality (dim-cube c)
-has-finite-cardinality-dim-cube {k} c =
-  pair k (pr2 (dim-cube-UU-Fin c))
+  {k : ℕ} (X : cube k) → has-finite-cardinality (dim-cube X)
+has-finite-cardinality-dim-cube {k} X =
+  pair k (pr2 (dim-cube-UU-Fin X))
 
 is-finite-dim-cube :
-  {k : ℕ} (c : cube k) → is-finite (dim-cube c)
-is-finite-dim-cube c =
-  is-finite-has-finite-cardinality (has-finite-cardinality-dim-cube c)
+  {k : ℕ} (X : cube k) → is-finite (dim-cube X)
+is-finite-dim-cube X =
+  is-finite-has-finite-cardinality (has-finite-cardinality-dim-cube X)
 
 axis-cube-UU-2 :
-  {d : ℕ} (c : cube d) → dim-cube c → UU-Fin two-ℕ
-axis-cube-UU-2 c = pr2 c
+  {k : ℕ} (X : cube k) → dim-cube X → UU-Fin two-ℕ
+axis-cube-UU-2 X = pr2 X
 
-axis-cube : {d : ℕ} (c : cube d) → dim-cube c → UU lzero
-axis-cube c i = type-UU-Fin (axis-cube-UU-2 c i)
+axis-cube : {k : ℕ} (X : cube k) → dim-cube X → UU lzero
+axis-cube X d = type-UU-Fin (axis-cube-UU-2 X d)
+
+has-cardinality-axis-cube :
+  {k : ℕ} (X : cube k) (d : dim-cube X) → has-cardinality (axis-cube X d) two-ℕ
+has-cardinality-axis-cube X d = pr2 (axis-cube-UU-2 X d)
+
+has-finite-cardinality-axis-cube :
+  {k : ℕ} (X : cube k) (d : dim-cube X) → has-finite-cardinality (axis-cube X d)
+has-finite-cardinality-axis-cube X d =
+  pair two-ℕ (has-cardinality-axis-cube X d)
+
+is-finite-axis-cube :
+  {k : ℕ} (X : cube k) (d : dim-cube X) → is-finite (axis-cube X d)
+is-finite-axis-cube X d =
+  is-finite-has-cardinality (has-cardinality-axis-cube X d)
 
 equiv-cube : {k : ℕ} → cube k → cube k → UU lzero
 equiv-cube {k} X Y =
@@ -974,8 +993,8 @@ eq-equiv-cube :
 eq-equiv-cube X Y =
   map-inv-is-equiv (is-equiv-equiv-eq-cube X Y)
 
-vertex-cube : {d : ℕ} (c : cube d) → UU lzero
-vertex-cube c = (d : dim-cube c) → axis-cube c d
+vertex-cube : {k : ℕ} (X : cube k) → UU lzero
+vertex-cube X = (d : dim-cube X) → axis-cube X d
 
 standard-cube : (k : ℕ) → cube k
 standard-cube k =
@@ -983,24 +1002,23 @@ standard-cube k =
     ( pair (Fin k) (unit-trunc-Prop equiv-id))
     ( λ x → pair (Fin two-ℕ) (unit-trunc-Prop equiv-id))
 
-labelling-cube : {k : ℕ} (c : cube k) → UU (lsuc lzero)
-labelling-cube {k} c = Id (standard-cube k) c
+labelling-cube : {k : ℕ} (X : cube k) → UU (lsuc lzero)
+labelling-cube {k} X = Id (standard-cube k) X
 
 orientation-cube : {k : ℕ} → cube k → UU (lzero)
-orientation-cube {k} c =
-  Σ ( vertex-cube c → Fin two-ℕ)
+orientation-cube {k} X =
+  Σ ( vertex-cube X → Fin two-ℕ)
     ( λ h →
-      ( x y : vertex-cube c) →
+      ( x y : vertex-cube X) →
         Id ( iterate
              ( number-of-elements-is-finite
                ( is-finite-Σ
-                 ( is-finite-dim-cube c)
+                 ( is-finite-dim-cube X)
                  ( λ d →
                    is-finite-function-type
                      ( is-finite-eq
                        ( has-decidable-equality-is-finite
-                         ( is-finite-has-finite-cardinality
-                           ( pair two-ℕ (pr2 (axis-cube-UU-2 c d)))))
+                         ( is-finite-axis-cube X d))
                      { x d}
                      { y d})
                      ( is-finite-empty))))
@@ -1009,10 +1027,10 @@ orientation-cube {k} c =
            ( h y))
 
 face-cube :
-  {k : ℕ} (c : cube (succ-ℕ k)) (d : dim-cube c) (a : axis-cube c d) → cube k
-face-cube c d a =
-  pair ( complement-point-UU-Fin (pair (dim-cube-UU-Fin c) d))
+  {k : ℕ} (X : cube (succ-ℕ k)) (d : dim-cube X) (a : axis-cube X d) → cube k
+face-cube X d a =
+  pair ( complement-point-UU-Fin (pair (dim-cube-UU-Fin X) d))
        ( λ d' →
-         axis-cube-UU-2 c
+         axis-cube-UU-2 X
            ( inclusion-complement-point-UU-Fin
-             ( pair (dim-cube-UU-Fin c) d) d'))
+             ( pair (dim-cube-UU-Fin X) d) d'))
