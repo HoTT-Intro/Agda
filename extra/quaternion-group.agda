@@ -959,6 +959,25 @@ equiv-cube {k} X Y =
   Σ ( (dim-cube X) ≃ (dim-cube Y))
     ( λ e → (x : dim-cube X) → (axis-cube X x) ≃ (axis-cube Y (map-equiv e x)))
 
+dim-equiv-cube :
+  {k : ℕ} (X Y : cube k) → equiv-cube X Y → dim-cube X ≃ dim-cube Y
+dim-equiv-cube X Y e = pr1 e
+
+map-dim-equiv-cube :
+  {k : ℕ} (X Y : cube k) → equiv-cube X Y → dim-cube X → dim-cube Y
+map-dim-equiv-cube X Y e = map-equiv (dim-equiv-cube X Y e)
+
+axis-equiv-cube :
+  {k : ℕ} (X Y : cube k) (e : equiv-cube X Y) (d : dim-cube X) →
+  axis-cube X d ≃ axis-cube Y (map-dim-equiv-cube X Y e d)
+axis-equiv-cube X Y e = pr2 e
+
+map-axis-equiv-cube :
+  {k : ℕ} (X Y : cube k) (e : equiv-cube X Y) (d : dim-cube X) →
+  axis-cube X d → axis-cube Y (map-dim-equiv-cube X Y e d)
+map-axis-equiv-cube X Y e d =
+  map-equiv (axis-equiv-cube X Y e d)
+
 id-equiv-cube :
   {k : ℕ} (X : cube k) → equiv-cube X X
 id-equiv-cube X = pair equiv-id (λ x → equiv-id)
@@ -993,15 +1012,79 @@ eq-equiv-cube :
 eq-equiv-cube X Y =
   map-inv-is-equiv (is-equiv-equiv-eq-cube X Y)
 
+comp-equiv-cube :
+  {k : ℕ} {X Y Z : cube k} → equiv-cube Y Z → equiv-cube X Y → equiv-cube X Z
+comp-equiv-cube (pair dim-f axis-f) (pair dim-e axis-e) =
+  pair (dim-f ∘e dim-e) (λ d → axis-f (map-equiv (dim-e) d) ∘e axis-e d)
+
+htpy-equiv-cube :
+  {k : ℕ} (X Y : cube k) (e f : equiv-cube X Y) → UU lzero
+htpy-equiv-cube X Y e f =
+  Σ ( map-dim-equiv-cube X Y e ~ map-dim-equiv-cube X Y f)
+    ( λ H → (d : dim-cube X) →
+            ( tr (axis-cube Y) (H d) ∘ map-axis-equiv-cube X Y e d) ~
+            ( map-axis-equiv-cube X Y f d))
+
+refl-htpy-equiv-cube :
+  {k : ℕ} (X Y : cube k) (e : equiv-cube X Y) → htpy-equiv-cube X Y e e
+refl-htpy-equiv-cube X Y e = pair refl-htpy (λ d → refl-htpy)
+
+htpy-eq-equiv-cube :
+  {k : ℕ} (X Y : cube k) (e f : equiv-cube X Y) →
+  Id e f → htpy-equiv-cube X Y e f
+htpy-eq-equiv-cube X Y e .e refl = refl-htpy-equiv-cube X Y e
+
+is-contr-total-htpy-equiv-cube :
+  {k : ℕ} (X Y : cube k) (e : equiv-cube X Y) →
+  is-contr (Σ (equiv-cube X Y) (htpy-equiv-cube X Y e))
+is-contr-total-htpy-equiv-cube X Y e =
+  is-contr-total-Eq-structure
+    ( λ α β H →
+      ( d : dim-cube X) →
+      ( tr (axis-cube Y) (H d) ∘ map-axis-equiv-cube X Y e d) ~
+      ( map-equiv (β d)))
+    ( is-contr-total-htpy-equiv (dim-equiv-cube X Y e))
+    ( pair (dim-equiv-cube X Y e) refl-htpy)
+    ( is-contr-total-Eq-Π
+      ( λ d β → htpy-equiv (axis-equiv-cube X Y e d) β)
+      ( λ d → is-contr-total-htpy-equiv (axis-equiv-cube X Y e d)))
+
+is-equiv-htpy-eq-equiv-cube :
+  {k : ℕ} (X Y : cube k) (e f : equiv-cube X Y) →
+  is-equiv (htpy-eq-equiv-cube X Y e f)
+is-equiv-htpy-eq-equiv-cube X Y e =
+  fundamental-theorem-id e
+    ( refl-htpy-equiv-cube X Y e)
+    ( is-contr-total-htpy-equiv-cube X Y e)
+    ( htpy-eq-equiv-cube X Y e)
+
+eq-htpy-equiv-cube :
+  {k : ℕ} (X Y : cube k) (e f : equiv-cube X Y) →
+  htpy-equiv-cube X Y e f → Id e f
+eq-htpy-equiv-cube X Y e f =
+  map-inv-is-equiv (is-equiv-htpy-eq-equiv-cube X Y e f)
+
 vertex-cube : {k : ℕ} (X : cube k) → UU lzero
 vertex-cube X = (d : dim-cube X) → axis-cube X d
+
+dim-standard-cube-UU-Fin : (k : ℕ) → UU-Fin k
+dim-standard-cube-UU-Fin k = Fin-UU-Fin k
+
+dim-standard-cube : ℕ → UU lzero
+dim-standard-cube k = type-UU-Fin (dim-standard-cube-UU-Fin k)
+
+axis-standard-cube-UU-Fin : {k : ℕ} → dim-standard-cube k → UU-Fin two-ℕ
+axis-standard-cube-UU-Fin d = Fin-UU-Fin two-ℕ
+
+axis-standard-cube : {k : ℕ} → dim-standard-cube k → UU lzero
+axis-standard-cube d = type-UU-Fin (axis-standard-cube-UU-Fin d)
 
 standard-cube : (k : ℕ) → cube k
 standard-cube k =
   pair (Fin-UU-Fin k) (λ x → Fin-UU-Fin two-ℕ)
 
-labelling-cube : {k : ℕ} (X : cube k) → UU (lsuc lzero)
-labelling-cube {k} X = Id (standard-cube k) X
+labelling-cube : {k : ℕ} (X : cube k) → UU lzero
+labelling-cube {k} X = equiv-cube (standard-cube k) X
 
 orientation-cube : {k : ℕ} → cube k → UU (lzero)
 orientation-cube {k} X =
@@ -1032,3 +1115,37 @@ face-cube X d a =
          axis-cube-UU-2 X
            ( inclusion-complement-point-UU-Fin
              ( pair (dim-cube-UU-Fin X) d) d'))
+
+cube-with-labelled-faces :
+  (k : ℕ) → UU (lsuc lzero)
+cube-with-labelled-faces k =
+  Σ ( cube (succ-ℕ k))
+    ( λ X → (d : dim-cube X) (a : axis-cube X d) →
+            labelling-cube (face-cube X d a))
+
+cube-cube-with-labelled-faces :
+  {k : ℕ} → cube-with-labelled-faces k → cube (succ-ℕ k)
+cube-cube-with-labelled-faces X = pr1 X
+
+labelling-faces-cube-with-labelled-faces :
+  {k : ℕ} (X : cube-with-labelled-faces k)
+  (d : dim-cube (cube-cube-with-labelled-faces X))
+  (a : axis-cube (cube-cube-with-labelled-faces X) d) →
+  labelling-cube (face-cube (cube-cube-with-labelled-faces X) d a)
+labelling-faces-cube-with-labelled-faces X = pr2 X
+
+equiv-cube-with-labelled-faces :
+  {k : ℕ} (X Y : cube-with-labelled-faces k) → UU lzero
+equiv-cube-with-labelled-faces {k} X Y =
+  Σ ( equiv-cube ( cube-cube-with-labelled-faces X)
+                 ( cube-cube-with-labelled-faces Y))
+    ( λ e → ( d : dim-standard-cube k)
+            ( a : axis-standard-cube d) →
+            htpy-equiv-cube
+              ( standard-cube k)
+              ( face-cube
+                ( cube-cube-with-labelled-faces Y)
+                ( {!labelling-faces-cube-with-labelled-faces Y ? ?!} )
+                {!!})
+              {!!}
+              {!!})
