@@ -709,3 +709,39 @@ inclusion-complement-point-UU-Fin' :
   {l1 : Level} {k : ℕ} (X : Σ (UU-Fin' l1 (succ-ℕ k)) type-UU-Fin') →
   type-complement-point-UU-Fin' X → type-UU-Fin' (pr1 X)
 inclusion-complement-point-UU-Fin' (pair (pair X H) x) = pr1
+
+--------------------------------------------------------------------------------
+
+equiv-UU-Fin' : {l : Level} {k : ℕ} → (X Y : UU-Fin' l k) → UU l
+equiv-UU-Fin' X Y = type-UU-Fin' X ≃ type-UU-Fin' Y
+
+id-equiv-UU-Fin' : {l : Level} {k : ℕ} (X : UU-Fin' l k) → equiv-UU-Fin' X X
+id-equiv-UU-Fin' X = equiv-id
+
+equiv-eq-UU-Fin' :
+  {l : Level} {k : ℕ} {X Y : UU-Fin' l k} → Id X Y → equiv-UU-Fin' X Y
+equiv-eq-UU-Fin' {X = X} refl = id-equiv-UU-Fin' X
+
+is-contr-total-equiv-UU-Fin' :
+  {l : Level} {k : ℕ} (X : UU-Fin' l k) →
+  is-contr (Σ (UU-Fin' l k) (equiv-UU-Fin' X))
+is-contr-total-equiv-UU-Fin' {l} {k} X =
+  is-contr-total-Eq-substructure
+    ( is-contr-total-equiv (type-UU-Fin' X))
+    ( λ Y → is-prop-mere-equiv (Fin k) Y)
+    ( type-UU-Fin' X)
+    ( equiv-id)
+    ( mere-equiv-UU-Fin' X)
+
+is-equiv-equiv-eq-UU-Fin' :
+  {l : Level} {k : ℕ} (X Y : UU-Fin' l k) →
+  is-equiv (equiv-eq-UU-Fin' {X = X} {Y})
+is-equiv-equiv-eq-UU-Fin' X =
+  fundamental-theorem-id X
+    ( id-equiv-UU-Fin' X)
+    ( is-contr-total-equiv-UU-Fin' X)
+    ( λ Y → equiv-eq-UU-Fin' {X = X} {Y})
+
+eq-equiv-UU-Fin' :
+  {l : Level} {k : ℕ} (X Y : UU-Fin' l k) → equiv-UU-Fin' X Y → Id X Y
+eq-equiv-UU-Fin' X Y = map-inv-is-equiv (is-equiv-equiv-eq-UU-Fin' X Y)

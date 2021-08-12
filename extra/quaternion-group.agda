@@ -829,6 +829,10 @@ Q8-Group =
         ( pair left-unit-law-mul-Q8 right-unit-law-mul-Q8))
       ( pair inv-Q8 (pair left-inverse-law-mul-Q8 right-inverse-law-mul-Q8)))
 
+is-noncommutative-mul-Q8 :
+  ¬ ((x y : Q8) → Id (mul-Q8 x y) (mul-Q8 y x))
+is-noncommutative-mul-Q8 f = Eq-eq-Q8 (f i-Q8 j-Q8)
+
 map-equiv-count-Q8 : Fin eight-ℕ → Q8
 map-equiv-count-Q8 (inl (inl (inl (inl (inl (inl (inl (inr star)))))))) = e-Q8
 map-equiv-count-Q8 (inl (inl (inl (inl (inl (inl (inr star))))))) = -e-Q8
@@ -903,6 +907,8 @@ has-finite-cardinality-Q8 = pair eight-ℕ has-cardinality-eight-Q8
 
 --------------------------------------------------------------------------------
 
+-- We define the concrete group Q8
+
 cube : ℕ → UU (lsuc lzero)
 cube d = Σ (UU-Fin d) (λ X → type-UU-Fin X → UU-Fin two-ℕ)
 
@@ -928,6 +934,45 @@ axis-cube-UU-2 c = pr2 c
 
 axis-cube : {d : ℕ} (c : cube d) → dim-cube c → UU lzero
 axis-cube c i = type-UU-Fin (axis-cube-UU-2 c i)
+
+equiv-cube : {k : ℕ} → cube k → cube k → UU lzero
+equiv-cube {k} X Y =
+  Σ ( (dim-cube X) ≃ (dim-cube Y))
+    ( λ e → (x : dim-cube X) → (axis-cube X x) ≃ (axis-cube Y (map-equiv e x)))
+
+id-equiv-cube :
+  {k : ℕ} (X : cube k) → equiv-cube X X
+id-equiv-cube X = pair equiv-id (λ x → equiv-id)
+
+equiv-eq-cube :
+  {k : ℕ} {X Y : cube k} → Id X Y → equiv-cube X Y
+equiv-eq-cube {k} {X} refl = id-equiv-cube X
+
+is-contr-total-equiv-cube :
+  {k : ℕ} (X : cube k) → is-contr (Σ (cube k) (equiv-cube X))
+is-contr-total-equiv-cube X =
+  is-contr-total-Eq-structure
+    ( λ D (A : type-UU-Fin D → UU-Fin two-ℕ)
+          (e : equiv-UU-Fin' (dim-cube-UU-Fin X) D) →
+          (i : dim-cube X) → axis-cube X i ≃ pr1 (A (map-equiv e i)))
+    ( is-contr-total-equiv-UU-Fin' (dim-cube-UU-Fin X))
+    ( pair (dim-cube-UU-Fin X) (id-equiv-UU-Fin' (dim-cube-UU-Fin X)))
+    ( is-contr-total-Eq-Π
+      ( λ i (A : UU-Fin two-ℕ) → equiv-UU-Fin' (axis-cube-UU-2 X i) A)
+      ( λ i → is-contr-total-equiv-UU-Fin' (axis-cube-UU-2 X i)))
+
+is-equiv-equiv-eq-cube :
+  {k : ℕ} (X Y : cube k) → is-equiv (equiv-eq-cube {k} {X} {Y})
+is-equiv-equiv-eq-cube X =
+  fundamental-theorem-id X
+    ( id-equiv-cube X)
+    ( is-contr-total-equiv-cube X)
+    ( λ Y → equiv-eq-cube {X = X} {Y})
+
+eq-equiv-cube :
+  {k : ℕ} (X Y : cube k) → equiv-cube X Y → Id X Y
+eq-equiv-cube X Y =
+  map-inv-is-equiv (is-equiv-equiv-eq-cube X Y)
 
 vertex-cube : {d : ℕ} (c : cube d) → UU lzero
 vertex-cube c = (d : dim-cube c) → axis-cube c d
