@@ -1116,6 +1116,15 @@ face-cube X d a =
            ( inclusion-complement-point-UU-Fin
              ( pair (dim-cube-UU-Fin X) d) d'))
 
+equiv-face-cube :
+  {k : ℕ} (X Y : cube (succ-ℕ k)) (e : equiv-cube X Y) (d : dim-cube X)
+  (a : axis-cube X d) →
+  equiv-cube
+    ( face-cube X d a)
+    ( face-cube Y (map-dim-equiv-cube X Y e d) (map-axis-equiv-cube X Y e d a))
+equiv-face-cube X Y e d a =
+  {!pair ? ?!}
+
 cube-with-labelled-faces :
   (k : ℕ) → UU (lsuc lzero)
 cube-with-labelled-faces k =
@@ -1139,13 +1148,30 @@ equiv-cube-with-labelled-faces :
 equiv-cube-with-labelled-faces {k} X Y =
   Σ ( equiv-cube ( cube-cube-with-labelled-faces X)
                  ( cube-cube-with-labelled-faces Y))
-    ( λ e → ( d : dim-standard-cube k)
-            ( a : axis-standard-cube d) →
+    ( λ e → ( d : dim-cube (cube-cube-with-labelled-faces X))
+            ( a : axis-cube (cube-cube-with-labelled-faces X) d) →
             htpy-equiv-cube
               ( standard-cube k)
               ( face-cube
                 ( cube-cube-with-labelled-faces Y)
-                ( {!labelling-faces-cube-with-labelled-faces Y ? ?!} )
-                {!!})
-              {!!}
-              {!!})
+                ( map-dim-equiv-cube
+                  ( cube-cube-with-labelled-faces X)
+                  ( cube-cube-with-labelled-faces Y)
+                  e d)
+                ( map-axis-equiv-cube
+                  ( cube-cube-with-labelled-faces X)
+                  ( cube-cube-with-labelled-faces Y)
+                  e d a))
+              ( comp-equiv-cube
+                {!!}
+                ( labelling-faces-cube-with-labelled-faces X d a))
+              ( labelling-faces-cube-with-labelled-faces Y
+                ( map-dim-equiv-cube
+                  ( cube-cube-with-labelled-faces X)
+                  ( cube-cube-with-labelled-faces Y)
+                  e d)
+                ( map-axis-equiv-cube
+                  ( cube-cube-with-labelled-faces X)
+                  ( cube-cube-with-labelled-faces Y)
+                  e d a)))
+                
