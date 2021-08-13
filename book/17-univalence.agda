@@ -663,6 +663,88 @@ add-free-point-UU-Fin-Level X = coprod-UU-Fin-Level X unit-UU-Fin
 add-free-point-UU-Fin : {k : ℕ} → UU-Fin k → UU-Fin (succ-ℕ k)
 add-free-point-UU-Fin X = add-free-point-UU-Fin-Level X
 
+has-maybe-structure :
+  {l1 : Level} (X : UU l1) → UU (lsuc l1)
+has-maybe-structure {l1} X = Σ (UU l1) (λ Y → Maybe Y ≃ X)
+
+is-isolated-point :
+  {l1 : Level} {X : UU l1} (x : X) → UU l1
+is-isolated-point {l1} {X} x = (y : X) → is-decidable (Id x y)
+
+cases-Eq-isolated-point :
+  {l1 : Level} {X : UU l1} (x : X) → is-isolated-point x →
+  (y : X) → is-decidable (Id x y) → UU lzero
+cases-Eq-isolated-point x H y (inl p) = unit
+cases-Eq-isolated-point x H y (inr f) = empty
+
+Eq-isolated-point :
+  {l1 : Level} {X : UU l1} (x : X) → is-isolated-point x → X → UU lzero
+Eq-isolated-point x d y =
+  cases-Eq-isolated-point x d y (d y)
+
+cases-refl-Eq-isolated-point :
+  {l1 : Level} {X : UU l1} (x : X) (d : is-isolated-point x) →
+  (e : is-decidable (Id x x)) → cases-Eq-isolated-point x d x e
+cases-refl-Eq-isolated-point x d (inl p) = star
+cases-refl-Eq-isolated-point x d (inr f) = ex-falso (f refl)
+
+refl-Eq-isolated-point :
+  {l1 : Level} {X : UU l1} (x : X) (d : is-isolated-point x) →
+  Eq-isolated-point x d x
+refl-Eq-isolated-point x d = {!!}
+  -- cases-refl-Eq-isolated-point x d (inl refl)
+
+isolated-point :
+  {l1 : Level} (X : UU l1) → UU l1
+isolated-point X = Σ X is-isolated-point
+
+complement-isolated-point :
+  {l1 : Level} (X : UU l1) → isolated-point X → UU l1
+complement-isolated-point X (pair x d) =
+  Σ X (λ y → ¬ (Id x y))
+
+map-maybe-structure :
+  {l1 : Level} (X : UU l1) (x : isolated-point X) →
+  Maybe (complement-isolated-point X x) → X
+map-maybe-structure X (pair x d) (inl (pair y f)) = y
+map-maybe-structure X (pair x d) (inr star) = x
+
+cases-map-inv-maybe-structure :
+  {l1 : Level} (X : UU l1) (x : isolated-point X) →
+  (y : X) → is-decidable (Id (pr1 x) y) → Maybe (complement-isolated-point X x)
+cases-map-inv-maybe-structure X (pair x dx) y (inl p) = inr star
+cases-map-inv-maybe-structure X (pair x dx) y (inr f) = inl (pair y f)
+
+map-inv-maybe-structure :
+  {l1 : Level} (X : UU l1) (x : isolated-point X) →
+  X → Maybe (complement-isolated-point X x)
+map-inv-maybe-structure X (pair x d) y =
+  cases-map-inv-maybe-structure X (pair x d) y (d y)
+
+cases-issec-map-inv-maybe-structure :
+  {l1 : Level} (X : UU l1) (x : isolated-point X) →
+  (y : X) (d : is-decidable (Id (pr1 x) y)) →
+  Id (map-maybe-structure X x (cases-map-inv-maybe-structure X x y d)) y
+cases-issec-map-inv-maybe-structure X (pair x dx) .x (inl refl) = refl
+cases-issec-map-inv-maybe-structure X (pair x dx) y (inr f) = refl
+
+issec-map-inv-maybe-structure :
+  {l1 : Level} (X : UU l1) (x : isolated-point X) →
+  (map-maybe-structure X x ∘ map-inv-maybe-structure X x) ~ id
+issec-map-inv-maybe-structure X (pair x d) y =
+  cases-issec-map-inv-maybe-structure X (pair x d) y (d y)
+
+isretr-map-inv-maybe-structure :
+  {l1 : Level} (X : UU l1) (x : isolated-point X) →
+  (map-inv-maybe-structure X x ∘ map-maybe-structure X x) ~ id
+isretr-map-inv-maybe-structure X (pair x dx) (inl (pair y f)) =
+  ap ( cases-map-inv-maybe-structure X (pair x dx) y)
+     ( eq-is-prop
+       ( is-prop-is-decidable
+         ( is-set-is-finite (is-finite-has-cardinality {!!}) x y)))
+isretr-map-inv-maybe-structure X (pair x dx) (inr star) = {!!}
+  
+
 complement-point-UU-Fin-Level :
   {l1 : Level} {k : ℕ} →
   Σ (UU-Fin-Level l1 (succ-ℕ k)) type-UU-Fin-Level → UU-Fin-Level l1 k
