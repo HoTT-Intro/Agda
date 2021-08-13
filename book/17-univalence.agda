@@ -771,8 +771,8 @@ isolated-point X = Σ X is-isolated-point
 
 complement-isolated-point :
   {l1 : Level} (X : UU l1) → isolated-point X → UU l1
-complement-isolated-point X (pair x d) =
-  Σ X (λ y → ¬ (Id x y))
+complement-isolated-point X x =
+  Σ X (λ y → ¬ (Id (pr1 x) y))
 
 map-maybe-structure-isolated-point :
   {l1 : Level} (X : UU l1) (x : isolated-point X) →
@@ -847,10 +847,31 @@ maybe-structure-isolated-point {l1} {X} x =
   pair ( complement-isolated-point X x)
        ( equiv-maybe-structure-isolated-point X x)
 
+equiv-neg :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
+  (X ≃ Y) → (¬ X ≃ ¬ Y)
+equiv-neg {l1} {l2} {X} {Y} e =
+  equiv-iff
+    ( neg-Prop' X)
+    ( neg-Prop' Y)
+    ( pair (functor-neg (map-inv-equiv e)) (functor-neg (map-equiv e)))
+
+equiv-complement-isolated-point :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ≃ Y) (x : isolated-point X)
+  (y : isolated-point Y) (p : Id (map-equiv e (pr1 x)) (pr1 y)) →
+  complement-isolated-point X x ≃ complement-isolated-point Y y
+equiv-complement-isolated-point e x y p =
+  equiv-Σ
+    ( λ z → ¬ (Id (pr1 y) z))
+    ( e)
+    ( λ z →
+      equiv-neg
+        ( equiv-concat (inv p) (map-equiv e z) ∘e (equiv-ap e (pr1 x) z)))
+
 complement-point-UU-Fin-Level :
   {l1 : Level} {k : ℕ} →
   Σ (UU-Fin-Level l1 (succ-ℕ k)) type-UU-Fin-Level → UU-Fin-Level l1 k
-complement-point-UU-Fin-Level {l1} {k} (pair (pair X H) x) =
+complement-point-UU-Fin-Level {l1} {k} T =
   pair
     ( X')
     ( apply-universal-property-trunc-Prop H (mere-equiv-Prop (Fin k) X')
@@ -863,6 +884,9 @@ complement-point-UU-Fin-Level {l1} {k} (pair (pair X H) x) =
                 ( equiv-maybe-structure-isolated-point X isolated-x)) ∘e
               ( e)))))
   where
+  X = pr1 (pr1 T)
+  H = pr2 (pr1 T)
+  x = pr2 T
   isolated-x : isolated-point X
   isolated-x = pair x (λ y → has-decidable-equality-has-cardinality H x y)
   X' : UU l1
@@ -883,10 +907,23 @@ type-complement-point-UU-Fin :
 type-complement-point-UU-Fin X =
   type-complement-point-UU-Fin-Level X
 
+inclusion-complement-isolated-point :
+  {l1 : Level} {X : UU l1} (x : isolated-point X) →
+  complement-isolated-point X x → X
+inclusion-complement-isolated-point x = pr1
+
+natural-inclusion-equiv-complement-isolated-point :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ≃ Y) (x : isolated-point X)
+  (y : isolated-point Y) (p : Id (map-equiv e (pr1 x)) (pr1 y)) →
+  ( inclusion-complement-isolated-point y ∘
+    map-equiv (equiv-complement-isolated-point e x y p)) ~
+  ( map-equiv e ∘ inclusion-complement-isolated-point x)
+natural-inclusion-equiv-complement-isolated-point e x y p (pair x' f) = refl
+
 inclusion-complement-point-UU-Fin-Level :
   {l1 : Level} {k : ℕ} (X : Σ (UU-Fin-Level l1 (succ-ℕ k)) type-UU-Fin-Level) →
   type-complement-point-UU-Fin-Level X → type-UU-Fin-Level (pr1 X)
-inclusion-complement-point-UU-Fin-Level (pair (pair X H) x) = pr1
+inclusion-complement-point-UU-Fin-Level X = pr1
 
 inclusion-complement-point-UU-Fin :
   {k : ℕ} (X : Σ (UU-Fin (succ-ℕ k)) type-UU-Fin) →
@@ -1053,3 +1090,30 @@ eq-equiv-UU-Fin-Level X Y =
 eq-equiv-UU-Fin :
   {k : ℕ} (X Y : UU-Fin k) → equiv-UU-Fin X Y → Id X Y
 eq-equiv-UU-Fin X Y = eq-equiv-component-UU X Y
+
+equiv-complement-point-UU-Fin-Level :
+  {l1 : Level} {k : ℕ}
+  (X Y : Σ (UU-Fin-Level l1 (succ-ℕ k)) type-UU-Fin-Level) →
+  (e : equiv-UU-Fin-Level (pr1 X) (pr1 Y))
+  (p : Id (map-equiv e (pr2 X)) (pr2 Y)) →
+  equiv-UU-Fin-Level
+    ( complement-point-UU-Fin-Level X)
+    ( complement-point-UU-Fin-Level Y)
+equiv-complement-point-UU-Fin-Level
+  S T e p =
+  equiv-complement-isolated-point e
+    ( pair x (λ x' → has-decidable-equality-has-cardinality H x x'))
+    ( pair y (λ y' → has-decidable-equality-has-cardinality K y y'))
+    ( p)
+  where
+  H = pr2 (pr1 S)
+  x = pr2 S
+  K = pr2 (pr1 T)
+  y = pr2 T
+
+equiv-complement-point-UU-Fin :
+  {k : ℕ} (X Y : Σ (UU-Fin (succ-ℕ k)) type-UU-Fin) →
+  (e : equiv-UU-Fin (pr1 X) (pr1 Y)) (p : Id (map-equiv e (pr2 X)) (pr2 Y)) →
+  equiv-UU-Fin (complement-point-UU-Fin X) (complement-point-UU-Fin Y)
+equiv-complement-point-UU-Fin X Y e p =
+  equiv-complement-point-UU-Fin-Level X Y e p

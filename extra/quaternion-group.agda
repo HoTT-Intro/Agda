@@ -1013,8 +1013,8 @@ eq-equiv-cube X Y =
   map-inv-is-equiv (is-equiv-equiv-eq-cube X Y)
 
 comp-equiv-cube :
-  {k : ℕ} {X Y Z : cube k} → equiv-cube Y Z → equiv-cube X Y → equiv-cube X Z
-comp-equiv-cube (pair dim-f axis-f) (pair dim-e axis-e) =
+  {k : ℕ} (X Y Z : cube k) → equiv-cube Y Z → equiv-cube X Y → equiv-cube X Z
+comp-equiv-cube X Y Z (pair dim-f axis-f) (pair dim-e axis-e) =
   pair (dim-f ∘e dim-e) (λ d → axis-f (map-equiv (dim-e) d) ∘e axis-e d)
 
 htpy-equiv-cube :
@@ -1124,8 +1124,32 @@ equiv-face-cube :
     ( face-cube Y (map-dim-equiv-cube X Y e d) (map-axis-equiv-cube X Y e d a))
 equiv-face-cube X Y e d a =
   pair
-    {!!}
-    {!!}
+    ( equiv-complement-point-UU-Fin
+      ( pair (dim-cube-UU-Fin X) d)
+      ( pair (dim-cube-UU-Fin Y) (map-dim-equiv-cube X Y e d))
+      ( dim-equiv-cube X Y e)
+      ( refl))
+    ( λ d' →
+      ( equiv-tr
+        ( axis-cube Y)
+        ( inv
+          ( natural-inclusion-equiv-complement-isolated-point
+            ( dim-equiv-cube X Y e)
+            ( pair d (λ z → has-decidable-equality-has-cardinality
+                            ( has-cardinality-dim-cube X) d z))
+            ( pair
+              ( map-dim-equiv-cube X Y e d)
+              ( λ z →
+                has-decidable-equality-has-cardinality
+                  ( has-cardinality-dim-cube Y)
+                  ( map-dim-equiv-cube X Y e d)
+                  ( z)))
+            ( refl)
+            ( d')))) ∘e
+      ( axis-equiv-cube X Y e
+        ( inclusion-complement-point-UU-Fin (pair (dim-cube-UU-Fin X) d) d')))
+
+-- pr1 (pr1 e) (pr1 d')
 
 cube-with-labelled-faces :
   (k : ℕ) → UU (lsuc lzero)
@@ -1165,7 +1189,12 @@ equiv-cube-with-labelled-faces {k} X Y =
                   ( cube-cube-with-labelled-faces Y)
                   e d a))
               ( comp-equiv-cube
-                {!!}
+                ( standard-cube k)
+                ( face-cube (pr1 X) d a)
+                ( face-cube (pr1 Y)
+                  ( map-dim-equiv-cube (pr1 X) (pr1 Y) e d)
+                  ( map-axis-equiv-cube (pr1 X) (pr1 Y) e d a))
+                ( equiv-face-cube (pr1 X) (pr1 Y) e d a)
                 ( labelling-faces-cube-with-labelled-faces X d a))
               ( labelling-faces-cube-with-labelled-faces Y
                 ( map-dim-equiv-cube
