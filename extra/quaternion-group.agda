@@ -1123,7 +1123,9 @@ equiv-face-cube :
     ( face-cube X d a)
     ( face-cube Y (map-dim-equiv-cube X Y e d) (map-axis-equiv-cube X Y e d a))
 equiv-face-cube X Y e d a =
-  {!pair ? ?!}
+  pair
+    {!!}
+    {!!}
 
 cube-with-labelled-faces :
   (k : ℕ) → UU (lsuc lzero)
