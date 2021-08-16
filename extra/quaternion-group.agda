@@ -1073,15 +1073,23 @@ dim-standard-cube-UU-Fin k = Fin-UU-Fin k
 dim-standard-cube : ℕ → UU lzero
 dim-standard-cube k = type-UU-Fin (dim-standard-cube-UU-Fin k)
 
-axis-standard-cube-UU-Fin : {k : ℕ} → dim-standard-cube k → UU-Fin two-ℕ
-axis-standard-cube-UU-Fin d = Fin-UU-Fin two-ℕ
+axis-standard-cube-UU-Fin : (k : ℕ) → dim-standard-cube k → UU-Fin two-ℕ
+axis-standard-cube-UU-Fin k d = Fin-UU-Fin two-ℕ
 
-axis-standard-cube : {k : ℕ} → dim-standard-cube k → UU lzero
-axis-standard-cube d = type-UU-Fin (axis-standard-cube-UU-Fin d)
+axis-standard-cube : (k : ℕ) → dim-standard-cube k → UU lzero
+axis-standard-cube k d = type-UU-Fin (axis-standard-cube-UU-Fin k d)
 
 standard-cube : (k : ℕ) → cube k
 standard-cube k =
-  pair (Fin-UU-Fin k) (λ x → Fin-UU-Fin two-ℕ)
+  pair (dim-standard-cube-UU-Fin k) (axis-standard-cube-UU-Fin k)
+
+mere-equiv-standard-cube :
+  {k : ℕ} (X : cube k) → type-trunc-Prop (equiv-cube (standard-cube k) X)
+mere-equiv-standard-cube {k} (pair (pair X H) Y) =
+  apply-universal-property-trunc-Prop H
+    ( trunc-Prop (equiv-cube (standard-cube k) (pair (pair X H) Y)))
+    ( λ e →
+      {! finite-choice-count (pair k e) ?!})
 
 labelling-cube : {k : ℕ} (X : cube k) → UU lzero
 labelling-cube {k} X = equiv-cube (standard-cube k) X
@@ -1116,6 +1124,16 @@ face-cube X d a =
            ( inclusion-complement-point-UU-Fin
              ( pair (dim-cube-UU-Fin X) d) d'))
 
+equiv-face-standard-cube :
+  {k : ℕ} (d : dim-standard-cube (succ-ℕ k))
+  (a : axis-standard-cube (succ-ℕ k) d) →
+  equiv-cube (face-cube (standard-cube (succ-ℕ k)) d a) (standard-cube k)
+equiv-face-standard-cube {zero-ℕ} d a =
+  pair
+    {! is-equiv-is-empty!}
+    {!!}
+equiv-face-standard-cube {succ-ℕ k} d a = {!!}
+
 equiv-face-cube :
   {k : ℕ} (X Y : cube (succ-ℕ k)) (e : equiv-cube X Y) (d : dim-cube X)
   (a : axis-cube X d) →
@@ -1149,8 +1167,6 @@ equiv-face-cube X Y e d a =
       ( axis-equiv-cube X Y e
         ( inclusion-complement-point-UU-Fin (pair (dim-cube-UU-Fin X) d) d')))
 
--- pr1 (pr1 e) (pr1 d')
-
 cube-with-labelled-faces :
   (k : ℕ) → UU (lsuc lzero)
 cube-with-labelled-faces k =
@@ -1168,6 +1184,12 @@ labelling-faces-cube-with-labelled-faces :
   (a : axis-cube (cube-cube-with-labelled-faces X) d) →
   labelling-cube (face-cube (cube-cube-with-labelled-faces X) d a)
 labelling-faces-cube-with-labelled-faces X = pr2 X
+
+standard-cube-with-labelled-faces :
+  (k : ℕ) → cube-with-labelled-faces k
+standard-cube-with-labelled-faces k =
+  pair ( standard-cube (succ-ℕ k))
+       ( λ d a → {!!})
 
 equiv-cube-with-labelled-faces :
   {k : ℕ} (X Y : cube-with-labelled-faces k) → UU lzero

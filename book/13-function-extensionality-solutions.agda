@@ -221,11 +221,13 @@ module _
   triangle-map-hom-coslice : (h : hom-coslice) → ((map-hom-coslice h) ∘ f) ~ g
   triangle-map-hom-coslice = pr2
 
+{-
   htpy-hom-coslice :
     (h k : hom-coslice) → UU (l1 ⊔ l2 ⊔ l3)
   htpy-hom-coslice h k =
     Σ ( map-hom-coslice h ~ map-hom-coslice k)
       ( λ H → {!!})
+-}
 
 {- We characterize the identity type of the type of retractions of f -}
 
@@ -683,6 +685,11 @@ module _
       ( ev-point' (center H))
       ( λ f → eq-htpy (λ x → ap f (contraction H x)))
       ( λ x → refl)
+
+  equiv-diagonal-is-contr :
+    {l : Level} (X : UU l) → is-contr A → X ≃ (A → X)
+  equiv-diagonal-is-contr X H =
+    pair (const A X) (is-equiv-diagonal-is-contr H X)
 
 -- We conclude that the properties in the exercise hold for the unit type
 
@@ -1313,6 +1320,126 @@ sec-right-factor-retract-of-sec-left-factor f g h H retr-g =
     ( pair
       ( retraction-comp f g h H retr-g)
       ( isretr-retraction-comp f g h H retr-g))
+
+-- Exercise 13.12
+
+-- Distributitivty of Π over coproducts
+
+is-prop-is-zero-Fin :
+  {k : ℕ} (x : Fin (succ-ℕ k)) → is-prop (is-zero-Fin x)
+is-prop-is-zero-Fin {k} x = is-set-Fin (succ-ℕ k) x zero-Fin
+
+is-prop-is-one-Fin :
+  {k : ℕ} (x : Fin (succ-ℕ k)) → is-prop (is-one-Fin x)
+is-prop-is-one-Fin {k} x = is-set-Fin (succ-ℕ k) x one-Fin
+
+is-prop-is-zero-or-one-Fin-two-ℕ :
+  (x : Fin two-ℕ) → is-prop (coprod (is-zero-Fin x) (is-one-Fin x))
+is-prop-is-zero-or-one-Fin-two-ℕ x =
+  is-prop-coprod
+    ( λ p q → Eq-Fin-eq (inv p ∙ q))
+    ( is-prop-is-zero-Fin x)
+    ( is-prop-is-one-Fin x)
+
+is-contr-is-zero-or-one-Fin-two-ℕ :
+  (x : Fin two-ℕ) → is-contr (coprod (is-zero-Fin x) (is-one-Fin x))
+is-contr-is-zero-or-one-Fin-two-ℕ x =
+  is-proof-irrelevant-is-prop
+    ( is-prop-is-zero-or-one-Fin-two-ℕ x)
+    ( is-zero-or-one-Fin-two-ℕ x)
+
+-- We express coproducts as Σ-types over Fin two-ℕ
+
+module _
+  {l1 l2 : Level} (A : UU l1) (B : UU l2)
+  where
+  
+  fam-coprod :
+    Fin two-ℕ → UU (l1 ⊔ l2)
+  fam-coprod (inl (inr star)) = raise l2 A
+  fam-coprod (inr star) = raise l1 B
+  
+  map-compute-total-fam-coprod :
+    Σ (Fin two-ℕ) fam-coprod → coprod A B
+  map-compute-total-fam-coprod (pair (inl (inr star)) y) = inl (map-inv-raise y)
+  map-compute-total-fam-coprod (pair (inr star) y) = inr (map-inv-raise y)
+
+  map-inv-compute-total-fam-coprod :
+    coprod A B → Σ (Fin two-ℕ) fam-coprod
+  map-inv-compute-total-fam-coprod (inl x) = pair zero-Fin (map-raise x)
+  map-inv-compute-total-fam-coprod (inr x) = pair one-Fin (map-raise x)
+
+  issec-map-inv-compute-total-fam-coprod :
+    (map-compute-total-fam-coprod ∘ map-inv-compute-total-fam-coprod) ~ id
+  issec-map-inv-compute-total-fam-coprod (inl x) =
+    ap inl (isretr-map-inv-raise {l2} x)
+  issec-map-inv-compute-total-fam-coprod (inr x) =
+    ap inr (isretr-map-inv-raise {l1} x)
+
+  isretr-map-inv-compute-total-fam-coprod :
+    (map-inv-compute-total-fam-coprod ∘ map-compute-total-fam-coprod) ~ id
+  isretr-map-inv-compute-total-fam-coprod (pair (inl (inr star)) y) =
+    ap (pair zero-Fin) (issec-map-inv-raise y)
+  isretr-map-inv-compute-total-fam-coprod (pair (inr star) y) =
+    ap (pair one-Fin) (issec-map-inv-raise y)
+
+  is-equiv-map-compute-total-fam-coprod :
+    is-equiv map-compute-total-fam-coprod
+  is-equiv-map-compute-total-fam-coprod =
+    is-equiv-has-inverse
+      map-inv-compute-total-fam-coprod
+      issec-map-inv-compute-total-fam-coprod
+      isretr-map-inv-compute-total-fam-coprod
+  
+  compute-total-fam-coprod :
+    (Σ (Fin two-ℕ) fam-coprod) ≃ coprod A B
+  compute-total-fam-coprod =
+    pair map-compute-total-fam-coprod is-equiv-map-compute-total-fam-coprod
+
+  inv-compute-total-fam-coprod :
+    coprod A B ≃ Σ (Fin two-ℕ) fam-coprod
+  inv-compute-total-fam-coprod =
+    inv-equiv compute-total-fam-coprod
+  
+module _
+  {l1 l2 l3 : Level} {X : UU l1} {A : X → UU l2} {B : X → UU l3}
+  where
+
+  type-distributive-Π-coprod : UU (l1 ⊔ l2 ⊔ l3)
+  type-distributive-Π-coprod =
+    Σ ( X → Fin two-ℕ)
+      ( λ f → ((x : X) (p : is-zero-Fin (f x)) → A x) ×
+              ((x : X) (p : is-one-Fin (f x)) → B x))
+
+  distributive-Π-coprod :
+    ((x : X) → coprod (A x) (B x)) ≃ type-distributive-Π-coprod
+  distributive-Π-coprod =
+    ( ( equiv-tot
+        ( λ f →
+          ( ( equiv-prod
+              ( equiv-map-Π
+                ( λ x →
+                  equiv-map-Π
+                    ( λ p →
+                      ( inv-equiv (equiv-raise l3 (A x))) ∘e
+                      ( equiv-tr (fam-coprod (A x) (B x)) p))))
+              ( equiv-map-Π
+                ( λ x →
+                  equiv-map-Π
+                    ( λ p →
+                      ( inv-equiv (equiv-raise l2 (B x))) ∘e
+                      ( equiv-tr (fam-coprod (A x) (B x)) p))))) ∘e
+            ( equiv-choice-∞)) ∘e
+          ( equiv-map-Π
+            ( λ x →
+              ( equiv-universal-property-coprod
+                ( fam-coprod (A x) (B x) (f x))) ∘e
+              ( equiv-diagonal-is-contr
+                ( fam-coprod (A x) (B x) (f x))
+                ( is-contr-is-zero-or-one-Fin-two-ℕ (f x))))))) ∘e
+      ( equiv-choice-∞)) ∘e
+    ( equiv-map-Π
+      ( λ x → inv-compute-total-fam-coprod (A x) (B x)))
 
 -- Exercise 13.13
 
@@ -2062,3 +2189,5 @@ htpy-hom-pointed-successor-algebra H K h1 h2 =
       {! Id (comp-base-hom-pointed-successor-algebra H K h1) ? × ?!})
 
 -}
+
+--------------------------------------------------------------------------------

@@ -1138,6 +1138,11 @@ one-Fin {k} = mod-succ-ℕ k one-ℕ
 is-one-Fin : {k : ℕ} → Fin k → UU lzero
 is-one-Fin {succ-ℕ k} x = Id x one-Fin
 
+is-zero-or-one-Fin-two-ℕ :
+  (x : Fin two-ℕ) → coprod (is-zero-Fin x) (is-one-Fin x)
+is-zero-or-one-Fin-two-ℕ (inl (inr star)) = inl refl
+is-zero-or-one-Fin-two-ℕ (inr star) = inr refl
+
 nat-one-Fin : {k : ℕ} → is-one-ℕ (nat-Fin (one-Fin {succ-ℕ k}))
 nat-one-Fin {zero-ℕ} = refl
 nat-one-Fin {succ-ℕ k} = nat-one-Fin {k}
