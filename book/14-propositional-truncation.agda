@@ -1403,3 +1403,35 @@ contraction-𝕀 =
 
 is-contr-𝕀 : is-contr 𝕀
 is-contr-𝕀 = pair source-𝕀 contraction-𝕀
+
+-----------
+
+is-empty-type-trunc-Prop :
+  {l1 : Level} {X : UU l1} → is-empty X → is-empty (type-trunc-Prop X)
+is-empty-type-trunc-Prop f =
+  map-universal-property-trunc-Prop empty-Prop f
+
+is-empty-type-trunc-Prop' :
+  {l1 : Level} {X : UU l1} → is-empty (type-trunc-Prop X) → is-empty X
+is-empty-type-trunc-Prop' f = f ∘ unit-trunc-Prop
+
+elim-trunc-decidable-fam-Fin :
+  {l1 : Level} {k : ℕ} {B : Fin k → UU l1} →
+  ((x : Fin k) → is-decidable (B x)) →
+  type-trunc-Prop (Σ (Fin k) B) → Σ (Fin k) B
+elim-trunc-decidable-fam-Fin {l1} {zero-ℕ} {B} d y =
+  ex-falso (is-empty-type-trunc-Prop pr1 y)
+elim-trunc-decidable-fam-Fin {l1} {succ-ℕ k} {B} d y
+  with d (inr star)
+... | inl x = pair (inr star) x
+... | inr f =
+  map-Σ-map-base inl B
+    ( elim-trunc-decidable-fam-Fin {l1} {k} {B ∘ inl}
+      ( λ x → d (inl x))
+      ( map-equiv-trunc-Prop
+        ( ( ( right-unit-law-coprod-is-empty
+              ( Σ (Fin k) (B ∘ inl))
+              ( B (inr star)) f) ∘e
+            ( equiv-coprod equiv-id (left-unit-law-Σ (B ∘ inr)))) ∘e
+          ( right-distributive-Σ-coprod (Fin k) unit B))
+        ( y)))

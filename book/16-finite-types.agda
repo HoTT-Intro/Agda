@@ -1633,7 +1633,9 @@ prod-UU-Fin :
   {k l : ℕ} → UU-Fin k → UU-Fin l → UU-Fin (mul-ℕ k l)
 prod-UU-Fin = prod-UU-Fin-Level
 
-{- Finiteness and Σ-types -}
+-- Theorem 16.3.6 (iii)
+
+-- Theorem 16.3.6 (iii) (a) and (b) implies (c)
 
 is-finite-Σ :
   {l1 l2 : Level} {X : UU l1} {Y : X → UU l2} →
@@ -1654,6 +1656,8 @@ is-finite-Σ {X = X} {Y} is-finite-X is-finite-Y =
          ( is-finite-type-𝔽 X)
          ( λ x → is-finite-type-𝔽 (Y x)))
 
+-- Theorem 16.3.6 (iii) (a) and (c) implies (b)
+
 is-finite-fiber-is-finite-Σ :
   {l1 l2 : Level} {X : UU l1} {Y : X → UU l2} →
   is-finite X → is-finite (Σ X Y) → (x : X) → is-finite (Y x)
@@ -1662,67 +1666,7 @@ is-finite-fiber-is-finite-Σ {l1} {l2} {X} {Y} f g x =
     ( is-finite-Prop (Y x))
     ( λ e → functor-trunc-Prop (λ h → count-fiber-count-Σ e h x) g)
 
-is-finite-fib :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (f : X → Y) →
-  is-finite X → is-finite Y → (y : Y) → is-finite (fib f y)
-is-finite-fib f is-finite-X is-finite-Y y =
-  apply-universal-property-trunc-Prop
-    ( is-finite-X)
-    ( is-finite-Prop (fib f y))
-    ( λ H →
-      apply-universal-property-trunc-Prop
-        ( is-finite-Y)
-        ( is-finite-Prop (fib f y))
-        ( λ K → unit-trunc-Prop (count-fib f H K y)))
-
-fib-𝔽 : (X Y : 𝔽) (f : type-𝔽 X → type-𝔽 Y) → type-𝔽 Y → 𝔽
-fib-𝔽 X Y f y =
-  pair (fib f y) (is-finite-fib f (is-finite-type-𝔽 X) (is-finite-type-𝔽 Y) y)
-
-is-finite-fib-map-section :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
-  is-finite (Σ A B) → ((x : A) → is-finite (B x)) →
-  (t : Σ A B) → is-finite (fib (map-section b) t)
-is-finite-fib-map-section {l1} {l2} {A} {B} b f g (pair y z) =
-  is-finite-equiv'
-    ( ( ( left-unit-law-Σ-is-contr
-            ( is-contr-total-path' y)
-            ( pair y refl)) ∘e
-        ( inv-assoc-Σ A
-          ( λ x → Id x y)
-          ( λ t → Id (tr B (pr2 t) (b (pr1 t))) z))) ∘e
-      ( equiv-tot (λ x → equiv-pair-eq-Σ (pair x (b x)) (pair y z))))
-    ( is-finite-eq (has-decidable-equality-is-finite (g y)))
-
-is-empty-type-trunc-Prop :
-  {l1 : Level} {X : UU l1} → is-empty X → is-empty (type-trunc-Prop X)
-is-empty-type-trunc-Prop f =
-  map-universal-property-trunc-Prop empty-Prop f
-
-is-empty-type-trunc-Prop' :
-  {l1 : Level} {X : UU l1} → is-empty (type-trunc-Prop X) → is-empty X
-is-empty-type-trunc-Prop' f = f ∘ unit-trunc-Prop
-
-elim-trunc-decidable-fam-Fin :
-  {l1 : Level} {k : ℕ} {B : Fin k → UU l1} →
-  ((x : Fin k) → is-decidable (B x)) →
-  type-trunc-Prop (Σ (Fin k) B) → Σ (Fin k) B
-elim-trunc-decidable-fam-Fin {l1} {zero-ℕ} {B} d y =
-  ex-falso (is-empty-type-trunc-Prop pr1 y)
-elim-trunc-decidable-fam-Fin {l1} {succ-ℕ k} {B} d y
-  with d (inr star)
-... | inl x = pair (inr star) x
-... | inr f =
-  map-Σ-map-base inl B
-    ( elim-trunc-decidable-fam-Fin {l1} {k} {B ∘ inl}
-      ( λ x → d (inl x))
-      ( map-equiv-trunc-Prop
-        ( ( ( right-unit-law-coprod-is-empty
-              ( Σ (Fin k) (B ∘ inl))
-              ( B (inr star)) f) ∘e
-            ( equiv-coprod equiv-id (left-unit-law-Σ (B ∘ inr)))) ∘e
-          ( right-distributive-Σ-coprod (Fin k) unit B))
-        ( y)))
+-- Theorem 16.3.6 (iii) (b), (c), B has a section implies (a)
 
 is-finite-base-is-finite-Σ-section :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
@@ -2038,6 +1982,40 @@ is-finite-base-is-finite-Σ-merely-inhabited {l1} {l2} {A} {B} K b f g =
     ( choice-is-finite-Σ-is-finite-fiber K f g b)
     ( f)
     ( g)
+
+-- Theorem 16.3.6 Immediate corollaries and bureaucracy
+
+is-finite-fib :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (f : X → Y) →
+  is-finite X → is-finite Y → (y : Y) → is-finite (fib f y)
+is-finite-fib f is-finite-X is-finite-Y y =
+  apply-universal-property-trunc-Prop
+    ( is-finite-X)
+    ( is-finite-Prop (fib f y))
+    ( λ H →
+      apply-universal-property-trunc-Prop
+        ( is-finite-Y)
+        ( is-finite-Prop (fib f y))
+        ( λ K → unit-trunc-Prop (count-fib f H K y)))
+
+fib-𝔽 : (X Y : 𝔽) (f : type-𝔽 X → type-𝔽 Y) → type-𝔽 Y → 𝔽
+fib-𝔽 X Y f y =
+  pair (fib f y) (is-finite-fib f (is-finite-type-𝔽 X) (is-finite-type-𝔽 Y) y)
+
+is-finite-fib-map-section :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
+  is-finite (Σ A B) → ((x : A) → is-finite (B x)) →
+  (t : Σ A B) → is-finite (fib (map-section b) t)
+is-finite-fib-map-section {l1} {l2} {A} {B} b f g (pair y z) =
+  is-finite-equiv'
+    ( ( ( left-unit-law-Σ-is-contr
+            ( is-contr-total-path' y)
+            ( pair y refl)) ∘e
+        ( inv-assoc-Σ A
+          ( λ x → Id x y)
+          ( λ t → Id (tr B (pr2 t) (b (pr1 t))) z))) ∘e
+      ( equiv-tot (λ x → equiv-pair-eq-Σ (pair x (b x)) (pair y z))))
+    ( is-finite-eq (has-decidable-equality-is-finite (g y)))
 
 count-type-trunc-Prop :
   {l1 : Level} {A : UU l1} → count A → count (type-trunc-Prop A)
