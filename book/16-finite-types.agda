@@ -485,7 +485,7 @@ count-right-coprod :
 count-right-coprod e =
   count-equiv equiv-right-summand (count-Σ e count-is-right)
 
--- Corollary 16.1.4
+-- Corollary 16.1.8
 
 count-prod :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → count X → count Y → count (X × Y)
@@ -535,7 +535,9 @@ count-right-factor e x =
 
 --------------------------------------------------------------------------------
 
--- Double counting
+-- Section 16.2 Double counting
+
+-- Theorem 16.2.1
 
 -- The Maybe modality
 
@@ -547,16 +549,6 @@ unit-Maybe = inl
 
 is-emb-unit-Maybe : {l : Level} {X : UU l} → is-emb (unit-Maybe {X = X})
 is-emb-unit-Maybe {l} {X} = is-emb-inl X unit
-
-is-injective-inl :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → is-injective (inl {A = X} {B = Y})
-is-injective-inl {l1} {l2} {X} {Y} {x} {y} p =
-  map-inv-raise (Eq-coprod-eq X Y (inl x) (inl y) p)
-
-is-injective-inr :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → is-injective (inr {A = X} {B = Y})
-is-injective-inr {l1} {l2} {X} {Y} {x} {y} p =
-  map-inv-raise (Eq-coprod-eq X Y (inr x) (inr y) p)
 
 is-injective-unit-Maybe :
   {l : Level} {X : UU l} → is-injective (unit-Maybe {X = X})
@@ -637,6 +629,8 @@ is-not-exception-is-value-Maybe :
 is-not-exception-is-value-Maybe {l1} {X} .(inl x) (pair x refl) =
   is-not-exception-unit-Maybe x
 
+-- Proposition 16.2.1 Step (i) of the proof
+
 -- If f is an injective map and f (inl x) is an exception, then f exception is
 -- not an exception.
 
@@ -716,6 +710,8 @@ comp-map-equiv-exception-Maybe e x H =
   eq-is-value-Maybe
     ( map-equiv e exception-Maybe)
     ( is-value-map-equiv-exception-Maybe e x H)
+
+-- Proposition 16.2.1 Step (ii) of the proof
 
 restrict-injective-map-Maybe' :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : Maybe X → Maybe Y} →
@@ -814,7 +810,10 @@ comp-map-equiv-equiv-is-not-exception-Maybe :
 comp-map-equiv-equiv-is-not-exception-Maybe e x =
   comp-map-equiv-equiv-is-not-exception-Maybe' e x (map-equiv e (inl x)) refl
 
+-- Proposition 16.2.1 Step (iii) of the proof
+
 -- An equivalence e : Maybe X ≃ Maybe Y induces a map Y → X
+
 map-inv-equiv-equiv-Maybe :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) → Y → X
 map-inv-equiv-equiv-Maybe e =
@@ -833,8 +832,11 @@ comp-map-inv-equiv-equiv-is-not-exception-Maybe :
   Id (inl (map-inv-equiv-equiv-Maybe e y)) (map-inv-equiv e (inl y))
 comp-map-inv-equiv-equiv-is-not-exception-Maybe e =
   comp-map-equiv-equiv-is-not-exception-Maybe (inv-equiv e)
+
+-- Proposition 16.2.1 Step (iv) of the proof
     
 -- map-inv-equiv-equiv-Maybe e is a section of map-equiv-equiv-Maybe e.
+
 issec-map-inv-equiv-equiv-Maybe :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) →
   (map-equiv-equiv-Maybe e ∘ map-inv-equiv-equiv-Maybe e) ~ id
@@ -867,46 +869,8 @@ issec-map-inv-equiv-equiv-Maybe e y with
           ( comp-map-inv-equiv-equiv-is-not-exception-Maybe e y f)) ∙
         ( issec-map-inv-equiv e (inl y))))
 
-{-
--- Alternatively, we can proceed in the spirit of the definition, but that leads
--- to cases where we have to reason by contradiction, that are avoided otherwise
-issec-map-inv-equiv-equiv-Maybe' :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) (y : Y) →
-  (u : Maybe X) (p : Id (map-inv-equiv e (inl y)) u) (v : Maybe Y)
-  (q : Id (map-equiv e (inl (map-equiv-equiv-Maybe' (inv-equiv e) y u p))) v) →
-  Id ( map-equiv-equiv-Maybe' e
-       ( map-equiv-equiv-Maybe' (inv-equiv e) y u p) v q)
-     ( y)
-issec-map-inv-equiv-equiv-Maybe' e y (inl x) p (inl y') q =
-  is-injective-unit-Maybe (inv (map-inv-eq-transpose-equiv' e p ∙ q))
-issec-map-inv-equiv-equiv-Maybe' e y (inl x) p (inr star) q =
-  ex-falso (is-not-exception-unit-Maybe y (map-inv-eq-transpose-equiv' e p ∙ q))
-issec-map-inv-equiv-equiv-Maybe' e y (inr star) p (inl y') q =
-  ex-falso
-    ( is-not-exception-unit-Maybe y'
-      ( ( ( inv q) ∙
-          ( ap
-            ( map-equiv e)
-            ( comp-map-equiv-exception-Maybe (inv-equiv e) y p))) ∙
-        ( issec-map-inv-equiv e exception-Maybe))) 
-issec-map-inv-equiv-equiv-Maybe' e y (inr star) p (inr star) q =
-  is-injective-unit-Maybe
-    ( ( comp-map-equiv-exception-Maybe e
-        ( map-equiv-equiv-Maybe' (inv-equiv e) y (inr star) p)
-        ( q)) ∙
-      ( ( ap (map-equiv e) (inv p)) ∙
-        ( issec-map-inv-equiv e (inl y))))
-
-issec-map-inv-equiv-equiv-Maybe :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) →
-  (map-equiv-equiv-Maybe e ∘ map-inv-equiv-equiv-Maybe e) ~ id
-issec-map-inv-equiv-equiv-Maybe e y =
-  issec-map-inv-equiv-equiv-Maybe' e y
-    ( map-inv-equiv e (inl y)) refl
-    ( map-equiv e (inl (map-inv-equiv-equiv-Maybe e y))) refl
--}
-
 -- The map map-inv-equiv-equiv e is a retraction of the map map-equiv-equiv
+
 isretr-map-inv-equiv-equiv-Maybe :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : Maybe X ≃ Maybe Y) →
   (map-inv-equiv-equiv-Maybe e ∘ map-equiv-equiv-Maybe e) ~ id
@@ -936,6 +900,8 @@ isretr-map-inv-equiv-equiv-Maybe e x with
              ( comp-map-equiv-equiv-is-not-exception-Maybe e x f)) ∙
         ( isretr-map-inv-equiv e (inl x))))
 
+-- Proposition 16.2.1 Conclusion of the proof
+
 -- The function map-equiv-equiv-Maybe is an equivalence
 
 is-equiv-map-equiv-equiv-Maybe :
@@ -951,6 +917,8 @@ equiv-equiv-Maybe :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → (Maybe X ≃ Maybe Y) → (X ≃ Y)
 equiv-equiv-Maybe e =
   pair (map-equiv-equiv-Maybe e) (is-equiv-map-equiv-equiv-Maybe e)
+
+-- Theorem 16.2.2
 
 is-injective-Fin : {k l : ℕ} → (Fin k ≃ Fin l) → Id k l
 is-injective-Fin {zero-ℕ} {zero-ℕ} e = refl
@@ -972,7 +940,9 @@ double-counting :
 double-counting count-A count-A' =
   double-counting-equiv count-A count-A' equiv-id
 
-{- Maybe X has a count if and only if X has a count -}
+-- Some immediate corollaries and bureacracy
+
+-- Maybe X has a count if and only if X has a count
 
 count-Maybe : {l : Level} {X : UU l} → count X → count (Maybe X)
 count-Maybe {l} {X} e = count-coprod e count-unit
@@ -994,8 +964,6 @@ count-count-Maybe :
 count-count-Maybe (pair k e) with
   is-successor-number-of-elements-count-Maybe (pair k e)
 ... | pair l refl = pair l (equiv-equiv-Maybe e)
-
---------------------------------------------------------------------------------
 
 -- Double counting in several specific situations
 
@@ -1139,9 +1107,6 @@ product-number-of-elements-prod count-AB a b =
     ( count-prod (count-left-factor count-AB b) (count-right-factor count-AB a))
     ( count-AB))
 
-
---------------------------------------------------------------------------------
-
 -- Ordering relation on any type A that comes equipped with a count
 
 leq-count :
@@ -1233,9 +1198,9 @@ first-element-is-decidable-subtype-count (pair k e) {B} d H (pair a b) =
 
 --------------------------------------------------------------------------------
 
--- Section 15.3 Finite types
+-- Section 16.3 Finite types
 
-{- Definition -}
+-- Definition 16.3.1
 
 is-finite-Prop :
   {l : Level} → UU l → UU-Prop l
@@ -1253,13 +1218,6 @@ is-finite-count :
   {l : Level} {X : UU l} → count X → is-finite X
 is-finite-count = unit-trunc-Prop
 
-is-set-is-finite :
-  {l : Level} {X : UU l} → is-finite X → is-set X
-is-set-is-finite {l} {X} H =
-  apply-universal-property-trunc-Prop H
-    ( is-set-Prop X)
-    ( λ e → is-set-count e)
-
 𝔽 : UU (lsuc lzero)
 𝔽 = Σ (UU lzero) is-finite
 
@@ -1268,29 +1226,6 @@ type-𝔽 X = pr1 X
 
 is-finite-type-𝔽 : (X : 𝔽) → is-finite (type-𝔽 X)
 is-finite-type-𝔽 X = pr2 X
-
-is-finite-equiv :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
-  is-finite A → is-finite B
-is-finite-equiv e =
-  map-universal-property-trunc-Prop
-    ( is-finite-Prop _)
-    ( is-finite-count ∘ (count-equiv e))
-
-is-finite-is-equiv :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
-  is-equiv f → is-finite A → is-finite B
-is-finite-is-equiv is-equiv-f =
-  map-universal-property-trunc-Prop
-    ( is-finite-Prop _)
-    ( is-finite-count ∘ (count-equiv (pair _ is-equiv-f)))
-
-is-finite-equiv' :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
-  is-finite B → is-finite A
-is-finite-equiv' e = is-finite-equiv (inv-equiv e)
-
-{- Theorem -}
 
 mere-equiv-Prop :
   {l1 l2 : Level} → UU l1 → UU l2 → UU-Prop (l1 ⊔ l2)
@@ -1327,6 +1262,122 @@ UU-Fin k = UU-Fin-Level lzero k
 
 type-UU-Fin : {k : ℕ} → UU-Fin k → UU lzero
 type-UU-Fin X = pr1 X
+
+-- Remark 16.3.2
+
+is-finite-empty : is-finite empty
+is-finite-empty = is-finite-count count-empty
+
+is-finite-is-empty :
+  {l1 : Level} {X : UU l1} → is-empty X → is-finite X
+is-finite-is-empty H = is-finite-count (count-is-empty H)
+
+empty-𝔽 : 𝔽
+empty-𝔽 = pair empty (is-finite-is-empty id)
+
+empty-UU-Fin : UU-Fin zero-ℕ
+empty-UU-Fin = pair empty (unit-trunc-Prop equiv-id)
+
+is-finite-unit : is-finite unit
+is-finite-unit = is-finite-count count-unit
+
+unit-𝔽 : 𝔽
+unit-𝔽 = pair unit is-finite-unit
+
+unit-UU-Fin : UU-Fin one-ℕ
+unit-UU-Fin = pair unit (unit-trunc-Prop (left-unit-law-coprod unit))
+
+is-finite-is-contr :
+  {l1 : Level} {X : UU l1} → is-contr X → is-finite X
+is-finite-is-contr H = is-finite-count (count-is-contr H)
+
+is-finite-Fin : {k : ℕ} → is-finite (Fin k)
+is-finite-Fin {k} = is-finite-count (count-Fin k)
+
+Fin-𝔽 : ℕ → 𝔽
+Fin-𝔽 k = pair (Fin k) (is-finite-Fin)
+
+Fin-UU-Fin : (k : ℕ) → UU-Fin k
+Fin-UU-Fin k = pair (Fin k) (unit-trunc-Prop equiv-id)
+
+is-finite-equiv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
+  is-finite A → is-finite B
+is-finite-equiv e =
+  map-universal-property-trunc-Prop
+    ( is-finite-Prop _)
+    ( is-finite-count ∘ (count-equiv e))
+
+is-finite-is-equiv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
+  is-equiv f → is-finite A → is-finite B
+is-finite-is-equiv is-equiv-f =
+  map-universal-property-trunc-Prop
+    ( is-finite-Prop _)
+    ( is-finite-count ∘ (count-equiv (pair _ is-equiv-f)))
+
+is-finite-equiv' :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
+  is-finite B → is-finite A
+is-finite-equiv' e = is-finite-equiv (inv-equiv e)
+
+is-set-is-finite :
+  {l : Level} {X : UU l} → is-finite X → is-set X
+is-set-is-finite {l} {X} H =
+  apply-universal-property-trunc-Prop H
+    ( is-set-Prop X)
+    ( λ e → is-set-count e)
+
+is-prop-is-inhabited :
+  {l1 : Level} {X : UU l1} → (X → is-prop X) → is-prop X
+is-prop-is-inhabited f x y = f x x y
+
+is-prop-has-decidable-equality :
+  {l1 : Level} {X : UU l1} → is-prop (has-decidable-equality X)
+is-prop-has-decidable-equality {l1} {X} =
+  is-prop-is-inhabited
+    ( λ d →
+      is-prop-Π
+      ( λ x →
+        is-prop-Π
+        ( λ y →
+          is-prop-coprod
+          ( intro-dn)
+          ( is-set-has-decidable-equality d x y)
+          ( is-prop-neg))))
+
+has-decidable-equality-Prop :
+  {l1 : Level} (X : UU l1) → UU-Prop l1
+has-decidable-equality-Prop X =
+  pair (has-decidable-equality X) is-prop-has-decidable-equality
+
+has-decidable-equality-is-finite :
+  {l1 : Level} {X : UU l1} → is-finite X → has-decidable-equality X
+has-decidable-equality-is-finite {l1} {X} is-finite-X =
+  apply-universal-property-trunc-Prop is-finite-X
+    ( has-decidable-equality-Prop X)
+    ( λ e →
+      has-decidable-equality-equiv' (equiv-count e) has-decidable-equality-Fin)
+
+has-decidable-equality-has-cardinality :
+  {l1 : Level} {X : UU l1} {k : ℕ} →
+  has-cardinality X k → has-decidable-equality X
+has-decidable-equality-has-cardinality {l1} {X} {k} H =
+  apply-universal-property-trunc-Prop H
+    ( has-decidable-equality-Prop X)
+    ( λ e → has-decidable-equality-equiv' e has-decidable-equality-Fin)
+
+is-finite-eq :
+  {l1 : Level} {X : UU l1} →
+  has-decidable-equality X → {x y : X} → is-finite (Id x y)
+is-finite-eq d {x} {y} = is-finite-count (count-eq d x y)
+
+Id-𝔽 : (X : 𝔽) (x y : type-𝔽 X) → 𝔽
+Id-𝔽 X x y =
+  pair ( Id x y)
+       ( is-finite-eq (has-decidable-equality-is-finite (is-finite-type-𝔽 X)))
+
+-- Theorem 16.3.3
 
 mere-equiv-UU-Fin : {k : ℕ} (X : UU-Fin k) → mere-equiv (Fin k) (type-UU-Fin X)
 mere-equiv-UU-Fin X = pr2 X
@@ -1416,23 +1467,10 @@ compute-number-of-elements-is-finite e f =
           ( has-finite-cardinality-is-finite (unit-trunc-Prop g)))))
     ( f)
 
-{- Closure properties of finite sets -}
-
-is-finite-empty : is-finite empty
-is-finite-empty = is-finite-count count-empty
+-- Some immediate conclusions of Theorem 16.3.3
 
 has-finite-cardinality-empty : has-finite-cardinality empty
 has-finite-cardinality-empty = pair zero-ℕ (unit-trunc-Prop equiv-id)
-
-is-finite-is-empty :
-  {l1 : Level} {X : UU l1} → is-empty X → is-finite X
-is-finite-is-empty H = is-finite-count (count-is-empty H)
-
-empty-𝔽 : 𝔽
-empty-𝔽 = pair empty (is-finite-is-empty id)
-
-empty-UU-Fin : UU-Fin zero-ℕ
-empty-UU-Fin = pair empty (unit-trunc-Prop equiv-id)
 
 has-finite-cardinality-is-empty :
   {l1 : Level} {X : UU l1} → is-empty X → has-finite-cardinality X
@@ -1449,29 +1487,58 @@ is-empty-is-zero-number-of-elements-is-finite {l1} {X} f p =
       is-empty-is-zero-number-of-elements-count e
         ( compute-number-of-elements-is-finite e f ∙ p))
 
-is-finite-unit : is-finite unit
-is-finite-unit = is-finite-count count-unit
+-- Corollary 16.3.4
 
-unit-𝔽 : 𝔽
-unit-𝔽 = pair unit is-finite-unit
+map-compute-total-UU-Fin : Σ ℕ UU-Fin → 𝔽
+map-compute-total-UU-Fin (pair k (pair X e)) =
+  pair X (is-finite-has-finite-cardinality (pair k e))
 
-unit-UU-Fin : UU-Fin one-ℕ
-unit-UU-Fin = pair unit (unit-trunc-Prop (left-unit-law-coprod unit))
+compute-total-UU-Fin : Σ ℕ UU-Fin ≃ 𝔽
+compute-total-UU-Fin =
+  ( equiv-tot
+    ( λ X →
+      equiv-prop
+        ( is-prop-has-finite-cardinality)
+        ( is-prop-is-finite X)
+        ( is-finite-has-finite-cardinality)
+        ( has-finite-cardinality-is-finite))) ∘e
+  ( equiv-Σ-swap ℕ (UU lzero) (λ k X → has-cardinality X k))
 
-is-finite-is-contr :
-  {l1 : Level} {X : UU l1} → is-contr X → is-finite X
-is-finite-is-contr H = is-finite-count (count-is-contr H)
+-- Proposition 16.3.5
 
-is-finite-Fin : {k : ℕ} → is-finite (Fin k)
-is-finite-Fin {k} = is-finite-count (count-Fin k)
+finite-choice-Fin :
+  {l1 : Level} {k : ℕ} {Y : Fin k → UU l1} →
+  ((x : Fin k) → type-trunc-Prop (Y x)) → type-trunc-Prop ((x : Fin k) → Y x)
+finite-choice-Fin {l1} {zero-ℕ} {Y} H = unit-trunc-Prop ind-empty
+finite-choice-Fin {l1} {succ-ℕ k} {Y} H =
+  map-inv-equiv-trunc-Prop
+    ( equiv-dependent-universal-property-coprod Y)
+    ( map-inv-distributive-trunc-prod-Prop
+      ( pair
+        ( finite-choice-Fin (λ x → H (inl x)))
+        ( map-inv-equiv-trunc-Prop
+          ( equiv-ev-star (Y ∘ inr))
+          ( H (inr star)))))
 
-Fin-𝔽 : ℕ → 𝔽
-Fin-𝔽 k = pair (Fin k) (is-finite-Fin)
+finite-choice-count :
+  {l1 l2 : Level} {X : UU l1} {Y : X → UU l2} → count X →
+  ((x : X) → type-trunc-Prop (Y x)) → type-trunc-Prop ((x : X) → Y x)
+finite-choice-count {l1} {l2} {X} {Y} (pair k e) H =
+  map-inv-equiv-trunc-Prop
+    ( equiv-precomp-Π e Y)
+    ( finite-choice-Fin (λ x → H (map-equiv e x)))
 
-Fin-UU-Fin : (k : ℕ) → UU-Fin k
-Fin-UU-Fin k = pair (Fin k) (unit-trunc-Prop equiv-id)
+finite-choice :
+  {l1 l2 : Level} {X : UU l1} {Y : X → UU l2} → is-finite X →
+  ((x : X) → type-trunc-Prop (Y x)) → type-trunc-Prop ((x : X) → Y x)
+finite-choice {l1} {l2} {X} {Y} is-finite-X H =
+  apply-universal-property-trunc-Prop is-finite-X
+    ( trunc-Prop ((x : X) → Y x))
+    ( λ e → finite-choice-count e H)
 
-{- Finiteness and coproducts -}
+-- Theorem 16.3.6
+
+-- Theorem 16.3.6 (i)
 
 is-finite-coprod :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
@@ -1518,7 +1585,7 @@ coprod-UU-Fin :
   {k l : ℕ} → UU-Fin k → UU-Fin l → UU-Fin (add-ℕ k l)
 coprod-UU-Fin X Y = coprod-UU-Fin-Level X Y
 
-{- Finiteness and products -}
+-- Theorem 16.3.6 (ii)
 
 is-finite-prod :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
@@ -1566,38 +1633,6 @@ prod-UU-Fin :
   {k l : ℕ} → UU-Fin k → UU-Fin l → UU-Fin (mul-ℕ k l)
 prod-UU-Fin = prod-UU-Fin-Level
 
-{- Finite choice -}
-
-finite-choice-Fin :
-  {l1 : Level} {k : ℕ} {Y : Fin k → UU l1} →
-  ((x : Fin k) → type-trunc-Prop (Y x)) → type-trunc-Prop ((x : Fin k) → Y x)
-finite-choice-Fin {l1} {zero-ℕ} {Y} H = unit-trunc-Prop ind-empty
-finite-choice-Fin {l1} {succ-ℕ k} {Y} H =
-  map-inv-equiv-trunc-Prop
-    ( equiv-dependent-universal-property-coprod Y)
-    ( map-inv-distributive-trunc-prod-Prop
-      ( pair
-        ( finite-choice-Fin (λ x → H (inl x)))
-        ( map-inv-equiv-trunc-Prop
-          ( equiv-ev-star (Y ∘ inr))
-          ( H (inr star)))))
-
-finite-choice-count :
-  {l1 l2 : Level} {X : UU l1} {Y : X → UU l2} → count X →
-  ((x : X) → type-trunc-Prop (Y x)) → type-trunc-Prop ((x : X) → Y x)
-finite-choice-count {l1} {l2} {X} {Y} (pair k e) H =
-  map-inv-equiv-trunc-Prop
-    ( equiv-precomp-Π e Y)
-    ( finite-choice-Fin (λ x → H (map-equiv e x)))
-
-finite-choice :
-  {l1 l2 : Level} {X : UU l1} {Y : X → UU l2} → is-finite X →
-  ((x : X) → type-trunc-Prop (Y x)) → type-trunc-Prop ((x : X) → Y x)
-finite-choice {l1} {l2} {X} {Y} is-finite-X H =
-  apply-universal-property-trunc-Prop is-finite-X
-    ( trunc-Prop ((x : X) → Y x))
-    ( λ e → finite-choice-count e H)
-
 {- Finiteness and Σ-types -}
 
 is-finite-Σ :
@@ -1643,48 +1678,6 @@ is-finite-fib f is-finite-X is-finite-Y y =
 fib-𝔽 : (X Y : 𝔽) (f : type-𝔽 X → type-𝔽 Y) → type-𝔽 Y → 𝔽
 fib-𝔽 X Y f y =
   pair (fib f y) (is-finite-fib f (is-finite-type-𝔽 X) (is-finite-type-𝔽 Y) y)
-
-is-prop-is-inhabited :
-  {l1 : Level} {X : UU l1} → (X → is-prop X) → is-prop X
-is-prop-is-inhabited f x y = f x x y
-
-is-prop-has-decidable-equality :
-  {l1 : Level} {X : UU l1} → is-prop (has-decidable-equality X)
-is-prop-has-decidable-equality {l1} {X} =
-  is-prop-is-inhabited
-    ( λ d →
-      is-prop-Π
-      ( λ x →
-        is-prop-Π
-        ( λ y →
-          is-prop-coprod
-          ( intro-dn)
-          ( is-set-has-decidable-equality d x y)
-          ( is-prop-neg))))
-
-has-decidable-equality-is-finite :
-  {l1 : Level} {X : UU l1} → is-finite X → has-decidable-equality X
-has-decidable-equality-is-finite {l1} {X} is-finite-X =
-  apply-universal-property-trunc-Prop is-finite-X
-    ( pair (has-decidable-equality X) is-prop-has-decidable-equality)
-    ( λ e →
-      has-decidable-equality-equiv' (equiv-count e) has-decidable-equality-Fin)
-
-has-decidable-equality-has-cardinality :
-  {l1 : Level} {X : UU l1} {k : ℕ} →
-  has-cardinality X k → has-decidable-equality X
-has-decidable-equality-has-cardinality H =
-  has-decidable-equality-is-finite (is-finite-has-cardinality H)
-
-is-finite-eq :
-  {l1 : Level} {X : UU l1} →
-  has-decidable-equality X → {x y : X} → is-finite (Id x y)
-is-finite-eq d {x} {y} = is-finite-count (count-eq d x y)
-
-Id-𝔽 : (X : 𝔽) (x y : type-𝔽 X) → 𝔽
-Id-𝔽 X x y =
-  pair ( Id x y)
-       ( is-finite-eq (has-decidable-equality-is-finite (is-finite-type-𝔽 X)))
 
 is-finite-fib-map-section :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →

@@ -1062,6 +1062,16 @@ eq-Eq-coprod A B (inl x) (inr y') = ex-falso ∘ map-inv-raise
 eq-Eq-coprod A B (inr y) (inl x') = ex-falso ∘ map-inv-raise
 eq-Eq-coprod A B (inr y) (inr y') = ap inr ∘ map-inv-raise
 
+is-injective-inl :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → is-injective (inl {A = X} {B = Y})
+is-injective-inl {l1} {l2} {X} {Y} {x} {y} p =
+  map-inv-raise (Eq-coprod-eq X Y (inl x) (inl y) p)
+
+is-injective-inr :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → is-injective (inr {A = X} {B = Y})
+is-injective-inr {l1} {l2} {X} {Y} {x} {y} p =
+  map-inv-raise (Eq-coprod-eq X Y (inr x) (inr y) p)
+
 neq-inl-inr :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (x : A) (y : B) →
   ¬ (Id (inl x) (inr y))
