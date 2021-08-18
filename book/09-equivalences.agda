@@ -1832,16 +1832,20 @@ compute-iterate-succ-Fin :
   {k : ℕ} (n : ℕ) (x : Fin (succ-ℕ k)) →
   Id (iterate n succ-Fin x) (add-Fin x (mod-succ-ℕ k n))
 compute-iterate-succ-Fin zero-ℕ x = inv (right-unit-law-add-Fin x)
-compute-iterate-succ-Fin (succ-ℕ n) x =
+compute-iterate-succ-Fin {k} (succ-ℕ n) x =
   ( ap succ-Fin (compute-iterate-succ-Fin n x)) ∙
-  {! !}
+  ( inv (right-successor-law-add-Fin x (mod-succ-ℕ k n)))
 
 is-cyclic-succ-Fin : {k : ℕ} → is-cyclic-map (succ-Fin {k})
-is-cyclic-succ-Fin x y =
+is-cyclic-succ-Fin {succ-ℕ k} x y =
   pair
     ( nat-Fin (add-Fin y (neg-Fin x)))
-    {!!}
-  
+    ( ( compute-iterate-succ-Fin (nat-Fin (add-Fin y (neg-Fin x))) x) ∙
+      ( ( ap (add-Fin x) (issec-nat-Fin (add-Fin y (neg-Fin x)))) ∙
+        ( ( commutative-add-Fin x (add-Fin y (neg-Fin x))) ∙
+          ( ( associative-add-Fin y (neg-Fin x) x) ∙
+            ( ( ap (add-Fin y) (left-inverse-law-add-Fin x)) ∙
+              ( right-unit-law-add-Fin y))))))
 
 -- Exercise 9.6
 

@@ -1453,6 +1453,54 @@ abstract
   is-trunc-map-succ-is-trunc-map k f is-trunc-f b =
     is-trunc-succ-is-trunc k (is-trunc-f b)
 
+-- Exercise 12.11
+
+fiber-inclusion :
+  {l1 l2 : Level} {A : UU l1} (B : A → UU l2) (x : A) → B x → Σ A B
+fiber-inclusion B x = pair x
+
+fib-fiber-inclusion :
+  {l1 l2 : Level} {A : UU l1} (B : A → UU l2) (a : A) (t : Σ A B) →
+  fib (fiber-inclusion B a) t ≃ Id a (pr1 t)
+fib-fiber-inclusion B a t =
+  ( ( right-unit-law-Σ-is-contr
+      ( λ p → is-contr-map-is-equiv (is-equiv-tr B p) (pr2 t))) ∘e
+    ( equiv-Σ-swap (B a) (Id a (pr1 t)) (λ b p → Id (tr B p b) (pr2 t)))) ∘e
+  ( equiv-tot (λ b → equiv-pair-eq-Σ (pair a b) t))
+
+is-trunc-is-trunc-map-fiber-inclusion :
+  {l1 l2 : Level} (k : 𝕋) {A : UU l1} →
+  ((B : A → UU l2) (a : A) → is-trunc-map k (fiber-inclusion B a)) →
+  is-trunc (succ-𝕋 k) A
+is-trunc-is-trunc-map-fiber-inclusion {l1} {l2} k {A} H x y =
+  is-trunc-equiv' k
+    ( fib (fiber-inclusion B x) (pair y raise-star))
+    ( fib-fiber-inclusion B x (pair y raise-star))
+    ( H B x (pair y raise-star))
+  where
+  B : A → UU l2
+  B a = raise-unit l2
+
+is-trunc-map-fiber-inclusion-is-trunc :
+  {l1 l2 : Level} (k : 𝕋) {A : UU l1} (B : A → UU l2) (a : A) →
+  is-trunc (succ-𝕋 k) A → is-trunc-map k (fiber-inclusion B a)
+is-trunc-map-fiber-inclusion-is-trunc k B a H t =
+  is-trunc-equiv k
+    ( Id a (pr1 t))
+    ( fib-fiber-inclusion B a t)
+    ( H a (pr1 t))
+
+is-emb-fiber-inclusion :
+  {l1 l2 : Level} {A : UU l1} (B : A → UU l2) →
+  is-set A → (x : A) → is-emb (fiber-inclusion B x)
+is-emb-fiber-inclusion B H x =
+  is-emb-is-prop-map (is-trunc-map-fiber-inclusion-is-trunc neg-one-𝕋 B x H)
+
+emb-fiber-inclusion :
+  {l1 l2 : Level} {A : UU l1} (B : A → UU l2) → is-set A → (x : A) → B x ↪ Σ A B
+emb-fiber-inclusion B H x =
+  pair (fiber-inclusion B x) (is-emb-fiber-inclusion B H x)
+
 --------------------------------------------------------------------------------
 
 {- We show that if f : A → B is an embedding, then the induced map

@@ -1107,95 +1107,6 @@ product-number-of-elements-prod count-AB a b =
     ( count-prod (count-left-factor count-AB b) (count-right-factor count-AB a))
     ( count-AB))
 
--- Ordering relation on any type A that comes equipped with a count
-
-leq-count :
-  {l : Level} {X : UU l} → count X → X → X → UU lzero
-leq-count e x y =
-  leq-Fin (map-inv-equiv-count e x) (map-inv-equiv-count e y)
-
-refl-leq-count :
-  {l : Level} {X : UU l} (e : count X) (x : X) → leq-count e x x
-refl-leq-count (pair k e) x = refl-leq-Fin (map-inv-equiv e x)
-
-antisymmetric-leq-count :
-  {l : Level} {X : UU l} (e : count X) {x y : X} →
-  leq-count e x y → leq-count e y x → Id x y
-antisymmetric-leq-count (pair k e) H K =
-  is-injective-map-inv-equiv e (antisymmetric-leq-Fin H K)
-
-transitive-leq-count :
-  {l : Level} {X : UU l} (e : count X) {x y z : X} →
-  leq-count e x y → leq-count e y z → leq-count e x z
-transitive-leq-count (pair k e) {x} {y} {z} H K =
-  transitive-leq-Fin {x = map-inv-equiv e x} {map-inv-equiv e y} H K
-
-preserves-leq-equiv-count :
-  {l : Level} {X : UU l} (e : count X)
-  {x y : Fin (number-of-elements-count e)} →
-  leq-Fin x y → leq-count e (map-equiv-count e x) (map-equiv-count e y)
-preserves-leq-equiv-count e {x} {y} H =
-  concatenate-eq-leq-eq-Fin
-    ( isretr-map-inv-equiv (equiv-count e) x)
-    ( H)
-    ( inv (isretr-map-inv-equiv (equiv-count e) y))
-
-reflects-leq-equiv-count :
-  {l : Level} {X : UU l} (e : count X)
-  {x y : Fin (number-of-elements-count e)} →
-  leq-count e (map-equiv-count e x) (map-equiv-count e y) → leq-Fin x y
-reflects-leq-equiv-count e {x} {y} H =
-  concatenate-eq-leq-eq-Fin
-    ( inv (isretr-map-inv-equiv (equiv-count e) x))
-    ( H)
-    ( isretr-map-inv-equiv (equiv-count e) y)
-
-transpose-leq-equiv-count :
-  {l : Level} {X : UU l} (e : count X) →
-  {x : Fin (number-of-elements-count e)} {y : X} →
-  leq-Fin x (map-inv-equiv-count e y) → leq-count e (map-equiv-count e x) y
-transpose-leq-equiv-count e {x} {y} H =
-  concatenate-eq-leq-eq-Fin
-    ( isretr-map-inv-equiv (equiv-count e) x)
-    ( H)
-    ( refl)
-
-transpose-leq-equiv-count' :
-  {l : Level} {X : UU l} (e : count X) →
-  {x : X} {y : Fin (number-of-elements-count e)} →
-  leq-Fin (map-inv-equiv-count e x) y → leq-count e x (map-equiv-count e y)
-transpose-leq-equiv-count' e {x} {y} H =
-  concatenate-eq-leq-eq-Fin
-    ( refl)
-    ( H)
-    ( inv (isretr-map-inv-equiv (equiv-count e) y))
-
-is-lower-bound-count :
-  {l1 l2 : Level} {A : UU l1} → count A → (A → UU l2) → A → UU (l1 ⊔ l2)
-is-lower-bound-count {l1} {l2} {A} e B a = (x : A) → B x → leq-count e a x
-
-first-element-count :
-  {l1 l2 : Level} {A : UU l1} (e : count A) (B : A → UU l2) → UU (l1 ⊔ l2)
-first-element-count {l1} {l2} {A} e B =
-  Σ A (λ x → (B x) × is-lower-bound-count e B x)
-
-first-element-is-decidable-subtype-count :
-  {l1 l2 : Level} {A : UU l1} (e : count A) {B : A → UU l2} →
-  ((x : A) → is-decidable (B x)) → ((x : A) → is-prop (B x)) →
-  Σ A B → first-element-count e B
-first-element-is-decidable-subtype-count (pair k e) {B} d H (pair a b) =
-  map-Σ
-    ( λ x → (B x) × is-lower-bound-count (pair k e) B x)
-    ( map-equiv e)
-    ( λ x → map-prod {B = is-lower-bound-Fin (B ∘ map-equiv e) x} id
-      ( λ L y b →
-        transpose-leq-equiv-count
-          ( pair k e)
-          ( L (map-inv-equiv e y) (tr B (inv (issec-map-inv-equiv e y)) b))))
-    ( minimal-element-decidable-subtype-Fin
-      ( λ x → d (map-equiv e x))
-      ( pair (map-inv-equiv e a) (tr B (inv (issec-map-inv-equiv e a)) b)))
-
 --------------------------------------------------------------------------------
 
 -- Section 16.3 Finite types
@@ -1536,172 +1447,96 @@ finite-choice {l1} {l2} {X} {Y} is-finite-X H =
     ( trunc-Prop ((x : X) → Y x))
     ( λ e → finite-choice-count e H)
 
--- Theorem 16.3.6
+-- Remarks
 
--- Theorem 16.3.6 (i)
+-- Ordering relation on any type A that comes equipped with a count
 
-is-finite-coprod :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
-  is-finite X → is-finite Y → is-finite (coprod X Y)
-is-finite-coprod {X = X} {Y} is-finite-X is-finite-Y =
-  apply-universal-property-trunc-Prop is-finite-X
-    ( is-finite-Prop (coprod X Y))
-    ( λ (e : count X) →
-      apply-universal-property-trunc-Prop is-finite-Y
-        ( is-finite-Prop (coprod X Y))
-        ( is-finite-count ∘ (count-coprod e)))
+leq-count :
+  {l : Level} {X : UU l} → count X → X → X → UU lzero
+leq-count e x y =
+  leq-Fin (map-inv-equiv-count e x) (map-inv-equiv-count e y)
 
-coprod-𝔽 : 𝔽 → 𝔽 → 𝔽
-coprod-𝔽 X Y =
-  pair ( coprod (type-𝔽 X) (type-𝔽 Y))
-       ( is-finite-coprod (is-finite-type-𝔽 X) (is-finite-type-𝔽 Y))
+refl-leq-count :
+  {l : Level} {X : UU l} (e : count X) (x : X) → leq-count e x x
+refl-leq-count (pair k e) x = refl-leq-Fin (map-inv-equiv e x)
 
-is-finite-left-coprod :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → is-finite (coprod X Y) → is-finite X
-is-finite-left-coprod =
-  functor-trunc-Prop count-left-coprod
+antisymmetric-leq-count :
+  {l : Level} {X : UU l} (e : count X) {x y : X} →
+  leq-count e x y → leq-count e y x → Id x y
+antisymmetric-leq-count (pair k e) H K =
+  is-injective-map-inv-equiv e (antisymmetric-leq-Fin H K)
 
-is-finite-right-coprod :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → is-finite (coprod X Y) → is-finite Y
-is-finite-right-coprod =
-  functor-trunc-Prop count-right-coprod
+transitive-leq-count :
+  {l : Level} {X : UU l} (e : count X) {x y z : X} →
+  leq-count e x y → leq-count e y z → leq-count e x z
+transitive-leq-count (pair k e) {x} {y} {z} H K =
+  transitive-leq-Fin {x = map-inv-equiv e x} {map-inv-equiv e y} H K
 
-coprod-UU-Fin-Level :
-  {l1 l2 : Level} {k l : ℕ} → UU-Fin-Level l1 k → UU-Fin-Level l2 l →
-  UU-Fin-Level (l1 ⊔ l2) (add-ℕ k l)
-coprod-UU-Fin-Level {l1} {l2} {k} {l} (pair X H) (pair Y K) =
-  pair
-    ( coprod X Y)
-    ( apply-universal-property-trunc-Prop H
-      ( mere-equiv-Prop (Fin (add-ℕ k l)) (coprod X Y))
-      ( λ e1 →
-        apply-universal-property-trunc-Prop K
-          ( mere-equiv-Prop (Fin (add-ℕ k l)) (coprod X Y))
-          ( λ e2 →
-            unit-trunc-Prop
-              ( equiv-coprod e1 e2 ∘e inv-equiv (coprod-Fin k l)))))
+preserves-leq-equiv-count :
+  {l : Level} {X : UU l} (e : count X)
+  {x y : Fin (number-of-elements-count e)} →
+  leq-Fin x y → leq-count e (map-equiv-count e x) (map-equiv-count e y)
+preserves-leq-equiv-count e {x} {y} H =
+  concatenate-eq-leq-eq-Fin
+    ( isretr-map-inv-equiv (equiv-count e) x)
+    ( H)
+    ( inv (isretr-map-inv-equiv (equiv-count e) y))
 
-coprod-UU-Fin :
-  {k l : ℕ} → UU-Fin k → UU-Fin l → UU-Fin (add-ℕ k l)
-coprod-UU-Fin X Y = coprod-UU-Fin-Level X Y
+reflects-leq-equiv-count :
+  {l : Level} {X : UU l} (e : count X)
+  {x y : Fin (number-of-elements-count e)} →
+  leq-count e (map-equiv-count e x) (map-equiv-count e y) → leq-Fin x y
+reflects-leq-equiv-count e {x} {y} H =
+  concatenate-eq-leq-eq-Fin
+    ( inv (isretr-map-inv-equiv (equiv-count e) x))
+    ( H)
+    ( isretr-map-inv-equiv (equiv-count e) y)
 
--- Theorem 16.3.6 (ii)
+transpose-leq-equiv-count :
+  {l : Level} {X : UU l} (e : count X) →
+  {x : Fin (number-of-elements-count e)} {y : X} →
+  leq-Fin x (map-inv-equiv-count e y) → leq-count e (map-equiv-count e x) y
+transpose-leq-equiv-count e {x} {y} H =
+  concatenate-eq-leq-eq-Fin
+    ( isretr-map-inv-equiv (equiv-count e) x)
+    ( H)
+    ( refl)
 
-is-finite-prod :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
-  is-finite X → is-finite Y → is-finite (X × Y)
-is-finite-prod {X = X} {Y} is-finite-X is-finite-Y =
-  apply-universal-property-trunc-Prop is-finite-X
-    ( is-finite-Prop (X × Y))
-    ( λ (e : count X) →
-      apply-universal-property-trunc-Prop is-finite-Y
-        ( is-finite-Prop (X × Y))
-        ( is-finite-count ∘ (count-prod e)))
+transpose-leq-equiv-count' :
+  {l : Level} {X : UU l} (e : count X) →
+  {x : X} {y : Fin (number-of-elements-count e)} →
+  leq-Fin (map-inv-equiv-count e x) y → leq-count e x (map-equiv-count e y)
+transpose-leq-equiv-count' e {x} {y} H =
+  concatenate-eq-leq-eq-Fin
+    ( refl)
+    ( H)
+    ( inv (isretr-map-inv-equiv (equiv-count e) y))
 
-prod-𝔽 : 𝔽 → 𝔽 → 𝔽
-prod-𝔽 X Y =
-  pair ( prod (type-𝔽 X) (type-𝔽 Y))
-       ( is-finite-prod (is-finite-type-𝔽 X) (is-finite-type-𝔽 Y))
+is-lower-bound-count :
+  {l1 l2 : Level} {A : UU l1} → count A → (A → UU l2) → A → UU (l1 ⊔ l2)
+is-lower-bound-count {l1} {l2} {A} e B a = (x : A) → B x → leq-count e a x
 
-is-finite-left-factor :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
-  is-finite (X × Y) → Y → is-finite X
-is-finite-left-factor f y =
-  functor-trunc-Prop (λ e → count-left-factor e y) f
+first-element-count :
+  {l1 l2 : Level} {A : UU l1} (e : count A) (B : A → UU l2) → UU (l1 ⊔ l2)
+first-element-count {l1} {l2} {A} e B =
+  Σ A (λ x → (B x) × is-lower-bound-count e B x)
 
-is-finite-right-factor :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
-  is-finite (X × Y) → X → is-finite Y
-is-finite-right-factor f x =
-  functor-trunc-Prop (λ e → count-right-factor e x) f
-
-prod-UU-Fin-Level :
-  {l1 l2 : Level} {k l : ℕ} → UU-Fin-Level l1 k → UU-Fin-Level l2 l →
-  UU-Fin-Level (l1 ⊔ l2) (mul-ℕ k l)
-prod-UU-Fin-Level {l1} {l2} {k} {l} (pair X H) (pair Y K) =
-  pair
-    ( X × Y)
-    ( apply-universal-property-trunc-Prop H
-      ( mere-equiv-Prop (Fin (mul-ℕ k l)) (X × Y))
-      ( λ e1 →
-        apply-universal-property-trunc-Prop K
-          ( mere-equiv-Prop (Fin (mul-ℕ k l)) (X × Y))
-          ( λ e2 →
-            unit-trunc-Prop (equiv-prod e1 e2 ∘e inv-equiv (prod-Fin k l)))))
-
-prod-UU-Fin :
-  {k l : ℕ} → UU-Fin k → UU-Fin l → UU-Fin (mul-ℕ k l)
-prod-UU-Fin = prod-UU-Fin-Level
-
--- Theorem 16.3.6 (iii)
-
--- Theorem 16.3.6 (iii) (a) and (b) implies (c)
-
-is-finite-Σ :
-  {l1 l2 : Level} {X : UU l1} {Y : X → UU l2} →
-  is-finite X → ((x : X) → is-finite (Y x)) → is-finite (Σ X Y)
-is-finite-Σ {X = X} {Y} is-finite-X is-finite-Y =
-  apply-universal-property-trunc-Prop is-finite-X
-    ( is-finite-Prop (Σ X Y))
-    ( λ (e : count X) →
-      apply-universal-property-trunc-Prop
-        ( finite-choice is-finite-X is-finite-Y)
-        ( is-finite-Prop (Σ X Y))
-        ( is-finite-count ∘ (count-Σ e)))
-
-Σ-𝔽 : (X : 𝔽) (Y : type-𝔽 X → 𝔽) → 𝔽
-Σ-𝔽 X Y =
-  pair ( Σ (type-𝔽 X) (λ x → type-𝔽 (Y x)))
-       ( is-finite-Σ
-         ( is-finite-type-𝔽 X)
-         ( λ x → is-finite-type-𝔽 (Y x)))
-
--- Theorem 16.3.6 (iii) (a) and (c) implies (b)
-
-is-finite-fiber-is-finite-Σ :
-  {l1 l2 : Level} {X : UU l1} {Y : X → UU l2} →
-  is-finite X → is-finite (Σ X Y) → (x : X) → is-finite (Y x)
-is-finite-fiber-is-finite-Σ {l1} {l2} {X} {Y} f g x =
-  apply-universal-property-trunc-Prop f
-    ( is-finite-Prop (Y x))
-    ( λ e → functor-trunc-Prop (λ h → count-fiber-count-Σ e h x) g)
-
--- Theorem 16.3.6 (iii) (b), (c), B has a section implies (a)
-
-is-finite-base-is-finite-Σ-section :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
-  is-finite (Σ A B) → ((x : A) → is-finite (B x)) → is-finite A
-is-finite-base-is-finite-Σ-section {l1} {l2} {A} {B} b f g =
-  apply-universal-property-trunc-Prop f
-    ( is-finite-Prop A)
-    ( λ e →
-      is-finite-count
-        ( count-equiv
-          ( ( equiv-total-fib-map-section b) ∘e
-            ( equiv-tot
-              ( λ t →
-                ( equiv-tot (λ x → equiv-eq-pair-Σ (map-section b x) t)) ∘e
-                ( ( assoc-Σ A
-                    ( λ (x : A) → Id x (pr1 t))
-                    ( λ s → Id (tr B (pr2 s) (b (pr1 s))) (pr2 t))) ∘e
-                  ( inv-left-unit-law-Σ-is-contr
-                    ( is-contr-total-path' (pr1 t))
-                    ( pair (pr1 t) refl))))))
-          ( count-Σ e
-            ( λ t →
-              count-eq
-                ( has-decidable-equality-is-finite (g (pr1 t)))
-                ( b (pr1 t))
-                ( pr2 t)))))
-
-is-finite-base-is-finite-Σ-mere-section :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  type-trunc-Prop ((x : A) → B x) →
-  is-finite (Σ A B) → ((x : A) → is-finite (B x)) → is-finite A
-is-finite-base-is-finite-Σ-mere-section {l1} {l2} {A} {B} H f g =
-  apply-universal-property-trunc-Prop H
-    ( is-finite-Prop A)
-    ( λ b → is-finite-base-is-finite-Σ-section b f g)
+first-element-is-decidable-subtype-count :
+  {l1 l2 : Level} {A : UU l1} (e : count A) {B : A → UU l2} →
+  ((x : A) → is-decidable (B x)) → ((x : A) → is-prop (B x)) →
+  Σ A B → first-element-count e B
+first-element-is-decidable-subtype-count (pair k e) {B} d H (pair a b) =
+  map-Σ
+    ( λ x → (B x) × is-lower-bound-count (pair k e) B x)
+    ( map-equiv e)
+    ( λ x → map-prod {B = is-lower-bound-Fin (B ∘ map-equiv e) x} id
+      ( λ L y b →
+        transpose-leq-equiv-count
+          ( pair k e)
+          ( L (map-inv-equiv e y) (tr B (inv (issec-map-inv-equiv e y)) b))))
+    ( minimal-element-decidable-subtype-Fin
+      ( λ x → d (map-equiv e x))
+      ( pair (map-inv-equiv e a) (tr B (inv (issec-map-inv-equiv e a)) b)))
 
 is-prop-is-lower-bound-Fin :
   {l : Level} {k : ℕ} {P : Fin k → UU l} (x : Fin k) →
@@ -1874,67 +1709,6 @@ count-domain-emb-is-finite-domain-emb e f H =
         ( equiv-total-fib (map-emb f))
         ( H)))
 
-fiber-inclusion :
-  {l1 l2 : Level} {A : UU l1} (B : A → UU l2) (x : A) → B x → Σ A B
-fiber-inclusion B x = pair x
-
-map-transpose-total-span :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : A → B → UU l3} →
-  Σ A (Σ B ∘ C) → Σ B (λ y → Σ A (λ x → C x y))
-map-transpose-total-span (pair x (pair y z)) = pair y (pair x z)
-
-map-inv-transpose-total-span :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : A → B → UU l3} →
-  Σ B (λ y → Σ A (λ x → C x y)) → Σ A (Σ B ∘ C)
-map-inv-transpose-total-span (pair y (pair x z)) = pair x (pair y z)
-
-issec-map-inv-transpose-total-span :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : A → B → UU l3} →
-  ( ( map-transpose-total-span {A = A} {B} {C}) ∘
-    ( map-inv-transpose-total-span {A = A} {B} {C})) ~ id
-issec-map-inv-transpose-total-span (pair y (pair x z)) = refl
-
-isretr-map-inv-transpose-total-span :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : A → B → UU l3} →
-  ( ( map-inv-transpose-total-span {A = A} {B} {C}) ∘
-    ( map-transpose-total-span {A = A} {B} {C})) ~ id
-isretr-map-inv-transpose-total-span (pair x (pair y z)) = refl
-
-is-equiv-map-transpose-total-span :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : A → B → UU l3} →
-  is-equiv (map-transpose-total-span {A = A} {B} {C})
-is-equiv-map-transpose-total-span =
-  is-equiv-has-inverse
-    map-inv-transpose-total-span
-    issec-map-inv-transpose-total-span
-    isretr-map-inv-transpose-total-span
-
-transpose-total-span :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : A → B → UU l3} →
-  Σ A (Σ B ∘ C) ≃ Σ B (λ y → Σ A (λ x → C x y))
-transpose-total-span =
-  pair map-transpose-total-span is-equiv-map-transpose-total-span
-
-is-emb-fiber-inclusion :
-  {l1 l2 : Level} {A : UU l1} (B : A → UU l2) →
-  is-set A → (x : A) → is-emb (fiber-inclusion B x)
-is-emb-fiber-inclusion B H x =
-  is-emb-is-prop-map
-    ( λ z →
-      is-prop-equiv
-        ( Id x (pr1 z))
-        ( ( ( right-unit-law-Σ-is-contr
-                ( λ p →
-                  is-contr-map-is-equiv (is-equiv-tr B p) (pr2 z))) ∘e
-            ( transpose-total-span)) ∘e
-          ( equiv-tot (λ y → equiv-pair-eq-Σ (pair x y) z)))
-        ( H x (pr1 z)))
-
-emb-fiber-inclusion :
-  {l1 l2 : Level} {A : UU l1} (B : A → UU l2) → is-set A → (x : A) → B x ↪ Σ A B
-emb-fiber-inclusion B H x =
-  pair (fiber-inclusion B x) (is-emb-fiber-inclusion B H x)
-
 choice : {l : Level} → UU l → UU l
 choice X = type-trunc-Prop X → X
 
@@ -1945,6 +1719,173 @@ choice-count (pair zero-ℕ e) t =
     ( apply-universal-property-trunc-Prop t empty-Prop
       ( is-empty-is-zero-number-of-elements-count (pair zero-ℕ e) refl))
 choice-count (pair (succ-ℕ k) e) t = map-equiv e zero-Fin
+
+-- Theorem 16.3.6
+
+-- Theorem 16.3.6 (i)
+
+is-finite-coprod :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
+  is-finite X → is-finite Y → is-finite (coprod X Y)
+is-finite-coprod {X = X} {Y} is-finite-X is-finite-Y =
+  apply-universal-property-trunc-Prop is-finite-X
+    ( is-finite-Prop (coprod X Y))
+    ( λ (e : count X) →
+      apply-universal-property-trunc-Prop is-finite-Y
+        ( is-finite-Prop (coprod X Y))
+        ( is-finite-count ∘ (count-coprod e)))
+
+coprod-𝔽 : 𝔽 → 𝔽 → 𝔽
+coprod-𝔽 X Y =
+  pair ( coprod (type-𝔽 X) (type-𝔽 Y))
+       ( is-finite-coprod (is-finite-type-𝔽 X) (is-finite-type-𝔽 Y))
+
+is-finite-left-coprod :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → is-finite (coprod X Y) → is-finite X
+is-finite-left-coprod =
+  functor-trunc-Prop count-left-coprod
+
+is-finite-right-coprod :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → is-finite (coprod X Y) → is-finite Y
+is-finite-right-coprod =
+  functor-trunc-Prop count-right-coprod
+
+coprod-UU-Fin-Level :
+  {l1 l2 : Level} {k l : ℕ} → UU-Fin-Level l1 k → UU-Fin-Level l2 l →
+  UU-Fin-Level (l1 ⊔ l2) (add-ℕ k l)
+coprod-UU-Fin-Level {l1} {l2} {k} {l} (pair X H) (pair Y K) =
+  pair
+    ( coprod X Y)
+    ( apply-universal-property-trunc-Prop H
+      ( mere-equiv-Prop (Fin (add-ℕ k l)) (coprod X Y))
+      ( λ e1 →
+        apply-universal-property-trunc-Prop K
+          ( mere-equiv-Prop (Fin (add-ℕ k l)) (coprod X Y))
+          ( λ e2 →
+            unit-trunc-Prop
+              ( equiv-coprod e1 e2 ∘e inv-equiv (coprod-Fin k l)))))
+
+coprod-UU-Fin :
+  {k l : ℕ} → UU-Fin k → UU-Fin l → UU-Fin (add-ℕ k l)
+coprod-UU-Fin X Y = coprod-UU-Fin-Level X Y
+
+-- Theorem 16.3.6 (ii)
+
+is-finite-prod :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
+  is-finite X → is-finite Y → is-finite (X × Y)
+is-finite-prod {X = X} {Y} is-finite-X is-finite-Y =
+  apply-universal-property-trunc-Prop is-finite-X
+    ( is-finite-Prop (X × Y))
+    ( λ (e : count X) →
+      apply-universal-property-trunc-Prop is-finite-Y
+        ( is-finite-Prop (X × Y))
+        ( is-finite-count ∘ (count-prod e)))
+
+prod-𝔽 : 𝔽 → 𝔽 → 𝔽
+prod-𝔽 X Y =
+  pair ( prod (type-𝔽 X) (type-𝔽 Y))
+       ( is-finite-prod (is-finite-type-𝔽 X) (is-finite-type-𝔽 Y))
+
+is-finite-left-factor :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
+  is-finite (X × Y) → Y → is-finite X
+is-finite-left-factor f y =
+  functor-trunc-Prop (λ e → count-left-factor e y) f
+
+is-finite-right-factor :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} →
+  is-finite (X × Y) → X → is-finite Y
+is-finite-right-factor f x =
+  functor-trunc-Prop (λ e → count-right-factor e x) f
+
+prod-UU-Fin-Level :
+  {l1 l2 : Level} {k l : ℕ} → UU-Fin-Level l1 k → UU-Fin-Level l2 l →
+  UU-Fin-Level (l1 ⊔ l2) (mul-ℕ k l)
+prod-UU-Fin-Level {l1} {l2} {k} {l} (pair X H) (pair Y K) =
+  pair
+    ( X × Y)
+    ( apply-universal-property-trunc-Prop H
+      ( mere-equiv-Prop (Fin (mul-ℕ k l)) (X × Y))
+      ( λ e1 →
+        apply-universal-property-trunc-Prop K
+          ( mere-equiv-Prop (Fin (mul-ℕ k l)) (X × Y))
+          ( λ e2 →
+            unit-trunc-Prop (equiv-prod e1 e2 ∘e inv-equiv (prod-Fin k l)))))
+
+prod-UU-Fin :
+  {k l : ℕ} → UU-Fin k → UU-Fin l → UU-Fin (mul-ℕ k l)
+prod-UU-Fin = prod-UU-Fin-Level
+
+-- Theorem 16.3.6 (iii)
+
+-- Theorem 16.3.6 (iii) (a) and (b) implies (c)
+
+is-finite-Σ :
+  {l1 l2 : Level} {X : UU l1} {Y : X → UU l2} →
+  is-finite X → ((x : X) → is-finite (Y x)) → is-finite (Σ X Y)
+is-finite-Σ {X = X} {Y} is-finite-X is-finite-Y =
+  apply-universal-property-trunc-Prop is-finite-X
+    ( is-finite-Prop (Σ X Y))
+    ( λ (e : count X) →
+      apply-universal-property-trunc-Prop
+        ( finite-choice is-finite-X is-finite-Y)
+        ( is-finite-Prop (Σ X Y))
+        ( is-finite-count ∘ (count-Σ e)))
+
+Σ-𝔽 : (X : 𝔽) (Y : type-𝔽 X → 𝔽) → 𝔽
+Σ-𝔽 X Y =
+  pair ( Σ (type-𝔽 X) (λ x → type-𝔽 (Y x)))
+       ( is-finite-Σ
+         ( is-finite-type-𝔽 X)
+         ( λ x → is-finite-type-𝔽 (Y x)))
+
+-- Theorem 16.3.6 (iii) (a) and (c) implies (b)
+
+is-finite-fiber-is-finite-Σ :
+  {l1 l2 : Level} {X : UU l1} {Y : X → UU l2} →
+  is-finite X → is-finite (Σ X Y) → (x : X) → is-finite (Y x)
+is-finite-fiber-is-finite-Σ {l1} {l2} {X} {Y} f g x =
+  apply-universal-property-trunc-Prop f
+    ( is-finite-Prop (Y x))
+    ( λ e → functor-trunc-Prop (λ h → count-fiber-count-Σ e h x) g)
+
+-- Theorem 16.3.6 (iii) (b), (c), B has a section implies (a)
+
+is-finite-base-is-finite-Σ-section :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
+  is-finite (Σ A B) → ((x : A) → is-finite (B x)) → is-finite A
+is-finite-base-is-finite-Σ-section {l1} {l2} {A} {B} b f g =
+  apply-universal-property-trunc-Prop f
+    ( is-finite-Prop A)
+    ( λ e →
+      is-finite-count
+        ( count-equiv
+          ( ( equiv-total-fib-map-section b) ∘e
+            ( equiv-tot
+              ( λ t →
+                ( equiv-tot (λ x → equiv-eq-pair-Σ (map-section b x) t)) ∘e
+                ( ( assoc-Σ A
+                    ( λ (x : A) → Id x (pr1 t))
+                    ( λ s → Id (tr B (pr2 s) (b (pr1 s))) (pr2 t))) ∘e
+                  ( inv-left-unit-law-Σ-is-contr
+                    ( is-contr-total-path' (pr1 t))
+                    ( pair (pr1 t) refl))))))
+          ( count-Σ e
+            ( λ t →
+              count-eq
+                ( has-decidable-equality-is-finite (g (pr1 t)))
+                ( b (pr1 t))
+                ( pr2 t)))))
+
+is-finite-base-is-finite-Σ-mere-section :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  type-trunc-Prop ((x : A) → B x) →
+  is-finite (Σ A B) → ((x : A) → is-finite (B x)) → is-finite A
+is-finite-base-is-finite-Σ-mere-section {l1} {l2} {A} {B} H f g =
+  apply-universal-property-trunc-Prop H
+    ( is-finite-Prop A)
+    ( λ b → is-finite-base-is-finite-Σ-section b f g)
 
 choice-count-Σ-is-finite-fiber :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
