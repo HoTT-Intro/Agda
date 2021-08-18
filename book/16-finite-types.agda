@@ -1703,13 +1703,6 @@ is-finite-base-is-finite-Σ-mere-section {l1} {l2} {A} {B} H f g =
     ( is-finite-Prop A)
     ( λ b → is-finite-base-is-finite-Σ-section b f g)
 
-is-prop-leq-Fin :
-  {k : ℕ} (x y : Fin k) → is-prop (leq-Fin x y)
-is-prop-leq-Fin {succ-ℕ k} (inl x) (inl y) = is-prop-leq-Fin x y
-is-prop-leq-Fin {succ-ℕ k} (inl x) (inr star) = is-prop-unit
-is-prop-leq-Fin {succ-ℕ k} (inr star) (inl y) = is-prop-empty
-is-prop-leq-Fin {succ-ℕ k} (inr star) (inr star) = is-prop-unit
-
 is-prop-is-lower-bound-Fin :
   {l : Level} {k : ℕ} {P : Fin k → UU l} (x : Fin k) →
   is-prop (is-lower-bound-Fin P x)

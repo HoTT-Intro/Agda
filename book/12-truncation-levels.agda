@@ -1478,3 +1478,10 @@ is-emb-nat-Fin {k} = is-emb-is-injective is-set-ℕ is-injective-nat-Fin
 
 emb-nat-Fin : (k : ℕ) → Fin k ↪ ℕ
 emb-nat-Fin k = pair nat-Fin is-emb-nat-Fin
+
+is-prop-leq-Fin :
+  {k : ℕ} (x y : Fin k) → is-prop (leq-Fin x y)
+is-prop-leq-Fin {succ-ℕ k} (inl x) (inl y) = is-prop-leq-Fin x y
+is-prop-leq-Fin {succ-ℕ k} (inl x) (inr star) = is-prop-unit
+is-prop-leq-Fin {succ-ℕ k} (inr star) (inl y) = is-prop-empty
+is-prop-leq-Fin {succ-ℕ k} (inr star) (inr star) = is-prop-unit

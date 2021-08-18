@@ -755,45 +755,6 @@ right-inverse-law-add-Fin :
 right-inverse-law-add-Fin x =
   ( commutative-add-Fin x (neg-Fin x)) ∙ (left-inverse-law-add-Fin x)
 
-{- Definition 7.5.5 -}
-
-iterate : {l : Level} {X : UU l} → ℕ → (X → X) → (X → X)
-iterate zero-ℕ f x = x
-iterate (succ-ℕ k) f x = f (iterate k f x)
-
-iterate-succ-ℕ :
-  {l : Level} {X : UU l} (k : ℕ) (f : X → X) (x : X) →
-  Id (iterate (succ-ℕ k) f x) (iterate k f (f x))
-iterate-succ-ℕ zero-ℕ f x = refl
-iterate-succ-ℕ (succ-ℕ k) f x = ap f (iterate-succ-ℕ k f x)
-
-iterate-add-ℕ :
-  {l : Level} {X : UU l} (k l : ℕ) (f : X → X) (x : X) →
-  Id (iterate (add-ℕ k l) f x) (iterate k f (iterate l f x))
-iterate-add-ℕ k zero-ℕ f x = refl
-iterate-add-ℕ k (succ-ℕ l) f x =
-  ap f (iterate-add-ℕ k l f x) ∙ iterate-succ-ℕ k f (iterate l f x)
-
-iterate-iterate :
-  {l : Level} {X : UU l} (k l : ℕ) (f : X → X) (x : X) →
-  Id (iterate k f (iterate l f x)) (iterate l f (iterate k f x))
-iterate-iterate k l f x =
-  ( inv (iterate-add-ℕ k l f x)) ∙
-  ( ( ap (λ t → iterate t f x) (commutative-add-ℕ k l)) ∙
-    ( iterate-add-ℕ l k f x))
-
-is-cyclic-map : {l : Level} {X : UU l} (f : X → X) → UU l
-is-cyclic-map {l} {X} f = (x y : X) → Σ ℕ (λ k → Id (iterate k f x) y)
-
-length-path-is-cyclic-map :
-  {l : Level} {X : UU l} {f : X → X} → is-cyclic-map f → X → X → ℕ
-length-path-is-cyclic-map H x y = pr1 (H x y)
-
-eq-is-cyclic-map :
-  {l : Level} {X : UU l} {f : X → X} (H : is-cyclic-map f) (x y : X) →
-  Id (iterate (length-path-is-cyclic-map H x y) f x) y
-eq-is-cyclic-map H x y = pr2 (H x y)
-
 --------------------------------------------------------------------------------
 
 {- Exercises -}
@@ -871,6 +832,48 @@ div-factorial-is-nonzero-ℕ (succ-ℕ n) x l H with
 
 {- Exercise 7.4 -}
 
+one-Fin : {k : ℕ} → Fin (succ-ℕ k)
+one-Fin {k} = mod-succ-ℕ k one-ℕ
+
+is-one-Fin : {k : ℕ} → Fin k → UU lzero
+is-one-Fin {succ-ℕ k} x = Id x one-Fin
+
+is-zero-or-one-Fin-two-ℕ :
+  (x : Fin two-ℕ) → coprod (is-zero-Fin x) (is-one-Fin x)
+is-zero-or-one-Fin-two-ℕ (inl (inr star)) = inl refl
+is-zero-or-one-Fin-two-ℕ (inr star) = inr refl
+
+is-one-nat-one-Fin :
+  (k : ℕ) → is-one-ℕ (nat-Fin (one-Fin {succ-ℕ k}))
+is-one-nat-one-Fin zero-ℕ = refl
+is-one-nat-one-Fin (succ-ℕ k) = is-one-nat-one-Fin k
+
+is-add-one-succ-Fin :
+  {k : ℕ} (x : Fin (succ-ℕ k)) → Id (succ-Fin x) (add-Fin x one-Fin)
+is-add-one-succ-Fin {zero-ℕ} (inr star) = refl
+is-add-one-succ-Fin {succ-ℕ k} x =
+  ( ap succ-Fin (inv (issec-nat-Fin x))) ∙
+  ( ap ( mod-succ-ℕ  (succ-ℕ k))
+       ( ap (add-ℕ (nat-Fin x)) (inv (is-one-nat-one-Fin (succ-ℕ k)))))
+
+-- We conclude the successor laws for addition on Fin k
+
+right-successor-law-add-Fin :
+  {k : ℕ} (x y : Fin k) → Id (add-Fin x (succ-Fin y)) (succ-Fin (add-Fin x y))
+right-successor-law-add-Fin {succ-ℕ k} x y =
+  ( ap (add-Fin x) (is-add-one-succ-Fin y)) ∙
+  ( ( inv (associative-add-Fin x y one-Fin)) ∙
+    ( inv (is-add-one-succ-Fin (add-Fin x y))))
+
+left-successor-law-add-Fin :
+  {k : ℕ} (x y : Fin k) → Id (add-Fin (succ-Fin x) y) (succ-Fin (add-Fin x y))
+left-successor-law-add-Fin x y =
+  commutative-add-Fin (succ-Fin x) y ∙
+  ( ( right-successor-law-add-Fin y x) ∙
+    ( ap succ-Fin (commutative-add-Fin y x)))
+
+{- Exercise 7.5 -}
+
 -- We introduce the observational equality on finite sets.
 
 Eq-Fin : (k : ℕ) → Fin k → Fin k → UU lzero
@@ -879,7 +882,7 @@ Eq-Fin (succ-ℕ k) (inl x) (inr y) = empty
 Eq-Fin (succ-ℕ k) (inr x) (inl y) = empty
 Eq-Fin (succ-ℕ k) (inr x) (inr y) = unit
 
--- Exercise 7.4 (a)
+-- Exercise 7.5 (a)
 
 refl-Eq-Fin : {k : ℕ} (x : Fin k) → Eq-Fin k x x
 refl-Eq-Fin {succ-ℕ k} (inl x) = refl-Eq-Fin x
@@ -893,12 +896,12 @@ eq-Eq-Fin :
 eq-Eq-Fin {succ-ℕ k} {inl x} {inl y} e = ap inl (eq-Eq-Fin e)
 eq-Eq-Fin {succ-ℕ k} {inr star} {inr star} star = refl
 
--- Exercise 7.4 (b)
+-- Exercise 7.5 (b)
 
 is-injective-inl-Fin : {k : ℕ} → is-injective (inl-Fin k)
 is-injective-inl-Fin p = eq-Eq-Fin (Eq-Fin-eq p)
 
--- Exercise 7.4 (c)
+-- Exercise 7.5 (c)
 
 neq-zero-succ-Fin :
   {k : ℕ} {x : Fin k} → is-nonzero-Fin (succ-Fin (inl-Fin k x))
@@ -907,7 +910,7 @@ neq-zero-succ-Fin {succ-ℕ k} {inl x} p =
 neq-zero-succ-Fin {succ-ℕ k} {inr star} p =
   Eq-Fin-eq {succ-ℕ (succ-ℕ k)} {inr star} {zero-Fin} p
 
--- Exercise 7.4 (d)
+-- Exercise 7.5 (d)
 
 is-injective-skip-zero-Fin : {k : ℕ} → is-injective (skip-zero-Fin {k})
 is-injective-skip-zero-Fin {succ-ℕ k} {inl x} {inl y} p =
@@ -927,7 +930,7 @@ is-injective-succ-Fin {succ-ℕ k} {inr star} {inl y} p =
   ex-falso (neq-zero-succ-Fin {succ-ℕ k} {inl y} (ap inl (inv p)))
 is-injective-succ-Fin {succ-ℕ k} {inr star} {inr star} p = refl
 
-{- Exercise 7.5 -}
+{- Exercise 7.6 -}
 
 -- We define the negative two element of Fin k.
 
@@ -978,7 +981,7 @@ pred-succ-Fin {succ-ℕ (succ-ℕ k)} (inl (inl x)) =
 pred-succ-Fin {succ-ℕ (succ-ℕ k)} (inl (inr star)) = refl
 pred-succ-Fin {succ-ℕ (succ-ℕ k)} (inr star) = pred-zero-Fin
 
-{- Exercise 7.6 -}
+{- Exercise 7.7 -}
 
 -- We introduce the type of bounded natural numbers
 
@@ -1038,7 +1041,7 @@ isretr-classical-standard-Fin {succ-ℕ k} (pair x p) =
       ( p)
       ( cong-nat-mod-succ-ℕ k x))
 
-{- Exercise 7.7 -}
+{- Exercise 7.8 -}
 
 {- We define the multiplication on the types Fin k. -}
 
@@ -1051,7 +1054,7 @@ ap-mul-Fin :
   Id x x' → Id y y' → Id (mul-Fin x y) (mul-Fin x' y')
 ap-mul-Fin p q = ap-binary mul-Fin p q
 
--- Exercise 7.7 (a)
+-- Exercise 7.8 (a)
 
 cong-mul-Fin :
   {k : ℕ} (x y : Fin k) →
@@ -1059,7 +1062,7 @@ cong-mul-Fin :
 cong-mul-Fin {succ-ℕ k} x y =
   cong-nat-mod-succ-ℕ k (mul-ℕ (nat-Fin x) (nat-Fin y))
 
--- Exercise 7.7 (b)
+-- Exercise 7.8 (b)
 
 -- We show that congruence is invariant under scalar multiplication --
 
@@ -1090,7 +1093,7 @@ congruence-mul-ℕ k {x} {y} {x'} {y'} H K =
     ( scalar-invariant-cong-ℕ k y y' x K)
     ( scalar-invariant-cong-ℕ' k x x' y' H)
 
--- Exercise 7.7 (c)
+-- Exercise 7.8 (c)
 
 associative-mul-Fin :
   {k : ℕ} (x y z : Fin k) →
@@ -1132,21 +1135,6 @@ commutative-mul-Fin {succ-ℕ k} x y =
       ( succ-ℕ k)
       ( commutative-mul-ℕ (nat-Fin x) (nat-Fin y)))
 
-one-Fin : {k : ℕ} → Fin (succ-ℕ k)
-one-Fin {k} = mod-succ-ℕ k one-ℕ
-
-is-one-Fin : {k : ℕ} → Fin k → UU lzero
-is-one-Fin {succ-ℕ k} x = Id x one-Fin
-
-is-zero-or-one-Fin-two-ℕ :
-  (x : Fin two-ℕ) → coprod (is-zero-Fin x) (is-one-Fin x)
-is-zero-or-one-Fin-two-ℕ (inl (inr star)) = inl refl
-is-zero-or-one-Fin-two-ℕ (inr star) = inr refl
-
-nat-one-Fin : {k : ℕ} → is-one-ℕ (nat-Fin (one-Fin {succ-ℕ k}))
-nat-one-Fin {zero-ℕ} = refl
-nat-one-Fin {succ-ℕ k} = nat-one-Fin {k}
-
 left-unit-law-mul-Fin :
   {k : ℕ} (x : Fin (succ-ℕ k)) → Id (mul-Fin one-Fin x) x
 left-unit-law-mul-Fin {zero-ℕ} (inr star) = refl
@@ -1157,7 +1145,7 @@ left-unit-law-mul-Fin {succ-ℕ k} x =
     ( cong-identification-ℕ
       ( succ-ℕ (succ-ℕ k))
       ( ( ap ( mul-ℕ' (nat-Fin x))
-             ( nat-one-Fin {k})) ∙
+             ( is-one-nat-one-Fin k)) ∙
         ( left-unit-law-mul-ℕ (nat-Fin x))))) ∙
   ( issec-nat-Fin x)
 
@@ -1212,7 +1200,7 @@ right-distributive-mul-add-Fin {k} x y z =
   ( ( left-distributive-mul-add-Fin z x y) ∙
     ( ap-add-Fin (commutative-mul-Fin z x) (commutative-mul-Fin z y)))
 
-{- Exercise 7.8 -}
+{- Exercise 7.9 -}
 
 -- We first prove two lemmas
 
@@ -1337,7 +1325,7 @@ eq-euclidean-division-ℕ k x is-nonzero-k with
   is-successor-is-nonzero-ℕ is-nonzero-k
 ... | pair l refl = eq-euclidean-division-succ-ℕ l x
 
-{- Exercise 7.9 -}
+{- Exercise 7.10 -}
 
 {- The type of k-ary natural numbers, for arbitrary k -}
 
@@ -1359,14 +1347,14 @@ convert-based-ℕ k (constant-based-ℕ .k x) =
 convert-based-ℕ k (unary-op-based-ℕ .k x n) =
   unary-op-ℕ k x (convert-based-ℕ k n)
 
--- Exercise 7.9 (a)
+-- Exercise 7.10 (a)
 
 {- The type of 0-ary natural numbers is empty -}
 is-empty-based-zero-ℕ : is-empty (based-ℕ zero-ℕ)
 is-empty-based-zero-ℕ (constant-based-ℕ .zero-ℕ ())
 is-empty-based-zero-ℕ (unary-op-based-ℕ .zero-ℕ () n)
 
--- Exercise 7.9 (b)
+-- Exercise 7.10 (b)
 
 {- We show that the function convert-based-ℕ is injective -}
 
@@ -1455,7 +1443,7 @@ is-injective-convert-based-ℕ
          ( is-injective-left-mul-ℕ k
            ( is-injective-add-ℕ' (nat-Fin x) p))))
 
--- Exercise 7.9 (c)
+-- Exercise 7.10 (c)
   
 {- We show that the map convert-based-ℕ has an inverse. -}
 
@@ -1523,3 +1511,4 @@ isretr-inv-convert-based-ℕ k x =
   is-injective-convert-based-ℕ
     ( succ-ℕ k)
     ( issec-inv-convert-based-ℕ k (convert-based-ℕ (succ-ℕ k) x))
+

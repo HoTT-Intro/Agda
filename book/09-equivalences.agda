@@ -1752,6 +1752,45 @@ abstract
     
 -- Exercise 9.5
 
+-- Exercise 9.5 (a)
+
+iterate : {l : Level} {X : UU l} → ℕ → (X → X) → (X → X)
+iterate zero-ℕ f x = x
+iterate (succ-ℕ k) f x = f (iterate k f x)
+
+iterate-succ-ℕ :
+  {l : Level} {X : UU l} (k : ℕ) (f : X → X) (x : X) →
+  Id (iterate (succ-ℕ k) f x) (iterate k f (f x))
+iterate-succ-ℕ zero-ℕ f x = refl
+iterate-succ-ℕ (succ-ℕ k) f x = ap f (iterate-succ-ℕ k f x)
+
+iterate-add-ℕ :
+  {l : Level} {X : UU l} (k l : ℕ) (f : X → X) (x : X) →
+  Id (iterate (add-ℕ k l) f x) (iterate k f (iterate l f x))
+iterate-add-ℕ k zero-ℕ f x = refl
+iterate-add-ℕ k (succ-ℕ l) f x =
+  ap f (iterate-add-ℕ k l f x) ∙ iterate-succ-ℕ k f (iterate l f x)
+
+iterate-iterate :
+  {l : Level} {X : UU l} (k l : ℕ) (f : X → X) (x : X) →
+  Id (iterate k f (iterate l f x)) (iterate l f (iterate k f x))
+iterate-iterate k l f x =
+  ( inv (iterate-add-ℕ k l f x)) ∙
+  ( ( ap (λ t → iterate t f x) (commutative-add-ℕ k l)) ∙
+    ( iterate-add-ℕ l k f x))
+
+is-cyclic-map : {l : Level} {X : UU l} (f : X → X) → UU l
+is-cyclic-map {l} {X} f = (x y : X) → Σ ℕ (λ k → Id (iterate k f x) y)
+
+length-path-is-cyclic-map :
+  {l : Level} {X : UU l} {f : X → X} → is-cyclic-map f → X → X → ℕ
+length-path-is-cyclic-map H x y = pr1 (H x y)
+
+eq-is-cyclic-map :
+  {l : Level} {X : UU l} {f : X → X} (H : is-cyclic-map f) (x y : X) →
+  Id (iterate (length-path-is-cyclic-map H x y) f x) y
+eq-is-cyclic-map H x y = pr2 (H x y)
+
 map-inv-is-cyclic-map :
   {l : Level} {X : UU l} (f : X → X) (H : is-cyclic-map f) → X → X
 map-inv-is-cyclic-map f H x =
@@ -1786,6 +1825,23 @@ is-equiv-is-cyclic-map f H =
     ( map-inv-is-cyclic-map f H)
     ( issec-map-inv-is-cyclic-map f H)
     ( isretr-map-inv-is-cyclic-map f H)
+
+-- Exercise 9.5 (b)
+
+compute-iterate-succ-Fin :
+  {k : ℕ} (n : ℕ) (x : Fin (succ-ℕ k)) →
+  Id (iterate n succ-Fin x) (add-Fin x (mod-succ-ℕ k n))
+compute-iterate-succ-Fin zero-ℕ x = inv (right-unit-law-add-Fin x)
+compute-iterate-succ-Fin (succ-ℕ n) x =
+  ( ap succ-Fin (compute-iterate-succ-Fin n x)) ∙
+  {! !}
+
+is-cyclic-succ-Fin : {k : ℕ} → is-cyclic-map (succ-Fin {k})
+is-cyclic-succ-Fin x y =
+  pair
+    ( nat-Fin (add-Fin y (neg-Fin x)))
+    {!!}
+  
 
 -- Exercise 9.6
 
