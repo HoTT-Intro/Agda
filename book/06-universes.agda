@@ -328,10 +328,10 @@ preserves-leq-succ-ℕ :
   (m n : ℕ) → m ≤-ℕ n → m ≤-ℕ (succ-ℕ n)
 preserves-leq-succ-ℕ m n p = transitive-leq-ℕ m n (succ-ℕ n) p (succ-leq-ℕ n)
 
-anti-symmetric-leq-ℕ : (m n : ℕ) → m ≤-ℕ n → n ≤-ℕ m → Id m n
-anti-symmetric-leq-ℕ zero-ℕ zero-ℕ p q = refl
-anti-symmetric-leq-ℕ (succ-ℕ m) (succ-ℕ n) p q =
-  ap succ-ℕ (anti-symmetric-leq-ℕ m n p q)
+antisymmetric-leq-ℕ : (m n : ℕ) → m ≤-ℕ n → n ≤-ℕ m → Id m n
+antisymmetric-leq-ℕ zero-ℕ zero-ℕ p q = refl
+antisymmetric-leq-ℕ (succ-ℕ m) (succ-ℕ n) p q =
+  ap succ-ℕ (antisymmetric-leq-ℕ m n p q)
 
 -- Exercise 6.3 (b)
 

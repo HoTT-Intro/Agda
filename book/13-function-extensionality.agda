@@ -967,7 +967,7 @@ cases-leq-succ-ℕ :
   {m n : ℕ} → leq-ℕ m (succ-ℕ n) → coprod (leq-ℕ m n) (Id m (succ-ℕ n))
 cases-leq-succ-ℕ {zero-ℕ} {n} star = inl star
 cases-leq-succ-ℕ {succ-ℕ m} {zero-ℕ} p =
-  inr (ap succ-ℕ (anti-symmetric-leq-ℕ m zero-ℕ p star))
+  inr (ap succ-ℕ (antisymmetric-leq-ℕ m zero-ℕ p star))
 cases-leq-succ-ℕ {succ-ℕ m} {succ-ℕ n} p =
   map-coprod id (ap succ-ℕ) (cases-leq-succ-ℕ p)
 

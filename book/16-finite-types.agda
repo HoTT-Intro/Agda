@@ -1512,163 +1512,6 @@ transpose-leq-equiv-count' e {x} {y} H =
     ( H)
     ( inv (isretr-map-inv-equiv (equiv-count e) y))
 
-is-lower-bound-count :
-  {l1 l2 : Level} {A : UU l1} → count A → (A → UU l2) → A → UU (l1 ⊔ l2)
-is-lower-bound-count {l1} {l2} {A} e B a = (x : A) → B x → leq-count e a x
-
-first-element-count :
-  {l1 l2 : Level} {A : UU l1} (e : count A) (B : A → UU l2) → UU (l1 ⊔ l2)
-first-element-count {l1} {l2} {A} e B =
-  Σ A (λ x → (B x) × is-lower-bound-count e B x)
-
-first-element-is-decidable-subtype-count :
-  {l1 l2 : Level} {A : UU l1} (e : count A) {B : A → UU l2} →
-  ((x : A) → is-decidable (B x)) → ((x : A) → is-prop (B x)) →
-  Σ A B → first-element-count e B
-first-element-is-decidable-subtype-count (pair k e) {B} d H (pair a b) =
-  map-Σ
-    ( λ x → (B x) × is-lower-bound-count (pair k e) B x)
-    ( map-equiv e)
-    ( λ x → map-prod {B = is-lower-bound-Fin (B ∘ map-equiv e) x} id
-      ( λ L y b →
-        transpose-leq-equiv-count
-          ( pair k e)
-          ( L (map-inv-equiv e y) (tr B (inv (issec-map-inv-equiv e y)) b))))
-    ( minimal-element-decidable-subtype-Fin
-      ( λ x → d (map-equiv e x))
-      ( pair (map-inv-equiv e a) (tr B (inv (issec-map-inv-equiv e a)) b)))
-
-is-prop-leq-count :
-  {l : Level} {A : UU l} (e : count A) {x y : A} → is-prop (leq-count e x y)
-is-prop-leq-count e {x} {y} =
-  is-prop-leq-Fin (map-inv-equiv-count e x) (map-inv-equiv-count e y)
-
-is-prop-is-lower-bound-count :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (e : count A) →
-  (x : A) → is-prop (is-lower-bound-count e B x)
-is-prop-is-lower-bound-count e x =
-  is-prop-Π ( λ x → is-prop-function-type (is-prop-leq-count e))
-
-equiv-is-lower-bound-count :
-  {l1 l2 : Level} {A : UU l1} (e : count A) {B : A → UU l2} →
-  (x : Fin (number-of-elements-count e)) →
-  is-lower-bound-Fin (B ∘ map-equiv-count e) x ≃
-  is-lower-bound-count e B (map-equiv-count e x)
-equiv-is-lower-bound-count e {B} x =
-  equiv-prop
-    ( is-prop-is-lower-bound-Fin x)
-    ( is-prop-is-lower-bound-count e (map-equiv-count e x))
-    ( λ H y l →
-      transpose-leq-equiv-count e
-        ( H ( map-inv-equiv-count e y)
-            ( tr B (inv (issec-map-inv-equiv (equiv-count e) y)) l)))
-    ( λ H y l →
-      reflects-leq-equiv-count e (H (map-equiv-count e y) l))
-
-is-prop-first-element-subtype-count :
-  {l1 l2 : Level} {A : UU l1} (e : count A) {P : A → UU l2} →
-  ((x : A) → is-prop (P x)) → is-prop (first-element-count e P)
-is-prop-first-element-subtype-count e {P} H =
-  is-prop-equiv'
-    ( minimal-element-Fin (P ∘ map-equiv-count e))
-    ( equiv-Σ
-      ( λ x → P x × is-lower-bound-count e P x)
-      ( equiv-count e)
-      ( λ x → equiv-prod equiv-id (equiv-is-lower-bound-count e x)))
-    ( is-prop-minimal-element-subtype-Fin
-      ( P ∘ map-equiv-count e)
-      ( λ y → H (map-equiv-count e y)))
-
-first-element-subtype-count-Prop :
-  {l1 l2 : Level} {A : UU l1} (e : count A) {P : A → UU l2} →
-  ((x : A) → is-prop (P x)) → UU-Prop (l1 ⊔ l2)
-first-element-subtype-count-Prop e {P} H =
-  pair
-    ( first-element-count e P)
-    ( is-prop-first-element-subtype-count e H)
-
-element-inhabited-decidable-subtype-Fin :
-  {l : Level} {k : ℕ} {P : Fin k → UU l} →
-  ((x : Fin k) → is-decidable (P x)) → ((x : Fin k) → is-prop (P x)) →
-  type-trunc-Prop (Σ (Fin k) P) → Σ (Fin k) P
-element-inhabited-decidable-subtype-Fin {l} {k} {P} d H t =
-  tot
-    ( λ x → pr1)
-    ( apply-universal-property-trunc-Prop t
-      ( pair
-        ( minimal-element-Fin P)
-        ( is-prop-minimal-element-subtype-Fin P H))
-      ( minimal-element-decidable-subtype-Fin d))
-
-choice-subtype-count :
-  {l1 l2 : Level} {A : UU l1} (e : count A) {P : A → UU l2} →
-  ((x : A) → is-decidable (P x)) → ((x : A) → is-prop (P x)) →
-  type-trunc-Prop (Σ A P) → Σ A P
-choice-subtype-count e d H t =
-  tot
-    ( λ x → pr1)
-    ( apply-universal-property-trunc-Prop t
-      ( first-element-subtype-count-Prop e H)
-      ( first-element-is-decidable-subtype-count e d H))
-
-is-inhabited-or-empty-count :
-  {l1 : Level} {A : UU l1} → count A → is-inhabited-or-empty A
-is-inhabited-or-empty-count (pair zero-ℕ e) =
-  inr (is-empty-is-zero-number-of-elements-count (pair zero-ℕ e) refl)
-is-inhabited-or-empty-count (pair (succ-ℕ k) e) =
-  inl (unit-trunc-Prop (map-equiv e zero-Fin))
-
-is-inhabited-or-empty-is-finite :
-  {l1 : Level} {A : UU l1} → is-finite A → is-inhabited-or-empty A
-is-inhabited-or-empty-is-finite {l1} {A} f =
-  apply-universal-property-trunc-Prop f
-    ( is-inhabited-or-empty-Prop A)
-    ( is-inhabited-or-empty-count)
-
-choice-emb-count :
-  {l1 l2 : Level} {A : UU l1} (e : count A) {B : UU l2} (f : B ↪ A) →
-  ((x : A) → is-decidable (fib (map-emb f) x)) → type-trunc-Prop B → B
-choice-emb-count e f d t =
-  map-equiv-total-fib
-    ( map-emb f)
-    ( choice-subtype-count e d
-      ( is-prop-map-emb f)
-      ( functor-trunc-Prop
-        ( map-inv-equiv-total-fib (map-emb f))
-        ( t)))
-
-count-total-subtype-is-finite-total-subtype :
-  {l1 l2 : Level} {A : UU l1} (e : count A) (P : A → UU-Prop l2) →
-  is-finite (Σ A (λ x → type-Prop (P x))) → count (Σ A (λ x → type-Prop (P x)))
-count-total-subtype-is-finite-total-subtype {l1} {l2} {A} e P f =
-  count-decidable-subtype P d e
-  where
-  d : (x : A) → is-decidable (type-Prop (P x))
-  d x =
-    apply-universal-property-trunc-Prop f
-      ( is-decidable-Prop (P x))
-      ( λ g → is-decidable-count-Σ e g x)
-
-count-domain-emb-is-finite-domain-emb :
-  {l1 l2 : Level} {A : UU l1} (e : count A) {B : UU l2} (f : B ↪ A) →
-  is-finite B → count B
-count-domain-emb-is-finite-domain-emb e f H =
-  count-equiv
-    ( equiv-total-fib (map-emb f))
-    ( count-total-subtype-is-finite-total-subtype e
-      ( λ x → pair (fib (map-emb f) x) (is-prop-map-emb f x))
-      ( is-finite-equiv'
-        ( equiv-total-fib (map-emb f))
-        ( H)))
-
-global-choice-count :
-  {l : Level} {A : UU l} → count A → global-choice A
-global-choice-count (pair zero-ℕ e) t =
-  ex-falso
-    ( apply-universal-property-trunc-Prop t empty-Prop
-      ( is-empty-is-zero-number-of-elements-count (pair zero-ℕ e) refl))
-global-choice-count (pair (succ-ℕ k) e) t = map-equiv e zero-Fin
-
 -- Theorem 16.3.6
 
 -- Theorem 16.3.6 (i)
@@ -1835,6 +1678,77 @@ is-finite-base-is-finite-Σ-mere-section {l1} {l2} {A} {B} H f g =
   apply-universal-property-trunc-Prop H
     ( is-finite-Prop A)
     ( λ b → is-finite-base-is-finite-Σ-section b f g)
+
+global-choice-count :
+  {l : Level} {A : UU l} → count A → global-choice A
+global-choice-count (pair zero-ℕ e) t =
+  ex-falso
+    ( is-empty-type-trunc-Prop
+      ( is-empty-is-zero-number-of-elements-count (pair zero-ℕ e) refl)
+      ( t))
+global-choice-count (pair (succ-ℕ k) e) t = map-equiv e zero-Fin
+
+global-choice-decidable-subtype-count :
+  {l1 l2 : Level} {A : UU l1} (e : count A) {P : A → UU l2} →
+  ((x : A) → is-decidable (P x)) → ((x : A) → is-prop (P x)) →
+  global-choice (Σ A P)
+global-choice-decidable-subtype-count e {P} d H =
+  global-choice-equiv
+    ( equiv-Σ-equiv-base P (equiv-count e))
+    ( global-choice-decidable-subtype-Fin
+      ( λ x → P (map-equiv-count e x))
+      ( λ x → H (map-equiv-count e x))
+      ( λ x → d (map-equiv-count e x)))
+
+is-inhabited-or-empty-count :
+  {l1 : Level} {A : UU l1} → count A → is-inhabited-or-empty A
+is-inhabited-or-empty-count (pair zero-ℕ e) =
+  inr (is-empty-is-zero-number-of-elements-count (pair zero-ℕ e) refl)
+is-inhabited-or-empty-count (pair (succ-ℕ k) e) =
+  inl (unit-trunc-Prop (map-equiv e zero-Fin))
+
+is-inhabited-or-empty-is-finite :
+  {l1 : Level} {A : UU l1} → is-finite A → is-inhabited-or-empty A
+is-inhabited-or-empty-is-finite {l1} {A} f =
+  apply-universal-property-trunc-Prop f
+    ( is-inhabited-or-empty-Prop A)
+    ( is-inhabited-or-empty-count)
+
+global-choice-emb-count :
+  {l1 l2 : Level} {A : UU l1} (e : count A) {B : UU l2} (f : B ↪ A) →
+  ((x : A) → is-decidable (fib (map-emb f) x)) → global-choice B
+global-choice-emb-count e f d t =
+  map-equiv-total-fib
+    ( map-emb f)
+    ( global-choice-decidable-subtype-count e d
+      ( is-prop-map-emb f)
+      ( functor-trunc-Prop
+        ( map-inv-equiv-total-fib (map-emb f))
+        ( t)))
+
+count-total-subtype-is-finite-total-subtype :
+  {l1 l2 : Level} {A : UU l1} (e : count A) (P : A → UU-Prop l2) →
+  is-finite (Σ A (λ x → type-Prop (P x))) → count (Σ A (λ x → type-Prop (P x)))
+count-total-subtype-is-finite-total-subtype {l1} {l2} {A} e P f =
+  count-decidable-subtype P d e
+  where
+  d : (x : A) → is-decidable (type-Prop (P x))
+  d x =
+    apply-universal-property-trunc-Prop f
+      ( is-decidable-Prop (P x))
+      ( λ g → is-decidable-count-Σ e g x)
+
+count-domain-emb-is-finite-domain-emb :
+  {l1 l2 : Level} {A : UU l1} (e : count A) {B : UU l2} (f : B ↪ A) →
+  is-finite B → count B
+count-domain-emb-is-finite-domain-emb e f H =
+  count-equiv
+    ( equiv-total-fib (map-emb f))
+    ( count-total-subtype-is-finite-total-subtype e
+      ( λ x → pair (fib (map-emb f) x) (is-prop-map-emb f x))
+      ( is-finite-equiv'
+        ( equiv-total-fib (map-emb f))
+        ( H)))
 
 choice-count-Σ-is-finite-fiber :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
