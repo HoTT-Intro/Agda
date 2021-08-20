@@ -554,6 +554,32 @@ is-equiv-ev-intro-exists-Prop P Q =
     ( is-prop-Π ((λ x → is-prop-type-hom-Prop (P x) Q)))
     ( elim-exists-Prop P Q)
 
+----------
+
+is-prop-is-lower-bound-Fin :
+  {l : Level} {k : ℕ} {P : Fin k → UU l} (x : Fin k) →
+  is-prop (is-lower-bound-Fin P x)
+is-prop-is-lower-bound-Fin x =
+  is-prop-Π (λ y → is-prop-function-type (is-prop-leq-Fin x y))
+
+is-prop-minimal-element-subtype-Fin' :
+  {l : Level} {k : ℕ} (P : Fin k → UU l) →
+  ((x : Fin k) → is-prop (P x)) → is-prop' (minimal-element-Fin P)
+is-prop-minimal-element-subtype-Fin' P H
+  (pair x (pair p l)) (pair y (pair q m)) =
+  eq-subtype
+    ( λ t → is-prop-prod (H t) (is-prop-is-lower-bound-Fin t))
+    ( antisymmetric-leq-Fin (l y q) (m x p))
+
+is-prop-minimal-element-subtype-Fin :
+  {l : Level} {k : ℕ} (P : Fin k → UU l) →
+  ((x : Fin k) → is-prop (P x)) → is-prop (minimal-element-Fin P)
+is-prop-minimal-element-subtype-Fin P H =
+  is-prop-is-prop' (is-prop-minimal-element-subtype-Fin' P H)
+
+global-choice : {l : Level} → UU l → UU l
+global-choice X = type-trunc-Prop X → X
+
 --------------------------------------------------------------------------------
 
 -- Exercises
@@ -587,6 +613,31 @@ is-equiv-unit-trunc-trunc-Prop A =
 
 -- Exercise 14.1 (b)
 
+is-inhabited-or-empty : {l1 : Level} → UU l1 → UU l1
+is-inhabited-or-empty A = coprod (type-trunc-Prop A) (is-empty A)
+
+is-prop-is-inhabited-or-empty :
+  {l1 : Level} (A : UU l1) → is-prop (is-inhabited-or-empty A)
+is-prop-is-inhabited-or-empty A =
+  is-prop-coprod
+    ( λ t → apply-universal-property-trunc-Prop t empty-Prop)
+    ( is-prop-type-trunc-Prop)
+    ( is-prop-neg)
+
+is-inhabited-or-empty-Prop : {l1 : Level} → UU l1 → UU-Prop l1
+is-inhabited-or-empty-Prop A =
+  pair (is-inhabited-or-empty A) (is-prop-is-inhabited-or-empty A)
+
+is-prop-is-decidable :
+  {l : Level} {A : UU l} → is-prop A → is-prop (is-decidable A)
+is-prop-is-decidable is-prop-A =
+  is-prop-coprod intro-dn is-prop-A is-prop-neg
+
+is-decidable-Prop :
+  {l : Level} → UU-Prop l → UU-Prop l
+is-decidable-Prop P =
+  pair (is-decidable (type-Prop P)) (is-prop-is-decidable (is-prop-type-Prop P))
+
 is-merely-decidable-Prop :
   {l : Level} → UU l → UU-Prop l
 is-merely-decidable-Prop A = trunc-Prop (is-decidable A)
@@ -597,12 +648,7 @@ is-merely-decidable A = type-trunc-Prop (is-decidable A)
 is-prop-is-decidable-type-trunc-Prop :
   {l : Level} (A : UU l) → is-prop (is-decidable (type-trunc-Prop A))
 is-prop-is-decidable-type-trunc-Prop A =
-  is-prop-coprod
-    ( map-universal-property-trunc-Prop
-      ( dn-Prop (trunc-Prop A))
-      ( intro-dn ∘ unit-trunc-Prop))
-    ( is-prop-type-trunc-Prop)
-    ( is-prop-neg)
+  is-prop-is-decidable is-prop-type-trunc-Prop
 
 is-decidable-type-trunc-Prop : {l : Level} → UU l → UU-Prop l
 is-decidable-type-trunc-Prop A =

@@ -1538,27 +1538,6 @@ first-element-is-decidable-subtype-count (pair k e) {B} d H (pair a b) =
       ( λ x → d (map-equiv e x))
       ( pair (map-inv-equiv e a) (tr B (inv (issec-map-inv-equiv e a)) b)))
 
-is-prop-is-lower-bound-Fin :
-  {l : Level} {k : ℕ} {P : Fin k → UU l} (x : Fin k) →
-  is-prop (is-lower-bound-Fin P x)
-is-prop-is-lower-bound-Fin x =
-  is-prop-Π (λ y → is-prop-function-type (is-prop-leq-Fin x y))
-
-is-prop-minimal-element-subtype-Fin' :
-  {l : Level} {k : ℕ} (P : Fin k → UU l) →
-  ((x : Fin k) → is-prop (P x)) → is-prop' (minimal-element-Fin P)
-is-prop-minimal-element-subtype-Fin' P H
-  (pair x (pair p l)) (pair y (pair q m)) =
-  eq-subtype
-    ( λ t → is-prop-prod (H t) (is-prop-is-lower-bound-Fin t))
-    ( antisymmetric-leq-Fin (l y q) (m x p))
-
-is-prop-minimal-element-subtype-Fin :
-  {l : Level} {k : ℕ} (P : Fin k → UU l) →
-  ((x : Fin k) → is-prop (P x)) → is-prop (minimal-element-Fin P)
-is-prop-minimal-element-subtype-Fin P H =
-  is-prop-is-prop' (is-prop-minimal-element-subtype-Fin' P H)
-
 is-prop-leq-count :
   {l : Level} {A : UU l} (e : count A) {x y : A} → is-prop (leq-count e x y)
 is-prop-leq-count e {x} {y} =
@@ -1632,21 +1611,6 @@ choice-subtype-count e d H t =
       ( first-element-subtype-count-Prop e H)
       ( first-element-is-decidable-subtype-count e d H))
 
-is-inhabited-or-empty : {l1 : Level} → UU l1 → UU l1
-is-inhabited-or-empty A = coprod (type-trunc-Prop A) (is-empty A)
-
-is-prop-is-inhabited-or-empty :
-  {l1 : Level} (A : UU l1) → is-prop (is-inhabited-or-empty A)
-is-prop-is-inhabited-or-empty A =
-  is-prop-coprod
-    ( λ t → apply-universal-property-trunc-Prop t empty-Prop)
-    ( is-prop-type-trunc-Prop)
-    ( is-prop-neg)
-
-is-inhabited-or-empty-Prop : {l1 : Level} → UU l1 → UU-Prop l1
-is-inhabited-or-empty-Prop A =
-  pair (is-inhabited-or-empty A) (is-prop-is-inhabited-or-empty A)
-
 is-inhabited-or-empty-count :
   {l1 : Level} {A : UU l1} → count A → is-inhabited-or-empty A
 is-inhabited-or-empty-count (pair zero-ℕ e) =
@@ -1673,18 +1637,6 @@ choice-emb-count e f d t =
         ( map-inv-equiv-total-fib (map-emb f))
         ( t)))
 
-{- We show that if A is a proposition, then so is is-decidable A. -}
-
-is-prop-is-decidable :
-  {l : Level} {A : UU l} → is-prop A → is-prop (is-decidable A)
-is-prop-is-decidable is-prop-A =
-  is-prop-coprod intro-dn is-prop-A is-prop-neg
-
-is-decidable-Prop :
-  {l : Level} → UU-Prop l → UU-Prop l
-is-decidable-Prop P =
-  pair (is-decidable (type-Prop P)) (is-prop-is-decidable (is-prop-type-Prop P))
-
 count-total-subtype-is-finite-total-subtype :
   {l1 l2 : Level} {A : UU l1} (e : count A) (P : A → UU-Prop l2) →
   is-finite (Σ A (λ x → type-Prop (P x))) → count (Σ A (λ x → type-Prop (P x)))
@@ -1709,16 +1661,13 @@ count-domain-emb-is-finite-domain-emb e f H =
         ( equiv-total-fib (map-emb f))
         ( H)))
 
-choice : {l : Level} → UU l → UU l
-choice X = type-trunc-Prop X → X
-
-choice-count :
-  {l : Level} {A : UU l} → count A → choice A
-choice-count (pair zero-ℕ e) t =
+global-choice-count :
+  {l : Level} {A : UU l} → count A → global-choice A
+global-choice-count (pair zero-ℕ e) t =
   ex-falso
     ( apply-universal-property-trunc-Prop t empty-Prop
       ( is-empty-is-zero-number-of-elements-count (pair zero-ℕ e) refl))
-choice-count (pair (succ-ℕ k) e) t = map-equiv e zero-Fin
+global-choice-count (pair (succ-ℕ k) e) t = map-equiv e zero-Fin
 
 -- Theorem 16.3.6
 
@@ -1892,11 +1841,11 @@ choice-count-Σ-is-finite-fiber :
   is-set A → count (Σ A B) → ((x : A) → is-finite (B x)) →
   ((x : A) → type-trunc-Prop (B x)) → (x : A) → B x
 choice-count-Σ-is-finite-fiber {l1} {l2} {A} {B} K e g H x =
-   choice-count
-     ( count-domain-emb-is-finite-domain-emb e
-       ( emb-fiber-inclusion B K x)
-       ( g x))
-     ( H x)
+  global-choice-count
+    ( count-domain-emb-is-finite-domain-emb e
+      ( emb-fiber-inclusion B K x)
+      ( g x))
+    ( H x)
 
 choice-is-finite-Σ-is-finite-fiber :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
