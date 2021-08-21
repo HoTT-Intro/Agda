@@ -117,9 +117,9 @@ right-unit-law-Monoid M = pr2 (pr2 (pr2 M))
 {- We show that is-unital is a proposition. -}
 
 abstract
-  is-prop-is-unital' :
-    {l : Level} (G : Semi-Group l) → is-prop' (is-unital G)
-  is-prop-is-unital' (pair (pair X is-set-X) (pair μ assoc-μ))
+  all-elements-equal-is-unital :
+    {l : Level} (G : Semi-Group l) → all-elements-equal (is-unital G)
+  all-elements-equal-is-unital (pair (pair X is-set-X) (pair μ assoc-μ))
     (pair e (pair left-unit-e right-unit-e))
     (pair e' (pair left-unit-e' right-unit-e')) =
     eq-subtype
@@ -131,7 +131,8 @@ abstract
 abstract
   is-prop-is-unital :
     {l : Level} (G : Semi-Group l) → is-prop (is-unital G)
-  is-prop-is-unital G = is-prop-is-prop' (is-prop-is-unital' G)
+  is-prop-is-unital G =
+    is-prop-all-elements-equal (all-elements-equal-is-unital G)
 
 --------------------------------------------------------------------------------
 
@@ -145,10 +146,10 @@ is-invertible-Monoid M x =
       Id (mul-Monoid M y x) (unit-Monoid M) ×
       Id (mul-Monoid M x y) (unit-Monoid M))
 
-is-prop-is-invertible-Monoid' :
+all-elements-equal-is-invertible-Monoid :
   {l : Level} (M : Monoid l) (x : type-Monoid M) →
-  is-prop' (is-invertible-Monoid M x)
-is-prop-is-invertible-Monoid' M x (pair y (pair p q)) (pair y' (pair p' q')) =
+  all-elements-equal (is-invertible-Monoid M x)
+all-elements-equal-is-invertible-Monoid M x (pair y (pair p q)) (pair y' (pair p' q')) =
   eq-subtype
     ( ( λ z →
       is-prop-prod
@@ -164,7 +165,7 @@ is-prop-is-invertible-Monoid :
   {l : Level} (M : Monoid l) (x : type-Monoid M) →
   is-prop (is-invertible-Monoid M x)
 is-prop-is-invertible-Monoid M x =
-  is-prop-is-prop' (is-prop-is-invertible-Monoid' M x)
+  is-prop-all-elements-equal (all-elements-equal-is-invertible-Monoid M x)
 
 --------------------------------------------------------------------------------
 
@@ -307,9 +308,10 @@ is-equiv-mul-Group' G x =
 {- We show that being a group is a proposition. -}
 
 abstract
-  is-prop-is-group' :
-    {l : Level} (G : Semi-Group l) (e : is-unital G) → is-prop' (is-group' G e)
-  is-prop-is-group'
+  all-elements-equal-is-group :
+    {l : Level} (G : Semi-Group l) (e : is-unital G) →
+    all-elements-equal (is-group' G e)
+  all-elements-equal-is-group
     ( pair (pair G is-set-G) (pair μ assoc-G))
     ( pair e (pair left-unit-G right-unit-G))
     ( pair i (pair left-inv-i right-inv-i))
@@ -333,7 +335,8 @@ abstract
   is-prop-is-group G =
     is-prop-Σ
       ( is-prop-is-unital G)
-      ( λ e → is-prop-is-prop' (is-prop-is-group' G e))
+      ( λ e →
+        is-prop-all-elements-equal (all-elements-equal-is-group G e))
 
 --------------------------------------------------------------------------------
 
@@ -828,10 +831,11 @@ inv-hom-iso-Semi-Group G H f =
     ( is-iso-hom-iso-Semi-Group G H f)
 
 abstract
-  is-prop-is-iso-hom-Semi-Group' :
+  all-elements-equal-is-iso-hom-Semi-Group :
     { l1 l2 : Level} (G : Semi-Group l1) (H : Semi-Group l2) →
-    ( f : hom-Semi-Group G H) → is-prop' (is-iso-hom-Semi-Group G H f)
-  is-prop-is-iso-hom-Semi-Group' G H f
+    ( f : hom-Semi-Group G H) →
+    all-elements-equal (is-iso-hom-Semi-Group G H f)
+  all-elements-equal-is-iso-hom-Semi-Group G H f
     (pair g (pair issec isretr)) (pair g' (pair issec' isretr')) =
     eq-subtype
       ( λ h →
@@ -853,7 +857,8 @@ abstract
     { l1 l2 : Level} (G : Semi-Group l1) (H : Semi-Group l2) →
     ( f : hom-Semi-Group G H) → is-prop (is-iso-hom-Semi-Group G H f)
   is-prop-is-iso-hom-Semi-Group G H f =
-    is-prop-is-prop' (is-prop-is-iso-hom-Semi-Group' G H f)
+    is-prop-all-elements-equal
+      ( all-elements-equal-is-iso-hom-Semi-Group G H f)
 
 abstract
   preserves-mul-map-inv-is-equiv-Semi-Group :
@@ -1163,11 +1168,11 @@ is-unital-composition-structure A hom (pair μ assoc-μ) =
       ( (x y : A) (f : underlying-type-Set (hom x y)) → Id (μ x x y (e x) f) f)
       × ( (x y : A) (f : underlying-type-Set (hom x y)) → Id (μ x y y f (e y)) f))
 
-is-prop-is-unital-composition-structure' :
+all-elements-equal-is-unital-composition-structure :
   {l1 l2 : Level} (A : UU l1) (hom : A → A → UU-Set l2) →
   ( μ : associative-composition-structure A hom) →
-  is-prop' (is-unital-composition-structure A hom μ)
-is-prop-is-unital-composition-structure' A hom
+  all-elements-equal (is-unital-composition-structure A hom μ)
+all-elements-equal-is-unital-composition-structure A hom
   ( pair μ assoc-μ)
   ( pair e (pair left-unit-law-e right-unit-law-e))
   ( pair e' (pair left-unit-law-e' right-unit-law-e')) =

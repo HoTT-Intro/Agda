@@ -504,10 +504,10 @@ is-retr-inv-map-is-iso-hom-Ring R1 R2 f is-iso-f =
 
 {- Being invertible is a property -}
 
-is-prop-is-iso-hom-Ring' :
+all-elements-equal-is-iso-hom-Ring :
   { l1 l2 : Level} (R1 : Ring l1) (R2 : Ring l2) (f : hom-Ring R1 R2) →
-  is-prop' (is-iso-hom-Ring R1 R2 f)
-is-prop-is-iso-hom-Ring' R1 R2 f inv-f inv-f' =
+  all-elements-equal (is-iso-hom-Ring R1 R2 f)
+all-elements-equal-is-iso-hom-Ring R1 R2 f inv-f inv-f' =
   eq-subtype
     ( λ g →
       is-prop-prod
@@ -527,7 +527,7 @@ is-prop-is-iso-hom-Ring :
   { l1 l2 : Level} (R1 : Ring l1) (R2 : Ring l2) (f : hom-Ring R1 R2) →
   is-prop (is-iso-hom-Ring R1 R2 f)
 is-prop-is-iso-hom-Ring R1 R2 f =
-  is-prop-is-prop' (is-prop-is-iso-hom-Ring' R1 R2 f)
+  is-prop-all-elements-equal (all-elements-equal-is-iso-hom-Ring R1 R2 f)
 
 iso-Ring :
   { l1 l2 : Level} → Ring l1 → Ring l2 → UU (l1 ⊔ l2)

@@ -48,9 +48,9 @@ empty-Prop = pair empty is-prop-empty
 
 {- Proposition 12.1.3 -}
 
-is-prop' :
+all-elements-equal :
   {i : Level} (A : UU i) → UU i
-is-prop' A = (x y : A) → Id x y
+all-elements-equal A = (x y : A) → Id x y
 
 is-proof-irrelevant :
   {l1 : Level} → UU l1 → UU l1
@@ -61,9 +61,9 @@ is-subterminal :
 is-subterminal A = is-emb (terminal-map {A = A})
 
 abstract
-  is-prop-is-prop' :
-    {i : Level} {A : UU i} → is-prop' A → is-prop A
-  is-prop-is-prop' {i} {A} H x y =
+  is-prop-all-elements-equal :
+    {i : Level} {A : UU i} → all-elements-equal A → is-prop A
+  is-prop-all-elements-equal {i} {A} H x y =
     pair
       ( (inv (H x x)) ∙ (H x y))
       ( ind-Id x
@@ -72,7 +72,7 @@ abstract
 
 abstract
   eq-is-prop' :
-    {i : Level} {A : UU i} → is-prop A → is-prop' A
+    {i : Level} {A : UU i} → is-prop A → all-elements-equal A
   eq-is-prop' H x y = pr1 (H x y)
 
 abstract
@@ -81,15 +81,15 @@ abstract
   eq-is-prop H {x} {y} = eq-is-prop' H x y
 
 abstract
-  is-proof-irrelevant-is-prop' :
-    {l1 : Level} {A : UU l1} → is-prop' A → is-proof-irrelevant A
-  is-proof-irrelevant-is-prop' H a = pair a (H a)
+  is-proof-irrelevant-all-elements-equal :
+    {l1 : Level} {A : UU l1} → all-elements-equal A → is-proof-irrelevant A
+  is-proof-irrelevant-all-elements-equal H a = pair a (H a)
 
 abstract
   is-proof-irrelevant-is-prop :
     {i : Level} {A : UU i} → is-prop A → is-proof-irrelevant A
   is-proof-irrelevant-is-prop =
-    is-proof-irrelevant-is-prop' ∘ eq-is-prop'
+    is-proof-irrelevant-all-elements-equal ∘ eq-is-prop'
 
 abstract
   is-prop-is-proof-irrelevant :
@@ -98,7 +98,7 @@ abstract
 
 abstract
   eq-is-proof-irrelevant :
-    {l1 : Level} {A : UU l1} → is-proof-irrelevant A → is-prop' A
+    {l1 : Level} {A : UU l1} → is-proof-irrelevant A → all-elements-equal A
   eq-is-proof-irrelevant H =
     eq-is-prop' (is-prop-is-proof-irrelevant H)
 
@@ -115,16 +115,16 @@ abstract
       ( λ x → is-emb-is-equiv (is-equiv-is-contr _ (H x) is-contr-unit))
 
 abstract
-  is-subterminal-is-prop' :
-    {l1 : Level} {A : UU l1} → is-prop' A → is-subterminal A
-  is-subterminal-is-prop' =
-    is-subterminal-is-proof-irrelevant ∘ is-proof-irrelevant-is-prop'
+  is-subterminal-all-elements-equal :
+    {l1 : Level} {A : UU l1} → all-elements-equal A → is-subterminal A
+  is-subterminal-all-elements-equal =
+    is-subterminal-is-proof-irrelevant ∘ is-proof-irrelevant-all-elements-equal
 
 abstract
   is-subterminal-is-prop :
     {l1 : Level} {A : UU l1} → is-prop A → is-subterminal A
   is-subterminal-is-prop =
-    is-subterminal-is-prop' ∘ eq-is-prop'
+    is-subterminal-all-elements-equal ∘ eq-is-prop'
 
 abstract
   is-prop-is-subterminal :
@@ -138,14 +138,14 @@ abstract
 
 abstract
   eq-is-subterminal :
-    {l1 : Level} {A : UU l1} → is-subterminal A → is-prop' A
+    {l1 : Level} {A : UU l1} → is-subterminal A → all-elements-equal A
   eq-is-subterminal = eq-is-prop' ∘ is-prop-is-subterminal
 
 abstract
   is-proof-irrelevant-is-subterminal :
     {l1 : Level} {A : UU l1} → is-subterminal A → is-proof-irrelevant A
   is-proof-irrelevant-is-subterminal H =
-    is-proof-irrelevant-is-prop' (eq-is-subterminal H)
+    is-proof-irrelevant-all-elements-equal (eq-is-subterminal H)
 
 {- Proposition 12.1.4 -}
 
@@ -382,14 +382,14 @@ axiom-K A = (x : A) (p : Id x x) → Id refl p
 
 abstract
   is-set-axiom-K' :
-    {l1 : Level} {A : UU l1} → axiom-K A → (x y : A) → is-prop' (Id x y)
+    {l1 : Level} {A : UU l1} → axiom-K A → (x y : A) → all-elements-equal (Id x y)
   is-set-axiom-K' K x .x refl q with K x q
   ... | refl = refl
 
 abstract
   is-set-axiom-K :
     {i : Level} {A : UU i} → axiom-K A → is-set A
-  is-set-axiom-K H x y = is-prop-is-prop' (is-set-axiom-K' H x y) 
+  is-set-axiom-K H x y = is-prop-all-elements-equal (is-set-axiom-K' H x y) 
 
 abstract
   axiom-K-is-set :
@@ -900,7 +900,7 @@ abstract
   is-prop-is-equiv-diagonal : {l : Level} (A : UU l) →
     is-equiv (diagonal A) → is-prop A
   is-prop-is-equiv-diagonal A is-equiv-d =
-    is-prop-is-prop' ( λ x y →
+    is-prop-all-elements-equal ( λ x y →
       let α = issec-map-inv-is-equiv is-equiv-d (pair x y) in
       ( inv (ap pr1 α)) ∙ (ap pr2 α))
 
@@ -1196,19 +1196,19 @@ has-decidable-equality-base-has-decidable-equality-Σ b dΣ dB =
 -- Exercise 12.6
 
 abstract
-  is-prop'-coprod :
+  all-elements-equal-coprod :
     {l1 l2 : Level} {P : UU l1} {Q : UU l2} →
-    (P → ¬ Q) → is-prop' P → is-prop' Q → is-prop' (coprod P Q)
-  is-prop'-coprod
+    (P → ¬ Q) → all-elements-equal P → all-elements-equal Q → all-elements-equal (coprod P Q)
+  all-elements-equal-coprod
     {P = P} {Q = Q} f is-prop-P is-prop-Q (inl p) (inl p') =
     ap inl (is-prop-P p p')
-  is-prop'-coprod
+  all-elements-equal-coprod
     {P = P} {Q = Q} f is-prop-P is-prop-Q (inl p) (inr q') =
     ex-falso (f p q')
-  is-prop'-coprod
+  all-elements-equal-coprod
     {P = P} {Q = Q} f is-prop-P is-prop-Q (inr q) (inl p') =
     ex-falso (f p' q)
-  is-prop'-coprod
+  all-elements-equal-coprod
     {P = P} {Q = Q} f is-prop-P is-prop-Q (inr q) (inr q') =
     ap inr (is-prop-Q q q')
 
@@ -1217,8 +1217,8 @@ abstract
     {l1 l2 : Level} {P : UU l1} {Q : UU l2} →
     (P → ¬ Q) → is-prop P → is-prop Q → is-prop (coprod P Q)
   is-prop-coprod f is-prop-P is-prop-Q =
-    is-prop-is-prop'
-      ( is-prop'-coprod f
+    is-prop-all-elements-equal
+      ( all-elements-equal-coprod f
         ( eq-is-prop' is-prop-P)
         ( eq-is-prop' is-prop-Q))
 

@@ -149,7 +149,7 @@ is-prop-localizations :
   {l1 l2 : Level} (P : subuniverse l1 l2) (X : UU l1) →
   is-prop (has-localization P X)
 is-prop-localizations P X =
-  is-prop-is-prop'
+  is-prop-all-elements-equal
     ( λ Y Y' → eq-Eq-localizations P X Y Y'
       ( uniqueness-localizations P X Y Y'))
 

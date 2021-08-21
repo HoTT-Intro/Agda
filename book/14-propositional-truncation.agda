@@ -49,7 +49,7 @@ abstract
   is-prop-is-contr-endomaps :
     {l : Level} (P : UU l) → is-contr (P → P) → is-prop P
   is-prop-is-contr-endomaps P H =
-    is-prop-is-prop' (λ x → htpy-eq (eq-is-contr H))
+    is-prop-all-elements-equal (λ x → htpy-eq (eq-is-contr H))
 
 abstract
   is-contr-endomaps-is-prop :
@@ -226,12 +226,15 @@ postulate type-trunc-Prop : {l : Level} → UU l → UU l
 
 postulate unit-trunc-Prop : {l : Level} {A : UU l} → A → type-trunc-Prop A
 
-postulate is-prop-type-trunc-Prop' : {l : Level} {A : UU l} → is-prop' (type-trunc-Prop A)
+postulate
+  all-elements-equal-type-trunc-Prop :
+    {l : Level} {A : UU l} → all-elements-equal (type-trunc-Prop A)
 
 -- Lemma 14.2.1
 
 is-prop-type-trunc-Prop : {l : Level} {A : UU l} → is-prop (type-trunc-Prop A)
-is-prop-type-trunc-Prop {l} {A} = is-prop-is-prop' is-prop-type-trunc-Prop'
+is-prop-type-trunc-Prop {l} {A} =
+  is-prop-all-elements-equal all-elements-equal-type-trunc-Prop
 
 trunc-Prop : {l : Level} → UU l → UU-Prop l
 trunc-Prop A = pair (type-trunc-Prop A) is-prop-type-trunc-Prop
@@ -240,15 +243,21 @@ trunc-Prop A = pair (type-trunc-Prop A) is-prop-type-trunc-Prop
 
 -- Definition 14.2.2
 
-postulate ind-trunc-Prop' : {l l1 : Level} {A : UU l1} (P : type-trunc-Prop A → UU l) (f : (x : A) → P (unit-trunc-Prop x)) (g : (x y : type-trunc-Prop A) (u : P x) (v : P y) → Id (tr P (is-prop-type-trunc-Prop' x y) u) v) → (x : type-trunc-Prop A) → P x
+postulate
+  ind-trunc-Prop' :
+    {l l1 : Level} {A : UU l1} (P : type-trunc-Prop A → UU l)
+    (f : (x : A) → P (unit-trunc-Prop x))
+    (g : (x y : type-trunc-Prop A) (u : P x) (v : P y) →
+         Id (tr P (all-elements-equal-type-trunc-Prop x y) u) v) →
+    (x : type-trunc-Prop A) → P x
 
 is-prop-condition-ind-trunc-Prop' :
   {l1 l2 : Level} {A : UU l1} {P : type-trunc-Prop A → UU l2} →
   ( (x y : type-trunc-Prop A) (u : P x) (v : P y) →
-    Id (tr P (is-prop-type-trunc-Prop' x y) u) v) →
+    Id (tr P (all-elements-equal-type-trunc-Prop x y) u) v) →
   (x : type-trunc-Prop A) → is-prop (P x)
 is-prop-condition-ind-trunc-Prop' {P = P} H x =
-  is-prop-is-prop'
+  is-prop-all-elements-equal
     ( λ u v →
       ( ap ( λ γ → tr P γ u)
            ( eq-is-contr (is-prop-type-trunc-Prop x x))) ∙
@@ -567,10 +576,10 @@ is-prop-is-lower-bound-ℕ :
 is-prop-is-lower-bound-ℕ x =
   is-prop-Π (λ y → is-prop-function-type (is-prop-leq-ℕ x y))
 
-is-prop-minimal-element-ℕ' :
+all-elements-equal-minimal-element-ℕ :
   {l1 : Level} {P : ℕ → UU l1} →
-  ((x : ℕ) → is-prop (P x)) → is-prop' (minimal-element-ℕ P)
-is-prop-minimal-element-ℕ' {l1} {P} H (pair x (pair p l)) (pair y (pair q k)) =
+  ((x : ℕ) → is-prop (P x)) → all-elements-equal (minimal-element-ℕ P)
+all-elements-equal-minimal-element-ℕ {l1} {P} H (pair x (pair p l)) (pair y (pair q k)) =
   eq-subtype
     ( λ n → is-prop-prod (H n) (is-prop-is-lower-bound-ℕ n))
     ( antisymmetric-leq-ℕ x y (l y q) (k x p))
@@ -578,7 +587,8 @@ is-prop-minimal-element-ℕ' {l1} {P} H (pair x (pair p l)) (pair y (pair q k)) 
 is-prop-minimal-element-ℕ :
   {l1 : Level} {P : ℕ → UU l1} →
   ((x : ℕ) → is-prop (P x)) → is-prop (minimal-element-ℕ P)
-is-prop-minimal-element-ℕ H = is-prop-is-prop' (is-prop-minimal-element-ℕ' H)
+is-prop-minimal-element-ℕ H =
+  is-prop-all-elements-equal (all-elements-equal-minimal-element-ℕ H)
 
 minimal-element-ℕ-Prop :
   {l1 : Level} {P : ℕ → UU l1} → ((x : ℕ) → is-prop (P x)) → UU-Prop l1
@@ -615,10 +625,10 @@ is-prop-is-lower-bound-Fin :
 is-prop-is-lower-bound-Fin x =
   is-prop-Π (λ y → is-prop-function-type (is-prop-leq-Fin x y))
 
-is-prop-minimal-element-Fin' :
+all-elements-equal-minimal-element-Fin :
   {l : Level} {k : ℕ} (P : Fin k → UU l) →
-  ((x : Fin k) → is-prop (P x)) → is-prop' (minimal-element-Fin P)
-is-prop-minimal-element-Fin' P H
+  ((x : Fin k) → is-prop (P x)) → all-elements-equal (minimal-element-Fin P)
+all-elements-equal-minimal-element-Fin P H
   (pair x (pair p l)) (pair y (pair q m)) =
   eq-subtype
     ( λ t → is-prop-prod (H t) (is-prop-is-lower-bound-Fin t))
@@ -628,7 +638,7 @@ is-prop-minimal-element-Fin :
   {l : Level} {k : ℕ} (P : Fin k → UU l) →
   ((x : Fin k) → is-prop (P x)) → is-prop (minimal-element-Fin P)
 is-prop-minimal-element-Fin P H =
-  is-prop-is-prop' (is-prop-minimal-element-Fin' P H)
+  is-prop-all-elements-equal (all-elements-equal-minimal-element-Fin P H)
 
 minimal-element-Fin-Prop :
   {l : Level} {k : ℕ} (P : Fin k → UU l) → ((x : Fin k) → is-prop (P x)) →
@@ -697,11 +707,11 @@ precomp-universal-property-set-quotient-trunc-Prop B g =
     ( g ∘ unit-trunc-Prop)
     ( is-weakly-constant-map-precomp-unit-trunc-Prop g)
 
-is-prop-image-is-weakly-constant-map' :
+all-elements-equal-image-is-weakly-constant-map :
   {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B) →
   is-weakly-constant-map f →
-  is-prop' (Σ (type-Set B) (λ b → type-trunc-Prop (fib f b)))
-is-prop-image-is-weakly-constant-map' B f H (pair x s) (pair y t) =
+  all-elements-equal (Σ (type-Set B) (λ b → type-trunc-Prop (fib f b)))
+all-elements-equal-image-is-weakly-constant-map B f H (pair x s) (pair y t) =
   eq-subtype
     ( λ b → is-prop-type-trunc-Prop)
     ( apply-universal-property-trunc-Prop s
@@ -716,7 +726,8 @@ is-prop-image-is-weakly-constant-map :
   is-weakly-constant-map f →
   is-prop (Σ (type-Set B) (λ b → type-trunc-Prop (fib f b)))
 is-prop-image-is-weakly-constant-map B f H =
-  is-prop-is-prop' (is-prop-image-is-weakly-constant-map' B f H)
+  is-prop-all-elements-equal
+    ( all-elements-equal-image-is-weakly-constant-map B f H)
 
 image-weakly-constant-map-Prop :
   {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B) →

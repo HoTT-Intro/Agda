@@ -130,5 +130,5 @@ is-prop-le-ℕ zero-ℕ (succ-ℕ b) = is-prop-unit
 is-prop-le-ℕ (succ-ℕ a) zero-ℕ = is-prop-empty
 is-prop-le-ℕ (succ-ℕ a) (succ-ℕ b) = is-prop-le-ℕ a b
 
-is-prop'-le-ℕ : (a b : ℕ) → is-prop' (le-ℕ a b)
-is-prop'-le-ℕ a b = eq-is-prop' (is-prop-le-ℕ a b)
+all-elements-equal-le-ℕ : (a b : ℕ) → all-elements-equal (le-ℕ a b)
+all-elements-equal-le-ℕ a b = eq-is-prop' (is-prop-le-ℕ a b)

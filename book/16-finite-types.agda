@@ -1306,9 +1306,9 @@ mere-equiv-has-finite-cardinality :
   type-trunc-Prop (Fin (number-of-elements-has-finite-cardinality c) ≃ X)
 mere-equiv-has-finite-cardinality = pr2
 
-is-prop-has-finite-cardinality' :
-  {l1 : Level} {X : UU l1} → is-prop' (has-finite-cardinality X)
-is-prop-has-finite-cardinality' {l1} {X} (pair k K) (pair l L) =
+all-elements-equal-has-finite-cardinality :
+  {l1 : Level} {X : UU l1} → all-elements-equal (has-finite-cardinality X)
+all-elements-equal-has-finite-cardinality {l1} {X} (pair k K) (pair l L) =
   eq-subtype
     ( λ k → is-prop-type-trunc-Prop)
     ( apply-universal-property-trunc-Prop K
@@ -1321,7 +1321,7 @@ is-prop-has-finite-cardinality' {l1} {X} (pair k K) (pair l L) =
 is-prop-has-finite-cardinality :
   {l1 : Level} {X : UU l1} → is-prop (has-finite-cardinality X)
 is-prop-has-finite-cardinality =
-  is-prop-is-prop' is-prop-has-finite-cardinality'
+  is-prop-all-elements-equal all-elements-equal-has-finite-cardinality
 
 has-finite-cardinality-Prop :
   {l1 : Level} (X : UU l1) → UU-Prop l1
@@ -2117,6 +2117,75 @@ is-finite-im f e d =
 -- Exercises
 
 --------------------------------------------------------------------------------
+
+-- Exercise 16.1
+
+is-decidable-fib-retract-has-decidable-equality :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} → has-decidable-equality B →
+  (i : A → B) → retr i → (b : B) → is-decidable (fib i b)
+is-decidable-fib-retract-has-decidable-equality d i (pair r R) b =
+  is-decidable-iff
+    ( λ (p : Id (i (r b)) b) → pair (r b) p)
+    ( λ t → ap (i ∘ r) (inv (pr2 t)) ∙ (ap i (R (pr1 t)) ∙ pr2 t))
+    ( d (i (r b)) b)
+
+is-decidable-fib-retract-ℕ :
+  {l1 : Level} {A : UU l1} (i : A → ℕ) → retr i → (x : ℕ) →
+  is-decidable (fib i x)
+is-decidable-fib-retract-ℕ =
+  is-decidable-fib-retract-has-decidable-equality has-decidable-equality-ℕ
+
+is-decidable-fib-retract-Fin :
+  {l1 : Level} {k : ℕ} {A : UU l1} (i : A → Fin k) → retr i → (x : Fin k) →
+  is-decidable (fib i x)
+is-decidable-fib-retract-Fin {l1} {k} =
+  is-decidable-fib-retract-has-decidable-equality has-decidable-equality-Fin
+
+is-decidable-fib-retract-count :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : count B) (i : A → B) → retr i →
+  (y : B) → is-decidable (fib i y)
+is-decidable-fib-retract-count e =
+  is-decidable-fib-retract-has-decidable-equality
+    ( has-decidable-equality-count e)
+
+is-decidable-fib-retract-is-finite :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (H : is-finite B) (i : A → B) →
+  retr i → (y : B) → is-decidable (fib i y)
+is-decidable-fib-retract-is-finite H =
+  is-decidable-fib-retract-has-decidable-equality
+    ( has-decidable-equality-is-finite H)
+
+is-injective-retr :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) → retr f →
+  is-injective f
+is-injective-retr f (pair h H) {x} {y} p = (inv (H x)) ∙ (ap h p ∙ H y)
+
+is-emb-retract-count :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : count B) (i : A → B) →
+  retr i → is-emb i
+is-emb-retract-count e i R =
+  is-emb-is-injective (is-set-count e) (is-injective-retr i R)
+
+emb-retract-count :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : count B) (i : A → B) →
+  retr i → A ↪ B
+emb-retract-count e i R = pair i (is-emb-retract-count e i R)
+
+count-retract :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  A retract-of B → count B → count A
+count-retract (pair i R) e =
+  count-equiv
+    ( equiv-total-fib i)
+    ( count-decidable-subtype
+      ( fib-emb-Prop (emb-retract-count e i R))
+      ( is-decidable-fib-retract-count e i R)
+      ( e))
+
+is-finite-retract :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} → A retract-of B →
+  is-finite B → is-finite A
+is-finite-retract R = functor-trunc-Prop (count-retract R)
 
 -- Exercise 16.15
 

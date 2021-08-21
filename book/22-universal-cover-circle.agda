@@ -780,7 +780,7 @@ abstract
     ( p0 : P zero-ℤ) (pS : (k : ℤ) → (P k) ≃ (P (succ-ℤ k))) →
     is-prop (ELIM-ℤ P p0 pS)
   is-prop-ELIM-ℤ P p0 pS =
-    is-prop-is-prop'
+    is-prop-all-elements-equal
       ( λ s t → eq-Eq-ELIM-ℤ P p0 pS s t
         ( Elim-ℤ
           ( λ k → Id (pr1 s k) (pr1 t k))
