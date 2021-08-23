@@ -957,6 +957,16 @@ Collatz-conjecture =
 
 {- Exercise 8.2 -}
 
+idempotent-is-decidable :
+  {l : Level} (P : UU l) → is-decidable (is-decidable P) → is-decidable P
+idempotent-is-decidable P =
+  map-right-unit-law-coprod-is-empty
+    ( is-decidable P)
+    ( ¬ (is-decidable P))
+    ( dn-is-decidable)
+
+{- Exercise 8.3 -}
+
 exists-not-not-forall-Fin :
   {l : Level} {k : ℕ} {P : Fin k → UU l} → (is-decidable-fam P) →
   ¬ ((x : Fin k) → P x) → Σ (Fin k) (λ x → ¬ (P x))
@@ -971,15 +981,15 @@ exists-not-not-forall-Fin {l} {succ-ℕ k} {P} d H with d (inr star)
   T z = pair (inl (pr1 z)) (pr2 z)
 ... | inr f = pair (inr star) f
 
-{- Exercise 8.3 -}
+{- Exercise 8.4 -}
 
--- Exercise 8.3 (a)
+-- Exercise 8.4 (a)
 
 prime-ℕ : ℕ → ℕ
 prime-ℕ zero-ℕ = two-ℕ
 prime-ℕ (succ-ℕ n) = pr1 (infinitude-of-primes-ℕ (prime-ℕ n))
 
--- Exercise 8.3 (b)
+-- Exercise 8.4 (b)
 
 prime-counting-ℕ : ℕ → ℕ
 prime-counting-ℕ zero-ℕ = zero-ℕ
@@ -989,11 +999,11 @@ prime-counting-ℕ (succ-ℕ n) with is-decidable-is-prime-ℕ (succ-ℕ n)
 
 --------------------------------------------------------------------------------
 
-{- Exercise 8.4 -}
+{- Exercise 8.5 -}
 
 --------------------------------------------------------------------------------
 
-{- Exercise 8.5 -}
+{- Exercise 8.6 -}
 
 has-decidable-equality-prod' :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} →
@@ -1029,7 +1039,7 @@ has-decidable-equality-right-factor d a x y with d (pair a x) (pair a y)
 
 --------------------------------------------------------------------------------
 
-{- Exercise 8.6 -}
+{- Exercise 8.7 -}
 
 -- We define observational equality of coproducts.
 
@@ -1041,7 +1051,7 @@ Eq-coprod {l1} {l2} A B (inl x) (inr y) = raise-empty (l1 ⊔ l2)
 Eq-coprod {l1} {l2} A B (inr x) (inl y) = raise-empty (l1 ⊔ l2)
 Eq-coprod {l1} {l2} A B (inr x) (inr y) = raise (l1 ⊔ l2) (Id x y)
 
--- Exercise 8.6 (a)
+-- Exercise 8.7 (a)
 
 reflexive-Eq-coprod :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) →
@@ -1078,7 +1088,7 @@ neq-inl-inr :
 neq-inl-inr {l1} {l2} {A} {B} x y =
   map-inv-raise ∘ Eq-coprod-eq A B (inl x) (inr y)
 
--- Exercise 8.6 (b)
+-- Exercise 8.7 (b)
 
 has-decidable-equality-coprod :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} →
@@ -1119,17 +1129,17 @@ has-decidable-equality-right-summand {l1} {l2} {A} {B} d x y =
 
 --------------------------------------------------------------------------------
 
-{- Exercise 8.7 -}
-
---------------------------------------------------------------------------------
-
 {- Exercise 8.8 -}
 
 --------------------------------------------------------------------------------
 
 {- Exercise 8.9 -}
 
--- Exercise 8.9 (a)
+--------------------------------------------------------------------------------
+
+{- Exercise 8.10 -}
+
+-- Exercise 8.10 (a)
 
 -- Decidability of bounded Σ-types
 
@@ -1203,7 +1213,7 @@ is-decidable-strictly-bounded-Σ-ℕ' m P d =
 
 --------------------------------------------------------------------------------
 
-{- Exercise 8.10 -}
+{- Exercise 8.11 -}
 
 is-linear-combination-dist-ℕ' : ℕ → ℕ → ℕ → ℕ → UU lzero
 is-linear-combination-dist-ℕ' x y z k =
@@ -1329,10 +1339,6 @@ Bezout x y =
 
 --------------------------------------------------------------------------------
 
-{- Exercise 8.11 -}
-
---------------------------------------------------------------------------------
-
 {- Exercise 8.12 -}
 
 --------------------------------------------------------------------------------
@@ -1342,6 +1348,10 @@ Bezout x y =
 --------------------------------------------------------------------------------
 
 {- Exercise 8.14 -}
+
+--------------------------------------------------------------------------------
+
+{- Exercise 8.15 -}
 
 -- We solve this exercise in extra/cofibonacci.agda
 

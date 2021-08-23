@@ -921,6 +921,18 @@ dn-type-trunc-Prop-dn = functor-dn unit-trunc-Prop
 
 -- Exercise 14.2
 
+is-nonempty-is-inhabited :
+  {l : Level} {X : UU l} → type-trunc-Prop X → ¬¬ X
+is-nonempty-is-inhabited {l} {X} =
+  map-universal-property-trunc-Prop (dn-Prop' X) intro-dn
+
+is-fixed-point-is-decidable-is-inhabited :
+  {l : Level} {X : UU l} → type-trunc-Prop X → is-decidable X ≃ X
+is-fixed-point-is-decidable-is-inhabited {l} {X} t =
+  right-unit-law-coprod-is-empty X (¬ X) (is-nonempty-is-inhabited t)
+
+-- Exercise 14.3
+
 merely-Id-Prop :
   {l : Level} {A : UU l} → A → A → UU-Prop l
 merely-Id-Prop x y = trunc-Prop (Id x y)
@@ -945,7 +957,7 @@ transitive-merely-Id {x = x} {y} {z} p =
     ( hom-Prop (merely-Id-Prop x y) (merely-Id-Prop x z))
     ( λ q → functor-trunc-Prop (λ p → p ∙ q))
 
--- Exercise 14.3
+-- Exercise 14.4
 
 is-propositional-truncation-prod :
   {l1 l2 l3 l4 : Level}
@@ -1048,9 +1060,9 @@ inv-distributive-trunc-prod-Prop =
   pair map-inv-distributive-trunc-prod-Prop
        is-equiv-map-inv-distributive-trunc-prod-Prop
 
--- Exercise 14.4
+-- Exercise 14.5
 
--- Exercise 14.4 (a)
+-- Exercise 14.5 (a)
 
 is-propositional-truncation-has-section :
   {l l1 l2 : Level} {A : UU l1} (P : UU-Prop l2) (f : A → type-Prop P) →
@@ -1070,7 +1082,7 @@ is-propositional-truncation-terminal-map A a =
     ( terminal-map)
     ( ind-unit a)
 
--- Exercise 14.4 (b)
+-- Exercise 14.5 (b)
 
 is-propositional-truncation-is-equiv :
   {l l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) {f : type-hom-Prop P Q} →
@@ -1095,7 +1107,7 @@ is-propositional-truncation-id :
   ( l : Level) → is-propositional-truncation l P id
 is-propositional-truncation-id P l Q = is-equiv-id
 
--- Exercise 14.5
+-- Exercise 14.6
 
 -- Definition 14.1.9
 
@@ -1164,7 +1176,7 @@ abstract
   is-propositional-truncation-dependent-universal-property P f dup-f Q =
     dup-f (λ p → Q)
 
--- Exercise 14.6
+-- Exercise 14.7
 
 -- The impredicative encoding of the propositional truncation --
 
@@ -1429,7 +1441,7 @@ equiv-impredicative-id-Prop A x y =
       ( map-impredicative-id-Prop A x y)
       ( inv-map-impredicative-id-Prop A x y))
 
--- Exercise 14.7
+-- Exercise 14.8
 
 --------------------------------------------------------------------------------
 
