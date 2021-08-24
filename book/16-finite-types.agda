@@ -562,6 +562,50 @@ exception-Maybe {l} {X} = inr star
 is-exception-Maybe : {l : Level} {X : UU l} → Maybe X → UU l
 is-exception-Maybe {l} {X} x = Id x exception-Maybe
 
+-- The universal property of Maybe
+
+ev-Maybe :
+  {l1 l2 : Level} {A : UU l1} {B : Maybe A → UU l2} →
+  ((x : Maybe A) → B x) → ((x : A) → B (unit-Maybe x)) × B exception-Maybe
+ev-Maybe h = pair (λ x → h (unit-Maybe x)) (h exception-Maybe)
+
+ind-Maybe :
+  {l1 l2 : Level} {A : UU l1} {B : Maybe A → UU l2} →
+  ((x : A) → B (unit-Maybe x)) × (B exception-Maybe) → (x : Maybe A) → B x
+ind-Maybe (pair h b) (inl x) = h x
+ind-Maybe (pair h b) (inr star) = b
+
+issec-ind-Maybe :
+  {l1 l2 : Level} {A : UU l1} {B : Maybe A → UU l2} →
+  (ev-Maybe {B = B} ∘ ind-Maybe {B = B}) ~ id
+issec-ind-Maybe (pair h b) = refl
+
+isretr-ind-Maybe' :
+  {l1 l2 : Level} {A : UU l1} {B : Maybe A → UU l2} (h : (x : Maybe A) → B x) →
+  (ind-Maybe (ev-Maybe h)) ~ h
+isretr-ind-Maybe' h (inl x) = refl
+isretr-ind-Maybe' h (inr star) = refl
+
+isretr-ind-Maybe :
+  {l1 l2 : Level} {A : UU l1} {B : Maybe A → UU l2} →
+  (ind-Maybe {B = B} ∘ ev-Maybe {B = B}) ~ id
+isretr-ind-Maybe h = eq-htpy (isretr-ind-Maybe' h)
+
+dependent-universal-property-Maybe :
+  {l1 l2 : Level} {A : UU l1} {B : Maybe A → UU l2} →
+  is-equiv (ev-Maybe {B = B})
+dependent-universal-property-Maybe =
+  is-equiv-has-inverse
+    ind-Maybe
+    issec-ind-Maybe
+    isretr-ind-Maybe
+
+equiv-dependent-universal-property-Maybe :
+  {l1 l2 : Level} {A : UU l1} (B : Maybe A → UU l2) →
+  ((x : Maybe A) → B x) ≃ (((x : A) → B (unit-Maybe x)) × B exception-Maybe)
+equiv-dependent-universal-property-Maybe B =
+  pair ev-Maybe dependent-universal-property-Maybe
+
 -- The is-exception predicate is decidable
 is-decidable-is-exception-Maybe :
   {l : Level} {X : UU l} (x : Maybe X) → is-decidable (is-exception-Maybe x)
@@ -2186,6 +2230,65 @@ is-finite-retract :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} → A retract-of B →
   is-finite B → is-finite A
 is-finite-retract R = functor-trunc-Prop (count-retract R)
+
+-- Exercise 16.2
+
+-- Exercise 16.2 (a)
+
+is-decidable-Π-coprod :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : coprod A B → UU l3} →
+  is-decidable ((a : A) → C (inl a)) → is-decidable ((b : B) → C (inr b)) →
+  is-decidable ((x : coprod A B) → C x)
+is-decidable-Π-coprod {C = C} dA dB =
+  is-decidable-equiv
+    ( equiv-dependent-universal-property-coprod C)
+    ( is-decidable-prod dA dB)
+
+is-decidable-Π-Maybe :
+  {l1 l2 : Level} {A : UU l1} {B : Maybe A → UU l2} →
+  is-decidable ((x : A) → B (unit-Maybe x)) → is-decidable (B exception-Maybe) →
+  is-decidable ((x : Maybe A) → B x)
+is-decidable-Π-Maybe {B = B} du de =
+  is-decidable-equiv
+    ( equiv-dependent-universal-property-Maybe B)
+    ( is-decidable-prod du de)
+
+is-decidable-Π-Fin :
+  {l1 : Level} {k : ℕ} {B : Fin k → UU l1} →
+  ((x : Fin k) → is-decidable (B x)) → is-decidable ((x : Fin k) → B x)
+is-decidable-Π-Fin {l1} {zero-ℕ} {B} d = inl ind-empty
+is-decidable-Π-Fin {l1} {succ-ℕ k} {B} d =
+  is-decidable-Π-Maybe
+    ( is-decidable-Π-Fin (λ x → d (inl x)))
+    ( d (inr star))
+
+is-decidable-Π-equiv :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : A → UU l3} {D : B → UU l4}
+  (e : A ≃ B) (f : (x : A) → C x ≃ D (map-equiv e x)) →
+  is-decidable ((x : A) → C x) → is-decidable ((y : B) → D y)
+is-decidable-Π-equiv {D = D} e f = is-decidable-equiv' (equiv-Π D e f)
+
+is-decidable-Π-equiv' :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : A → UU l3} {D : B → UU l4}
+  (e : A ≃ B) (f : (x : A) → C x ≃ D (map-equiv e x)) →
+  is-decidable ((y : B) → D y) → is-decidable ((x : A) → C x)
+is-decidable-Π-equiv' {D = D} e f = is-decidable-equiv (equiv-Π D e f)
+
+is-decidable-Π-count :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  count A → ((x : A) → is-decidable (B x)) → is-decidable ((x : A) → B x)
+is-decidable-Π-count e d =
+  is-decidable-Π-equiv
+    ( equiv-count e)
+    ( λ x → equiv-id)
+    ( is-decidable-Π-Fin (λ x → d (map-equiv-count e x)))
+
+is-decidable-Π-is-finite :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → is-finite A →
+  ((x : A) → is-decidable (B x)) → is-decidable ((x : A) → B x)
+is-decidable-Π-is-finite H d = {!!}
+
+-- Exercise 16.2 (b)
 
 -- Exercise 16.15
 

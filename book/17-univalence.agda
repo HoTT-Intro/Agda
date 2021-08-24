@@ -1193,14 +1193,26 @@ is-decidable-emb-map-decidable-emb :
   is-decidable-emb (map-decidable-emb e)
 is-decidable-emb-map-decidable-emb e = pr2 e
 
+is-emb-map-decidable-emb :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ↪d Y) →
+  is-emb (map-decidable-emb e)
+is-emb-map-decidable-emb e =
+  is-emb-is-decidable-emb (is-decidable-emb-map-decidable-emb e)
+
+is-decidable-map-map-decidable-emb :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ↪d Y) →
+  is-decidable-map (map-decidable-emb e)
+is-decidable-map-map-decidable-emb e =
+  is-decidable-map-is-decidable-emb (is-decidable-emb-map-decidable-emb e)
+
 emb-decidable-emb :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → X ↪d Y → X ↪ Y
-emb-decidable-emb f = {!!}
+emb-decidable-emb e = pair (map-decidable-emb e) (is-emb-map-decidable-emb e)
 
 choose-UU-Level :
   (l : Level) {l1 l2 : Level} (X : UU l1) (Y : UU l2) → UU (lsuc l ⊔ l1 ⊔ l2)
 choose-UU-Level l X Y =
-  Σ (component-UU-Level l Y) (λ Z → type-component-UU-Level Z ↪ X)
+  Σ (component-UU-Level l Y) (λ Z → type-component-UU-Level Z ↪d X)
 
 type-choose-UU-Level :
   {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} → choose-UU-Level l3 X Y → UU l3
@@ -1211,21 +1223,23 @@ mere-equiv-choose-UU-Level :
   mere-equiv Y (type-choose-UU-Level Z)
 mere-equiv-choose-UU-Level Z = mere-equiv-component-UU-Level (pr1 Z)
 
-emb-choose-UU-Level :
+decidable-emb-choose-UU-Level :
   {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (Z : choose-UU-Level l3 X Y) →
-  type-choose-UU-Level Z ↪ X
-emb-choose-UU-Level Z = pr2 Z
+  type-choose-UU-Level Z ↪d X
+decidable-emb-choose-UU-Level Z = pr2 Z
 
-map-emb-choose-UU-Level :
+map-decidable-emb-choose-UU-Level :
   {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (Z : choose-UU-Level l3 X Y) →
   type-choose-UU-Level Z → X
-map-emb-choose-UU-Level Z = map-emb (emb-choose-UU-Level Z)
+map-decidable-emb-choose-UU-Level Z =
+  map-decidable-emb (decidable-emb-choose-UU-Level Z)
 
 is-emb-map-emb-choose-UU-Level :
   {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (Z : choose-UU-Level l3 X Y) →
-  is-emb (map-emb-choose-UU-Level Z)
-is-emb-map-emb-choose-UU-Level Z = is-emb-map-emb (emb-choose-UU-Level Z)
+  is-emb (map-decidable-emb-choose-UU-Level Z)
+is-emb-map-emb-choose-UU-Level Z =
+  is-emb-map-decidable-emb (decidable-emb-choose-UU-Level Z)
 
-_choose-UU_ : {l1 l2 : Level} (X : UU l1) (Y : UU l2) → UU (lsuc (l1 ⊔ l2))
-_choose-UU_ {l1} {l2} X Y = choose-UU-Level (l1 ⊔ l2) X Y
+_choose-UU_ : {l1 l2 : Level} (X : UU l1) (Y : UU l2) → UU (l1 ⊔ lsuc l2)
+_choose-UU_ {l1} {l2} X Y = choose-UU-Level l2 X Y
 
