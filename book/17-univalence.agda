@@ -1117,3 +1117,115 @@ equiv-complement-point-UU-Fin :
   equiv-UU-Fin (complement-point-UU-Fin X) (complement-point-UU-Fin Y)
 equiv-complement-point-UU-Fin X Y e p =
   equiv-complement-point-UU-Fin-Level X Y e p
+
+--------------------------------------------------------------------------------
+
+-- The binomial theorem for types
+
+is-decidable-prop : {l : Level} → UU l → UU l
+is-decidable-prop X = is-prop X × (is-decidable X)
+
+is-prop-is-decidable-prop :
+  {l : Level} (X : UU l) → is-prop (is-decidable-prop X)
+is-prop-is-decidable-prop X =
+  is-prop-is-inhabited
+    ( λ H →
+      is-prop-prod
+        ( is-prop-is-prop X)
+        ( is-prop-is-decidable (pr1 H)))
+
+is-decidable-map :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → (X → Y) → UU (l1 ⊔ l2)
+is-decidable-map {Y = Y} f = (y : Y) → is-decidable (fib f y)
+
+is-decidable-prop-map :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → (X → Y) → UU (l1 ⊔ l2)
+is-decidable-prop-map {Y = Y} f = (y : Y) → is-decidable-prop (fib f y)
+
+is-prop-map-is-decidable-prop-map :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : X → Y} →
+  is-decidable-prop-map f → is-prop-map f
+is-prop-map-is-decidable-prop-map H y = pr1 (H y)
+
+is-decidable-map-is-decidable-prop-map :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : X → Y} →
+  is-decidable-prop-map f → is-decidable-map f
+is-decidable-map-is-decidable-prop-map H y = pr2 (H y)
+
+is-prop-is-decidable-prop-map :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (f : X → Y) →
+  is-prop (is-decidable-prop-map f)
+is-prop-is-decidable-prop-map f =
+  is-prop-Π (λ y → is-prop-is-decidable-prop (fib f y))
+
+is-decidable-emb :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → (X → Y) → UU (l1 ⊔ l2)
+is-decidable-emb {Y = Y} f = is-emb f × is-decidable-map f
+
+is-emb-is-decidable-emb :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : X → Y} →
+  is-decidable-emb f → is-emb f
+is-emb-is-decidable-emb H = pr1 H
+
+is-decidable-map-is-decidable-emb :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : X → Y} →
+  is-decidable-emb f → is-decidable-map f
+is-decidable-map-is-decidable-emb H = pr2 H
+
+is-decidable-emb-is-decidable-prop-map :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (f : X → Y) →
+  is-decidable-prop-map f → is-decidable-emb f
+is-decidable-emb-is-decidable-prop-map f H =
+  pair
+    ( is-emb-is-prop-map (is-prop-map-is-decidable-prop-map H))
+    ( is-decidable-map-is-decidable-prop-map H)
+
+_↪d_ :
+  {l1 l2 : Level} (X : UU l1) (Y : UU l2) → UU (l1 ⊔ l2)
+X ↪d Y = Σ (X → Y) is-decidable-emb
+
+map-decidable-emb :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → X ↪d Y → X → Y
+map-decidable-emb e = pr1 e
+
+is-decidable-emb-map-decidable-emb :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ↪d Y) →
+  is-decidable-emb (map-decidable-emb e)
+is-decidable-emb-map-decidable-emb e = pr2 e
+
+emb-decidable-emb :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → X ↪d Y → X ↪ Y
+emb-decidable-emb f = {!!}
+
+choose-UU-Level :
+  (l : Level) {l1 l2 : Level} (X : UU l1) (Y : UU l2) → UU (lsuc l ⊔ l1 ⊔ l2)
+choose-UU-Level l X Y =
+  Σ (component-UU-Level l Y) (λ Z → type-component-UU-Level Z ↪ X)
+
+type-choose-UU-Level :
+  {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} → choose-UU-Level l3 X Y → UU l3
+type-choose-UU-Level Z = type-component-UU-Level (pr1 Z)
+
+mere-equiv-choose-UU-Level :
+  {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (Z : choose-UU-Level l3 X Y) →
+  mere-equiv Y (type-choose-UU-Level Z)
+mere-equiv-choose-UU-Level Z = mere-equiv-component-UU-Level (pr1 Z)
+
+emb-choose-UU-Level :
+  {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (Z : choose-UU-Level l3 X Y) →
+  type-choose-UU-Level Z ↪ X
+emb-choose-UU-Level Z = pr2 Z
+
+map-emb-choose-UU-Level :
+  {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (Z : choose-UU-Level l3 X Y) →
+  type-choose-UU-Level Z → X
+map-emb-choose-UU-Level Z = map-emb (emb-choose-UU-Level Z)
+
+is-emb-map-emb-choose-UU-Level :
+  {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (Z : choose-UU-Level l3 X Y) →
+  is-emb (map-emb-choose-UU-Level Z)
+is-emb-map-emb-choose-UU-Level Z = is-emb-map-emb (emb-choose-UU-Level Z)
+
+_choose-UU_ : {l1 l2 : Level} (X : UU l1) (Y : UU l2) → UU (lsuc (l1 ⊔ l2))
+_choose-UU_ {l1} {l2} X Y = choose-UU-Level (l1 ⊔ l2) X Y
+
