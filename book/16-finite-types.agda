@@ -2286,7 +2286,30 @@ is-decidable-Π-count e d =
 is-decidable-Π-is-finite :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → is-finite A →
   ((x : A) → is-decidable (B x)) → is-decidable ((x : A) → B x)
-is-decidable-Π-is-finite H d = {!!}
+is-decidable-Π-is-finite {l1} {l2} {A} {B} H d =
+  is-decidable-iff
+    ( map-Π (λ x → elim-trunc-Prop-is-decidable (d x)))
+    ( map-Π (λ x → unit-trunc-Prop))
+    ( is-decidable-iff
+      ( α)
+      ( finite-choice H)
+      ( apply-universal-property-trunc-Prop H
+        ( is-decidable-Prop (trunc-Prop ((x : A) → B x)))
+        ( λ e →
+          is-decidable-iff
+            ( finite-choice H)
+            ( α)
+            ( is-decidable-Π-count e
+              ( λ x →
+                is-decidable-iff
+                  ( unit-trunc-Prop)
+                  ( elim-trunc-Prop-is-decidable (d x))
+                  ( d x))))))
+  where
+  α : type-trunc-Prop ((x : A) → B x) → (x : A) → type-trunc-Prop (B x)
+  α = map-universal-property-trunc-Prop
+        ( Π-Prop A (λ x → trunc-Prop (B x)))
+        ( λ (f : (x : A) → B x) (x : A) → unit-trunc-Prop (f x))
 
 -- Exercise 16.2 (b)
 

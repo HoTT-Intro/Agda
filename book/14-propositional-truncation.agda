@@ -851,9 +851,9 @@ is-merely-decidable-is-decidable-type-trunc-Prop A (inr f) =
 -- Exercise 14.1 (c)
 
 elim-trunc-Prop-is-decidable :
-  {l : Level} (A : UU l) → is-decidable A → type-trunc-Prop A → A
-elim-trunc-Prop-is-decidable A (inl a) x = a
-elim-trunc-Prop-is-decidable A (inr f) x =
+  {l : Level} {A : UU l} → is-decidable A → type-trunc-Prop A → A
+elim-trunc-Prop-is-decidable (inl a) x = a
+elim-trunc-Prop-is-decidable (inr f) x =
   ex-falso (apply-universal-property-trunc-Prop x empty-Prop f)
 
 -- Exercise 14.1 (d) 
