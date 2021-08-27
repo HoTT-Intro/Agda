@@ -3,6 +3,7 @@
 module extra.quaternion-group where
 
 open import book public
+open import extra.isolated-points public
 
 --------------------------------------------------------------------------------
 

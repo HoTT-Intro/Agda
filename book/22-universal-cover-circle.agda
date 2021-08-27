@@ -712,17 +712,6 @@ Eq-ELIM-ℤ-eq :
 Eq-ELIM-ℤ-eq P p0 pS s .s refl = reflexive-Eq-ELIM-ℤ P p0 pS s
 
 abstract
-  is-contr-total-htpy' :
-    {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (f : (x : A) → B x) →
-    is-contr (Σ ((x : A) → B x) (λ g → g ~ f))
-  is-contr-total-htpy' {A = A} {B} f =
-    is-contr-is-equiv'
-      ( Σ ((x : A) → B x) (λ g → f ~ g))
-      ( tot (λ g → inv-htpy))
-      ( is-equiv-tot-is-fiberwise-equiv (λ g → is-equiv-inv-htpy f g))
-      ( is-contr-total-htpy f)
-
-abstract
   is-contr-total-Eq-ELIM-ℤ :
     { l1 : Level} (P : ℤ → UU l1) →
     ( p0 : P zero-ℤ) (pS : (k : ℤ) → (P k) ≃ (P (succ-ℤ k))) →

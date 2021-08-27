@@ -296,7 +296,7 @@ has-decidable-equality-retract-of :
   A retract-of B → has-decidable-equality B → has-decidable-equality A
 has-decidable-equality-retract-of (pair i (pair r H)) d x y =
   is-decidable-retract-of
-    ( Id-retract-of-Id (pair i (pair r H)) x y)
+    ( retract-eq (pair i (pair r H)) x y)
     ( d (i x) (i y))
 
 -- Exercises
