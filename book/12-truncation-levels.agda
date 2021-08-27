@@ -1336,13 +1336,17 @@ abstract
 
 -- Exercise 12.8
 
+fib-const :
+  {l : Level} {A : UU l} (x y : A) → fib (const unit A x) y ≃ (Id x y)
+fib-const x y = left-unit-law-prod (Id x y)
+
 abstract
   is-trunc-const-is-trunc : {l : Level} (k : 𝕋) {A : UU l} →
     is-trunc (succ-𝕋 k) A → (x : A) → is-trunc-map k (const unit A x)
   is-trunc-const-is-trunc k is-trunc-A x y =
     is-trunc-equiv k
       ( Id x y)
-      ( left-unit-law-Σ (λ t → Id x y))
+      ( fib-const x y)
       ( is-trunc-A x y)
 
 abstract
@@ -1528,128 +1532,11 @@ isolated-point :
   {l1 : Level} (X : UU l1) → UU l1
 isolated-point X = Σ X is-isolated
 
--- Exercise 12.12 (a)
-
-cases-Eq-isolated-point :
-  {l1 : Level} {X : UU l1} (x : X) → is-isolated x →
-  (y : X) → is-decidable (Id x y) → UU lzero
-cases-Eq-isolated-point x H y (inl p) = unit
-cases-Eq-isolated-point x H y (inr f) = empty
-
-is-prop-cases-Eq-isolated-point :
-  {l1 : Level} {X : UU l1} (x : X) (d : is-isolated x) (y : X)
-  (dy : is-decidable (Id x y)) → is-prop (cases-Eq-isolated-point x d y dy)
-is-prop-cases-Eq-isolated-point x d y (inl p) = is-prop-unit
-is-prop-cases-Eq-isolated-point x d y (inr f) = is-prop-empty
-
-Eq-isolated-point :
-  {l1 : Level} {X : UU l1} (x : X) → is-isolated x → X → UU lzero
-Eq-isolated-point x d y =
-  cases-Eq-isolated-point x d y (d y)
-
-is-prop-Eq-isolated-point :
-  {l1 : Level} {X : UU l1} (x : X) (d : is-isolated x) (y : X) →
-  is-prop (Eq-isolated-point x d y)
-is-prop-Eq-isolated-point x d y =
-  is-prop-cases-Eq-isolated-point x d y (d y)
-
-decide-reflexivity :
-  {l1 : Level} {X : UU l1} (x : X) (d : is-decidable (Id x x)) →
-  Σ (Id x x) (λ p → Id (inl p) d)
-decide-reflexivity x (inl p) = pair p refl
-decide-reflexivity x (inr f) = ex-falso (f refl)
-
-refl-Eq-isolated-point :
-  {l1 : Level} {X : UU l1} (x : X) (d : is-isolated x) →
-  Eq-isolated-point x d x
-refl-Eq-isolated-point x d =
-  tr ( cases-Eq-isolated-point x d x)
-     ( pr2 (decide-reflexivity x (d x)))
-     ( star)
-
-Eq-eq-isolated-point :
-  {l1 : Level} {X : UU l1} (x : X) (d : is-isolated x) {y : X} →
-  Id x y → Eq-isolated-point x d y
-Eq-eq-isolated-point x d refl = refl-Eq-isolated-point x d
-
-center-total-Eq-isolated-point :
-  {l1 : Level} {X : UU l1} (x : X) (d : is-isolated x) →
-  Σ X (Eq-isolated-point x d)
-center-total-Eq-isolated-point x d =
-  pair x (refl-Eq-isolated-point x d)
-
-cases-contraction-total-Eq-isolated-point :
-  {l1 : Level} {X : UU l1} (x : X) (d : is-isolated x) →
-  (y : X) (dy : is-decidable (Id x y)) (e : cases-Eq-isolated-point x d y dy) →
-  Id x y
-cases-contraction-total-Eq-isolated-point x d y (inl p) e = p
-
-contraction-total-Eq-isolated-point :
-  {l1 : Level} {X : UU l1} (x : X) (d : is-isolated x) →
-  (t : Σ X (Eq-isolated-point x d)) → Id (center-total-Eq-isolated-point x d) t
-contraction-total-Eq-isolated-point x d (pair y e) =
-  eq-subtype
-    ( is-prop-Eq-isolated-point x d)
-    ( cases-contraction-total-Eq-isolated-point x d y (d y) e)
-
-is-contr-total-Eq-isolated-point :
-  {l1 : Level} {X : UU l1} (x : X) (d : is-isolated x) →
-  is-contr (Σ X (Eq-isolated-point x d))
-is-contr-total-Eq-isolated-point x d =
-  pair ( center-total-Eq-isolated-point x d)
-       ( contraction-total-Eq-isolated-point x d)
-
-is-equiv-Eq-eq-isolated-point :
-  {l1 : Level} {X : UU l1} (x : X) (d : is-isolated x) (y : X) →
-  is-equiv (Eq-eq-isolated-point x d {y})
-is-equiv-Eq-eq-isolated-point x d =
-  fundamental-theorem-id x
-    ( refl-Eq-isolated-point x d)
-    ( is-contr-total-Eq-isolated-point x d)
-    ( λ y → Eq-eq-isolated-point x d {y})
-
-equiv-Eq-eq-isolated-point :
-  {l1 : Level} {X : UU l1} (x : X) (d : is-isolated x) (y : X) →
-  Id x y ≃ Eq-isolated-point x d y
-equiv-Eq-eq-isolated-point x d y =
-  pair (Eq-eq-isolated-point x d) (is-equiv-Eq-eq-isolated-point x d y)
-
-is-prop-eq-isolated-point :
-  {l1 : Level} {X : UU l1} (x : X) (d : is-isolated x) (y : X) →
-  is-prop (Id x y)
-is-prop-eq-isolated-point x d y =
-  is-prop-equiv
-    ( Eq-isolated-point x d y)
-    ( equiv-Eq-eq-isolated-point x d y)
-    ( is-prop-Eq-isolated-point x d y)
-
--- Exercise 12.12 (b)
-
-is-emb-const-is-isolated :
-  {l1 : Level} {A : UU l1} (a : A) → is-isolated a → is-emb (const unit A a)
-is-emb-const-is-isolated a d star =
-  fundamental-theorem-id star
-    refl
-    ( is-contr-equiv
-      ( Id a a)
-      ( left-unit-law-prod (Id a a))
-      ( is-proof-irrelevant-is-prop
-        ( is-prop-eq-isolated-point a d a)
-        ( refl)))
-    ( λ x → ap (λ y → a))
+-- We will use a few facts about decidability in this exercise
 
 is-decidable-map :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → (X → Y) → UU (l1 ⊔ l2)
 is-decidable-map {Y = Y} f = (y : Y) → is-decidable (fib f y)
-
-is-decidable-map-const-is-isolated :
-  {l1 : Level} {A : UU l1} (a : A) → is-isolated a →
-  is-decidable-map (const unit A a)
-is-decidable-map-const-is-isolated a d x = {!equiv-fib-const!}
-
---------------------------------------------------------------------------------
-
--- Extra stuff
 
 is-decidable-retract-of :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} →
@@ -1672,6 +1559,118 @@ is-decidable-equiv' :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
   is-decidable A → is-decidable B
 is-decidable-equiv' e = is-decidable-equiv (inv-equiv e)
+
+module _
+  {l1 : Level} {A : UU l1} (a : A)
+  where
+  
+  -- Exercise 12.12 (a)
+  
+  is-decidable-map-const-is-isolated :
+    is-isolated a → is-decidable-map (const unit A a)
+  is-decidable-map-const-is-isolated d x =
+    is-decidable-equiv (fib-const a x) (d x)
+
+  is-isolated-is-decidable-map-const :
+    is-decidable-map (const unit A a) → is-isolated a
+  is-isolated-is-decidable-map-const d x =
+    is-decidable-equiv' (fib-const a x) (d x)
+
+  -- Exercise 12.12 (b)
+  
+  cases-Eq-isolated-point :
+    is-isolated a → (x : A) → is-decidable (Id a x) → UU lzero
+  cases-Eq-isolated-point H x (inl p) = unit
+  cases-Eq-isolated-point H x (inr f) = empty
+
+  is-prop-cases-Eq-isolated-point :
+    (d : is-isolated a) (x : A) (dx : is-decidable (Id a x)) →
+    is-prop (cases-Eq-isolated-point d x dx)
+  is-prop-cases-Eq-isolated-point d x (inl p) = is-prop-unit
+  is-prop-cases-Eq-isolated-point d x (inr f) = is-prop-empty
+
+  Eq-isolated-point : is-isolated a → A → UU lzero
+  Eq-isolated-point d x = cases-Eq-isolated-point d x (d x)
+
+  is-prop-Eq-isolated-point :
+    (d : is-isolated a) (x : A) → is-prop (Eq-isolated-point d x)
+  is-prop-Eq-isolated-point d x =
+    is-prop-cases-Eq-isolated-point d x (d x)
+
+  decide-reflexivity :
+    (d : is-decidable (Id a a)) → Σ (Id a a) (λ p → Id (inl p) d)
+  decide-reflexivity (inl p) = pair p refl
+  decide-reflexivity (inr f) = ex-falso (f refl)
+
+  refl-Eq-isolated-point : (d : is-isolated a) → Eq-isolated-point d a
+  refl-Eq-isolated-point d =
+    tr ( cases-Eq-isolated-point d a)
+       ( pr2 (decide-reflexivity (d a)))
+       ( star)
+
+  Eq-eq-isolated-point :
+    (d : is-isolated a) {x : A} → Id a x → Eq-isolated-point d x
+  Eq-eq-isolated-point d refl = refl-Eq-isolated-point d
+
+  center-total-Eq-isolated-point :
+    (d : is-isolated a) → Σ A (Eq-isolated-point d)
+  center-total-Eq-isolated-point d =
+    pair a (refl-Eq-isolated-point d)
+
+  cases-contraction-total-Eq-isolated-point :
+    (d : is-isolated a) (x : A) (dx : is-decidable (Id a x))
+    (e : cases-Eq-isolated-point d x dx) → Id a x
+  cases-contraction-total-Eq-isolated-point d x (inl p) e = p
+
+  contraction-total-Eq-isolated-point :
+    (d : is-isolated a) (t : Σ A (Eq-isolated-point d)) →
+    Id (center-total-Eq-isolated-point d) t
+  contraction-total-Eq-isolated-point d (pair x e) =
+    eq-subtype
+      ( is-prop-Eq-isolated-point d)
+      ( cases-contraction-total-Eq-isolated-point d x (d x) e)
+
+  is-contr-total-Eq-isolated-point :
+    (d : is-isolated a) → is-contr (Σ A (Eq-isolated-point d))
+  is-contr-total-Eq-isolated-point d =
+    pair ( center-total-Eq-isolated-point d)
+         ( contraction-total-Eq-isolated-point d)
+
+  is-equiv-Eq-eq-isolated-point :
+    (d : is-isolated a) (x : A) → is-equiv (Eq-eq-isolated-point d {x})
+  is-equiv-Eq-eq-isolated-point d =
+    fundamental-theorem-id a
+      ( refl-Eq-isolated-point d)
+      ( is-contr-total-Eq-isolated-point d)
+      ( λ x → Eq-eq-isolated-point d {x})
+
+  equiv-Eq-eq-isolated-point :
+    (d : is-isolated a) (x : A) → Id a x ≃ Eq-isolated-point d x
+  equiv-Eq-eq-isolated-point d x =
+    pair (Eq-eq-isolated-point d) (is-equiv-Eq-eq-isolated-point d x)
+
+  is-prop-eq-isolated-point : (d : is-isolated a) (x : A) → is-prop (Id a x)
+  is-prop-eq-isolated-point d x =
+    is-prop-equiv
+      ( Eq-isolated-point d x)
+      ( equiv-Eq-eq-isolated-point d x)
+      ( is-prop-Eq-isolated-point d x)
+
+  is-emb-const-is-isolated : is-isolated a → is-emb (const unit A a)
+  is-emb-const-is-isolated d star =
+    fundamental-theorem-id star
+      refl
+      ( is-contr-equiv
+        ( Id a a)
+        ( left-unit-law-prod (Id a a))
+        ( is-proof-irrelevant-is-prop
+          ( is-prop-eq-isolated-point d a)
+          ( refl)))
+      ( λ x → ap (λ y → a))
+
+--------------------------------------------------------------------------------
+
+-- Extra stuff
 
 has-decidable-equality-Σ :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
