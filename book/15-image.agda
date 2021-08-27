@@ -468,6 +468,25 @@ cantor X f H =
     ( empty-Prop)
     ( not-in-image-map-cantor X f))
 
+--------------------------------------------------------------------------------
+
+-- Exercise 15.3
+
+is-equiv-is-emb-is-surjective :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
+  is-surjective f → is-emb f → is-equiv f
+is-equiv-is-emb-is-surjective {f = f} H K =
+  is-equiv-is-contr-map
+    ( λ y →
+      is-proof-irrelevant-is-prop
+        ( is-prop-map-is-emb K y)
+        ( apply-universal-property-trunc-Prop
+          ( H y)
+          ( fib-emb-Prop (pair f K) y)
+          ( id)))
+
+-- Exercise 15.5
+
 fixed-point-theorem-Lawvere :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → A → B} →
   is-surjective f → (h : B → B) → ∃ (λ b → Id (h b) b)

@@ -1440,7 +1440,7 @@ is-injective-convert-based-ℕ
   ap ( unary-op-based-ℕ (succ-ℕ k) x)
      ( is-injective-convert-based-ℕ (succ-ℕ k)
        ( is-injective-succ-ℕ
-         ( is-injective-left-mul-ℕ k
+         ( is-injective-mul-succ-ℕ k
            ( is-injective-add-ℕ' (nat-Fin x) p))))
 
 -- Exercise 7.10 (c)

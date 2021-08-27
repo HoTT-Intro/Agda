@@ -135,11 +135,11 @@ factorial-ℕ (succ-ℕ m) = mul-ℕ (factorial-ℕ m) (succ-ℕ m)
 
 -- Exercise 3.4
 
-_choose_ : ℕ → ℕ → ℕ
-zero-ℕ choose zero-ℕ = one-ℕ
-zero-ℕ choose succ-ℕ k = zero-ℕ
-(succ-ℕ n) choose zero-ℕ = one-ℕ
-(succ-ℕ n) choose (succ-ℕ k) = add-ℕ (n choose k) (n choose (succ-ℕ k))
+_choose-ℕ_ : ℕ → ℕ → ℕ
+zero-ℕ choose-ℕ zero-ℕ = one-ℕ
+zero-ℕ choose-ℕ succ-ℕ k = zero-ℕ
+(succ-ℕ n) choose-ℕ zero-ℕ = one-ℕ
+(succ-ℕ n) choose-ℕ (succ-ℕ k) = add-ℕ (n choose-ℕ k) (n choose-ℕ (succ-ℕ k))
 
 
 -- Exercise 3.5

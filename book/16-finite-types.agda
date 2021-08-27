@@ -606,6 +606,11 @@ equiv-dependent-universal-property-Maybe :
 equiv-dependent-universal-property-Maybe B =
   pair ev-Maybe dependent-universal-property-Maybe
 
+equiv-universal-property-Maybe :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} → (Maybe A → B) ≃ ((A → B) × B)
+equiv-universal-property-Maybe {l1} {l2} {A} {B} =
+  equiv-dependent-universal-property-Maybe (λ x → B)
+
 -- The is-exception predicate is decidable
 is-decidable-is-exception-Maybe :
   {l : Level} {X : UU l} (x : Maybe X) → is-decidable (is-exception-Maybe x)
@@ -1758,6 +1763,14 @@ is-inhabited-or-empty-is-finite {l1} {A} f =
     ( is-inhabited-or-empty-Prop A)
     ( is-inhabited-or-empty-count)
 
+is-decidable-type-trunc-Prop-is-finite :
+  {l1 : Level} {A : UU l1} → is-finite A → is-decidable (type-trunc-Prop A)
+is-decidable-type-trunc-Prop-is-finite H =
+  map-coprod
+    ( id)
+    ( map-universal-property-trunc-Prop empty-Prop)
+    ( is-inhabited-or-empty-is-finite H)
+
 global-choice-emb-count :
   {l1 l2 : Level} {A : UU l1} (e : count A) {B : UU l2} (f : B ↪ A) →
   ((x : A) → is-decidable (fib (map-emb f) x)) → global-choice B
@@ -2311,7 +2324,173 @@ is-decidable-Π-is-finite {l1} {l2} {A} {B} H d =
         ( Π-Prop A (λ x → trunc-Prop (B x)))
         ( λ (f : (x : A) → B x) (x : A) → unit-trunc-Prop (f x))
 
+-- Remark: The analogous development for Σ-types stops at is-decidable-Σ-count
+
+is-decidable-Σ-coprod :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (C : coprod A B → UU l3) →
+  is-decidable (Σ A (C ∘ inl)) → is-decidable (Σ B (C ∘ inr)) →
+  is-decidable (Σ (coprod A B) C)
+is-decidable-Σ-coprod {l1} {l2} {l3} {A} {B} C dA dB =
+  is-decidable-equiv
+    ( right-distributive-Σ-coprod A B C)
+    ( is-decidable-coprod dA dB)
+
+is-decidable-Σ-Maybe :
+  {l1 l2 : Level} {A : UU l1} {B : Maybe A → UU l2} →
+  is-decidable (Σ A (B ∘ unit-Maybe)) → is-decidable (B exception-Maybe) →
+  is-decidable (Σ (Maybe A) B)
+is-decidable-Σ-Maybe {l1} {l2} {A} {B} dA de =
+  is-decidable-Σ-coprod B dA
+    ( is-decidable-equiv
+      ( left-unit-law-Σ (B ∘ inr))
+      ( de))
+
+is-decidable-Σ-equiv :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : A → UU l3} {D : B → UU l4}
+  (e : A ≃ B) (f : (x : A) → C x ≃ D (map-equiv e x)) →
+  is-decidable (Σ A C) → is-decidable (Σ B D)
+is-decidable-Σ-equiv {D = D} e f =
+  is-decidable-equiv' (equiv-Σ D e f)
+
+is-decidable-Σ-equiv' :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : A → UU l3} {D : B → UU l4}
+  (e : A ≃ B) (f : (x : A) → C x ≃ D (map-equiv e x)) →
+  is-decidable (Σ B D) → is-decidable (Σ A C)
+is-decidable-Σ-equiv' {D = D} e f =
+  is-decidable-equiv (equiv-Σ D e f) 
+
+is-decidable-Σ-count :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → count A →
+  ((x : A) → is-decidable (B x)) → is-decidable (Σ A B)
+is-decidable-Σ-count e d =
+  is-decidable-Σ-equiv
+    ( equiv-count e)
+    ( λ x → equiv-id)
+    ( is-decidable-Σ-Fin (λ x → d (map-equiv-count e x)))
+
+-- There is no way to construct a function is-decidable-Σ-is-finite. This would
+-- contradict the univalence axiom.
+
 -- Exercise 16.2 (b)
+
+is-decidable-is-injective-is-finite' :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  is-finite A → is-finite B → is-decidable ((x y : A) → Id (f x) (f y) → Id x y)
+is-decidable-is-injective-is-finite' f HA HB =
+  is-decidable-Π-is-finite HA
+    ( λ x →
+      is-decidable-Π-is-finite HA
+        ( λ y →
+          is-decidable-function-type
+            ( has-decidable-equality-is-finite HB (f x) (f y))
+            ( has-decidable-equality-is-finite HA x y)))
+
+is-decidable-is-injective-is-finite :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  is-finite A → is-finite B → is-decidable (is-injective f)
+is-decidable-is-injective-is-finite f HA HB =
+  is-decidable-iff
+    ( λ p {x} {y} → p x y)
+    ( λ p x y → p)
+    ( is-decidable-is-injective-is-finite' f HA HB)
+
+is-decidable-is-emb-is-finite :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  is-finite A → is-finite B → is-decidable (is-emb f)
+is-decidable-is-emb-is-finite f HA HB =
+  is-decidable-iff
+    ( is-emb-is-injective (is-set-is-finite HB))
+    ( is-injective-is-emb)
+    ( is-decidable-is-injective-is-finite f HA HB)
+
+-- Exercise 16.2 (c)
+
+is-decidable-is-surjective-is-finite :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  is-finite A → is-finite B → is-decidable (is-surjective f)
+is-decidable-is-surjective-is-finite f HA HB =
+  is-decidable-Π-is-finite HB
+    ( λ y → is-decidable-type-trunc-Prop-is-finite (is-finite-fib f HA HB y))
+
+-- Exercise 16.2 (d)
+
+is-decidable-is-equiv-is-finite :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  is-finite A → is-finite B → is-decidable (is-equiv f)
+is-decidable-is-equiv-is-finite f HA HB =
+  is-decidable-iff
+    ( λ p → is-equiv-is-emb-is-surjective (pr1 p) (pr2 p))
+    ( λ K → pair (is-surjective-is-equiv K) (is-emb-is-equiv K))
+    ( is-decidable-prod
+      ( is-decidable-is-surjective-is-finite f HA HB)
+      ( is-decidable-is-emb-is-finite f HA HB))
+
+-- Exercise 16.4
+
+-- Exercise 16.4 (a)
+
+Fin-exp-ℕ : (n m : ℕ) → Fin (exp-ℕ n m) ≃ (Fin m → Fin n)
+Fin-exp-ℕ n zero-ℕ =
+  equiv-is-contr is-contr-Fin-one-ℕ (universal-property-empty' (Fin n))
+Fin-exp-ℕ n (succ-ℕ m) =
+  ( ( inv-equiv equiv-universal-property-Maybe) ∘e
+    ( equiv-prod (Fin-exp-ℕ n m) equiv-id)) ∘e
+  ( Fin-mul-ℕ (exp-ℕ n m) n)
+
+-- Exercise 16.4 (b)
+
+Fin-choose-ℕ : (n m : ℕ) → Fin (n choose-ℕ m) ≃ (Fin m ↪ Fin n)
+Fin-choose-ℕ zero-ℕ zero-ℕ =
+  equiv-is-contr
+    ( is-contr-Fin-one-ℕ)
+    ( is-contr-equiv
+      ( is-emb id)
+      ( left-unit-law-Σ-is-contr
+        ( universal-property-empty' empty)
+        ( id))
+      ( dependent-universal-property-empty'
+        ( λ x → (y : empty) → is-equiv (ap id))))
+Fin-choose-ℕ zero-ℕ (succ-ℕ m) =
+  equiv-is-empty id (λ f → map-emb f (inr star))
+Fin-choose-ℕ (succ-ℕ n) zero-ℕ =
+  equiv-is-contr
+    ( is-contr-Fin-one-ℕ)
+    ( is-contr-equiv
+      ( is-emb ex-falso)
+      ( left-unit-law-Σ-is-contr
+        ( universal-property-empty' (Fin (succ-ℕ n)))
+        ( ex-falso))
+      ( dependent-universal-property-empty'
+        ( λ x → (y : empty) → is-equiv (ap ex-falso))))
+Fin-choose-ℕ (succ-ℕ n) (succ-ℕ m) =
+  ( ( ( right-unit-law-Σ-is-contr
+        { B = λ f → is-decidable (fib (map-emb f) (inr star))}
+        ( λ f →
+          is-proof-irrelevant-is-prop
+            ( is-prop-is-decidable
+              ( is-prop-map-is-emb (is-emb-map-emb f) (inr star)))
+            ( is-decidable-Σ-Fin
+              ( λ x →
+                has-decidable-equality-Fin (map-emb f x) (inr star))))) ∘e
+      ( ( inv-equiv
+          ( left-distributive-Σ-coprod
+            ( Fin (succ-ℕ m) ↪ Fin (succ-ℕ n))
+            ( λ f → fib (map-emb f) (inr star))
+            ( λ f → ¬ (fib (map-emb f) (inr star))))) ∘e
+        {!!})) ∘e
+    ( equiv-coprod (Fin-choose-ℕ n m) (Fin-choose-ℕ n (succ-ℕ m)))) ∘e
+  ( Fin-add-ℕ (n choose-ℕ m) (n choose-ℕ (succ-ℕ m)))
+
+-- Exercise 16.4 (d)
+
+stirling-number-second-kind : ℕ → ℕ → ℕ
+stirling-number-second-kind zero-ℕ zero-ℕ = one-ℕ
+stirling-number-second-kind zero-ℕ (succ-ℕ n) = zero-ℕ
+stirling-number-second-kind (succ-ℕ m) zero-ℕ = zero-ℕ
+stirling-number-second-kind (succ-ℕ m) (succ-ℕ n) =
+  add-ℕ
+    ( mul-ℕ (succ-ℕ n) (stirling-number-second-kind m (succ-ℕ n)))
+    ( stirling-number-second-kind m n)
 
 -- Exercise 16.15
 

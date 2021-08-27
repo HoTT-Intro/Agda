@@ -1749,6 +1749,14 @@ abstract
     is-equiv f  → (g ∘ f) ~ id → is-equiv g
   is-equiv-is-retraction-is-equiv {A = A} {f = f} {g = g} is-equiv-f H =
     is-equiv-left-factor id g f (inv-htpy H) is-equiv-id is-equiv-f
+
+-- Bureaucracy
+
+equiv-is-empty :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} → is-empty A → is-empty B → A ≃ B
+equiv-is-empty f g =
+  ( inv-equiv (pair g (is-equiv-is-empty g id))) ∘e
+  ( pair f (is-equiv-is-empty f id))
     
 -- Exercise 9.5
 
@@ -2104,6 +2112,10 @@ coprod-Fin k zero-ℕ = right-unit-law-coprod (Fin k)
 coprod-Fin k (succ-ℕ l) =
   (equiv-coprod (coprod-Fin k l) equiv-id) ∘e inv-assoc-coprod
 
+Fin-add-ℕ :
+  (k l : ℕ) → Fin (add-ℕ k l) ≃ coprod (Fin k) (Fin l)
+Fin-add-ℕ k l = inv-equiv (coprod-Fin k l)
+
 {- We construct the functoriality of cartesian products. -}
 
 map-prod :
@@ -2172,5 +2184,8 @@ prod-Fin (succ-ℕ k) l =
   ( ( coprod-Fin (mul-ℕ k l) l) ∘e
     ( equiv-coprod (prod-Fin k l) (left-unit-law-prod (Fin l)))) ∘e
   ( right-distributive-prod-coprod (Fin k) unit (Fin l))
+
+Fin-mul-ℕ : (k l : ℕ) → (Fin (mul-ℕ k l)) ≃ ((Fin k) × (Fin l))
+Fin-mul-ℕ k l = inv-equiv (prod-Fin k l)
 
 --------------------------------------------------------------------------------

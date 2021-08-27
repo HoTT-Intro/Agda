@@ -80,6 +80,17 @@ equiv-concat-htpy' :
 equiv-concat-htpy' f K =
   pair (concat-htpy' f K) (is-equiv-concat-htpy' f K)
 
+-- Bureaucracy
+
+is-contr-total-htpy' :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (f : (x : A) → B x) →
+  is-contr (Σ ((x : A) → B x) (λ g → g ~ f))
+is-contr-total-htpy' {l1} {l2} {A} {B} f =
+  is-contr-equiv
+    ( Σ ((x : A) → B x) (λ g → f ~ g))
+    ( equiv-tot (λ g → equiv-inv-htpy g f))
+    ( is-contr-total-htpy f)
+
 -- Exercise 13.2
 
 -- Exercise 13.2 (a)

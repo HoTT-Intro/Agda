@@ -127,6 +127,10 @@ ap-add-ℕ :
   {m n m' n' : ℕ} → Id m m' → Id n n' → Id (add-ℕ m n) (add-ℕ m' n')
 ap-add-ℕ p q = ap-binary add-ℕ p q
 
+ap-mul-ℕ :
+  {x y x' y' : ℕ} → Id x x' → Id y y' → Id (mul-ℕ x y) (mul-ℕ x' y')
+ap-mul-ℕ p q = ap-binary mul-ℕ p q
+
 -- Definition 5.3.2
 
 ap-refl :

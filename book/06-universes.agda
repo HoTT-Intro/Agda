@@ -97,46 +97,41 @@ is-injective-add-ℕ : (k : ℕ) → is-injective (add-ℕ k)
 is-injective-add-ℕ k {x} {y} p =
   is-injective-add-ℕ' k (commutative-add-ℕ x k ∙ (p ∙ commutative-add-ℕ k y))
 
-is-injective-right-mul-ℕ :
+is-injective-mul-succ-ℕ' :
   (k : ℕ) → is-injective (mul-ℕ' (succ-ℕ k))
-is-injective-right-mul-ℕ k {zero-ℕ} {zero-ℕ} p = refl
-is-injective-right-mul-ℕ k {succ-ℕ m} {succ-ℕ n} p =
+is-injective-mul-succ-ℕ' k {zero-ℕ} {zero-ℕ} p = refl
+is-injective-mul-succ-ℕ' k {succ-ℕ m} {succ-ℕ n} p =
   ap succ-ℕ
-    ( is-injective-right-mul-ℕ k {m} {n}
+    ( is-injective-mul-succ-ℕ' k {m} {n}
       ( is-injective-add-ℕ'
         ( succ-ℕ k)
         ( ( inv (left-successor-law-mul-ℕ m (succ-ℕ k))) ∙
           ( ( p) ∙
             ( left-successor-law-mul-ℕ n (succ-ℕ k))))))
 
-is-injective-right-mul-is-nonzero-ℕ :
+is-injective-mul-ℕ' :
   (k : ℕ) → is-nonzero-ℕ k → is-injective (mul-ℕ' k)
-is-injective-right-mul-is-nonzero-ℕ k H p with
+is-injective-mul-ℕ' k H p with
   is-successor-is-nonzero-ℕ H
-... | pair l refl = is-injective-right-mul-ℕ l p
+... | pair l refl = is-injective-mul-succ-ℕ' l p
 
-ap-mul-ℕ :
-  {x y x' y' : ℕ} → Id x x' → Id y y' → Id (mul-ℕ x y) (mul-ℕ x' y')
-ap-mul-ℕ p q = ap-binary mul-ℕ p q
-
-is-injective-left-mul-ℕ :
+is-injective-mul-succ-ℕ :
   (k : ℕ) → is-injective (mul-ℕ (succ-ℕ k))
-is-injective-left-mul-ℕ k {m} {n} p =
-  is-injective-right-mul-ℕ k
+is-injective-mul-succ-ℕ k {m} {n} p =
+  is-injective-mul-succ-ℕ' k
     ( ( commutative-mul-ℕ m (succ-ℕ k)) ∙
       ( p ∙ commutative-mul-ℕ (succ-ℕ k) n))
 
-is-injective-left-mul-is-nonzero-ℕ :
+is-injective-mul-ℕ :
   (k : ℕ) → is-nonzero-ℕ k → is-injective (mul-ℕ k)
-is-injective-left-mul-is-nonzero-ℕ k H p with
+is-injective-mul-ℕ k H p with
   is-successor-is-nonzero-ℕ H
-... | pair l refl = is-injective-left-mul-ℕ l p
+... | pair l refl = is-injective-mul-succ-ℕ l p
 
 is-nonzero-mul-ℕ :
   (x y : ℕ) → is-nonzero-ℕ x → is-nonzero-ℕ y → is-nonzero-ℕ (mul-ℕ x y)
 is-nonzero-mul-ℕ x y H K p =
-  K ( is-injective-left-mul-is-nonzero-ℕ x H
-      ( p ∙ (inv (right-zero-law-mul-ℕ x))))
+  K (is-injective-mul-ℕ x H (p ∙ (inv (right-zero-law-mul-ℕ x))))
 
 -- We conclude that y = 1 if (x+1)y = x+1
 
@@ -158,12 +153,12 @@ is-not-one-two-ℕ = Eq-ℕ-eq
 is-one-is-right-unit-mul-ℕ :
   (x y : ℕ) → Id (mul-ℕ (succ-ℕ x) y) (succ-ℕ x) → is-one-ℕ y
 is-one-is-right-unit-mul-ℕ x y p =
-  is-injective-left-mul-ℕ x (p ∙ inv (right-unit-law-mul-ℕ (succ-ℕ x)))
+  is-injective-mul-succ-ℕ x (p ∙ inv (right-unit-law-mul-ℕ (succ-ℕ x)))
 
 is-one-is-left-unit-mul-ℕ :
   (x y : ℕ) → Id (mul-ℕ x (succ-ℕ y)) (succ-ℕ y) → is-one-ℕ x
 is-one-is-left-unit-mul-ℕ x y p =
-  is-injective-right-mul-ℕ y (p ∙ inv (left-unit-law-mul-ℕ (succ-ℕ y)))
+  is-injective-mul-succ-ℕ' y (p ∙ inv (left-unit-law-mul-ℕ (succ-ℕ y)))
 
 -- Exercise 6.1 (b)
 

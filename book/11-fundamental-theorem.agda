@@ -862,6 +862,10 @@ abstract
           ( is-contr-total-path x)))
       ( λ y → ap inl)
 
+emb-inl :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} → A ↪ coprod A B
+emb-inl {l1} {l2} {A} {B} = pair inl (is-emb-inl A B)
+
 abstract
   is-emb-inr :
     {i j : Level} (A : UU i) (B : UU j) → is-emb (inr {A = A} {B = B})
@@ -877,6 +881,10 @@ abstract
           ( equiv-tot (λ y → equiv-raise _ (Id x y)))
           ( is-contr-total-path x)))
       ( λ y → ap inr)
+
+emb-inr :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} → B ↪ coprod A B
+emb-inr {l1} {l2} {A} {B} = pair inr (is-emb-inr A B)
 
 is-empty-right-summand-is-equiv :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} → is-equiv (inl {A = A} {B = B}) →

@@ -20,6 +20,7 @@ open import extra.group-completion public
 open import extra.ideals public
 open import extra.integers public
 open import extra.interchange public
+open import extra.isolated-points public
 open import extra.lists public
 open import extra.localizations-rings public
 open import extra.models public
