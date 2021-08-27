@@ -1534,26 +1534,26 @@ isolated-point X = Σ X is-isolated
 
 -- We will use a few facts about decidability in this exercise
 
-is-decidable-map :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → (X → Y) → UU (l1 ⊔ l2)
-is-decidable-map {Y = Y} f = (y : Y) → is-decidable (fib f y)
+module _
+  {l1 l2 : Level} {A : UU l1} {B : UU l2}
+  where
 
-is-decidable-retract-of :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-  A retract-of B → is-decidable B → is-decidable A
-is-decidable-retract-of (pair i (pair r H)) (inl b) = inl (r b)
-is-decidable-retract-of (pair i (pair r H)) (inr f) = inr (f ∘ i)
+  is-decidable-map : (A → B) → UU (l1 ⊔ l2)
+  is-decidable-map f = (y : B) → is-decidable (fib f y)
 
-is-decidable-is-equiv :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B}
-  (is-equiv-f : is-equiv f) → is-decidable B → is-decidable A
-is-decidable-is-equiv {f = f} (pair (pair g G) (pair h H)) =
-  is-decidable-retract-of (pair f (pair h H))
+  is-decidable-retract-of :
+    A retract-of B → is-decidable B → is-decidable A
+  is-decidable-retract-of (pair i (pair r H)) (inl b) = inl (r b)
+  is-decidable-retract-of (pair i (pair r H)) (inr f) = inr (f ∘ i)
 
-is-decidable-equiv :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
-  is-decidable B → is-decidable A
-is-decidable-equiv e = is-decidable-iff (map-inv-equiv e) (map-equiv e)
+  is-decidable-is-equiv :
+    {f : A → B} → is-equiv f → is-decidable B → is-decidable A
+  is-decidable-is-equiv {f} (pair (pair g G) (pair h H)) =
+    is-decidable-retract-of (pair f (pair h H))
+
+  is-decidable-equiv :
+    (e : A ≃ B) → is-decidable B → is-decidable A
+  is-decidable-equiv e = is-decidable-iff (map-inv-equiv e) (map-equiv e)
 
 is-decidable-equiv' :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
