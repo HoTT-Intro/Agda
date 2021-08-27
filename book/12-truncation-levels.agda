@@ -46,6 +46,13 @@ is-prop-empty ()
 empty-Prop : UU-Prop lzero
 empty-Prop = pair empty is-prop-empty
 
+is-prop-leq-Fin :
+  {k : ℕ} (x y : Fin k) → is-prop (leq-Fin x y)
+is-prop-leq-Fin {succ-ℕ k} (inl x) (inl y) = is-prop-leq-Fin x y
+is-prop-leq-Fin {succ-ℕ k} (inl x) (inr star) = is-prop-unit
+is-prop-leq-Fin {succ-ℕ k} (inr star) (inl y) = is-prop-empty
+is-prop-leq-Fin {succ-ℕ k} (inr star) (inr star) = is-prop-unit
+
 {- Proposition 12.1.3 -}
 
 all-elements-equal :
@@ -678,6 +685,13 @@ abstract
   is-trunc-succ-is-trunc (succ-𝕋 k) H x y =
     is-trunc-succ-is-trunc k (H x y)
 
+abstract
+  is-trunc-map-succ-is-trunc-map :
+    {l1 l2 : Level} (k : 𝕋) {A : UU l1} {B : UU l2}
+    (f : A → B) → is-trunc-map k f → is-trunc-map (succ-𝕋 k) f
+  is-trunc-map-succ-is-trunc-map k f is-trunc-f b =
+    is-trunc-succ-is-trunc k (is-trunc-f b)
+
 truncated-type-succ-Truncated-Type :
   (k : 𝕋) {l : Level} → UU-Truncated-Type k l → UU-Truncated-Type (succ-𝕋 k) l
 truncated-type-succ-Truncated-Type k A =
@@ -864,32 +878,6 @@ abstract
     ((x : A) → is-prop (P x)) → is-set A → is-set (Σ A P)
   is-set-subtype = is-trunc-succ-subtype neg-one-𝕋
 
-is-fiberwise-trunc : {l1 l2 l3 : Level} (k : 𝕋)  {A : UU l1} {B : A → UU l2}
-  {C : A → UU l3} (f : (x : A) → B x → C x) → UU (l1 ⊔ (l2 ⊔ l3))
-is-fiberwise-trunc k f = (x : _) → is-trunc-map k (f x)
-
-abstract
-  is-trunc-tot-is-fiberwise-trunc : {l1 l2 l3 : Level} (k : 𝕋)
-    {A : UU l1} {B : A → UU l2} {C : A → UU l3} (f : (x : A) → B x → C x) →
-    is-fiberwise-trunc k f → is-trunc-map k (tot f)
-  is-trunc-tot-is-fiberwise-trunc k f is-fiberwise-trunc-f (pair x z) =
-    is-trunc-is-equiv k
-      ( fib (f x) z)
-      ( fib-ftr-fib-tot f (pair x z))
-      ( is-equiv-fib-ftr-fib-tot f (pair x z))
-      ( is-fiberwise-trunc-f x z)
-
-abstract
-  is-fiberwise-trunc-is-trunc-tot : {l1 l2 l3 : Level} (k : 𝕋)
-    {A : UU l1} {B : A → UU l2} {C : A → UU l3} (f : (x : A) → B x → C x) →
-    is-trunc-map k (tot f) → is-fiberwise-trunc k f
-  is-fiberwise-trunc-is-trunc-tot k f is-trunc-tot-f x z =
-    is-trunc-is-equiv k
-      ( fib (tot f) (pair x z))
-      ( fib-tot-fib-ftr f (pair x z))
-      ( is-equiv-fib-tot-fib-ftr f (pair x z))
-      ( is-trunc-tot-f (pair x z))
-
 --------------------------------------------------------------------------------
 
 -- Exercises
@@ -961,6 +949,14 @@ is-emb-mul-ℕ x H = is-emb-is-injective is-set-ℕ (is-injective-mul-ℕ x H)
 
 is-emb-mul-ℕ' : (x : ℕ) → is-nonzero-ℕ x → is-emb (mul-ℕ' x)
 is-emb-mul-ℕ' x H = is-emb-is-injective is-set-ℕ (is-injective-mul-ℕ' x H)
+
+-- We conclude that some maps, that were known to be injective, are embeddings
+                                                                    
+is-emb-nat-Fin : {k : ℕ} → is-emb (nat-Fin {k})
+is-emb-nat-Fin {k} = is-emb-is-injective is-set-ℕ is-injective-nat-Fin
+
+emb-nat-Fin : (k : ℕ) → Fin k ↪ ℕ
+emb-nat-Fin k = pair nat-Fin is-emb-nat-Fin
 
 -- Exercise 12.3
 
@@ -1173,6 +1169,59 @@ abstract
 
 -- Exercise 12.5 (b)
 
+-- Bureaucracy
+
+abstract
+  is-prop-Σ : {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+    is-prop A → is-subtype B → is-prop (Σ A B)
+  is-prop-Σ = is-trunc-Σ neg-one-𝕋
+
+Σ-Prop :
+  {l1 l2 : Level} (P : UU-Prop l1) (Q : type-Prop P → UU-Prop l2) →
+  UU-Prop (l1 ⊔ l2)
+Σ-Prop P Q =
+  pair
+    ( Σ (type-Prop P) (λ p → type-Prop (Q p)))
+    ( is-prop-Σ
+      ( is-prop-type-Prop P)
+      ( λ p → is-prop-type-Prop (Q p)))
+
+abstract
+  is-set-Σ :
+    {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+    is-set A → ((x : A) → is-set (B x)) → is-set (Σ A B)
+  is-set-Σ = is-trunc-Σ zero-𝕋
+
+set-Σ :
+  {l1 l2 : Level} (A : UU-Set l1) (B : pr1 A → UU-Set l2) → UU-Set (l1 ⊔ l2)
+set-Σ (pair A is-set-A) B =
+  pair
+    ( Σ A (λ x → (pr1 (B x))))
+    ( is-set-Σ is-set-A (λ x → pr2 (B x)))
+
+-- Exercise 12.5 (b)
+
+abstract
+  is-trunc-map-is-trunc-domain-codomain :
+    {l1 l2 : Level} (k : 𝕋) {A : UU l1}
+    {B : UU l2} {f : A → B} → is-trunc k A → is-trunc k B → is-trunc-map k f
+  is-trunc-map-is-trunc-domain-codomain k {f = f} is-trunc-A is-trunc-B b =
+    is-trunc-Σ k is-trunc-A (λ x → is-trunc-Id k is-trunc-B (f x) b)
+
+-- Bureaucracy
+
+abstract
+  is-trunc-fam-is-trunc-Σ :
+    {l1 l2 : Level} (k : 𝕋) {A : UU l1} {B : A → UU l2} →
+    is-trunc k A → is-trunc k (Σ A B) → (x : A) → is-trunc k (B x)
+  is-trunc-fam-is-trunc-Σ k {B = B} is-trunc-A is-trunc-ΣAB x =
+    is-trunc-equiv' k
+      ( fib pr1 x)
+      ( equiv-fib-pr1 x)
+      ( is-trunc-map-is-trunc-domain-codomain k is-trunc-ΣAB is-trunc-A x)
+
+-- Exercise 12.6
+
 abstract
   is-trunc-prod :
     {l1 l2 : Level} (k : 𝕋) {A : UU l1} {B : UU l2} →
@@ -1219,21 +1268,6 @@ is-trunc-right-factor-prod (succ-𝕋 k) {A} {B} H a b b' =
 -- Bureaucracy
 
 abstract
-  is-prop-Σ : {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-    is-prop A → is-subtype B → is-prop (Σ A B)
-  is-prop-Σ = is-trunc-Σ neg-one-𝕋
-
-Σ-Prop :
-  {l1 l2 : Level} (P : UU-Prop l1) (Q : type-Prop P → UU-Prop l2) →
-  UU-Prop (l1 ⊔ l2)
-Σ-Prop P Q =
-  pair
-    ( Σ (type-Prop P) (λ p → type-Prop (Q p)))
-    ( is-prop-Σ
-      ( is-prop-type-Prop P)
-      ( λ p → is-prop-type-Prop (Q p)))
-
-abstract
   is-prop-prod :
     {l1 l2 : Level} {A : UU l1} {B : UU l2} →
     is-prop A → is-prop B → is-prop (A × B)
@@ -1246,19 +1280,6 @@ prod-Prop P Q =
     ( is-prop-prod (is-prop-type-Prop P) (is-prop-type-Prop Q))
 
 abstract
-  is-set-Σ :
-    {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-    is-set A → ((x : A) → is-set (B x)) → is-set (Σ A B)
-  is-set-Σ = is-trunc-Σ zero-𝕋
-
-set-Σ :
-  {l1 l2 : Level} (A : UU-Set l1) (B : pr1 A → UU-Set l2) → UU-Set (l1 ⊔ l2)
-set-Σ (pair A is-set-A) B =
-  pair
-    ( Σ A (λ x → (pr1 (B x))))
-    ( is-set-Σ is-set-A (λ x → pr2 (B x)))
-
-abstract
   is-set-prod :
     {l1 l2 : Level} {A : UU l1} {B : UU l2} →
     is-set A → is-set B → is-set (A × B)
@@ -1269,117 +1290,39 @@ set-prod :
 set-prod (pair A is-set-A) (pair B is-set-B) =
   pair (A × B) (is-set-prod is-set-A is-set-B)
 
--- Exercise 12.5 (b)
-
-abstract
-  is-trunc-map-is-trunc-domain-codomain :
-    {l1 l2 : Level} (k : 𝕋) {A : UU l1}
-    {B : UU l2} {f : A → B} → is-trunc k A → is-trunc k B → is-trunc-map k f
-  is-trunc-map-is-trunc-domain-codomain k {f = f} is-trunc-A is-trunc-B b =
-    is-trunc-Σ k is-trunc-A (λ x → is-trunc-Id k is-trunc-B (f x) b)
-
--- Bureaucracy
-
-abstract
-  is-trunc-fam-is-trunc-Σ :
-    {l1 l2 : Level} (k : 𝕋) {A : UU l1} {B : A → UU l2} →
-    is-trunc k A → is-trunc k (Σ A B) → (x : A) → is-trunc k (B x)
-  is-trunc-fam-is-trunc-Σ k {B = B} is-trunc-A is-trunc-ΣAB x =
-    is-trunc-equiv' k
-      ( fib pr1 x)
-      ( equiv-fib-pr1 x)
-      ( is-trunc-map-is-trunc-domain-codomain k is-trunc-ΣAB is-trunc-A x)
-
--- Exercise 12.4
-
--- Exercise 12.5
-
-is-decidable-retract-of :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-  A retract-of B → is-decidable B → is-decidable A
-is-decidable-retract-of (pair i (pair r H)) (inl b) = inl (r b)
-is-decidable-retract-of (pair i (pair r H)) (inr f) = inr (f ∘ i)
-
-is-decidable-is-equiv :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B}
-  (is-equiv-f : is-equiv f) → is-decidable B → is-decidable A
-is-decidable-is-equiv {f = f} (pair (pair g G) (pair h H)) =
-  is-decidable-retract-of (pair f (pair h H))
-
-is-decidable-equiv :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
-  is-decidable B → is-decidable A
-is-decidable-equiv e = is-decidable-iff (map-inv-equiv e) (map-equiv e)
-
-is-decidable-equiv' :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
-  is-decidable A → is-decidable B
-is-decidable-equiv' e = is-decidable-equiv (inv-equiv e)
-
-has-decidable-equality-Σ :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  has-decidable-equality A → ((x : A) → has-decidable-equality (B x)) →
-  has-decidable-equality (Σ A B)
-has-decidable-equality-Σ dA dB (pair x y) (pair x' y') with dA x x'
-... | inr np = inr (λ r → np (ap pr1 r))
-... | inl p =
-  is-decidable-iff eq-pair-Σ' pair-eq-Σ
-    ( is-decidable-equiv
-      ( left-unit-law-Σ-is-contr
-        ( is-proof-irrelevant-is-prop
-          ( is-set-has-decidable-equality dA x x') p)
-        ( p))
-      ( dB x' (tr _ p y) y'))
-
-has-decidable-equality-is-prop :
-  {l1 : Level} {A : UU l1} → is-prop A → has-decidable-equality A
-has-decidable-equality-is-prop H x y = inl (eq-is-prop H)
-
-has-decidable-equality-equiv :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
-  has-decidable-equality B → has-decidable-equality A
-has-decidable-equality-equiv e dB x y =
-  is-decidable-equiv (equiv-ap e x y) (dB (map-equiv e x) (map-equiv e y))
-
-has-decidable-equality-equiv' :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
-  has-decidable-equality A → has-decidable-equality B
-has-decidable-equality-equiv' e = has-decidable-equality-equiv (inv-equiv e)
-
-has-decidable-equality-fiber-has-decidable-equality-Σ :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  has-decidable-equality A → has-decidable-equality (Σ A B) →
-  (x : A) → has-decidable-equality (B x)
-has-decidable-equality-fiber-has-decidable-equality-Σ {B = B} dA dΣ x =
-  has-decidable-equality-equiv'
-    ( equiv-fib-pr1 x)
-    ( has-decidable-equality-Σ dΣ
-      (λ t → has-decidable-equality-is-prop
-               ( is-set-has-decidable-equality dA (pr1 t) x)))
-
-is-injective-map-section :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
-  is-injective (map-section b)
-is-injective-map-section b = ap pr1
-
-has-decidable-equality-base-has-decidable-equality-Σ :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
-  has-decidable-equality (Σ A B) → ((x : A) → has-decidable-equality (B x)) →
-  has-decidable-equality A
-has-decidable-equality-base-has-decidable-equality-Σ b dΣ dB =
-  has-decidable-equality-equiv'
-    ( equiv-total-fib (map-section b))
-    ( has-decidable-equality-Σ dΣ
-      ( λ t →
-        has-decidable-equality-is-prop
-          ( is-prop-map-is-injective
-            ( is-set-has-decidable-equality dΣ)
-            ( is-injective-map-section b)
-            ( t))))
-
--- Exercise 12.6
-
 -- Exercise 12.7
+
+-- Exercise 12.7 (a)
+
+{- In this exercise we show that if A is a retract of B, then so are its 
+   identity types. -}
+
+ap-retraction :
+  {i j : Level} {A : UU i} {B : UU j}
+  (i : A → B) (r : B → A) (H : (r ∘ i) ~ id)
+  (x y : A) → Id (i x) (i y) → Id x y
+ap-retraction i r H x y p =
+    ( inv (H x)) ∙ ((ap r p) ∙ (H y))
+
+isretr-ap-retraction :
+  {i j : Level} {A : UU i} {B : UU j}
+  (i : A → B) (r : B → A) (H : (r ∘ i) ~ id)
+  (x y : A) → ((ap-retraction i r H x y) ∘ (ap i {x} {y})) ~ id
+isretr-ap-retraction i r H x .x refl = left-inv (H x)
+
+retr-ap :
+  {i j : Level} {A : UU i} {B : UU j} (i : A → B) →
+  retr i → (x y : A) → retr (ap i {x} {y})
+retr-ap i (pair r H) x y =
+  pair (ap-retraction i r H x y) (isretr-ap-retraction i r H x y)
+
+retract-eq :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (R : A retract-of B) →
+  (x y : A) → (Id x y) retract-of (Id (pr1 R x) (pr1 R y))
+retract-eq (pair i (pair r H)) x y =
+  pair (ap i) (retr-ap i (pair r H) x y)
+
+-- Exercise 12.7 (b)
 
 abstract
   is-trunc-retract-of : {l1 l2 : Level} (k : 𝕋) {A : UU l1} {B : UU l2} →
@@ -1388,30 +1331,10 @@ abstract
     is-contr-retract-of _ (pair i (pair r H)) is-trunc-B
   is-trunc-retract-of (succ-𝕋 k) (pair i retr-i) is-trunc-B x y =
     is-trunc-retract-of k
-      ( pair (ap i) (retr-ap i retr-i x y))
+      ( retract-eq (pair i retr-i) x y)
       ( is-trunc-B (i x) (i y))
 
 -- Exercise 12.8
-
-is-injective-const-true : is-injective (const unit bool true)
-is-injective-const-true {x} {y} p = center (is-prop-unit x y)
-
-is-injective-const-false : is-injective (const unit bool false)
-is-injective-const-false {x} {y} p = center (is-prop-unit x y)
-
-equiv-total-subtype :
-  { l1 l2 l3 : Level} {A : UU l1} {P : A → UU l2} {Q : A → UU l3} →
-  ( is-subtype-P : is-subtype P) (is-subtype-Q : is-subtype Q) →
-  ( f : (x : A) → P x → Q x) →
-  ( g : (x : A) → Q x → P x) →
-  ( Σ A P) ≃ (Σ A Q)
-equiv-total-subtype is-subtype-P is-subtype-Q f g =
-  pair
-    ( tot f)
-    ( is-equiv-tot-is-fiberwise-equiv {f = f}
-      ( λ x → is-equiv-is-prop (is-subtype-P x) (is-subtype-Q x) (g x)))
-
--- Exercise 12.9
 
 abstract
   is-trunc-const-is-trunc : {l : Level} (k : 𝕋) {A : UU l} →
@@ -1431,7 +1354,7 @@ abstract
       ( left-unit-law-Σ (λ t → Id x y))
       ( is-trunc-const x y)
 
--- Exercise 12.10
+-- Exercise 12.9
 
 map-fib-comp : {l1 l2 l3 : Level} {A : UU l1} {B : UU l2}
   {X : UU l3} (g : B → X) (h : A → B) →
@@ -1517,12 +1440,35 @@ abstract
         ( is-trunc-map-htpy k (g ∘ h) f (inv-htpy H) is-trunc-f (g b)))
       ( pair b refl)
 
-abstract
-  is-trunc-map-succ-is-trunc-map :
-    {l1 l2 : Level} (k : 𝕋) {A : UU l1} {B : UU l2}
-    (f : A → B) → is-trunc-map k f → is-trunc-map (succ-𝕋 k) f
-  is-trunc-map-succ-is-trunc-map k f is-trunc-f b =
-    is-trunc-succ-is-trunc k (is-trunc-f b)
+-- Exercise 12.10
+
+module _
+  {l1 l2 l3 : Level} (k : 𝕋)  {A : UU l1} {B : A → UU l2} {C : A → UU l3}
+  (f : (x : A) → B x → C x)
+  where
+
+  is-fiberwise-trunc : UU (l1 ⊔ l2 ⊔ l3)
+  is-fiberwise-trunc = (x : A) → is-trunc-map k (f x)
+
+  abstract
+    is-trunc-tot-is-fiberwise-trunc :
+      is-fiberwise-trunc → is-trunc-map k (tot f)
+    is-trunc-tot-is-fiberwise-trunc is-fiberwise-trunc-f (pair x z) =
+      is-trunc-is-equiv k
+        ( fib (f x) z)
+        ( fib-ftr-fib-tot f (pair x z))
+        ( is-equiv-fib-ftr-fib-tot f (pair x z))
+        ( is-fiberwise-trunc-f x z)
+
+  abstract
+    is-fiberwise-trunc-is-trunc-tot : 
+      is-trunc-map k (tot f) → is-fiberwise-trunc
+    is-fiberwise-trunc-is-trunc-tot is-trunc-tot-f x z =
+      is-trunc-is-equiv k
+        ( fib (tot f) (pair x z))
+        ( fib-tot-fib-ftr f (pair x z))
+        ( is-equiv-fib-tot-fib-ftr f (pair x z))
+        ( is-trunc-tot-f (pair x z))
 
 -- Exercise 12.11
 
@@ -1703,6 +1649,109 @@ is-decidable-map-const-is-isolated a d x = {!equiv-fib-const!}
 
 --------------------------------------------------------------------------------
 
+-- Extra stuff
+
+is-decidable-retract-of :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  A retract-of B → is-decidable B → is-decidable A
+is-decidable-retract-of (pair i (pair r H)) (inl b) = inl (r b)
+is-decidable-retract-of (pair i (pair r H)) (inr f) = inr (f ∘ i)
+
+is-decidable-is-equiv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B}
+  (is-equiv-f : is-equiv f) → is-decidable B → is-decidable A
+is-decidable-is-equiv {f = f} (pair (pair g G) (pair h H)) =
+  is-decidable-retract-of (pair f (pair h H))
+
+is-decidable-equiv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
+  is-decidable B → is-decidable A
+is-decidable-equiv e = is-decidable-iff (map-inv-equiv e) (map-equiv e)
+
+is-decidable-equiv' :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
+  is-decidable A → is-decidable B
+is-decidable-equiv' e = is-decidable-equiv (inv-equiv e)
+
+has-decidable-equality-Σ :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  has-decidable-equality A → ((x : A) → has-decidable-equality (B x)) →
+  has-decidable-equality (Σ A B)
+has-decidable-equality-Σ dA dB (pair x y) (pair x' y') with dA x x'
+... | inr np = inr (λ r → np (ap pr1 r))
+... | inl p =
+  is-decidable-iff eq-pair-Σ' pair-eq-Σ
+    ( is-decidable-equiv
+      ( left-unit-law-Σ-is-contr
+        ( is-proof-irrelevant-is-prop
+          ( is-set-has-decidable-equality dA x x') p)
+        ( p))
+      ( dB x' (tr _ p y) y'))
+
+has-decidable-equality-is-prop :
+  {l1 : Level} {A : UU l1} → is-prop A → has-decidable-equality A
+has-decidable-equality-is-prop H x y = inl (eq-is-prop H)
+
+has-decidable-equality-equiv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
+  has-decidable-equality B → has-decidable-equality A
+has-decidable-equality-equiv e dB x y =
+  is-decidable-equiv (equiv-ap e x y) (dB (map-equiv e x) (map-equiv e y))
+
+has-decidable-equality-equiv' :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
+  has-decidable-equality A → has-decidable-equality B
+has-decidable-equality-equiv' e = has-decidable-equality-equiv (inv-equiv e)
+
+has-decidable-equality-fiber-has-decidable-equality-Σ :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  has-decidable-equality A → has-decidable-equality (Σ A B) →
+  (x : A) → has-decidable-equality (B x)
+has-decidable-equality-fiber-has-decidable-equality-Σ {B = B} dA dΣ x =
+  has-decidable-equality-equiv'
+    ( equiv-fib-pr1 x)
+    ( has-decidable-equality-Σ dΣ
+      (λ t → has-decidable-equality-is-prop
+               ( is-set-has-decidable-equality dA (pr1 t) x)))
+
+is-injective-map-section :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
+  is-injective (map-section b)
+is-injective-map-section b = ap pr1
+
+has-decidable-equality-base-has-decidable-equality-Σ :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (b : (x : A) → B x) →
+  has-decidable-equality (Σ A B) → ((x : A) → has-decidable-equality (B x)) →
+  has-decidable-equality A
+has-decidable-equality-base-has-decidable-equality-Σ b dΣ dB =
+  has-decidable-equality-equiv'
+    ( equiv-total-fib (map-section b))
+    ( has-decidable-equality-Σ dΣ
+      ( λ t →
+        has-decidable-equality-is-prop
+          ( is-prop-map-is-injective
+            ( is-set-has-decidable-equality dΣ)
+            ( is-injective-map-section b)
+            ( t))))
+
+is-injective-const-true : is-injective (const unit bool true)
+is-injective-const-true {star} {star} p = refl
+
+is-injective-const-false : is-injective (const unit bool false)
+is-injective-const-false {star} {star} p = refl
+
+equiv-total-subtype :
+  { l1 l2 l3 : Level} {A : UU l1} {P : A → UU l2} {Q : A → UU l3} →
+  ( is-subtype-P : is-subtype P) (is-subtype-Q : is-subtype Q) →
+  ( f : (x : A) → P x → Q x) →
+  ( g : (x : A) → Q x → P x) →
+  ( Σ A P) ≃ (Σ A Q)
+equiv-total-subtype is-subtype-P is-subtype-Q f g =
+  pair
+    ( tot f)
+    ( is-equiv-tot-is-fiberwise-equiv {f = f}
+      ( λ x → is-equiv-is-prop (is-subtype-P x) (is-subtype-Q x) (g x)))
+
 {- We show that if f : A → B is an embedding, then the induced map
    Σ A (C ∘ f) → Σ A C is also an embedding. -}
 
@@ -1716,20 +1765,3 @@ is-emb-map-Σ-map-base f C is-emb-f =
         ( fib f (pr1 x))
         ( equiv-fib-map-Σ-map-base-fib f C x)
         ( is-prop-map-is-emb is-emb-f (pr1 x)))
-
---------------------------------------------------------------------------------
-
--- We conclude that some maps, that were known to be injective, are embeddings
-                                                                    
-is-emb-nat-Fin : {k : ℕ} → is-emb (nat-Fin {k})
-is-emb-nat-Fin {k} = is-emb-is-injective is-set-ℕ is-injective-nat-Fin
-
-emb-nat-Fin : (k : ℕ) → Fin k ↪ ℕ
-emb-nat-Fin k = pair nat-Fin is-emb-nat-Fin
-
-is-prop-leq-Fin :
-  {k : ℕ} (x y : Fin k) → is-prop (leq-Fin x y)
-is-prop-leq-Fin {succ-ℕ k} (inl x) (inl y) = is-prop-leq-Fin x y
-is-prop-leq-Fin {succ-ℕ k} (inl x) (inr star) = is-prop-unit
-is-prop-leq-Fin {succ-ℕ k} (inr star) (inl y) = is-prop-empty
-is-prop-leq-Fin {succ-ℕ k} (inr star) (inr star) = is-prop-unit

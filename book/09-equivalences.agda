@@ -1909,36 +1909,6 @@ equiv-swap-prod A B = pair (swap-prod A B) (is-equiv-swap-prod A B)
 
 -- Exercise 9.8
 
-{- In this exercise we show that if A is a retract of B, then so are its 
-   identity types. -}
-
-ap-retraction :
-  {i j : Level} {A : UU i} {B : UU j}
-  (i : A → B) (r : B → A) (H : (r ∘ i) ~ id)
-  (x y : A) → Id (i x) (i y) → Id x y
-ap-retraction i r H x y p =
-    ( inv (H x)) ∙ ((ap r p) ∙ (H y))
-
-isretr-ap-retraction :
-  {i j : Level} {A : UU i} {B : UU j}
-  (i : A → B) (r : B → A) (H : (r ∘ i) ~ id)
-  (x y : A) → ((ap-retraction i r H x y) ∘ (ap i {x} {y})) ~ id
-isretr-ap-retraction i r H x .x refl = left-inv (H x)
-
-retr-ap :
-  {i j : Level} {A : UU i} {B : UU j} (i : A → B) →
-  retr i → (x y : A) → retr (ap i {x} {y})
-retr-ap i (pair r H) x y =
-  pair (ap-retraction i r H x y) (isretr-ap-retraction i r H x y)
-
-Id-retract-of-Id :
-  {i j : Level} {A : UU i} {B : UU j} (R : A retract-of B) →
-  (x y : A) → (Id x y) retract-of (Id (pr1 R x) (pr1 R y))
-Id-retract-of-Id (pair i (pair r H)) x y =
-  pair
-    ( ap i {x} {y})
-    ( retr-ap i (pair r H) x y)
-
 -- Exercise 9.9
 
 -- Exercise 9.11
