@@ -2439,8 +2439,24 @@ Fin-exp-ℕ n (succ-ℕ m) =
 
 -- Exercise 16.4 (b)
 
-Fin-choose-ℕ : (n m : ℕ) → Fin (n choose-ℕ m) ≃ (Fin m ↪ Fin n)
-Fin-choose-ℕ zero-ℕ zero-ℕ =
+-- The number falling-factorial-ℕ n m is the number (n)_m from combinatorics
+
+falling-factorial-ℕ : ℕ → ℕ → ℕ
+falling-factorial-ℕ zero-ℕ zero-ℕ = one-ℕ
+falling-factorial-ℕ zero-ℕ (succ-ℕ m) = zero-ℕ
+falling-factorial-ℕ (succ-ℕ n) zero-ℕ = one-ℕ
+falling-factorial-ℕ (succ-ℕ n) (succ-ℕ m) =
+  mul-ℕ (succ-ℕ n) (falling-factorial-ℕ n m)
+
+{-
+Fin-falling-factorial-ℕ :
+  (n m : ℕ) → Fin (falling-factorial-ℕ n m) ≃ (Fin m ↪ Fin n)
+Fin-falling-factorial-ℕ n m = {!!}
+-}
+
+{-
+Fin-falling-factorial-ℕ : (n m : ℕ) → Fin (falling-factorial-ℕ n m) ≃ (Fin m ↪ Fin n)
+Fin-falling-factorial-ℕ zero-ℕ zero-ℕ =
   equiv-is-contr
     ( is-contr-Fin-one-ℕ)
     ( is-contr-equiv
@@ -2450,9 +2466,9 @@ Fin-choose-ℕ zero-ℕ zero-ℕ =
         ( id))
       ( dependent-universal-property-empty'
         ( λ x → (y : empty) → is-equiv (ap id))))
-Fin-choose-ℕ zero-ℕ (succ-ℕ m) =
+Fin-falling-factorial-ℕ zero-ℕ (succ-ℕ m) =
   equiv-is-empty id (λ f → map-emb f (inr star))
-Fin-choose-ℕ (succ-ℕ n) zero-ℕ =
+Fin-falling-factorial-ℕ (succ-ℕ n) zero-ℕ =
   equiv-is-contr
     ( is-contr-Fin-one-ℕ)
     ( is-contr-equiv
@@ -2462,7 +2478,7 @@ Fin-choose-ℕ (succ-ℕ n) zero-ℕ =
         ( ex-falso))
       ( dependent-universal-property-empty'
         ( λ x → (y : empty) → is-equiv (ap ex-falso))))
-Fin-choose-ℕ (succ-ℕ n) (succ-ℕ m) =
+Fin-falling-factorial-ℕ (succ-ℕ n) (succ-ℕ m) =
   ( ( ( right-unit-law-Σ-is-contr
         { B = λ f → is-decidable (fib (map-emb f) (inr star))}
         ( λ f →
@@ -2478,8 +2494,9 @@ Fin-choose-ℕ (succ-ℕ n) (succ-ℕ m) =
             ( λ f → fib (map-emb f) (inr star))
             ( λ f → ¬ (fib (map-emb f) (inr star))))) ∘e
         {!!})) ∘e
-    ( equiv-coprod (Fin-choose-ℕ n m) (Fin-choose-ℕ n (succ-ℕ m)))) ∘e
-  ( Fin-add-ℕ (n choose-ℕ m) (n choose-ℕ (succ-ℕ m)))
+    ( equiv-coprod (Fin-falling-factorial-ℕ n m) (Fin-falling-factorial-ℕ n (succ-ℕ m)))) ∘e
+  ( Fin-add-ℕ (falling-factorial-ℕ n m) (falling-factorial-ℕ n (succ-ℕ m)))
+-}
 
 -- Exercise 16.4 (d)
 
