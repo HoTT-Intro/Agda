@@ -12,7 +12,9 @@ open import book.16-finite-types public
 
 -- Section 17.1 Equivalent forms of the univalence axiom
 
--- Definition 17.1.1
+-- Theorem 17.1.1
+
+-- Theorem 17.1.1 Condition (i)
 
 equiv-eq : {i : Level} {A : UU i} {B : UU i} → Id A B → A ≃ B
 equiv-eq refl = equiv-id
@@ -20,17 +22,21 @@ equiv-eq refl = equiv-id
 UNIVALENCE : {i : Level} (A B : UU i) → UU (lsuc i)
 UNIVALENCE A B = is-equiv (equiv-eq {A = A} {B = B})
 
--- Theorem 17.1.2
+-- Theorem 17.1.1 (i) implies (ii)
 
 is-contr-total-equiv-UNIVALENCE : {i : Level} (A : UU i) →
   ((B : UU i) → UNIVALENCE A B) → is-contr (Σ (UU i) (λ X → A ≃ X))
 is-contr-total-equiv-UNIVALENCE A UA =
   fundamental-theorem-id' A equiv-id (λ B → equiv-eq) UA
 
+-- Theorem 17.1.1 (ii) implies (i)
+
 UNIVALENCE-is-contr-total-equiv : {i : Level} (A : UU i) →
   is-contr (Σ (UU i) (λ X → A ≃ X)) → (B : UU i) → UNIVALENCE A B
 UNIVALENCE-is-contr-total-equiv A c =
   fundamental-theorem-id A equiv-id c (λ B → equiv-eq)
+
+-- Theorem 17.1.1 Condition (iii)
 
 ev-id : {i j : Level} {A : UU i} (P : (B : UU i) → (A ≃ B) → UU j) →
   ((B : UU i) (e : A ≃ B) → P B e) → P A equiv-id
@@ -44,6 +50,8 @@ triangle-ev-id : {i j : Level} {A : UU i}
   (ev-pt (pair A equiv-id) P)
   ~ ((ev-id (λ X e → P (pair X e))) ∘ (ev-pair {A = UU i} {B = λ X → A ≃ X} {C = P}))
 triangle-ev-id P f = refl
+
+-- Theorem 17.1.1 (ii) implies (iii)
 
 abstract
   IND-EQUIV-is-contr-total-equiv : {i j : Level} (A : UU i) →
@@ -63,6 +71,8 @@ abstract
           ( λ t →  ( inv (contraction c (pair A equiv-id))) ∙
                    ( contraction c t)))
         ( P))
+
+-- Theorem 17.1.1 (iii) implies (ii)
 
 abstract
   is-contr-total-equiv-IND-EQUIV : {i : Level} (A : UU i) →
@@ -116,6 +126,43 @@ abstract
 ind-equiv : {i j : Level} (A : UU i) (P : (B : UU i) (e : A ≃ B) → UU j) →
   P A equiv-id → {B : UU i} (e : A ≃ B) → P B e
 ind-equiv A P p {B} = pr1 (Ind-equiv A P) p B
+
+-- Some immediate consequences of the univalence axiom
+
+equiv-fam :
+  {l1 l2 l3 : Level} {A : UU l1} (B : A → UU l2) (C : A → UU l3) →
+  UU (l1 ⊔ l2 ⊔ l3)
+equiv-fam {A = A} B C = (a : A) → B a ≃ C a
+
+equiv-id-fam :
+  {l1 l2 : Level} {A : UU l1} (B : A → UU l2) → equiv-fam B B
+equiv-id-fam B a = equiv-id
+
+equiv-eq-fam :
+  {l1 l2 : Level} {A : UU l1} (B C : A → UU l2) → Id B C → equiv-fam B C
+equiv-eq-fam B .B refl = equiv-id-fam B
+
+is-contr-total-equiv-fam :
+  {l1 l2 : Level} {A : UU l1} (B : A → UU l2) →
+  is-contr (Σ (A → UU l2) (equiv-fam B))
+is-contr-total-equiv-fam B =
+  is-contr-total-Eq-Π
+    ( λ x X → (B x) ≃ X)
+    ( λ x → is-contr-total-equiv (B x))
+
+is-equiv-equiv-eq-fam :
+  {l1 l2 : Level} {A : UU l1} (B C : A → UU l2) → is-equiv (equiv-eq-fam B C)
+is-equiv-equiv-eq-fam B =
+  fundamental-theorem-id B
+    ( equiv-id-fam B)
+    ( is-contr-total-equiv-fam B)
+    ( equiv-eq-fam B)
+
+eq-equiv-fam :
+  {l1 l2 : Level} {A : UU l1} {B C : A → UU l2} → equiv-fam B C → Id B C
+eq-equiv-fam {B = B} {C} = map-inv-is-equiv (is-equiv-equiv-eq-fam B C)
+
+-- Propostion 17.1.3
 
 --------------------------------------------------------------------------------
 
@@ -223,15 +270,40 @@ eq-Eq-total-subuniverse :
   {s t : total-subuniverse P} → Eq-total-subuniverse P s t → Id s t
 eq-Eq-total-subuniverse P {s} {t} =
   map-inv-is-equiv (is-equiv-Eq-total-subuniverse-eq P s t)
-    
+
+--------------------------------------------------------------------------------
+
+-- Section 17.3 Maps and families of types
+
+slice : (l : Level) {l1 : Level} (A : UU l1) → UU (l1 ⊔ lsuc l)
+slice l A = Σ (UU l) (λ X → X → A)
+
+Fib : {l l1 : Level} (A : UU l1) → slice l A → A → UU (l1 ⊔ l)
+Fib A (pair X f) = fib f
+
+Pr1 : {l l1 : Level} (A : UU l1) → (A → UU l) → slice (l1 ⊔ l) A
+Pr1 A B = pair (Σ A B) pr1
+
+issec-Pr1 :
+  {l1 l2 : Level} {A : UU l1} → (Fib {l1 ⊔ l2} A ∘ Pr1 {l1 ⊔ l2} A) ~ id
+issec-Pr1 {l1} {l2} {A} B = eq-equiv-fam equiv-fib-pr1
+
+equiv-id-slice :
+  {l1 l2 : Level} (A : UU l1) (f : Σ (UU l2) (λ X → X → A)) →
+  equiv-slice A (pr2 f) (pr2 f)
+equiv-id-slice A f = {!!}
+
+--------------------------------------------------------------------------------
+
+-- Section 17.4 Classical mathematics with the univalence axiom
 
 -- Classical logic in univalent type theory
 
 {- Recall that a proposition P is decidable if P + (¬ P) holds. -}
 
-classical-Prop :
+decidable-Prop :
   (l : Level) → UU (lsuc l)
-classical-Prop l = Σ (UU-Prop l) (λ P → is-decidable (pr1 P))
+decidable-Prop l = Σ (UU-Prop l) (λ P → is-decidable (pr1 P))
 
 {- Not every type is decidable. -}
 
@@ -273,7 +345,7 @@ has-decidable-equality-unit :
 has-decidable-equality-unit star star = inl refl
 
 decidable-Eq-Fin :
-  (n : ℕ) (i j : Fin n) → classical-Prop lzero
+  (n : ℕ) (i j : Fin n) → decidable-Prop lzero
 decidable-Eq-Fin n i j =
   pair
     ( pair (Id i j) (is-set-Fin n i j))
