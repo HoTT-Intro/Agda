@@ -275,6 +275,8 @@ eq-Eq-total-subuniverse P {s} {t} =
 
 -- Section 17.3 Maps and families of types
 
+-- Theorem 17.3.1
+
 slice : (l : Level) {l1 : Level} (A : UU l1) → UU (l1 ⊔ lsuc l)
 slice l A = Σ (UU l) (λ X → X → A)
 
@@ -284,14 +286,107 @@ Fib A (pair X f) = fib f
 Pr1 : {l l1 : Level} (A : UU l1) → (A → UU l) → slice (l1 ⊔ l) A
 Pr1 A B = pair (Σ A B) pr1
 
+module _
+  {l1 l2 : Level} {A : UU l1}
+  where
+
+  equiv-slice' : (f g : slice l2 A) → UU (l1 ⊔ l2)
+  equiv-slice' f g = equiv-slice A (pr2 f) (pr2 g)
+  
+  equiv-id-slice : (f : slice l2 A) → equiv-slice' f f
+  equiv-id-slice f = pair equiv-id refl-htpy
+
+  equiv-eq-slice : (f g : slice l2 A) → Id f g → equiv-slice' f g
+  equiv-eq-slice f .f refl = equiv-id-slice f
+
+  is-contr-total-equiv-slice' :
+    (f : slice l2 A) → is-contr (Σ (slice l2 A) (equiv-slice' f))
+  is-contr-total-equiv-slice' (pair X f) =
+    is-contr-total-Eq-structure
+      ( λ Y g e → f ~ (g ∘ map-equiv e))
+      ( is-contr-total-equiv X)
+      ( pair X equiv-id)
+      ( is-contr-total-htpy f)
+
+  is-equiv-equiv-eq-slice :
+    (f g : slice l2 A) → is-equiv (equiv-eq-slice f g)
+  is-equiv-equiv-eq-slice f =
+    fundamental-theorem-id f
+      ( equiv-id-slice f)
+      ( is-contr-total-equiv-slice' f)
+      ( equiv-eq-slice f)
+
+  eq-equiv-slice :
+    (f g : slice l2 A) → equiv-slice' f g → Id f g
+  eq-equiv-slice f g =
+    map-inv-is-equiv (is-equiv-equiv-eq-slice f g)
+
 issec-Pr1 :
   {l1 l2 : Level} {A : UU l1} → (Fib {l1 ⊔ l2} A ∘ Pr1 {l1 ⊔ l2} A) ~ id
-issec-Pr1 {l1} {l2} {A} B = eq-equiv-fam equiv-fib-pr1
+issec-Pr1 B = eq-equiv-fam equiv-fib-pr1
+                           
+isretr-Pr1 :
+  {l1 l2 : Level} {A : UU l1} → (Pr1 {l1 ⊔ l2} A ∘ Fib {l1 ⊔ l2} A) ~ id
+isretr-Pr1 {A = A} (pair X f) =
+  eq-equiv-slice
+    ( Pr1 A (Fib A (pair X f)))
+    ( pair X f)
+    ( pair (equiv-total-fib f) (triangle-map-equiv-total-fib f))
 
-equiv-id-slice :
-  {l1 l2 : Level} (A : UU l1) (f : Σ (UU l2) (λ X → X → A)) →
-  equiv-slice A (pr2 f) (pr2 f)
-equiv-id-slice A f = {!!}
+is-equiv-Fib :
+  {l1 : Level} (l2 : Level) (A : UU l1) → is-equiv (Fib {l1 ⊔ l2} A)
+is-equiv-Fib l2 A =
+  is-equiv-has-inverse (Pr1 A) (issec-Pr1 {l2 = l2}) (isretr-Pr1 {l2 = l2})
+
+equiv-Fib :
+  {l1 : Level} (l2 : Level) (A : UU l1) → slice (l1 ⊔ l2) A ≃ (A → UU (l1 ⊔ l2))
+equiv-Fib l2 A = pair (Fib A) (is-equiv-Fib l2 A)
+
+is-equiv-Pr1 :
+  {l1 : Level} (l2 : Level) (A : UU l1) → is-equiv (Pr1 {l1 ⊔ l2} A)
+is-equiv-Pr1 {l1} l2 A =
+  is-equiv-has-inverse (Fib A) (isretr-Pr1 {l2 = l2}) (issec-Pr1 {l2 = l2})
+
+equiv-Pr1 :
+  {l1 : Level} (l2 : Level) (A : UU l1) → (A → UU (l1 ⊔ l2)) ≃ slice (l1 ⊔ l2) A
+equiv-Pr1 l2 A = pair (Pr1 A) (is-equiv-Pr1 l2 A)
+
+-- Theorem 17.3.2
+
+domain : {l1 l2 : Level} (P : UU l1 → UU l2) → UU (lsuc l1 ⊔ l2)
+domain {l1} P = Σ (UU l1) P
+
+fam-domain :
+  {l1 l2 l3 : Level} (P : UU l1 → UU l2) (A : UU l3) → UU (lsuc l1 ⊔ l2 ⊔ l3)
+fam-domain P A = A → domain P
+
+domain-map :
+  {l1 l2 l3 : Level} (P : UU (l1 ⊔ l2) → UU l3) {A : UU l1} {B : UU l2}
+  (f : A → B) → UU (l2 ⊔ l3)
+domain-map P {A} {B} f = (b : B) → P (fib f b)
+
+hom-domain :
+  {l1 l2 l3 : Level} (P : UU (l1 ⊔ l2) → UU l3) →
+  UU l1 → UU l2 → UU (l1 ⊔ l2 ⊔ l3)
+hom-domain P A B = Σ (A → B) (domain-map P)
+
+slice-domain :
+  {l1 l2 : Level} (l : Level) (P : UU (l1 ⊔ l) → UU l2) (B : UU l1) →
+  UU (l1 ⊔ l2 ⊔ lsuc l)
+slice-domain l P B = Σ (UU l) (λ A → hom-domain P A B)
+
+equiv-Fib-domain :
+  {l1 l2 l3 : Level} (P : UU (l1 ⊔ l2) → UU l3) (B : UU l1) →
+  slice-domain l2 P B ≃ (fam-domain P B)
+equiv-Fib-domain {l1} {l2} {l3} P B =
+  ( {!!} ∘e
+    ( equiv-Σ-equiv-base
+      {!!}
+      ( equiv-Fib {!l2!} B))) ∘e
+  ( inv-assoc-Σ
+    ( UU l2)
+    ( λ A → A → B)
+    ( λ f → domain-map P (pr2 f)))
 
 --------------------------------------------------------------------------------
 
@@ -371,15 +466,9 @@ has-decidable-equality-retract-of (pair i (pair r H)) d x y =
     ( retract-eq (pair i (pair r H)) x y)
     ( d (i x) (i y))
 
--- Exercises
+--------------------------------------------------------------------------------
 
--- Exercise 17.1
-
-tr-equiv-eq-ap : {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {x y : A}
-  (p : Id x y) → (map-equiv (equiv-eq (ap B p))) ~ tr B p
-tr-equiv-eq-ap refl = refl-htpy
-
--- Exercise 17.2
+-- Section 17.5 Resizing axioms
 
 is-small :
   (l : Level) {l1 : Level} (A : UU l1) → UU (lsuc l ⊔ l1)
@@ -460,7 +549,17 @@ is-small-fib :
 is-small-fib l f H K b =
   is-small-Σ l H (λ a → is-locally-small-is-small l K (f a) b)
 
---
+--------------------------------------------------------------------------------
+
+-- Exercises
+
+-- Exercise 17.1
+
+tr-equiv-eq-ap : {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {x y : A}
+  (p : Id x y) → (map-equiv (equiv-eq (ap B p))) ~ tr B p
+tr-equiv-eq-ap refl = refl-htpy
+
+-- Exercise 17.2
 
 total-subtype :
   {l1 l2 : Level} {A : UU l1} (P : A → UU-Prop l2) → UU (l1 ⊔ l2)
