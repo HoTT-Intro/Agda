@@ -281,7 +281,7 @@ slice : (l : Level) {l1 : Level} (A : UU l1) → UU (l1 ⊔ lsuc l)
 slice l A = Σ (UU l) (λ X → X → A)
 
 Fib : {l l1 : Level} (A : UU l1) → slice l A → A → UU (l1 ⊔ l)
-Fib A (pair X f) = fib f
+Fib A f = fib (pr2 f)
 
 Pr1 : {l l1 : Level} (A : UU l1) → (A → UU l) → slice (l1 ⊔ l) A
 Pr1 A B = pair (Σ A B) pr1
@@ -376,17 +376,27 @@ slice-domain :
 slice-domain l P B = Σ (UU l) (λ A → hom-domain P A B)
 
 equiv-Fib-domain :
-  {l1 l2 l3 : Level} (P : UU (l1 ⊔ l2) → UU l3) (B : UU l1) →
-  slice-domain l2 P B ≃ (fam-domain P B)
-equiv-Fib-domain {l1} {l2} {l3} P B =
-  ( {!!} ∘e
-    ( equiv-Σ-equiv-base
-      {!!}
-      ( equiv-Fib {!l2!} B))) ∘e
-  ( inv-assoc-Σ
-    ( UU l2)
-    ( λ A → A → B)
-    ( λ f → domain-map P (pr2 f)))
+  {l1 l3 : Level} (l : Level) (P : UU (l1 ⊔ l) → UU l3) (B : UU l1) →
+  slice-domain (l1 ⊔ l) P B ≃ fam-domain P B
+equiv-Fib-domain {l1} {l3} l P B =
+  ( ( equiv-inv-choice-∞ (λ x → P)) ∘e
+    ( equiv-Σ
+      ( λ C → (b : B) → P (C b))
+      ( equiv-Fib l B)
+      ( λ f → equiv-map-Π (λ b → equiv-id)))) ∘e
+  ( inv-assoc-Σ (UU (l1 ⊔ l)) (λ A → A → B) (λ f → domain-map P (pr2 f)))
+
+-- Corollary 17.3.3
+
+slice-emb : (l : Level) {l1 : Level} (A : UU l1) → UU (lsuc l ⊔ l1)
+slice-emb l A = Σ (UU l) (λ X → X ↪ A)
+
+equiv-Fib-Prop :
+  (l : Level) {l1 : Level} (A : UU l1) →
+  slice-emb (l1 ⊔ l) A ≃ (A → UU-Prop (l1 ⊔ l))
+equiv-Fib-Prop l A =
+  ( equiv-Fib-domain l is-prop A) ∘e
+  ( equiv-tot (λ X → equiv-tot equiv-is-prop-map-is-emb))
 
 --------------------------------------------------------------------------------
 
@@ -573,7 +583,7 @@ equiv-subtype-equiv :
   total-subtype C ≃ total-subtype D
 equiv-subtype-equiv e C D H =
   equiv-Σ (λ y → type-Prop (D y)) e
-    ( λ x → equiv-iff (C x) (D (map-equiv e x)) (H x))
+    ( λ x → equiv-iff' (C x) (D (map-equiv e x)) (H x))
 
 equiv-comp-equiv' :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} →

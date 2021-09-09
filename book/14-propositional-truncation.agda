@@ -1161,9 +1161,8 @@ equiv-impredicative-trunc-Prop A =
   equiv-iff
     ( trunc-Prop A)
     ( impredicative-trunc-Prop A)
-    ( pair
-      ( map-impredicative-trunc-Prop A)
-      ( inv-map-impredicative-trunc-Prop A))
+    ( map-impredicative-trunc-Prop A)
+    ( inv-map-impredicative-trunc-Prop A)
 
 -- The impredicative encoding of conjunction --
 
@@ -1198,9 +1197,8 @@ equiv-impredicative-conj-Prop P1 P2 =
   equiv-iff
     ( conj-Prop P1 P2)
     ( impredicative-conj-Prop P1 P2)
-    ( pair
-      ( map-impredicative-conj-Prop P1 P2)
-      ( inv-map-impredicative-conj-Prop P1 P2))
+    ( map-impredicative-conj-Prop P1 P2)
+    ( inv-map-impredicative-conj-Prop P1 P2)
 
 -- The impredicative encoding of disjunction --
 
@@ -1243,9 +1241,8 @@ equiv-impredicative-disj-Prop P1 P2 =
   equiv-iff
     ( disj-Prop P1 P2)
     ( impredicative-disj-Prop P1 P2)
-    ( pair
-      ( map-impredicative-disj-Prop P1 P2)
-      ( inv-map-impredicative-disj-Prop P1 P2))
+    ( map-impredicative-disj-Prop P1 P2)
+    ( inv-map-impredicative-disj-Prop P1 P2)
 
 -- The impredicative encoding of negation --
 
@@ -1276,9 +1273,8 @@ equiv-impredicative-neg-Prop A =
   equiv-iff
     ( neg-Prop' A)
     ( impredicative-neg-Prop A)
-    ( pair
-      ( map-impredicative-neg-Prop A)
-      ( inv-map-impredicative-neg-Prop A))
+    ( map-impredicative-neg-Prop A)
+    ( inv-map-impredicative-neg-Prop A)
 
 -- The impredicative encoding of existential quantification --
 
@@ -1316,9 +1312,8 @@ equiv-impredicative-exists-Prop P =
   equiv-iff
     ( exists-Prop P)
     ( impredicative-exists-Prop P)
-    ( pair
-      ( map-impredicative-exists-Prop P)
-      ( inv-map-impredicative-exists-Prop P))
+    ( map-impredicative-exists-Prop P)
+    ( inv-map-impredicative-exists-Prop P)
 
 -- The impredicative encoding of the based identity type of a set --
 
@@ -1350,9 +1345,8 @@ equiv-impredicative-based-id-Prop A a x =
   equiv-iff
     ( pair (Id a x) (is-set-type-Set A a x))
     ( impredicative-based-id-Prop A a x)
-    ( pair
-      ( map-impredicative-based-id-Prop A a x)
-      ( inv-map-impredicative-based-id-Prop A a x))
+    ( map-impredicative-based-id-Prop A a x)
+    ( inv-map-impredicative-based-id-Prop A a x)
 
 -- The impredicative encoding of Martin-Löf's identity type of a set --
 
@@ -1385,9 +1379,8 @@ equiv-impredicative-id-Prop A x y =
   equiv-iff
     ( pair (Id x y) (is-set-type-Set A x y))
     ( impredicative-id-Prop A x y)
-    ( pair
-      ( map-impredicative-id-Prop A x y)
-      ( inv-map-impredicative-id-Prop A x y))
+    ( map-impredicative-id-Prop A x y)
+    ( inv-map-impredicative-id-Prop A x y)
 
 -- Exercise 14.8
 

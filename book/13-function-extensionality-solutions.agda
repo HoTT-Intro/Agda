@@ -541,10 +541,15 @@ _⇔_ :
   {l1 l2 : Level} → UU-Prop l1 → UU-Prop l2 → UU (l1 ⊔ l2)
 P ⇔ Q = (pr1 P → pr1 Q) × (pr1 Q → pr1 P)
 
-equiv-iff :
+equiv-iff' :
   {l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) →
   (P ⇔ Q) → (pr1 P ≃ pr1 Q)
-equiv-iff P Q t = pair (pr1 t) (is-equiv-is-prop (pr2 P) (pr2 Q) (pr2 t))
+equiv-iff' P Q t = pair (pr1 t) (is-equiv-is-prop (pr2 P) (pr2 Q) (pr2 t))
+
+equiv-iff :
+  {l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) →
+  (type-hom-Prop P Q) → (type-hom-Prop Q P) → pr1 P ≃ pr1 Q
+equiv-iff P Q f g = equiv-iff' P Q (pair f g)
 
 iff-equiv :
   {l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) →
@@ -568,7 +573,8 @@ abstract
 
 abstract
   is-equiv-equiv-iff :
-    {l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) → is-equiv (equiv-iff P Q)
+    {l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) →
+    is-equiv (equiv-iff' P Q)
   is-equiv-equiv-iff P Q =
     is-equiv-is-prop
       ( is-prop-iff P Q)
@@ -586,6 +592,83 @@ abstract
     {l : Level} (P : UU l) → is-prop P → is-contr (P → P)
   is-contr-endomaps-is-prop P is-prop-P =
     is-proof-irrelevant-is-prop (is-prop-function-type is-prop-P) id
+
+-- Bureaucracy
+
+is-prop-is-emb :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) → is-prop (is-emb f)
+is-prop-is-emb f =
+  is-prop-Π (λ x → is-prop-Π (λ y → is-subtype-is-equiv (ap f)))
+
+is-emb-Prop :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} → (A → B) → UU-Prop (l1 ⊔ l2)
+is-emb-Prop f = pair (is-emb f) (is-prop-is-emb f)
+
+is-prop-is-trunc-map :
+  (k : 𝕋) {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  is-prop (is-trunc-map k f)
+is-prop-is-trunc-map k f = is-prop-Π (λ x → is-prop-is-trunc k (fib f x))
+
+is-prop-is-contr-map :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  is-prop (is-contr-map f)
+is-prop-is-contr-map f = is-prop-is-trunc-map neg-two-𝕋 f
+
+is-prop-is-prop-map :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) → is-prop (is-prop-map f)
+is-prop-is-prop-map f = is-prop-is-trunc-map neg-one-𝕋 f
+
+is-trunc-map-Prop :
+  (k : 𝕋) {l1 l2 : Level} {A : UU l1} {B : UU l2} → (A → B) → UU-Prop (l1 ⊔ l2)
+is-trunc-map-Prop k f = pair (is-trunc-map k f) (is-prop-is-trunc-map k f)
+
+is-contr-map-Prop :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} → (A → B) → UU-Prop (l1 ⊔ l2)
+is-contr-map-Prop f = pair (is-contr-map f) (is-prop-is-contr-map f)
+
+is-prop-map-Prop :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} → (A → B) → UU-Prop (l1 ⊔ l2)
+is-prop-map-Prop f = pair (is-prop-map f) (is-prop-is-prop-map f)
+
+equiv-is-equiv-is-contr-map :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  is-contr-map f ≃ is-equiv f
+equiv-is-equiv-is-contr-map f =
+  equiv-iff
+    ( is-contr-map-Prop f)
+    ( is-equiv-Prop f)
+    ( is-equiv-is-contr-map)
+    ( is-contr-map-is-equiv)
+
+equiv-is-contr-map-is-equiv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  is-equiv f ≃ is-contr-map f
+equiv-is-contr-map-is-equiv f =
+  equiv-iff
+    ( is-equiv-Prop f)
+    ( is-contr-map-Prop f)
+    ( is-contr-map-is-equiv)
+    ( is-equiv-is-contr-map)
+
+equiv-is-emb-is-prop-map :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  is-prop-map f ≃ is-emb f
+equiv-is-emb-is-prop-map f =
+  equiv-iff
+    ( is-prop-map-Prop f)
+    ( is-emb-Prop f)
+    ( is-emb-is-prop-map)
+    ( is-prop-map-is-emb)
+
+equiv-is-prop-map-is-emb :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  is-emb f ≃ is-prop-map f
+equiv-is-prop-map-is-emb f =
+  equiv-iff
+    ( is-emb-Prop f)
+    ( is-prop-map-Prop f)
+    ( is-prop-map-is-emb)
+    ( is-emb-is-prop-map)
 
 -- Exercise 13.5
 
