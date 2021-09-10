@@ -162,7 +162,115 @@ eq-equiv-fam :
   {l1 l2 : Level} {A : UU l1} {B C : A → UU l2} → equiv-fam B C → Id B C
 eq-equiv-fam {B = B} {C} = map-inv-is-equiv (is-equiv-equiv-eq-fam B C)
 
--- Propostion 17.1.3
+-- Theorem 17.1.3
+
+is-contr-total-iff :
+  {l1 : Level} (P : UU-Prop l1) → is-contr (Σ (UU-Prop l1) (λ Q → P ⇔ Q))
+is-contr-total-iff {l1} P =
+  is-contr-equiv
+    ( Σ (UU-Prop l1) (λ Q → type-Prop P ≃ type-Prop Q))
+    ( equiv-tot (equiv-equiv-iff P))
+    ( is-contr-total-Eq-substructure
+      ( is-contr-total-equiv (type-Prop P))
+      ( is-prop-is-prop)
+      ( type-Prop P)
+      ( equiv-id)
+      ( is-prop-type-Prop P))
+
+is-equiv-iff-eq :
+  {l1 : Level} (P Q : UU-Prop l1) → is-equiv (iff-eq {l1} {P} {Q})
+is-equiv-iff-eq P =
+  fundamental-theorem-id P
+    ( pair id id)
+    ( is-contr-total-iff P)
+    ( λ Q → iff-eq {P = P} {Q})
+
+-- Corollary 17.1.4
+
+decidable-Prop :
+  (l : Level) → UU (lsuc l)
+decidable-Prop l = Σ (UU-Prop l) (λ P → is-decidable (pr1 P))
+
+is-contr-raise-unit :
+  {l1 : Level} → is-contr (raise-unit l1)
+is-contr-raise-unit {l1} =
+  is-contr-equiv' unit (equiv-raise l1 unit) is-contr-unit
+
+is-prop-raise-unit :
+  {l1 : Level} → is-prop (raise-unit l1)
+is-prop-raise-unit {l1} =
+  is-prop-equiv' unit (equiv-raise l1 unit) is-prop-unit
+
+raise-unit-Prop :
+  (l1 : Level) → UU-Prop l1
+raise-unit-Prop l1 = pair (raise-unit l1) is-prop-raise-unit
+
+is-contr-total-true-Prop :
+  {l1 : Level} → is-contr (Σ (UU-Prop l1) (λ P → type-Prop P))
+is-contr-total-true-Prop {l1} =
+  is-contr-equiv
+    ( Σ (UU-Prop l1) (λ P → raise-unit-Prop l1 ⇔ P))
+    ( equiv-tot
+      ( λ P →
+        inv-equiv
+          ( ( equiv-universal-property-contr
+              ( raise-star)
+              ( is-contr-raise-unit)
+              ( type-Prop P)) ∘e
+            ( right-unit-law-prod-is-contr
+              ( is-contr-Π
+                ( λ x →
+                  is-proof-irrelevant-is-prop
+                    ( is-prop-raise-unit)
+                    ( raise-star)))))))
+    ( is-contr-total-iff (raise-unit-Prop l1))
+
+is-prop-raise-empty :
+  {l1 : Level} → is-prop (raise-empty l1)
+is-prop-raise-empty {l1} =
+  is-prop-equiv'
+    ( empty)
+    ( equiv-raise l1 empty)
+    ( is-prop-empty)
+
+raise-empty-Prop :
+  (l1 : Level) → UU-Prop l1
+raise-empty-Prop l1 = pair (raise-empty l1) is-prop-raise-empty
+
+is-empty-raise-empty :
+  {l1 : Level} → is-empty (raise-empty l1)
+is-empty-raise-empty {l1} = map-inv-equiv (equiv-raise-empty l1)
+
+is-contr-total-false-Prop :
+  {l1 : Level} → is-contr (Σ (UU-Prop l1) (λ P → type-Prop (neg-Prop P)))
+is-contr-total-false-Prop {l1} =
+  is-contr-equiv
+    ( Σ (UU-Prop l1) (λ P → raise-empty-Prop l1 ⇔ P))
+    ( equiv-tot
+      ( λ P →
+        inv-equiv
+          ( ( inv-equiv (equiv-postcomp (type-Prop P) (equiv-raise l1 empty))) ∘e
+            ( left-unit-law-prod-is-contr
+              ( universal-property-empty-is-empty
+                ( raise-empty l1)
+                ( is-empty-raise-empty)
+                ( type-Prop P))))))
+    ( is-contr-total-iff (raise-empty-Prop l1))
+
+equiv-Fin-two-decidable-Prop :
+  {l1 : Level} → decidable-Prop l1 ≃ Fin two-ℕ
+equiv-Fin-two-decidable-Prop {l1} =
+  ( equiv-coprod
+    ( equiv-is-contr
+      ( is-contr-total-true-Prop)
+      ( is-contr-Fin-one-ℕ))
+    ( equiv-is-contr
+      ( is-contr-total-false-Prop)
+      ( is-contr-unit))) ∘e
+  ( left-distributive-Σ-coprod
+    ( UU-Prop l1)
+    ( λ P → type-Prop P)
+    ( λ P → type-Prop (neg-Prop P)))
 
 --------------------------------------------------------------------------------
 
@@ -403,12 +511,6 @@ equiv-Fib-Prop l A =
 -- Section 17.4 Classical mathematics with the univalence axiom
 
 -- Classical logic in univalent type theory
-
-{- Recall that a proposition P is decidable if P + (¬ P) holds. -}
-
-decidable-Prop :
-  (l : Level) → UU (lsuc l)
-decidable-Prop l = Σ (UU-Prop l) (λ P → is-decidable (pr1 P))
 
 {- Not every type is decidable. -}
 

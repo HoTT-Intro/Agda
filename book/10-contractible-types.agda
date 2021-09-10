@@ -669,6 +669,11 @@ left-unit-law-Σ-is-contr C a =
     ( map-left-unit-law-Σ-is-contr C a)
     ( is-equiv-map-left-unit-law-Σ-is-contr C a)
 
+left-unit-law-prod-is-contr :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (C : is-contr A) → (A × B) ≃ B
+left-unit-law-prod-is-contr C =
+  left-unit-law-Σ-is-contr C (center C)
+
 abstract
   is-equiv-map-inv-left-unit-law-Σ-is-contr :
     {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (C : is-contr A) (a : A) →
@@ -764,6 +769,11 @@ right-unit-law-Σ-is-contr :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
   ((a : A) → is-contr (B a)) → (Σ A B) ≃ A
 right-unit-law-Σ-is-contr = equiv-pr1
+
+right-unit-law-prod-is-contr :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} → is-contr B → (A × B) ≃ A
+right-unit-law-prod-is-contr {l1} {l2} {A} {B} H =
+  right-unit-law-Σ-is-contr (λ a → H)
 
 abstract
   is-contr-is-equiv-pr1 :

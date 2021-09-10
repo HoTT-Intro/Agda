@@ -581,6 +581,12 @@ abstract
       ( is-prop-equiv-Prop P Q)
       ( iff-equiv P Q)
 
+equiv-equiv-iff :
+  {l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) →
+  (P ⇔ Q) ≃ (type-Prop P ≃ type-Prop Q)
+equiv-equiv-iff P Q =
+  pair (equiv-iff' P Q) (is-equiv-equiv-iff P Q)
+
 abstract
   is-prop-is-contr-endomaps :
     {l : Level} (P : UU l) → is-contr (P → P) → is-prop P
@@ -797,6 +803,12 @@ module _
     pair ( λ x → ex-falso (H x))
          ( λ f → eq-htpy (λ x → ex-falso (H x)))
 
+  universal-property-empty-is-empty :
+    {l : Level} (H : is-empty A) → universal-property-empty l
+  universal-property-empty-is-empty {l} H =
+    universal-property-dependent-universal-property-empty
+      ( dependent-universal-property-empty-is-empty H)
+
 abstract
   dependent-universal-property-empty' :
     {l : Level} (P : empty → UU l) → is-contr ((x : empty) → P x)
@@ -902,6 +914,19 @@ module _
           ( ind-singleton-is-contr a H
             ( λ x → Id (ind-singleton-is-contr a H P (f a) x) (f x))
             ( comp-singleton-is-contr a H P (f a))))
+
+  universal-property-contr-is-contr :
+    (a : A) → is-contr A → {l : Level} → universal-property-contr l a
+  universal-property-contr-is-contr a H =
+    universal-property-dependent-universal-property-contr a
+      ( dependent-universal-property-contr-is-contr a H)
+
+  equiv-universal-property-contr :
+    (a : A) → is-contr A → {l : Level} (X : UU l) → (A → X) ≃ X
+  equiv-universal-property-contr a H X =
+    pair
+      ( ev-point' a)
+      ( universal-property-contr-is-contr a H X)
 
   is-equiv-self-diagonal-is-equiv-diagonal :
     ({l : Level} (X : UU l) → is-equiv (λ x → const A X x)) →
