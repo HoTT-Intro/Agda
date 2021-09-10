@@ -257,9 +257,9 @@ is-contr-total-false-Prop {l1} =
                 ( type-Prop P))))))
     ( is-contr-total-iff (raise-empty-Prop l1))
 
-equiv-Fin-two-decidable-Prop :
+equiv-Fin-two-ℕ-decidable-Prop :
   {l1 : Level} → decidable-Prop l1 ≃ Fin two-ℕ
-equiv-Fin-two-decidable-Prop {l1} =
+equiv-Fin-two-ℕ-decidable-Prop {l1} =
   ( equiv-coprod
     ( equiv-is-contr
       ( is-contr-total-true-Prop)
@@ -271,6 +271,35 @@ equiv-Fin-two-decidable-Prop {l1} =
     ( UU-Prop l1)
     ( λ P → type-Prop P)
     ( λ P → type-Prop (neg-Prop P)))
+
+bool-Fin-two-ℕ : Fin two-ℕ → bool
+bool-Fin-two-ℕ (inl (inr star)) = false
+bool-Fin-two-ℕ (inr star) = true
+
+Fin-two-ℕ-bool : bool → Fin two-ℕ
+Fin-two-ℕ-bool true = inr star
+Fin-two-ℕ-bool false = inl (inr star)
+
+isretr-Fin-two-ℕ-bool : (Fin-two-ℕ-bool ∘ bool-Fin-two-ℕ) ~ id
+isretr-Fin-two-ℕ-bool (inl (inr star)) = refl
+isretr-Fin-two-ℕ-bool (inr star) = refl
+
+issec-Fin-two-ℕ-bool : (bool-Fin-two-ℕ ∘ Fin-two-ℕ-bool) ~ id
+issec-Fin-two-ℕ-bool true = refl
+issec-Fin-two-ℕ-bool false = refl
+
+equiv-bool-Fin-two-ℕ : Fin two-ℕ ≃ bool
+equiv-bool-Fin-two-ℕ =
+  pair
+    ( bool-Fin-two-ℕ)
+    ( is-equiv-has-inverse
+      ( Fin-two-ℕ-bool)
+      ( issec-Fin-two-ℕ-bool)
+      ( isretr-Fin-two-ℕ-bool))
+
+equiv-bool-decidable-Prop : {l : Level} → decidable-Prop l ≃ bool
+equiv-bool-decidable-Prop {l} =
+  equiv-bool-Fin-two-ℕ ∘e equiv-Fin-two-ℕ-decidable-Prop
 
 --------------------------------------------------------------------------------
 
