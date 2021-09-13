@@ -6,4 +6,3 @@ open import book public
 open import extra public
 open import combinatorics public
 open import type-theories public
-

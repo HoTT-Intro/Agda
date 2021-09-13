@@ -81,7 +81,7 @@ is-contr-total-Eq-localizations
   (pair P H) X (pair (pair Y p) (pair l up)) =
   is-contr-total-Eq-structure
     ( λ Y' l' e → ((map-equiv e) ∘ l) ~ (pr1 l'))
-    ( is-contr-total-Eq-total-subuniverse (pair P H) (pair Y p))
+    ( is-contr-total-equiv-subuniverse (pair P H) (pair Y p))
     ( pair (pair Y p) equiv-id)
     ( is-contr-total-Eq-substructure
       ( is-contr-total-htpy l)
@@ -270,19 +270,12 @@ has-localization-is-local-is-contr (pair P H) X is-contr-X p =
     ( pair X p)
     ( pair id (universal-property-localization-id-is-local (pair P H) X p))
 
-is-contr-raise-unit :
-  (l : Level) → is-contr (raise l unit)
-is-contr-raise-unit l =
-  is-contr-equiv' unit
-    ( equiv-raise l unit)
-    ( is-contr-unit)
-
 is-local-unit-localization-unit :
   {l1 l2 : Level} (P : subuniverse l1 l2) →
   (Y : has-localization P (raise l1 unit)) →
   (pr1 P) (raise l1 unit)
 is-local-unit-localization-unit P Y =
-  is-local-has-localization-is-contr P (raise _ unit) (is-contr-raise-unit _) Y
+  is-local-has-localization-is-contr P (raise _ unit) (is-contr-raise-unit) Y
 
 map-Σ-dependent-elimination-localization :
   {l1 l2 : Level} (P : subuniverse l1 l2) (X : UU l1) →

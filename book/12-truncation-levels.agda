@@ -1668,6 +1668,14 @@ module _
           ( refl)))
       ( λ x → ap (λ y → a))
 
+has-decidable-equality-retract-of :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  A retract-of B → has-decidable-equality B → has-decidable-equality A
+has-decidable-equality-retract-of (pair i (pair r H)) d x y =
+  is-decidable-retract-of
+    ( retract-eq (pair i (pair r H)) x y)
+    ( d (i x) (i y))
+
 --------------------------------------------------------------------------------
 
 -- Extra stuff

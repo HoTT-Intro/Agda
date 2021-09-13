@@ -301,6 +301,250 @@ equiv-bool-decidable-Prop : {l : Level} → decidable-Prop l ≃ bool
 equiv-bool-decidable-Prop {l} =
   equiv-bool-Fin-two-ℕ ∘e equiv-Fin-two-ℕ-decidable-Prop
 
+-- Bureaucracy
+
+decidable-Eq-Fin :
+  (n : ℕ) (i j : Fin n) → decidable-Prop lzero
+decidable-Eq-Fin n i j =
+  pair
+    ( pair (Id i j) (is-set-Fin n i j))
+    ( has-decidable-equality-Fin i j)
+
+-- Subuniverses
+
+is-subuniverse :
+  {l1 l2 : Level} (P : UU l1 → UU l2) → UU ((lsuc l1) ⊔ l2)
+is-subuniverse P = is-subtype P
+
+subuniverse :
+  (l1 l2 : Level) → UU ((lsuc l1) ⊔ (lsuc l2))
+subuniverse l1 l2 = Σ (UU l1 → UU l2) is-subuniverse
+
+{- By univalence, subuniverses are closed under equivalences. -}
+in-subuniverse-equiv :
+  {l1 l2 : Level} (P : UU l1 → UU l2) {X Y : UU l1} → X ≃ Y → P X → P Y
+in-subuniverse-equiv P e = tr P (eq-equiv _ _ e)
+
+in-subuniverse-equiv' :
+  {l1 l2 : Level} (P : UU l1 → UU l2) {X Y : UU l1} → X ≃ Y → P Y → P X
+in-subuniverse-equiv' P e = tr P (inv (eq-equiv _ _ e))
+
+total-subuniverse :
+  {l1 l2 : Level} (P : subuniverse l1 l2) → UU ((lsuc l1) ⊔ l2)
+total-subuniverse {l1} P = Σ (UU l1) (pr1 P)
+
+{- We also introduce the notion of 'global subuniverse'. The handling of 
+   universe levels is a bit more complicated here, since (l : Level) → A l are 
+   kinds but not types. -}
+   
+is-global-subuniverse :
+  (α : Level → Level) (P : (l : Level) → subuniverse l (α l)) →
+  (l1 l2 : Level) → UU _
+is-global-subuniverse α P l1 l2 =
+  (X : UU l1) (Y : UU l2) → X ≃ Y → (pr1 (P l1)) X → (pr1 (P l2)) Y
+
+{- Next we characterize the identity type of a subuniverse. -}
+
+equiv-subuniverse :
+  {l1 l2 : Level} (P : subuniverse l1 l2) →
+  (s t : total-subuniverse P) → UU l1
+equiv-subuniverse (pair P H) (pair X p) t = X ≃ (pr1 t)
+
+equiv-subuniverse-eq :
+  {l1 l2 : Level} (P : subuniverse l1 l2) →
+  (s t : total-subuniverse P) → Id s t → equiv-subuniverse P s t
+equiv-subuniverse-eq (pair P H) (pair X p) .(pair X p) refl = equiv-id
+
+abstract
+  is-contr-total-equiv-subuniverse :
+    {l1 l2 : Level} (P : subuniverse l1 l2)
+    (s : total-subuniverse P) →
+    is-contr (Σ (total-subuniverse P) (λ t → equiv-subuniverse P s t))
+  is-contr-total-equiv-subuniverse (pair P H) (pair X p) =
+    is-contr-total-Eq-substructure (is-contr-total-equiv X) H X equiv-id p
+
+abstract
+  is-equiv-equiv-subuniverse-eq :
+    {l1 l2 : Level} (P : subuniverse l1 l2)
+    (s t : total-subuniverse P) → is-equiv (equiv-subuniverse-eq P s t)
+  is-equiv-equiv-subuniverse-eq (pair P H) (pair X p) =
+    fundamental-theorem-id
+      ( pair X p)
+      ( equiv-id)
+      ( is-contr-total-equiv-subuniverse (pair P H) (pair X p))
+      ( equiv-subuniverse-eq (pair P H) (pair X p))
+
+eq-equiv-subuniverse :
+  {l1 l2 : Level} (P : subuniverse l1 l2) →
+  {s t : total-subuniverse P} → equiv-subuniverse P s t → Id s t
+eq-equiv-subuniverse P {s} {t} =
+  map-inv-is-equiv (is-equiv-equiv-subuniverse-eq P s t)
+
+-- Connected components of the universe
+
+component-UU-Level :
+  (l1 : Level) {l2 : Level} (A : UU l2) → UU (lsuc l1 ⊔ l2)
+component-UU-Level l1 A = Σ (UU l1) (mere-equiv A)
+
+type-component-UU-Level :
+  {l1 l2 : Level} {A : UU l2} → component-UU-Level l1 A → UU l1
+type-component-UU-Level X = pr1 X
+
+mere-equiv-component-UU-Level :
+  {l1 l2 : Level} {A : UU l2} (X : component-UU-Level l1 A) →
+  mere-equiv A (type-component-UU-Level X)
+mere-equiv-component-UU-Level X = pr2 X
+
+component-UU :
+  {l1 : Level} (A : UU l1) → UU (lsuc l1)
+component-UU {l1} A = component-UU-Level l1 A
+
+type-component-UU : {l1 : Level} {A : UU l1} (X : component-UU A) → UU l1
+type-component-UU X = type-component-UU-Level X
+
+mere-equiv-component-UU :
+  {l1 : Level} {A : UU l1} (X : component-UU A) →
+  mere-equiv A (type-component-UU X)
+mere-equiv-component-UU X = mere-equiv-component-UU-Level X
+
+-- We characterize the identity types of connected components of the universe
+
+equiv-component-UU-Level :
+  {l1 l2 : Level} {A : UU l2} (X Y : component-UU-Level l1 A) → UU l1
+equiv-component-UU-Level X Y =
+  type-component-UU-Level X ≃ type-component-UU-Level Y
+
+id-equiv-component-UU-Level :
+  {l1 l2 : Level} {A : UU l2} (X : component-UU-Level l1 A) →
+  equiv-component-UU-Level X X
+id-equiv-component-UU-Level X = equiv-id
+
+equiv-eq-component-UU-Level :
+  {l1 l2 : Level} {A : UU l2} {X Y : component-UU-Level l1 A} →
+  Id X Y → equiv-component-UU-Level X Y
+equiv-eq-component-UU-Level {X = X} refl =
+  id-equiv-component-UU-Level X
+
+is-contr-total-equiv-component-UU-Level :
+  {l1 l2 : Level} {A : UU l2} (X : component-UU-Level l1 A) →
+  is-contr (Σ (component-UU-Level l1 A) (equiv-component-UU-Level X))
+is-contr-total-equiv-component-UU-Level X =
+  is-contr-total-Eq-substructure
+    ( is-contr-total-equiv (type-component-UU-Level X))
+    ( λ Y → is-prop-mere-equiv _ Y)
+    ( type-component-UU-Level X)
+    ( equiv-id)
+    ( mere-equiv-component-UU-Level X)
+
+is-equiv-equiv-eq-component-UU-Level :
+  {l1 l2 : Level} {A : UU l2} (X Y : component-UU-Level l1 A) →
+  is-equiv (equiv-eq-component-UU-Level {X = X} {Y})
+is-equiv-equiv-eq-component-UU-Level X =
+  fundamental-theorem-id X
+    ( id-equiv-component-UU-Level X)
+    ( is-contr-total-equiv-component-UU-Level X)
+    ( λ Y → equiv-eq-component-UU-Level {X = X} {Y})
+
+eq-equiv-component-UU-Level :
+  {l1 l2 : Level} {A : UU l2} (X Y : component-UU-Level l1 A) →
+  equiv-component-UU-Level X Y → Id X Y
+eq-equiv-component-UU-Level X Y =
+  map-inv-is-equiv (is-equiv-equiv-eq-component-UU-Level X Y)
+
+equiv-component-UU :
+  {l1 : Level} {A : UU l1} (X Y : component-UU A) → UU l1
+equiv-component-UU X Y = equiv-component-UU-Level X Y
+
+id-equiv-component-UU :
+  {l1 : Level} {A : UU l1} (X : component-UU A) → equiv-component-UU X X
+id-equiv-component-UU X = id-equiv-component-UU-Level X
+
+equiv-eq-component-UU :
+  {l1 : Level} {A : UU l1} {X Y : component-UU A} →
+  Id X Y → equiv-component-UU X Y
+equiv-eq-component-UU p = equiv-eq-component-UU-Level p
+
+is-contr-total-equiv-component-UU :
+  {l1 : Level} {A : UU l1} (X : component-UU A) →
+  is-contr (Σ (component-UU A) (equiv-component-UU X))
+is-contr-total-equiv-component-UU X =
+  is-contr-total-equiv-component-UU-Level X
+
+is-equiv-equiv-eq-component-UU :
+  {l1 : Level} {A : UU l1} (X Y : component-UU A) →
+  is-equiv (equiv-eq-component-UU {X = X} {Y})
+is-equiv-equiv-eq-component-UU X Y =
+  is-equiv-equiv-eq-component-UU-Level X Y
+
+eq-equiv-component-UU :
+  {l1 : Level} {A : UU l1} (X Y : component-UU A) →
+  equiv-component-UU X Y → Id X Y
+eq-equiv-component-UU X Y =
+  eq-equiv-component-UU-Level X Y
+
+--------------------------------------------------------------------------------
+
+equiv-UU-Fin-Level : {l : Level} {k : ℕ} → (X Y : UU-Fin-Level l k) → UU l
+equiv-UU-Fin-Level X Y = equiv-component-UU-Level X Y
+
+equiv-UU-Fin : {k : ℕ} (X Y : UU-Fin k) → UU lzero
+equiv-UU-Fin X Y = equiv-component-UU X Y
+
+id-equiv-UU-Fin-Level :
+  {l : Level} {k : ℕ} (X : UU-Fin-Level l k) → equiv-UU-Fin-Level X X
+id-equiv-UU-Fin-Level X = id-equiv-component-UU-Level X
+
+id-equiv-UU-Fin :
+  {k : ℕ} (X : UU-Fin k) → equiv-UU-Fin X X
+id-equiv-UU-Fin X = id-equiv-component-UU X
+
+equiv-eq-UU-Fin-Level :
+  {l : Level} {k : ℕ} {X Y : UU-Fin-Level l k} → Id X Y → equiv-UU-Fin-Level X Y
+equiv-eq-UU-Fin-Level p = equiv-eq-component-UU-Level p
+
+equiv-eq-UU-Fin :
+  {k : ℕ} {X Y : UU-Fin k} → Id X Y → equiv-UU-Fin X Y
+equiv-eq-UU-Fin p = equiv-eq-component-UU p
+
+is-contr-total-equiv-UU-Fin-Level :
+  {l : Level} {k : ℕ} (X : UU-Fin-Level l k) →
+  is-contr (Σ (UU-Fin-Level l k) (equiv-UU-Fin-Level X))
+is-contr-total-equiv-UU-Fin-Level {l} {k} X =
+  is-contr-total-equiv-component-UU-Level X
+
+is-contr-total-equiv-UU-Fin :
+  {k : ℕ} (X : UU-Fin k) → is-contr (Σ (UU-Fin k) (equiv-UU-Fin X))
+is-contr-total-equiv-UU-Fin X =
+  is-contr-total-equiv-component-UU X
+
+is-equiv-equiv-eq-UU-Fin-Level :
+  {l : Level} {k : ℕ} (X Y : UU-Fin-Level l k) →
+  is-equiv (equiv-eq-UU-Fin-Level {X = X} {Y})
+is-equiv-equiv-eq-UU-Fin-Level X =
+  is-equiv-equiv-eq-component-UU-Level X
+
+is-equiv-equiv-eq-UU-Fin :
+  {k : ℕ} (X Y : UU-Fin k) → is-equiv (equiv-eq-UU-Fin {X = X} {Y})
+is-equiv-equiv-eq-UU-Fin X =
+  is-equiv-equiv-eq-component-UU X
+
+eq-equiv-UU-Fin-Level :
+  {l : Level} {k : ℕ} (X Y : UU-Fin-Level l k) →
+  equiv-UU-Fin-Level X Y → Id X Y
+eq-equiv-UU-Fin-Level X Y =
+  eq-equiv-component-UU-Level X Y
+
+eq-equiv-UU-Fin :
+  {k : ℕ} (X Y : UU-Fin k) → equiv-UU-Fin X Y → Id X Y
+eq-equiv-UU-Fin X Y = eq-equiv-component-UU X Y
+
+add-free-point-UU-Fin-Level :
+  {l1 : Level} {k : ℕ} → UU-Fin-Level l1 k → UU-Fin-Level l1 (succ-ℕ k)
+add-free-point-UU-Fin-Level X = coprod-UU-Fin-Level X unit-UU-Fin
+
+add-free-point-UU-Fin : {k : ℕ} → UU-Fin k → UU-Fin (succ-ℕ k)
+add-free-point-UU-Fin X = add-free-point-UU-Fin-Level X
+
 --------------------------------------------------------------------------------
 
 -- Section 17.2 Univalence implies function extensionality
@@ -338,106 +582,36 @@ funext-univalence {A = A} {B} f =
 
 --------------------------------------------------------------------------------
 
--- Subuniverses
-
-is-subuniverse :
-  {l1 l2 : Level} (P : UU l1 → UU l2) → UU ((lsuc l1) ⊔ l2)
-is-subuniverse P = is-subtype P
-
-subuniverse :
-  (l1 l2 : Level) → UU ((lsuc l1) ⊔ (lsuc l2))
-subuniverse l1 l2 = Σ (UU l1 → UU l2) is-subuniverse
-
-{- By univalence, subuniverses are closed under equivalences. -}
-in-subuniverse-equiv :
-  {l1 l2 : Level} (P : UU l1 → UU l2) {X Y : UU l1} → X ≃ Y → P X → P Y
-in-subuniverse-equiv P e = tr P (eq-equiv _ _ e)
-
-in-subuniverse-equiv' :
-  {l1 l2 : Level} (P : UU l1 → UU l2) {X Y : UU l1} → X ≃ Y → P Y → P X
-in-subuniverse-equiv' P e = tr P (inv (eq-equiv _ _ e))
-
-total-subuniverse :
-  {l1 l2 : Level} (P : subuniverse l1 l2) → UU ((lsuc l1) ⊔ l2)
-total-subuniverse {l1} P = Σ (UU l1) (pr1 P)
-
-{- We also introduce the notion of 'global subuniverse'. The handling of 
-   universe levels is a bit more complicated here, since (l : Level) → A l are 
-   kinds but not types. -}
-   
-is-global-subuniverse :
-  (α : Level → Level) (P : (l : Level) → subuniverse l (α l)) →
-  (l1 l2 : Level) → UU _
-is-global-subuniverse α P l1 l2 =
-  (X : UU l1) (Y : UU l2) → X ≃ Y → (pr1 (P l1)) X → (pr1 (P l2)) Y
-
-{- Next we characterize the identity type of a subuniverse. -}
-
-Eq-total-subuniverse :
-  {l1 l2 : Level} (P : subuniverse l1 l2) →
-  (s t : total-subuniverse P) → UU l1
-Eq-total-subuniverse (pair P H) (pair X p) t = X ≃ (pr1 t)
-
-Eq-total-subuniverse-eq :
-  {l1 l2 : Level} (P : subuniverse l1 l2) →
-  (s t : total-subuniverse P) → Id s t → Eq-total-subuniverse P s t
-Eq-total-subuniverse-eq (pair P H) (pair X p) .(pair X p) refl = equiv-id
-
-abstract
-  is-contr-total-Eq-total-subuniverse :
-    {l1 l2 : Level} (P : subuniverse l1 l2)
-    (s : total-subuniverse P) →
-    is-contr (Σ (total-subuniverse P) (λ t → Eq-total-subuniverse P s t))
-  is-contr-total-Eq-total-subuniverse (pair P H) (pair X p) =
-    is-contr-total-Eq-substructure (is-contr-total-equiv X) H X equiv-id p
-
-abstract
-  is-equiv-Eq-total-subuniverse-eq :
-    {l1 l2 : Level} (P : subuniverse l1 l2)
-    (s t : total-subuniverse P) → is-equiv (Eq-total-subuniverse-eq P s t)
-  is-equiv-Eq-total-subuniverse-eq (pair P H) (pair X p) =
-    fundamental-theorem-id
-      ( pair X p)
-      ( equiv-id)
-      ( is-contr-total-Eq-total-subuniverse (pair P H) (pair X p))
-      ( Eq-total-subuniverse-eq (pair P H) (pair X p))
-
-eq-Eq-total-subuniverse :
-  {l1 l2 : Level} (P : subuniverse l1 l2) →
-  {s t : total-subuniverse P} → Eq-total-subuniverse P s t → Id s t
-eq-Eq-total-subuniverse P {s} {t} =
-  map-inv-is-equiv (is-equiv-Eq-total-subuniverse-eq P s t)
-
 --------------------------------------------------------------------------------
 
 -- Section 17.3 Maps and families of types
 
 -- Theorem 17.3.1
 
-slice : (l : Level) {l1 : Level} (A : UU l1) → UU (l1 ⊔ lsuc l)
-slice l A = Σ (UU l) (λ X → X → A)
+slice-UU : (l : Level) {l1 : Level} (A : UU l1) → UU (l1 ⊔ lsuc l)
+slice-UU l A = Σ (UU l) (λ X → X → A)
 
-Fib : {l l1 : Level} (A : UU l1) → slice l A → A → UU (l1 ⊔ l)
+Fib : {l l1 : Level} (A : UU l1) → slice-UU l A → A → UU (l1 ⊔ l)
 Fib A f = fib (pr2 f)
 
-Pr1 : {l l1 : Level} (A : UU l1) → (A → UU l) → slice (l1 ⊔ l) A
+Pr1 : {l l1 : Level} (A : UU l1) → (A → UU l) → slice-UU (l1 ⊔ l) A
 Pr1 A B = pair (Σ A B) pr1
 
 module _
   {l1 l2 : Level} {A : UU l1}
   where
 
-  equiv-slice' : (f g : slice l2 A) → UU (l1 ⊔ l2)
+  equiv-slice' : (f g : slice-UU l2 A) → UU (l1 ⊔ l2)
   equiv-slice' f g = equiv-slice A (pr2 f) (pr2 g)
   
-  equiv-id-slice : (f : slice l2 A) → equiv-slice' f f
-  equiv-id-slice f = pair equiv-id refl-htpy
+  equiv-id-slice-UU : (f : slice-UU l2 A) → equiv-slice' f f
+  equiv-id-slice-UU f = pair equiv-id refl-htpy
 
-  equiv-eq-slice : (f g : slice l2 A) → Id f g → equiv-slice' f g
-  equiv-eq-slice f .f refl = equiv-id-slice f
+  equiv-eq-slice-UU : (f g : slice-UU l2 A) → Id f g → equiv-slice' f g
+  equiv-eq-slice-UU f .f refl = equiv-id-slice-UU f
 
   is-contr-total-equiv-slice' :
-    (f : slice l2 A) → is-contr (Σ (slice l2 A) (equiv-slice' f))
+    (f : slice-UU l2 A) → is-contr (Σ (slice-UU l2 A) (equiv-slice' f))
   is-contr-total-equiv-slice' (pair X f) =
     is-contr-total-Eq-structure
       ( λ Y g e → f ~ (g ∘ map-equiv e))
@@ -445,18 +619,18 @@ module _
       ( pair X equiv-id)
       ( is-contr-total-htpy f)
 
-  is-equiv-equiv-eq-slice :
-    (f g : slice l2 A) → is-equiv (equiv-eq-slice f g)
-  is-equiv-equiv-eq-slice f =
+  is-equiv-equiv-eq-slice-UU :
+    (f g : slice-UU l2 A) → is-equiv (equiv-eq-slice-UU f g)
+  is-equiv-equiv-eq-slice-UU f =
     fundamental-theorem-id f
-      ( equiv-id-slice f)
+      ( equiv-id-slice-UU f)
       ( is-contr-total-equiv-slice' f)
-      ( equiv-eq-slice f)
+      ( equiv-eq-slice-UU f)
 
   eq-equiv-slice :
-    (f g : slice l2 A) → equiv-slice' f g → Id f g
+    (f g : slice-UU l2 A) → equiv-slice' f g → Id f g
   eq-equiv-slice f g =
-    map-inv-is-equiv (is-equiv-equiv-eq-slice f g)
+    map-inv-is-equiv (is-equiv-equiv-eq-slice-UU f g)
 
 issec-Pr1 :
   {l1 l2 : Level} {A : UU l1} → (Fib {l1 ⊔ l2} A ∘ Pr1 {l1 ⊔ l2} A) ~ id
@@ -476,7 +650,7 @@ is-equiv-Fib l2 A =
   is-equiv-has-inverse (Pr1 A) (issec-Pr1 {l2 = l2}) (isretr-Pr1 {l2 = l2})
 
 equiv-Fib :
-  {l1 : Level} (l2 : Level) (A : UU l1) → slice (l1 ⊔ l2) A ≃ (A → UU (l1 ⊔ l2))
+  {l1 : Level} (l2 : Level) (A : UU l1) → slice-UU (l1 ⊔ l2) A ≃ (A → UU (l1 ⊔ l2))
 equiv-Fib l2 A = pair (Fib A) (is-equiv-Fib l2 A)
 
 is-equiv-Pr1 :
@@ -485,127 +659,86 @@ is-equiv-Pr1 {l1} l2 A =
   is-equiv-has-inverse (Fib A) (isretr-Pr1 {l2 = l2}) (issec-Pr1 {l2 = l2})
 
 equiv-Pr1 :
-  {l1 : Level} (l2 : Level) (A : UU l1) → (A → UU (l1 ⊔ l2)) ≃ slice (l1 ⊔ l2) A
+  {l1 : Level} (l2 : Level) (A : UU l1) → (A → UU (l1 ⊔ l2)) ≃ slice-UU (l1 ⊔ l2) A
 equiv-Pr1 l2 A = pair (Pr1 A) (is-equiv-Pr1 l2 A)
 
 -- Theorem 17.3.2
 
-domain : {l1 l2 : Level} (P : UU l1 → UU l2) → UU (lsuc l1 ⊔ l2)
-domain {l1} P = Σ (UU l1) P
+structure : {l1 l2 : Level} (P : UU l1 → UU l2) → UU (lsuc l1 ⊔ l2)
+structure {l1} P = Σ (UU l1) P
 
-fam-domain :
+fam-structure :
   {l1 l2 l3 : Level} (P : UU l1 → UU l2) (A : UU l3) → UU (lsuc l1 ⊔ l2 ⊔ l3)
-fam-domain P A = A → domain P
+fam-structure P A = A → structure P
 
-domain-map :
+structure-map :
   {l1 l2 l3 : Level} (P : UU (l1 ⊔ l2) → UU l3) {A : UU l1} {B : UU l2}
   (f : A → B) → UU (l2 ⊔ l3)
-domain-map P {A} {B} f = (b : B) → P (fib f b)
+structure-map P {A} {B} f = (b : B) → P (fib f b)
 
-hom-domain :
+hom-structure :
   {l1 l2 l3 : Level} (P : UU (l1 ⊔ l2) → UU l3) →
   UU l1 → UU l2 → UU (l1 ⊔ l2 ⊔ l3)
-hom-domain P A B = Σ (A → B) (domain-map P)
+hom-structure P A B = Σ (A → B) (structure-map P)
 
-slice-domain :
+slice-UU-structure :
   {l1 l2 : Level} (l : Level) (P : UU (l1 ⊔ l) → UU l2) (B : UU l1) →
   UU (l1 ⊔ l2 ⊔ lsuc l)
-slice-domain l P B = Σ (UU l) (λ A → hom-domain P A B)
+slice-UU-structure l P B = Σ (UU l) (λ A → hom-structure P A B)
 
-equiv-Fib-domain :
+equiv-Fib-structure :
   {l1 l3 : Level} (l : Level) (P : UU (l1 ⊔ l) → UU l3) (B : UU l1) →
-  slice-domain (l1 ⊔ l) P B ≃ fam-domain P B
-equiv-Fib-domain {l1} {l3} l P B =
+  slice-UU-structure (l1 ⊔ l) P B ≃ fam-structure P B
+equiv-Fib-structure {l1} {l3} l P B =
   ( ( equiv-inv-choice-∞ (λ x → P)) ∘e
     ( equiv-Σ
       ( λ C → (b : B) → P (C b))
       ( equiv-Fib l B)
       ( λ f → equiv-map-Π (λ b → equiv-id)))) ∘e
-  ( inv-assoc-Σ (UU (l1 ⊔ l)) (λ A → A → B) (λ f → domain-map P (pr2 f)))
+  ( inv-assoc-Σ (UU (l1 ⊔ l)) (λ A → A → B) (λ f → structure-map P (pr2 f)))
 
 -- Corollary 17.3.3
 
-slice-emb : (l : Level) {l1 : Level} (A : UU l1) → UU (lsuc l ⊔ l1)
-slice-emb l A = Σ (UU l) (λ X → X ↪ A)
+slice-UU-emb : (l : Level) {l1 : Level} (A : UU l1) → UU (lsuc l ⊔ l1)
+slice-UU-emb l A = Σ (UU l) (λ X → X ↪ A)
 
 equiv-Fib-Prop :
   (l : Level) {l1 : Level} (A : UU l1) →
-  slice-emb (l1 ⊔ l) A ≃ (A → UU-Prop (l1 ⊔ l))
+  slice-UU-emb (l1 ⊔ l) A ≃ (A → UU-Prop (l1 ⊔ l))
 equiv-Fib-Prop l A =
-  ( equiv-Fib-domain l is-prop A) ∘e
+  ( equiv-Fib-structure l is-prop A) ∘e
   ( equiv-tot (λ X → equiv-tot equiv-is-prop-map-is-emb))
 
 --------------------------------------------------------------------------------
 
 -- Section 17.4 Classical mathematics with the univalence axiom
 
--- Classical logic in univalent type theory
+-- Proposition 17.4.1
+
+center-total-UU-Fin-two-ℕ : Σ (UU-Fin two-ℕ) type-UU-Fin
+center-total-UU-Fin-two-ℕ =
+  pair (Fin-UU-Fin two-ℕ) zero-Fin
+
+is-contr-total-UU-Fin-two-ℕ :
+  is-contr (Σ (UU-Fin two-ℕ) (λ X → type-UU-Fin X))
+is-contr-total-UU-Fin-two-ℕ =
+  is-contr-equiv
+    ( Σ (UU-Fin two-ℕ) (λ X → Fin two-ℕ ≃ type-UU-Fin X))
+    {!!}
+    {! is-contr-total-equiv-subuniverse!}
 
 {- Not every type is decidable. -}
-
-case-elim :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-  ¬ B → coprod A B → A
-case-elim nb (inl a) = a
-case-elim nb (inr b) = ex-falso (nb b)
 
 simplify-not-all-2-element-types-decidable :
   {l : Level} →
   ((X : UU l) (p : type-trunc-Prop (bool ≃ X)) → is-decidable X) →
   ((X : UU l) (p : type-trunc-Prop (bool ≃ X)) → X)
 simplify-not-all-2-element-types-decidable d X p =
-  case-elim
+  map-right-unit-law-coprod-is-empty X (¬ X)
     ( apply-universal-property-trunc-Prop p
       ( dn-Prop' X)
       ( λ e → intro-dn (map-equiv e true)))
     ( d X p)
-
-{-
-not-all-2-element-types-decidable :
-  {l : Level} → ¬ ((X : UU l) (p : type-trunc-Prop (bool ≃ X)) → is-decidable X)
-not-all-2-element-types-decidable d = {!simplify-not-all-2-element-types-decidable d (raise _ bool) ?!}
-
-not-all-types-decidable :
-  {l : Level} → ¬ ((X : UU l) → is-decidable X)
-not-all-types-decidable d =
-  not-all-2-element-types-decidable (λ X p → d X)
--}
-
-{- Decidable equality of Fin n. -}
-
-has-decidable-equality-empty : has-decidable-equality empty
-has-decidable-equality-empty ()
-
-has-decidable-equality-unit :
-  has-decidable-equality unit
-has-decidable-equality-unit star star = inl refl
-
-decidable-Eq-Fin :
-  (n : ℕ) (i j : Fin n) → decidable-Prop lzero
-decidable-Eq-Fin n i j =
-  pair
-    ( pair (Id i j) (is-set-Fin n i j))
-    ( has-decidable-equality-Fin i j)
-
-{- Decidable equality of ℤ. -}
-
-has-decidable-equality-ℤ : has-decidable-equality ℤ
-has-decidable-equality-ℤ =
-  has-decidable-equality-coprod
-    has-decidable-equality-ℕ
-    ( has-decidable-equality-coprod
-      has-decidable-equality-unit
-      has-decidable-equality-ℕ)
-
-{- Closure of decidable types under retracts and equivalences. -}
-
-has-decidable-equality-retract-of :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-  A retract-of B → has-decidable-equality B → has-decidable-equality A
-has-decidable-equality-retract-of (pair i (pair r H)) d x y =
-  is-decidable-retract-of
-    ( retract-eq (pair i (pair r H)) x y)
-    ( d (i x) (i y))
 
 --------------------------------------------------------------------------------
 
@@ -757,6 +890,10 @@ is-prop-is-small l A =
         ( equiv-tot ((λ Y → equiv-comp-equiv' (pr2 Xe) Y)))
         ( is-contr-total-equiv (pr1 Xe)))
 
+is-small-Prop :
+  (l : Level) {l1 : Level} (A : UU l1) → UU-Prop (lsuc l ⊔ l1)
+is-small-Prop l A = pair (is-small l A) (is-prop-is-small l A)
+
 is-prop-is-locally-small :
   (l : Level) {l1 : Level} (A : UU l1) → is-prop (is-locally-small l A)
 is-prop-is-locally-small l A =
@@ -794,7 +931,7 @@ abstract
     {i : Level} (A : Σ (UU i) is-contr) →
     Id (center-UU-contr i) A
   contraction-UU-contr (pair A is-contr-A) =
-    eq-Eq-total-subuniverse subuniverse-is-contr
+    eq-equiv-subuniverse subuniverse-is-contr
       ( equiv-is-contr (is-contr-unit' _) is-contr-A)
 
 abstract
@@ -970,171 +1107,6 @@ issec-bool-aut-bool e =
 --------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------
-
--- Connected components of the universe
-
-component-UU-Level :
-  (l1 : Level) {l2 : Level} (A : UU l2) → UU (lsuc l1 ⊔ l2)
-component-UU-Level l1 A = Σ (UU l1) (mere-equiv A)
-
-type-component-UU-Level :
-  {l1 l2 : Level} {A : UU l2} → component-UU-Level l1 A → UU l1
-type-component-UU-Level X = pr1 X
-
-mere-equiv-component-UU-Level :
-  {l1 l2 : Level} {A : UU l2} (X : component-UU-Level l1 A) →
-  mere-equiv A (type-component-UU-Level X)
-mere-equiv-component-UU-Level X = pr2 X
-
-component-UU :
-  {l1 : Level} (A : UU l1) → UU (lsuc l1)
-component-UU {l1} A = component-UU-Level l1 A
-
-type-component-UU : {l1 : Level} {A : UU l1} (X : component-UU A) → UU l1
-type-component-UU X = type-component-UU-Level X
-
-mere-equiv-component-UU :
-  {l1 : Level} {A : UU l1} (X : component-UU A) →
-  mere-equiv A (type-component-UU X)
-mere-equiv-component-UU X = mere-equiv-component-UU-Level X
-
--- We characterize the identity types of connected components of the universe
-
-equiv-component-UU-Level :
-  {l1 l2 : Level} {A : UU l2} (X Y : component-UU-Level l1 A) → UU l1
-equiv-component-UU-Level X Y =
-  type-component-UU-Level X ≃ type-component-UU-Level Y
-
-id-equiv-component-UU-Level :
-  {l1 l2 : Level} {A : UU l2} (X : component-UU-Level l1 A) →
-  equiv-component-UU-Level X X
-id-equiv-component-UU-Level X = equiv-id
-
-equiv-eq-component-UU-Level :
-  {l1 l2 : Level} {A : UU l2} {X Y : component-UU-Level l1 A} →
-  Id X Y → equiv-component-UU-Level X Y
-equiv-eq-component-UU-Level {X = X} refl =
-  id-equiv-component-UU-Level X
-
-is-contr-total-equiv-component-UU-Level :
-  {l1 l2 : Level} {A : UU l2} (X : component-UU-Level l1 A) →
-  is-contr (Σ (component-UU-Level l1 A) (equiv-component-UU-Level X))
-is-contr-total-equiv-component-UU-Level X =
-  is-contr-total-Eq-substructure
-    ( is-contr-total-equiv (type-component-UU-Level X))
-    ( λ Y → is-prop-mere-equiv _ Y)
-    ( type-component-UU-Level X)
-    ( equiv-id)
-    ( mere-equiv-component-UU-Level X)
-
-is-equiv-equiv-eq-component-UU-Level :
-  {l1 l2 : Level} {A : UU l2} (X Y : component-UU-Level l1 A) →
-  is-equiv (equiv-eq-component-UU-Level {X = X} {Y})
-is-equiv-equiv-eq-component-UU-Level X =
-  fundamental-theorem-id X
-    ( id-equiv-component-UU-Level X)
-    ( is-contr-total-equiv-component-UU-Level X)
-    ( λ Y → equiv-eq-component-UU-Level {X = X} {Y})
-
-eq-equiv-component-UU-Level :
-  {l1 l2 : Level} {A : UU l2} (X Y : component-UU-Level l1 A) →
-  equiv-component-UU-Level X Y → Id X Y
-eq-equiv-component-UU-Level X Y =
-  map-inv-is-equiv (is-equiv-equiv-eq-component-UU-Level X Y)
-
-equiv-component-UU :
-  {l1 : Level} {A : UU l1} (X Y : component-UU A) → UU l1
-equiv-component-UU X Y = equiv-component-UU-Level X Y
-
-id-equiv-component-UU :
-  {l1 : Level} {A : UU l1} (X : component-UU A) → equiv-component-UU X X
-id-equiv-component-UU X = id-equiv-component-UU-Level X
-
-equiv-eq-component-UU :
-  {l1 : Level} {A : UU l1} {X Y : component-UU A} →
-  Id X Y → equiv-component-UU X Y
-equiv-eq-component-UU p = equiv-eq-component-UU-Level p
-
-is-contr-total-equiv-component-UU :
-  {l1 : Level} {A : UU l1} (X : component-UU A) →
-  is-contr (Σ (component-UU A) (equiv-component-UU X))
-is-contr-total-equiv-component-UU X =
-  is-contr-total-equiv-component-UU-Level X
-
-is-equiv-equiv-eq-component-UU :
-  {l1 : Level} {A : UU l1} (X Y : component-UU A) →
-  is-equiv (equiv-eq-component-UU {X = X} {Y})
-is-equiv-equiv-eq-component-UU X Y =
-  is-equiv-equiv-eq-component-UU-Level X Y
-
-eq-equiv-component-UU :
-  {l1 : Level} {A : UU l1} (X Y : component-UU A) →
-  equiv-component-UU X Y → Id X Y
-eq-equiv-component-UU X Y =
-  eq-equiv-component-UU-Level X Y
-
---------------------------------------------------------------------------------
-
-equiv-UU-Fin-Level : {l : Level} {k : ℕ} → (X Y : UU-Fin-Level l k) → UU l
-equiv-UU-Fin-Level X Y = equiv-component-UU-Level X Y
-
-equiv-UU-Fin : {k : ℕ} (X Y : UU-Fin k) → UU lzero
-equiv-UU-Fin X Y = equiv-component-UU X Y
-
-id-equiv-UU-Fin-Level :
-  {l : Level} {k : ℕ} (X : UU-Fin-Level l k) → equiv-UU-Fin-Level X X
-id-equiv-UU-Fin-Level X = id-equiv-component-UU-Level X
-
-id-equiv-UU-Fin :
-  {k : ℕ} (X : UU-Fin k) → equiv-UU-Fin X X
-id-equiv-UU-Fin X = id-equiv-component-UU X
-
-equiv-eq-UU-Fin-Level :
-  {l : Level} {k : ℕ} {X Y : UU-Fin-Level l k} → Id X Y → equiv-UU-Fin-Level X Y
-equiv-eq-UU-Fin-Level p = equiv-eq-component-UU-Level p
-
-equiv-eq-UU-Fin :
-  {k : ℕ} {X Y : UU-Fin k} → Id X Y → equiv-UU-Fin X Y
-equiv-eq-UU-Fin p = equiv-eq-component-UU p
-
-is-contr-total-equiv-UU-Fin-Level :
-  {l : Level} {k : ℕ} (X : UU-Fin-Level l k) →
-  is-contr (Σ (UU-Fin-Level l k) (equiv-UU-Fin-Level X))
-is-contr-total-equiv-UU-Fin-Level {l} {k} X =
-  is-contr-total-equiv-component-UU-Level X
-
-is-contr-total-equiv-UU-Fin :
-  {k : ℕ} (X : UU-Fin k) → is-contr (Σ (UU-Fin k) (equiv-UU-Fin X))
-is-contr-total-equiv-UU-Fin X =
-  is-contr-total-equiv-component-UU X
-
-is-equiv-equiv-eq-UU-Fin-Level :
-  {l : Level} {k : ℕ} (X Y : UU-Fin-Level l k) →
-  is-equiv (equiv-eq-UU-Fin-Level {X = X} {Y})
-is-equiv-equiv-eq-UU-Fin-Level X =
-  is-equiv-equiv-eq-component-UU-Level X
-
-is-equiv-equiv-eq-UU-Fin :
-  {k : ℕ} (X Y : UU-Fin k) → is-equiv (equiv-eq-UU-Fin {X = X} {Y})
-is-equiv-equiv-eq-UU-Fin X =
-  is-equiv-equiv-eq-component-UU X
-
-eq-equiv-UU-Fin-Level :
-  {l : Level} {k : ℕ} (X Y : UU-Fin-Level l k) →
-  equiv-UU-Fin-Level X Y → Id X Y
-eq-equiv-UU-Fin-Level X Y =
-  eq-equiv-component-UU-Level X Y
-
-eq-equiv-UU-Fin :
-  {k : ℕ} (X Y : UU-Fin k) → equiv-UU-Fin X Y → Id X Y
-eq-equiv-UU-Fin X Y = eq-equiv-component-UU X Y
-
-add-free-point-UU-Fin-Level :
-  {l1 : Level} {k : ℕ} → UU-Fin-Level l1 k → UU-Fin-Level l1 (succ-ℕ k)
-add-free-point-UU-Fin-Level X = coprod-UU-Fin-Level X unit-UU-Fin
-
-add-free-point-UU-Fin : {k : ℕ} → UU-Fin k → UU-Fin (succ-ℕ k)
-add-free-point-UU-Fin X = add-free-point-UU-Fin-Level X
 
 --------------------------------------------------------------------------------
 

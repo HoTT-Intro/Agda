@@ -152,6 +152,15 @@ is-decidable-is-one-Fin :
 is-decidable-is-one-Fin {succ-ℕ k} x =
   has-decidable-equality-Fin x one-Fin
 
+-- Bureaucracy
+
+has-decidable-equality-empty : has-decidable-equality empty
+has-decidable-equality-empty ()
+
+has-decidable-equality-unit :
+  has-decidable-equality unit
+has-decidable-equality-unit star star = inl refl
+
 {- Theorem 8.1.9 -}
 
 is-decidable-div-ℕ : (d x : ℕ) → is-decidable (div-ℕ d x)
@@ -1126,6 +1135,14 @@ has-decidable-equality-right-summand {l1} {l2} {A} {B} d x y =
     ( map-inv-raise ∘ Eq-coprod-eq A B (inr x) (inr y))
     ( eq-Eq-coprod A B (inr x) (inr y) ∘ map-raise)
     ( d (inr x) (inr y))
+
+has-decidable-equality-ℤ : has-decidable-equality ℤ
+has-decidable-equality-ℤ =
+  has-decidable-equality-coprod
+    has-decidable-equality-ℕ
+    ( has-decidable-equality-coprod
+      has-decidable-equality-unit
+      has-decidable-equality-ℕ)
 
 --------------------------------------------------------------------------------
 
