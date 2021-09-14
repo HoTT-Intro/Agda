@@ -186,6 +186,10 @@ is-property B = is-subtype B
 is-prop-map : {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) → UU (l1 ⊔ l2)
 is-prop-map f = (b : _) → is-prop (fib f b)
 
+total-subtype :
+  {l1 l2 : Level} {A : UU l1} (P : A → UU-Prop l2) → UU (l1 ⊔ l2)
+total-subtype {A = A} P = Σ A (λ x → pr1 (P x))
+
 {- Lemma 12.2.2 -}
 
 abstract

@@ -532,10 +532,10 @@ is-equiv-comp-equiv f A =
     ( compose-equiv-compose-inv-equiv f)
     ( compose-inv-equiv-compose-equiv f)
 
-equiv-comp-equiv :
+equiv-postcomp-equiv :
   {l1 l2 l3 : Level} {B : UU l2} {C : UU l3} →
   (f : B ≃ C) → (A : UU l1) → (A ≃ B) ≃ (A ≃ C)
-equiv-comp-equiv f A = pair (λ e → f ∘e e) (is-equiv-comp-equiv f A)
+equiv-postcomp-equiv f A = pair (λ e → f ∘e e) (is-equiv-comp-equiv f A)
 
 _⇔_ :
   {l1 l2 : Level} → UU-Prop l1 → UU-Prop l2 → UU (l1 ⊔ l2)
@@ -675,6 +675,31 @@ equiv-is-prop-map-is-emb f =
     ( is-prop-map-Prop f)
     ( is-prop-map-is-emb)
     ( is-emb-is-prop-map)
+
+equiv-subtype-equiv :
+  {l1 l2 l3 l4 : Level}
+  {A : UU l1} {B : UU l2} (e : A ≃ B)
+  (C : A → UU-Prop l3) (D : B → UU-Prop l4) →
+  ((x : A) → type-Prop (C x) ↔ type-Prop (D (map-equiv e x))) →
+  total-subtype C ≃ total-subtype D
+equiv-subtype-equiv e C D H =
+  equiv-Σ (λ y → type-Prop (D y)) e
+    ( λ x → equiv-iff' (C x) (D (map-equiv e x)) (H x))
+
+equiv-precomp-equiv :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} →
+  (A ≃ B) → (C : UU l3) → (B ≃ C) ≃ (A ≃ C)
+equiv-precomp-equiv e C =
+  equiv-subtype-equiv
+    ( equiv-precomp e C)
+    ( is-equiv-Prop)
+    ( is-equiv-Prop)
+    ( λ g →
+      pair
+        ( is-equiv-comp' g (map-equiv e) (is-equiv-map-equiv e))
+        ( λ is-equiv-eg →
+          is-equiv-left-factor'
+            g (map-equiv e) is-equiv-eg (is-equiv-map-equiv e)))
 
 -- Exercise 13.5
 

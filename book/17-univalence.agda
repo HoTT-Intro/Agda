@@ -318,7 +318,7 @@ is-subuniverse P = is-subtype P
 
 subuniverse :
   (l1 l2 : Level) → UU ((lsuc l1) ⊔ (lsuc l2))
-subuniverse l1 l2 = Σ (UU l1 → UU l2) is-subuniverse
+subuniverse l1 l2 = UU l1 → UU-Prop l2
 
 {- By univalence, subuniverses are closed under equivalences. -}
 in-subuniverse-equiv :
@@ -331,7 +331,7 @@ in-subuniverse-equiv' P e = tr P (inv (eq-equiv _ _ e))
 
 total-subuniverse :
   {l1 l2 : Level} (P : subuniverse l1 l2) → UU ((lsuc l1) ⊔ l2)
-total-subuniverse {l1} P = Σ (UU l1) (pr1 P)
+total-subuniverse {l1} P = Σ (UU l1) (λ X → type-Prop (P X))
 
 {- We also introduce the notion of 'global subuniverse'. The handling of 
    universe levels is a bit more complicated here, since (l : Level) → A l are 
@@ -341,38 +341,38 @@ is-global-subuniverse :
   (α : Level → Level) (P : (l : Level) → subuniverse l (α l)) →
   (l1 l2 : Level) → UU _
 is-global-subuniverse α P l1 l2 =
-  (X : UU l1) (Y : UU l2) → X ≃ Y → (pr1 (P l1)) X → (pr1 (P l2)) Y
+  (X : UU l1) (Y : UU l2) → X ≃ Y → type-Prop (P l1 X) → type-Prop (P l2 Y)
 
 {- Next we characterize the identity type of a subuniverse. -}
 
 equiv-subuniverse :
   {l1 l2 : Level} (P : subuniverse l1 l2) →
   (s t : total-subuniverse P) → UU l1
-equiv-subuniverse (pair P H) (pair X p) t = X ≃ (pr1 t)
+equiv-subuniverse P (pair X p) t = X ≃ (pr1 t)
 
 equiv-subuniverse-eq :
   {l1 l2 : Level} (P : subuniverse l1 l2) →
   (s t : total-subuniverse P) → Id s t → equiv-subuniverse P s t
-equiv-subuniverse-eq (pair P H) (pair X p) .(pair X p) refl = equiv-id
+equiv-subuniverse-eq P (pair X p) .(pair X p) refl = equiv-id
 
 abstract
   is-contr-total-equiv-subuniverse :
     {l1 l2 : Level} (P : subuniverse l1 l2)
     (s : total-subuniverse P) →
     is-contr (Σ (total-subuniverse P) (λ t → equiv-subuniverse P s t))
-  is-contr-total-equiv-subuniverse (pair P H) (pair X p) =
-    is-contr-total-Eq-substructure (is-contr-total-equiv X) H X equiv-id p
+  is-contr-total-equiv-subuniverse P (pair X p) =
+    is-contr-total-Eq-substructure (is-contr-total-equiv X) {!!} X equiv-id p
 
 abstract
   is-equiv-equiv-subuniverse-eq :
     {l1 l2 : Level} (P : subuniverse l1 l2)
     (s t : total-subuniverse P) → is-equiv (equiv-subuniverse-eq P s t)
-  is-equiv-equiv-subuniverse-eq (pair P H) (pair X p) =
+  is-equiv-equiv-subuniverse-eq P (pair X p) =
     fundamental-theorem-id
       ( pair X p)
       ( equiv-id)
-      ( is-contr-total-equiv-subuniverse (pair P H) (pair X p))
-      ( equiv-subuniverse-eq (pair P H) (pair X p))
+      ( is-contr-total-equiv-subuniverse P (pair X p))
+      ( equiv-subuniverse-eq P (pair X p))
 
 eq-equiv-subuniverse :
   {l1 l2 : Level} (P : subuniverse l1 l2) →
@@ -709,6 +709,8 @@ equiv-Fib-Prop l A =
   ( equiv-Fib-structure l is-prop A) ∘e
   ( equiv-tot (λ X → equiv-tot equiv-is-prop-map-is-emb))
 
+-- Remark 17.3.4
+
 --------------------------------------------------------------------------------
 
 -- Section 17.4 Classical mathematics with the univalence axiom
@@ -719,13 +721,37 @@ center-total-UU-Fin-two-ℕ : Σ (UU-Fin two-ℕ) type-UU-Fin
 center-total-UU-Fin-two-ℕ =
   pair (Fin-UU-Fin two-ℕ) zero-Fin
 
+ev-zero-equiv-Fin-two-ℕ :
+  {l1 : Level} {X : UU l1} → (Fin two-ℕ ≃ X) → X
+ev-zero-equiv-Fin-two-ℕ e = map-equiv e zero-Fin
+
+is-equiv-ev-equiv-Fin-two-ℕ' :
+  is-equiv (ev-zero-equiv-Fin-two-ℕ {lzero} {Fin two-ℕ})
+is-equiv-ev-equiv-Fin-two-ℕ' = {!!}
+
+is-equiv-ev-zero-Fin-two-ℕ :
+  {l1 : Level} {X : UU l1} → mere-equiv (Fin two-ℕ) X →
+  is-equiv (ev-zero-equiv-Fin-two-ℕ {l1} {X})
+is-equiv-ev-zero-Fin-two-ℕ {l1} {X} H =
+  apply-universal-property-trunc-Prop H
+    ( is-equiv-Prop (ev-zero-equiv-Fin-two-ℕ))
+    ( λ α →
+      is-equiv-left-factor'
+        ( ev-zero-equiv-Fin-two-ℕ)
+        {! map-equiv (equiv-postcomp-equiv (Fin two-ℕ) α)!}
+        {! !}
+        {!!})
+
 is-contr-total-UU-Fin-two-ℕ :
   is-contr (Σ (UU-Fin two-ℕ) (λ X → type-UU-Fin X))
 is-contr-total-UU-Fin-two-ℕ =
   is-contr-equiv
     ( Σ (UU-Fin two-ℕ) (λ X → Fin two-ℕ ≃ type-UU-Fin X))
-    {!!}
-    {! is-contr-total-equiv-subuniverse!}
+    ( equiv-tot
+      ( λ X → {!!}))
+    ( is-contr-total-equiv-subuniverse
+      ( mere-equiv-Prop (Fin two-ℕ))
+      ( Fin-UU-Fin two-ℕ))
 
 {- Not every type is decidable. -}
 
@@ -835,35 +861,6 @@ tr-equiv-eq-ap refl = refl-htpy
 
 -- Exercise 17.2
 
-total-subtype :
-  {l1 l2 : Level} {A : UU l1} (P : A → UU-Prop l2) → UU (l1 ⊔ l2)
-total-subtype {A = A} P = Σ A (λ x → pr1 (P x))
-
-equiv-subtype-equiv :
-  {l1 l2 l3 l4 : Level}
-  {A : UU l1} {B : UU l2} (e : A ≃ B)
-  (C : A → UU-Prop l3) (D : B → UU-Prop l4) →
-  ((x : A) → (C x) ⇔ (D (map-equiv e x))) →
-  total-subtype C ≃ total-subtype D
-equiv-subtype-equiv e C D H =
-  equiv-Σ (λ y → type-Prop (D y)) e
-    ( λ x → equiv-iff' (C x) (D (map-equiv e x)) (H x))
-
-equiv-comp-equiv' :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} →
-  (A ≃ B) → (C : UU l3) → (B ≃ C) ≃ (A ≃ C)
-equiv-comp-equiv' e C =
-  equiv-subtype-equiv
-    ( equiv-precomp-equiv e C)
-    ( is-equiv-Prop)
-    ( is-equiv-Prop)
-    ( λ g →
-      pair
-        ( is-equiv-comp' g (map-equiv e) (is-equiv-map-equiv e))
-        ( λ is-equiv-eg →
-          is-equiv-left-factor'
-            g (map-equiv e) is-equiv-eg (is-equiv-map-equiv e)))
-
 {-
 equiv-comp-equiv :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} →
@@ -887,7 +884,7 @@ is-prop-is-small l A =
     ( λ Xe →
       is-contr-equiv'
         ( Σ (UU l) (λ Y → (pr1 Xe) ≃ Y))
-        ( equiv-tot ((λ Y → equiv-comp-equiv' (pr2 Xe) Y)))
+        ( equiv-tot ((λ Y → equiv-precomp-equiv (pr2 Xe) Y)))
         ( is-contr-total-equiv (pr1 Xe)))
 
 is-small-Prop :
@@ -909,7 +906,7 @@ is-emb-raise l1 l2 =
 
 subuniverse-is-contr :
   {i : Level} → subuniverse i i
-subuniverse-is-contr {i} = pair is-contr is-subtype-is-contr
+subuniverse-is-contr {i} = is-contr-Prop
 
 unit' :
   (i : Level) → UU i

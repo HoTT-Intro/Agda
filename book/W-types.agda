@@ -1037,7 +1037,7 @@ is-small-eq-𝕄 l {l1} {tree-𝕎 A α} {tree-𝕎 B β} (pair (pair X e) H) (p
         ( equiv-univalence)
         ( pair
           ( X ≃ Y)
-          ( equiv-comp-equiv' (inv-equiv e) Y ∘e equiv-comp-equiv f A)))
+          ( equiv-precomp-equiv (inv-equiv e) Y ∘e equiv-postcomp-equiv f A)))
       ( σ))
   where
   σ : (x : Id A B) → is-small l ((z : A) → Eq-𝕎 (α z) (β (tr id x z)))
@@ -1297,7 +1297,7 @@ paradox-Russell {l} H =
 
   abstract
     β : (R ∈-𝕄 R) ≃ (R ∉-𝕄 R)
-    β = ( equiv-precomp-equiv α empty) ∘e
+    β = ( equiv-precomp α empty) ∘e
         ( ( left-unit-law-Σ-is-contr
             { B = λ t → (pr1 t) ∉-𝕄 (pr1 t)}
             ( is-contr-total-path' R')

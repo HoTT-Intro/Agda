@@ -889,10 +889,10 @@ abstract
     is-equiv-precomp-is-equiv-precomp-Π f
       ( is-equiv-precomp-Π-is-equiv f is-equiv-f)
 
-equiv-precomp-equiv :
+equiv-precomp :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) (C : UU l3) →
   (B → C) ≃ (A → C)
-equiv-precomp-equiv e C =
+equiv-precomp e C =
   pair
     ( precomp (map-equiv e) C)
     ( is-equiv-precomp-is-equiv (map-equiv e) (is-equiv-map-equiv e) C)

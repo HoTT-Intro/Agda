@@ -26,4 +26,4 @@ is-quasi-decidable-is-quasi-decidable-Level :
   (l : Level) (P : UU-Prop lzero) →
   is-quasi-decidable-Level (lsuc l) P → is-quasi-decidable P
 is-quasi-decidable-is-quasi-decidable-Level l P H Q q0 q1 qe =
-  {!H (λ P → prod-Prop (Q P) (is-small-Prop lzero (pr1 P)))!}
+  {!H (λ P → raise (prod-Prop (Q P) (is-small-Prop lzero (pr1 P)))!}
