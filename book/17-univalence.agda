@@ -320,6 +320,11 @@ subuniverse :
   (l1 l2 : Level) → UU ((lsuc l1) ⊔ (lsuc l2))
 subuniverse l1 l2 = UU l1 → UU-Prop l2
 
+is-subtype-subuniverse :
+  {l1 l2 : Level} (P : subuniverse l1 l2) (X : UU l1) →
+  is-prop (type-Prop (P X))
+is-subtype-subuniverse P X = is-prop-type-Prop (P X)
+
 {- By univalence, subuniverses are closed under equivalences. -}
 in-subuniverse-equiv :
   {l1 l2 : Level} (P : UU l1 → UU l2) {X Y : UU l1} → X ≃ Y → P X → P Y
@@ -361,7 +366,12 @@ abstract
     (s : total-subuniverse P) →
     is-contr (Σ (total-subuniverse P) (λ t → equiv-subuniverse P s t))
   is-contr-total-equiv-subuniverse P (pair X p) =
-    is-contr-total-Eq-substructure (is-contr-total-equiv X) {!!} X equiv-id p
+    is-contr-total-Eq-substructure
+      ( is-contr-total-equiv X)
+      ( is-subtype-subuniverse P)
+      ( X)
+      ( equiv-id)
+      ( p)
 
 abstract
   is-equiv-equiv-subuniverse-eq :
@@ -724,6 +734,11 @@ center-total-UU-Fin-two-ℕ =
 ev-zero-equiv-Fin-two-ℕ :
   {l1 : Level} {X : UU l1} → (Fin two-ℕ ≃ X) → X
 ev-zero-equiv-Fin-two-ℕ e = map-equiv e zero-Fin
+
+inv-ev-zero-equiv-Fin-two-ℕ' :
+  Fin two-ℕ → (Fin two-ℕ ≃ Fin two-ℕ)
+inv-ev-zero-equiv-Fin-two-ℕ' (inl (inr star)) = {!equiv-id!}
+inv-ev-zero-equiv-Fin-two-ℕ' (inr star) = {!!}
 
 is-equiv-ev-equiv-Fin-two-ℕ' :
   is-equiv (ev-zero-equiv-Fin-two-ℕ {lzero} {Fin two-ℕ})

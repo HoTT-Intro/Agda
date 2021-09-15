@@ -287,13 +287,95 @@ equiv-neg-ℤ = pair neg-ℤ is-equiv-neg-ℤ
 
 -- We show that succ-Fin k is an equivalence
 
+is-equiv-succ-Fin : {k : ℕ} → is-equiv (succ-Fin {k})
+is-equiv-succ-Fin =
+  pair (pair pred-Fin succ-pred-Fin) (pair pred-Fin pred-succ-Fin)
+
+equiv-succ-Fin : {k : ℕ} → Fin k ≃ Fin k
+equiv-succ-Fin = pair succ-Fin is-equiv-succ-Fin
+
 -- We show that pred-Fin k is an equivalence
+
+is-equiv-pred-Fin : {k : ℕ} → is-equiv (pred-Fin {k})
+is-equiv-pred-Fin =
+  pair (pair succ-Fin pred-succ-Fin) (pair succ-Fin succ-pred-Fin)
+
+equiv-pred-Fin : {k : ℕ} → Fin k ≃ Fin k
+equiv-pred-Fin = pair pred-Fin is-equiv-pred-Fin
 
 -- We show that add-Fin k x is an equivalence
 
+add-add-neg-Fin :
+  {k : ℕ} (x y : Fin k) → Id (add-Fin x (add-Fin (neg-Fin x) y)) y
+add-add-neg-Fin {succ-ℕ k} x y =
+  ( inv (associative-add-Fin x (neg-Fin x) y)) ∙
+  ( ( ap (add-Fin' y) (right-inverse-law-add-Fin x)) ∙
+    ( left-unit-law-add-Fin y))
+
+add-neg-add-Fin :
+  {k : ℕ} (x y : Fin k) → Id (add-Fin (neg-Fin x) (add-Fin x y)) y
+add-neg-add-Fin {succ-ℕ k} x y =
+  ( inv (associative-add-Fin (neg-Fin x) x y)) ∙
+  ( ( ap (add-Fin' y) (left-inverse-law-add-Fin x)) ∙
+    ( left-unit-law-add-Fin y))
+
+is-equiv-add-Fin :
+  {k : ℕ} (x : Fin k) → is-equiv (add-Fin x)
+is-equiv-add-Fin x =
+  pair ( pair (add-Fin (neg-Fin x)) (add-add-neg-Fin x))
+       ( pair (add-Fin (neg-Fin x)) (add-neg-add-Fin x))
+
+equiv-add-Fin :
+  {k : ℕ} (x : Fin k) → Fin k ≃ Fin k
+equiv-add-Fin x =
+  pair (add-Fin x) (is-equiv-add-Fin x)
+
 -- We show that add-Fin' k y is an equivalence
 
+add-add-neg-Fin' :
+  {k : ℕ} (x y : Fin k) → Id (add-Fin' x (add-Fin' (neg-Fin x) y)) y
+add-add-neg-Fin' {succ-ℕ k} x y =
+  ( associative-add-Fin y (neg-Fin x) x) ∙
+  ( ( ap (add-Fin y) (left-inverse-law-add-Fin x)) ∙
+    ( right-unit-law-add-Fin y))
+
+add-neg-add-Fin' :
+  {k : ℕ} (x y : Fin k) → Id (add-Fin' (neg-Fin x) (add-Fin' x y)) y
+add-neg-add-Fin' {succ-ℕ k} x y =
+  ( associative-add-Fin y x (neg-Fin x)) ∙
+  ( ( ap (add-Fin y) (right-inverse-law-add-Fin x)) ∙
+    ( right-unit-law-add-Fin y))
+
+is-equiv-add-Fin' :
+  {k : ℕ} (x : Fin k) → is-equiv (add-Fin' x)
+is-equiv-add-Fin' x =
+  pair ( pair (add-Fin' (neg-Fin x)) (add-add-neg-Fin' x))
+       ( pair (add-Fin' (neg-Fin x)) (add-neg-add-Fin' x))
+
+equiv-add-Fin' :
+  {k : ℕ} (x : Fin k) → Fin k ≃ Fin k
+equiv-add-Fin' x =
+  pair (add-Fin' x) (is-equiv-add-Fin' x)
+
 -- We show that neg-Fin k is an equivalence
+
+neg-neg-Fin :
+  {k : ℕ} (x : Fin k) → Id (neg-Fin (neg-Fin x)) x
+neg-neg-Fin {succ-ℕ k} x =
+  ( inv (right-unit-law-add-Fin (neg-Fin (neg-Fin x)))) ∙
+  ( ( ap (add-Fin (neg-Fin (neg-Fin x))) (inv (left-inverse-law-add-Fin x))) ∙
+    ( ( inv (associative-add-Fin (neg-Fin (neg-Fin x)) (neg-Fin x) x)) ∙
+      ( ( ap (add-Fin' x) (left-inverse-law-add-Fin (neg-Fin x))) ∙
+        ( left-unit-law-add-Fin x))))
+
+is-equiv-neg-Fin :
+  {k : ℕ} → is-equiv (neg-Fin {k})
+is-equiv-neg-Fin =
+  pair (pair neg-Fin neg-neg-Fin) (pair neg-Fin neg-neg-Fin)
+
+equiv-neg-Fin :
+  {k : ℕ} → Fin k ≃ Fin k
+equiv-neg-Fin = pair neg-Fin is-equiv-neg-Fin
 
 -- Remark 9.2.6
 
