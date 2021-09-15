@@ -727,10 +727,6 @@ equiv-Fib-Prop l A =
 
 -- Proposition 17.4.1
 
-center-total-UU-Fin-two-ℕ : Σ (UU-Fin two-ℕ) type-UU-Fin
-center-total-UU-Fin-two-ℕ =
-  pair (Fin-UU-Fin two-ℕ) zero-Fin
-
 ev-zero-equiv-Fin-two-ℕ :
   {l1 : Level} {X : UU l1} → (Fin two-ℕ ≃ X) → X
 ev-zero-equiv-Fin-two-ℕ e = map-equiv e zero-Fin
@@ -738,32 +734,87 @@ ev-zero-equiv-Fin-two-ℕ e = map-equiv e zero-Fin
 inv-ev-zero-equiv-Fin-two-ℕ' :
   Fin two-ℕ → (Fin two-ℕ ≃ Fin two-ℕ)
 inv-ev-zero-equiv-Fin-two-ℕ' (inl (inr star)) = equiv-id
-inv-ev-zero-equiv-Fin-two-ℕ' (inr star) = {!equiv-succ-Fin!}
+inv-ev-zero-equiv-Fin-two-ℕ' (inr star) = equiv-succ-Fin
 
-is-equiv-ev-equiv-Fin-two-ℕ' :
+issec-inv-ev-zero-equiv-Fin-two-ℕ' :
+  (ev-zero-equiv-Fin-two-ℕ ∘ inv-ev-zero-equiv-Fin-two-ℕ') ~ id
+issec-inv-ev-zero-equiv-Fin-two-ℕ' (inl (inr star)) = refl
+issec-inv-ev-zero-equiv-Fin-two-ℕ' (inr star) = refl
+
+aux-isretr-inv-ev-zero-equiv-Fin-two-ℕ' :
+  (e : Fin two-ℕ ≃ Fin two-ℕ) (x y : Fin two-ℕ) → Id (map-equiv e zero-Fin) x →
+  Id (map-equiv e one-Fin) y → htpy-equiv (inv-ev-zero-equiv-Fin-two-ℕ' x) e
+aux-isretr-inv-ev-zero-equiv-Fin-two-ℕ' e
+  (inl (inr star)) (inl (inr star)) p q (inl (inr star)) = inv p
+aux-isretr-inv-ev-zero-equiv-Fin-two-ℕ' e
+  (inl (inr star)) (inl (inr star)) p q (inr star) =
+  ex-falso (Eq-Fin-eq (is-injective-map-equiv e (p ∙ inv q)))
+aux-isretr-inv-ev-zero-equiv-Fin-two-ℕ' e
+  (inl (inr star)) (inr star) p q (inl (inr star)) = inv p
+aux-isretr-inv-ev-zero-equiv-Fin-two-ℕ' e
+  (inl (inr star)) (inr star) p q (inr star) = inv q
+aux-isretr-inv-ev-zero-equiv-Fin-two-ℕ' e
+  (inr star) (inl (inr star)) p q (inl (inr star)) = inv p
+aux-isretr-inv-ev-zero-equiv-Fin-two-ℕ' e
+  (inr star) (inl (inr star)) p q (inr star) = inv q
+aux-isretr-inv-ev-zero-equiv-Fin-two-ℕ' e
+  (inr star) (inr star) p q (inl (inr star)) =
+  ex-falso (Eq-Fin-eq (is-injective-map-equiv e (p ∙ inv q)))
+aux-isretr-inv-ev-zero-equiv-Fin-two-ℕ' e
+  (inr star) (inr star) p q (inr star) =
+  ex-falso (Eq-Fin-eq (is-injective-map-equiv e (p ∙ inv q)))
+
+isretr-inv-ev-zero-equiv-Fin-two-ℕ' :
+  (inv-ev-zero-equiv-Fin-two-ℕ' ∘ ev-zero-equiv-Fin-two-ℕ) ~ id
+isretr-inv-ev-zero-equiv-Fin-two-ℕ' e =
+  eq-htpy-equiv
+    ( aux-isretr-inv-ev-zero-equiv-Fin-two-ℕ' e
+      ( map-equiv e zero-Fin)
+      ( map-equiv e one-Fin)
+      ( refl)
+      ( refl))
+
+is-equiv-ev-zero-equiv-Fin-two-ℕ' :
   is-equiv (ev-zero-equiv-Fin-two-ℕ {lzero} {Fin two-ℕ})
-is-equiv-ev-equiv-Fin-two-ℕ' = {!!}
+is-equiv-ev-zero-equiv-Fin-two-ℕ' =
+  is-equiv-has-inverse
+    inv-ev-zero-equiv-Fin-two-ℕ'
+    issec-inv-ev-zero-equiv-Fin-two-ℕ'
+    isretr-inv-ev-zero-equiv-Fin-two-ℕ'
 
-is-equiv-ev-zero-Fin-two-ℕ :
+is-equiv-ev-zero-equiv-Fin-two-ℕ :
   {l1 : Level} {X : UU l1} → mere-equiv (Fin two-ℕ) X →
   is-equiv (ev-zero-equiv-Fin-two-ℕ {l1} {X})
-is-equiv-ev-zero-Fin-two-ℕ {l1} {X} H =
+is-equiv-ev-zero-equiv-Fin-two-ℕ {l1} {X} H =
   apply-universal-property-trunc-Prop H
     ( is-equiv-Prop (ev-zero-equiv-Fin-two-ℕ))
     ( λ α →
       is-equiv-left-factor'
         ( ev-zero-equiv-Fin-two-ℕ)
-        {! map-equiv (equiv-postcomp-equiv (Fin two-ℕ) α)!}
-        {! !}
-        {!!})
+        ( map-equiv (equiv-postcomp-equiv α (Fin two-ℕ)))
+        ( is-equiv-comp
+          ( ( ev-zero-equiv-Fin-two-ℕ) ∘
+            ( map-equiv (equiv-postcomp-equiv α (Fin two-ℕ))))
+          ( map-equiv α)
+          ( ev-zero-equiv-Fin-two-ℕ)
+          ( refl-htpy)
+          ( is-equiv-ev-zero-equiv-Fin-two-ℕ')
+          ( is-equiv-map-equiv α))
+        ( is-equiv-comp-equiv α (Fin two-ℕ)))
+
+equiv-ev-zero-equiv-Fin-two-ℕ :
+  {l1 : Level} {X : UU l1} → mere-equiv (Fin two-ℕ) X →
+  (Fin two-ℕ ≃ X) ≃ X
+equiv-ev-zero-equiv-Fin-two-ℕ e =
+  pair ev-zero-equiv-Fin-two-ℕ (is-equiv-ev-zero-equiv-Fin-two-ℕ e)
 
 is-contr-total-UU-Fin-two-ℕ :
   is-contr (Σ (UU-Fin two-ℕ) (λ X → type-UU-Fin X))
 is-contr-total-UU-Fin-two-ℕ =
-  is-contr-equiv
+  is-contr-equiv'
     ( Σ (UU-Fin two-ℕ) (λ X → Fin two-ℕ ≃ type-UU-Fin X))
     ( equiv-tot
-      ( λ X → {!!}))
+      ( λ X → equiv-ev-zero-equiv-Fin-two-ℕ (pr2 X)))
     ( is-contr-total-equiv-subuniverse
       ( mere-equiv-Prop (Fin two-ℕ))
       ( Fin-UU-Fin two-ℕ))
