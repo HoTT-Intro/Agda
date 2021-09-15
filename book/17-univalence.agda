@@ -737,8 +737,8 @@ ev-zero-equiv-Fin-two-ℕ e = map-equiv e zero-Fin
 
 inv-ev-zero-equiv-Fin-two-ℕ' :
   Fin two-ℕ → (Fin two-ℕ ≃ Fin two-ℕ)
-inv-ev-zero-equiv-Fin-two-ℕ' (inl (inr star)) = {!equiv-id!}
-inv-ev-zero-equiv-Fin-two-ℕ' (inr star) = {!!}
+inv-ev-zero-equiv-Fin-two-ℕ' (inl (inr star)) = equiv-id
+inv-ev-zero-equiv-Fin-two-ℕ' (inr star) = {!equiv-succ-Fin!}
 
 is-equiv-ev-equiv-Fin-two-ℕ' :
   is-equiv (ev-zero-equiv-Fin-two-ℕ {lzero} {Fin two-ℕ})
