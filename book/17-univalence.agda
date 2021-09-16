@@ -808,16 +808,49 @@ equiv-ev-zero-equiv-Fin-two-ℕ :
 equiv-ev-zero-equiv-Fin-two-ℕ e =
   pair ev-zero-equiv-Fin-two-ℕ (is-equiv-ev-zero-equiv-Fin-two-ℕ e)
 
-is-contr-total-UU-Fin-two-ℕ :
-  is-contr (Σ (UU-Fin two-ℕ) (λ X → type-UU-Fin X))
-is-contr-total-UU-Fin-two-ℕ =
+is-contr-total-UU-Fin-Level-two-ℕ :
+  {l : Level} → is-contr (Σ (UU-Fin-Level l two-ℕ) type-UU-Fin-Level)
+is-contr-total-UU-Fin-Level-two-ℕ {l} =
   is-contr-equiv'
-    ( Σ (UU-Fin two-ℕ) (λ X → Fin two-ℕ ≃ type-UU-Fin X))
+    ( Σ (UU-Fin-Level l two-ℕ) (λ X → raise-Fin l two-ℕ ≃ type-UU-Fin-Level X))
     ( equiv-tot
-      ( λ X → equiv-ev-zero-equiv-Fin-two-ℕ (pr2 X)))
+      ( λ X →
+        ( equiv-ev-zero-equiv-Fin-two-ℕ (pr2 X)) ∘e
+        ( equiv-precomp-equiv (equiv-raise-Fin l two-ℕ) (pr1 X))))
     ( is-contr-total-equiv-subuniverse
       ( mere-equiv-Prop (Fin two-ℕ))
-      ( Fin-UU-Fin two-ℕ))
+      ( Fin-UU-Fin-Level l two-ℕ))
+
+is-contr-total-UU-Fin-two-ℕ :
+  is-contr (Σ (UU-Fin two-ℕ) (λ X → type-UU-Fin X))
+is-contr-total-UU-Fin-two-ℕ = is-contr-total-UU-Fin-Level-two-ℕ
+
+point-eq-UU-Fin-Level-two-ℕ :
+  {l : Level} {X : UU-Fin-Level l two-ℕ} →
+  Id (Fin-UU-Fin-Level l two-ℕ) X → type-UU-Fin-Level X
+point-eq-UU-Fin-Level-two-ℕ refl = map-raise zero-Fin
+
+is-equiv-point-eq-UU-Fin-Level-two-ℕ :
+  {l : Level} (X : UU-Fin-Level l two-ℕ) →
+  is-equiv (point-eq-UU-Fin-Level-two-ℕ {l} {X})
+is-equiv-point-eq-UU-Fin-Level-two-ℕ {l} =
+  fundamental-theorem-id
+    ( Fin-UU-Fin-Level l two-ℕ)
+    ( map-raise zero-Fin)
+    ( is-contr-total-UU-Fin-Level-two-ℕ)
+    ( λ X → point-eq-UU-Fin-Level-two-ℕ {l} {X})
+
+equiv-point-eq-UU-Fin-Level-two-ℕ :
+  {l : Level} {X : UU-Fin-Level l two-ℕ} →
+  Id (Fin-UU-Fin-Level l two-ℕ) X ≃ type-UU-Fin-Level X
+equiv-point-eq-UU-Fin-Level-two-ℕ {l} {X} =
+  pair point-eq-UU-Fin-Level-two-ℕ (is-equiv-point-eq-UU-Fin-Level-two-ℕ X)
+
+eq-point-UU-Fin-Level-two-ℕ :
+  {l : Level} {X : UU-Fin-Level l two-ℕ} →
+  type-UU-Fin-Level X → Id (Fin-UU-Fin-Level l two-ℕ) X
+eq-point-UU-Fin-Level-two-ℕ =
+  map-inv-equiv equiv-point-eq-UU-Fin-Level-two-ℕ
 
 point-eq-UU-Fin-two-ℕ :
   {X : UU-Fin two-ℕ} → Id (Fin-UU-Fin two-ℕ) X → type-UU-Fin X
@@ -844,18 +877,35 @@ eq-point-UU-Fin-two-ℕ {X} =
 
 -- Corollary 17.4.2
 
+no-section-type-UU-Fin-Level-two-ℕ :
+  {l : Level} → ¬ ((X : UU-Fin-Level l two-ℕ) → type-UU-Fin-Level X)
+no-section-type-UU-Fin-Level-two-ℕ {l} f =
+  is-not-contractible-Fin two-ℕ
+    ( Eq-ℕ-eq)
+    ( is-contr-equiv
+      ( Id (Fin-UU-Fin-Level l two-ℕ) (Fin-UU-Fin-Level l two-ℕ))
+      ( ( inv-equiv equiv-point-eq-UU-Fin-Level-two-ℕ) ∘e
+        ( equiv-raise-Fin l two-ℕ))
+      ( is-prop-is-contr
+        ( pair
+          ( Fin-UU-Fin-Level l two-ℕ)
+          ( λ X → eq-point-UU-Fin-Level-two-ℕ (f X)))
+        ( Fin-UU-Fin-Level l two-ℕ)
+        ( Fin-UU-Fin-Level l two-ℕ)))
+
 no-section-type-UU-Fin-two-ℕ :
   ¬ ((X : UU-Fin two-ℕ) → type-UU-Fin X)
 no-section-type-UU-Fin-two-ℕ f =
-  is-not-contractible-Fin two-ℕ
-    ( λ p → is-nonzero-succ-ℕ zero-ℕ (is-injective-succ-ℕ p))
-    ( is-contr-equiv
-      ( Id (Fin-UU-Fin two-ℕ) (Fin-UU-Fin two-ℕ))
-      ( inv-equiv equiv-point-eq-UU-Fin-two-ℕ)
-      ( is-prop-is-contr
-        ( pair (Fin-UU-Fin two-ℕ) (λ X → eq-point-UU-Fin-two-ℕ (f X)))
-        ( Fin-UU-Fin two-ℕ)
-        ( Fin-UU-Fin two-ℕ)))
+  no-section-type-UU-Fin-Level-two-ℕ f
+
+-- Corollary 17.4.3
+
+no-global-section :
+  {l : Level} → ¬ ((X : UU l) → type-trunc-Prop X → X)
+no-global-section f =
+  no-section-type-UU-Fin-Level-two-ℕ
+    ( λ X →
+      f (pr1 X) (functor-trunc-Prop (λ e → map-equiv e zero-Fin) (pr2 X)))
 
 {- Not every type is decidable. -}
 

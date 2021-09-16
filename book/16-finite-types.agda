@@ -1199,6 +1199,28 @@ is-prop-mere-equiv :
   {l1 l2 : Level} (X : UU l1) (Y : UU l2) → is-prop (mere-equiv X Y)
 is-prop-mere-equiv X Y = is-prop-type-Prop (mere-equiv-Prop X Y)
 
+refl-mere-equiv :
+  {l1 : Level} (X : UU l1) → mere-equiv X X
+refl-mere-equiv X = unit-trunc-Prop equiv-id
+
+symmetric-mere-equiv :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → mere-equiv X Y → mere-equiv Y X
+symmetric-mere-equiv {l1} {l2} {X} {Y} =
+  map-universal-property-trunc-Prop
+    ( mere-equiv-Prop Y X)
+    ( λ e → unit-trunc-Prop (inv-equiv e))
+
+transitive-mere-equiv :
+  {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} {Z : UU l3} →
+  mere-equiv X Y → mere-equiv Y Z → mere-equiv X Z
+transitive-mere-equiv {X = X} {Y} {Z} e f =
+  apply-universal-property-trunc-Prop e
+    ( mere-equiv-Prop X Z)
+    ( λ e' →
+      apply-universal-property-trunc-Prop f
+        ( mere-equiv-Prop X Z)
+        ( λ f' → unit-trunc-Prop (f' ∘e e')))
+
 has-cardinality-Prop :
   {l : Level} → UU l → ℕ → UU-Prop l
 has-cardinality-Prop X k = mere-equiv-Prop (Fin k) X
@@ -1259,6 +1281,19 @@ Fin-𝔽 k = pair (Fin k) (is-finite-Fin)
 
 Fin-UU-Fin : (k : ℕ) → UU-Fin k
 Fin-UU-Fin k = pair (Fin k) (unit-trunc-Prop equiv-id)
+
+raise-Fin : (l : Level) (k : ℕ) → UU l
+raise-Fin l k = raise l (Fin k)
+
+equiv-raise-Fin : (l : Level) (k : ℕ) → Fin k ≃ raise-Fin l k
+equiv-raise-Fin l k = equiv-raise l (Fin k)
+
+map-raise-Fin : (l : Level) (k : ℕ) → Fin k → raise-Fin l k
+map-raise-Fin l k = map-raise
+
+Fin-UU-Fin-Level : (l : Level) (k : ℕ) → UU-Fin-Level l k
+Fin-UU-Fin-Level l k =
+  pair (raise-Fin l k) (unit-trunc-Prop (equiv-raise-Fin l k))
 
 is-finite-equiv :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
