@@ -819,6 +819,44 @@ is-contr-total-UU-Fin-two-ℕ =
       ( mere-equiv-Prop (Fin two-ℕ))
       ( Fin-UU-Fin two-ℕ))
 
+point-eq-UU-Fin-two-ℕ :
+  {X : UU-Fin two-ℕ} → Id (Fin-UU-Fin two-ℕ) X → type-UU-Fin X
+point-eq-UU-Fin-two-ℕ refl = zero-Fin
+
+is-equiv-point-eq-UU-Fin-two-ℕ :
+  (X : UU-Fin two-ℕ) → is-equiv (point-eq-UU-Fin-two-ℕ {X})
+is-equiv-point-eq-UU-Fin-two-ℕ =
+  fundamental-theorem-id
+    ( Fin-UU-Fin two-ℕ)
+    ( zero-Fin)
+    ( is-contr-total-UU-Fin-two-ℕ)
+    ( λ X → point-eq-UU-Fin-two-ℕ {X})
+
+equiv-point-eq-UU-Fin-two-ℕ :
+  {X : UU-Fin two-ℕ} → Id (Fin-UU-Fin two-ℕ) X ≃ type-UU-Fin X
+equiv-point-eq-UU-Fin-two-ℕ {X} =
+  pair point-eq-UU-Fin-two-ℕ (is-equiv-point-eq-UU-Fin-two-ℕ X)
+
+eq-point-UU-Fin-two-ℕ :
+  {X : UU-Fin two-ℕ} → type-UU-Fin X → Id (Fin-UU-Fin two-ℕ) X
+eq-point-UU-Fin-two-ℕ {X} =
+  map-inv-equiv equiv-point-eq-UU-Fin-two-ℕ
+
+-- Corollary 17.4.2
+
+no-section-type-UU-Fin-two-ℕ :
+  ¬ ((X : UU-Fin two-ℕ) → type-UU-Fin X)
+no-section-type-UU-Fin-two-ℕ f =
+  is-not-contractible-Fin two-ℕ
+    ( λ p → is-nonzero-succ-ℕ zero-ℕ (is-injective-succ-ℕ p))
+    ( is-contr-equiv
+      ( Id (Fin-UU-Fin two-ℕ) (Fin-UU-Fin two-ℕ))
+      ( inv-equiv equiv-point-eq-UU-Fin-two-ℕ)
+      ( is-prop-is-contr
+        ( pair (Fin-UU-Fin two-ℕ) (λ X → eq-point-UU-Fin-two-ℕ (f X)))
+        ( Fin-UU-Fin two-ℕ)
+        ( Fin-UU-Fin two-ℕ)))
+
 {- Not every type is decidable. -}
 
 simplify-not-all-2-element-types-decidable :
