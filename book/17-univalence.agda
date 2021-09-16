@@ -937,6 +937,11 @@ no-global-decidability :
 no-global-decidability {l} d =
   is-not-decidable-type-UU-Fin-Level-two-ℕ (λ X → d (pr1 X))
 
+-- Definition 17.4.6
+
+LEM : (l : Level) → UU (lsuc l)
+LEM l = (P : UU-Prop l) → is-decidable (type-Prop P)
+
 --------------------------------------------------------------------------------
 
 -- Section 17.5 Resizing axioms
