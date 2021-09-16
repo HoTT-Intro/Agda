@@ -907,18 +907,35 @@ no-global-section f =
     ( λ X →
       f (pr1 X) (functor-trunc-Prop (λ e → map-equiv e zero-Fin) (pr2 X)))
 
-{- Not every type is decidable. -}
+-- Definition 17.4.4
 
-simplify-not-all-2-element-types-decidable :
+AC : (l1 l2 : Level) → UU (lsuc l1 ⊔ lsuc l2)
+AC l1 l2 =
+  (A : UU-Set l1) (B : type-Set A → UU-Set l2) →
+  ((x : type-Set A) → type-trunc-Prop (type-Set (B x))) →
+  type-trunc-Prop ((x : type-Set A) → type-Set (B x))
+
+-- Theorem 17.4.5
+
+is-not-decidable-type-UU-Fin-Level-two-ℕ :
   {l : Level} →
-  ((X : UU l) (p : type-trunc-Prop (bool ≃ X)) → is-decidable X) →
-  ((X : UU l) (p : type-trunc-Prop (bool ≃ X)) → X)
-simplify-not-all-2-element-types-decidable d X p =
-  map-right-unit-law-coprod-is-empty X (¬ X)
-    ( apply-universal-property-trunc-Prop p
-      ( dn-Prop' X)
-      ( λ e → intro-dn (map-equiv e true)))
-    ( d X p)
+  ¬ ((X : UU-Fin-Level l two-ℕ) → is-decidable (type-UU-Fin-Level X))
+is-not-decidable-type-UU-Fin-Level-two-ℕ {l} d =
+  no-section-type-UU-Fin-Level-two-ℕ
+    ( λ X →
+      map-right-unit-law-coprod-is-empty
+        ( pr1 X)
+        ( ¬ (pr1 X))
+        ( apply-universal-property-trunc-Prop
+          ( pr2 X)
+          ( dn-Prop' (pr1 X))
+          ( λ e → intro-dn {l} (map-equiv e zero-Fin)))
+        ( d X))
+
+no-global-decidability :
+  {l : Level} → ¬ ((X : UU l) → is-decidable X)
+no-global-decidability {l} d =
+  is-not-decidable-type-UU-Fin-Level-two-ℕ (λ X → d (pr1 X))
 
 --------------------------------------------------------------------------------
 
