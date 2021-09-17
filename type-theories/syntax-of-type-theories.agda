@@ -44,15 +44,12 @@ data type-expr where
   empty-expr : type-expr zero-ℕ
   unit-expr : type-expr zero-ℕ
 
-data type-eq where
-  refl-eq : {n : ℕ} (A : type-expr n) → type-eq A A
-
 data term-expr where
-  conv-expr : {n m : ℕ} {A B : type-expr n} (e : type-eq A B) →
+  conv-expr : {n : ℕ} {A B : type-expr n} (e : type-eq A B) →
               term-expr A → term-expr B
   δ0-expr : (A : type-expr zero-ℕ) → term-expr (W0-expr A A)
-  δ-expr : {n : ℕ} (A : type-expr (succ-ℕ n)) →
-           term-expr (W-expr {n} {zero-ℕ} A A (refl-eq (ft-expr A)))
+--  δ-expr : {n : ℕ} (A : type-expr (succ-ℕ n)) →
+--           term-expr (W-expr {n} {zero-ℕ} A A (refl-eq (ft-expr A)))
   S-expr : {n m : ℕ} {A : type-expr n} (a : term-expr A) →
            {B : type-expr (succ-ℕ (add-ℕ n m))} →
            (e : type-eq A
@@ -60,4 +57,18 @@ data term-expr where
            term-expr B → term-expr (type-expr.S-expr a B e)
   zero-expr : term-expr type-expr.ℕ-expr
 
+data type-eq where
+  refl-eq : {n : ℕ} (A : type-expr n) → type-eq A A
+  S-cong  : {n m : ℕ} {A A' : type-expr n} (e : type-eq A A')
+            {a : term-expr A} {a' : term-expr A'}
+            (f : term-eq (conv-expr e a) a')
+            {B B' : type-expr (succ-ℕ (add-ℕ n m))}
+            (e : type-eq A
+                   ( iterate-using-add (λ x → ft-expr {x}) n (succ-ℕ m) B)) →
+            (e' : type-eq A'
+                    ( iterate-using-add (λ x → ft-expr {x}) n (succ-ℕ m) B')) →
+            type-eq B B' →
+            type-eq (S-expr a B e) (S-expr a' B' e')
+
 data term-eq where
+  refl-eq : {n : ℕ} {A : type-expr n} (a : term-expr A) → term-eq a a
