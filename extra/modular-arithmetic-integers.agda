@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module extra.modular-arithetic-integers where
+module extra.modular-arithmetic-integers where
 
 import book
 open book public

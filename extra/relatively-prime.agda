@@ -110,11 +110,3 @@ decide-relatively-prime-is-prime-ℕ x p H =
 div-right-factor-ℕ :
   (x y z : ℕ) → relatively-prime-ℕ x y → div-ℕ x (mul-ℕ y z) → div-ℕ x z
 div-right-factor-ℕ x y z H1 H2 = {!!}
-
-A ↪ A × A
-Σ (X : U), ||X ≃ Fin n||
-Π (A : Bℤ₂), A+A ≃ A×A
-
-Π (A : U) → (is an n-element set (A)) -> (A ↪ A×A)
-
-∥[n]≃X∥

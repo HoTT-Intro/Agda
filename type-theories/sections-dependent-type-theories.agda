@@ -1,8 +1,8 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module extra.sections-dependent-type-theories where
+module type-theories.sections-dependent-type-theories where
 
-open import extra.fibered-dependent-type-theories public
+open import type-theories.fibered-dependent-type-theories public
 open dependent
 open fibered
 
@@ -23,8 +23,8 @@ module sections-dtt where
 
   precomp-section-system :
     {l1 l2 l3 l4 l5 l6 : Level} {A : system l1 l2} {B : system l3 l4}
-    {C : fibered-system l5 l6 B} (g : section-system B C) (f : hom-system A B) →
-    section-system A (precomp-fibered-system C f)
+    {C : fibered-system l5 l6 B} (g : section-system C) (f : hom-system A B) →
+    section-system (precomp-fibered-system C f)
   section-system.type (precomp-section-system g f) X =
     section-system.type g (section-system.type f X)
   section-system.element (precomp-section-system g f) x =
@@ -51,7 +51,7 @@ module sections-dtt where
     {B : fibered-system l3 l4 A} {C : system l5 l6}
     {D : fibered-system l7 l8 C}
     {f : hom-system A C} (g : hom-fibered-system f B D)
-    (h : section-system A B) → section-system A (precomp-fibered-system D f)
+    (h : section-system B) → section-system (precomp-fibered-system D f)
   section-system.type (postcomp-section-system g h) X =
     section-fibered-system.type g (section-system.type h X)
   section-system.element (postcomp-section-system g h) x =
@@ -64,7 +64,7 @@ module sections-dtt where
   record preserves-weakening-section-system
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
     {WA : weakening A} (WB : fibered-weakening B WA)
-    (f : section-system A B) : UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+    (f : section-system B) : UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
     where
     coinductive
     field
@@ -84,7 +84,7 @@ module sections-dtt where
   record preserves-substitution-section-system
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
     {SA : substitution A} (SB : fibered-substitution B SA)
-    (f : section-system A B) : UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
+    (f : section-system B) : UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
     where
     coinductive
     field
@@ -103,7 +103,7 @@ module sections-dtt where
     {l1 l2 l3 l4 : Level} {A : system l1 l2} {B : fibered-system l3 l4 A}
     {WA : weakening A} {δA : generic-element WA}
     {WB : fibered-weakening B WA} (δB : fibered-generic-element WB δA)
-    {f : section-system A B} (Wf : preserves-weakening-section-system WB f) :
+    {f : section-system B} (Wf : preserves-weakening-section-system WB f) :
     UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
     where
     coinductive
@@ -131,7 +131,7 @@ module sections-dtt where
     (B : fibered-type-theory l3 l4 A) : UU (l1 ⊔ l2 ⊔ l3 ⊔ l4)
     where
     field
-      sys : section-system (type-theory.sys A) (fibered-type-theory.sys B)
+      sys : section-system (fibered-type-theory.sys B)
       W   : preserves-weakening-section-system
               ( fibered-type-theory.W B)
               ( sys)
