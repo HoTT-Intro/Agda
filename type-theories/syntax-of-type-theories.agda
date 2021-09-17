@@ -28,7 +28,10 @@ data type-expr where
             type-expr m → type-expr (succ-ℕ m)
   W-expr  : {n m : ℕ} (A : type-expr (succ-ℕ n))
             (B : type-expr (add-ℕ (succ-ℕ n) m)) →
-            type-eq A (iterate-using-add (λ x → ft-expr {x}) (succ-ℕ n) m B) →
+            type-eq
+              ( ft-expr A)
+              ( ft-expr
+                ( iterate-using-add (λ x → ft-expr {x}) (succ-ℕ n) m B)) →
             type-expr (succ-ℕ (add-ℕ (succ-ℕ n) m))
   Π-expr  : (n : ℕ) (A : type-expr n) (B : type-expr (succ-ℕ n)) →
             type-eq (ft-expr B) A → type-expr n
@@ -41,11 +44,15 @@ data type-expr where
   empty-expr : type-expr zero-ℕ
   unit-expr : type-expr zero-ℕ
 
-data type-eq where 
+data type-eq where
+  refl-eq : {n : ℕ} (A : type-expr n) → type-eq A A
 
 data term-expr where
   conv-expr : {n m : ℕ} {A B : type-expr n} (e : type-eq A B) →
               term-expr A → term-expr B
+  δ0-expr : (A : type-expr zero-ℕ) → term-expr (W0-expr A A)
+  δ-expr : {n : ℕ} (A : type-expr (succ-ℕ n)) →
+           term-expr (W-expr {n} {zero-ℕ} A A (refl-eq (ft-expr A)))
   S-expr : {n m : ℕ} {A : type-expr n} (a : term-expr A) →
            {B : type-expr (succ-ℕ (add-ℕ n m))} →
            (e : type-eq A
