@@ -310,6 +310,38 @@ decidable-Eq-Fin n i j =
     ( pair (Id i j) (is-set-Fin n i j))
     ( has-decidable-equality-Fin i j)
 
+is-decidable-prop : {l : Level} → UU l → UU l
+is-decidable-prop X = is-prop X × (is-decidable X)
+
+is-prop-is-decidable-prop :
+  {l : Level} (X : UU l) → is-prop (is-decidable-prop X)
+is-prop-is-decidable-prop X =
+  is-prop-is-inhabited
+    ( λ H →
+      is-prop-prod
+        ( is-prop-is-prop X)
+        ( is-prop-is-decidable (pr1 H)))
+
+is-decidable-prop-map :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → (X → Y) → UU (l1 ⊔ l2)
+is-decidable-prop-map {Y = Y} f = (y : Y) → is-decidable-prop (fib f y)
+
+is-prop-map-is-decidable-prop-map :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : X → Y} →
+  is-decidable-prop-map f → is-prop-map f
+is-prop-map-is-decidable-prop-map H y = pr1 (H y)
+
+is-decidable-map-is-decidable-prop-map :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : X → Y} →
+  is-decidable-prop-map f → is-decidable-map f
+is-decidable-map-is-decidable-prop-map H y = pr2 (H y)
+
+is-prop-is-decidable-prop-map :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (f : X → Y) →
+  is-prop (is-decidable-prop-map f)
+is-prop-is-decidable-prop-map f =
+  is-prop-Π (λ y → is-prop-is-decidable-prop (fib f y))
+
 -- Subuniverses
 
 is-subuniverse :
@@ -946,6 +978,8 @@ LEM l = (P : UU-Prop l) → is-decidable (type-Prop P)
 
 -- Section 17.5 Resizing axioms
 
+-- Definition 17.5.1
+
 is-small :
   (l : Level) {l1 : Level} (A : UU l1) → UU (lsuc l ⊔ l1)
 is-small l A = Σ (UU l) (λ X → A ≃ X)
@@ -975,27 +1009,14 @@ is-locally-small :
   (l : Level) {l1 : Level} (A : UU l1) → UU (lsuc l ⊔ l1)
 is-locally-small l A = (x y : A) → is-small l (Id x y)
 
+-- Example 17.5.2
+
 -- Closure properties of small types
 
 is-small-equiv :
   (l : Level) {l1 l2 : Level} {A : UU l1} (B : UU l2) →
   A ≃ B → is-small l B → is-small l A
 is-small-equiv l B e (pair X h) = pair X (h ∘e e)
-
-is-small-Π :
-  (l : Level) {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  is-small l A → ((x : A) → is-small l (B x)) → is-small l ((x : A) → B x)
-is-small-Π l {B = B} (pair X e) H =
-  pair
-    ( (x : X) → pr1 (H (map-inv-equiv e x)))
-    ( equiv-Π
-      ( λ (x : X) → pr1 (H (map-inv-equiv e x)))
-      ( e)
-      ( λ a →
-        ( equiv-tr
-          ( λ t → pr1 (H t))
-          ( inv (isretr-map-inv-equiv e a))) ∘e
-        ( pr2 (H a))))
 
 is-small-Σ :
   (l : Level) {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
@@ -1012,6 +1033,8 @@ is-small-Σ l {B = B} (pair X e) H =
           ( inv (isretr-map-inv-equiv e a))) ∘e
         ( pr2 (H a))))
 
+-- Example 17.5.2 (i)
+
 is-locally-small-is-small :
   (l : Level) {l1 : Level} {A : UU l1} → is-small l A → is-locally-small l A
 is-locally-small-is-small l (pair X e) x y =
@@ -1024,6 +1047,240 @@ is-small-fib :
   is-small l A → is-small l B → (b : B) → is-small l (fib f b)
 is-small-fib l f H K b =
   is-small-Σ l H (λ a → is-locally-small-is-small l K (f a) b)
+
+-- Example 17.5.2 (ii)
+
+is-small-is-contr :
+  (l : Level) {l1 : Level} {A : UU l1} → is-contr A → is-small l A
+is-small-is-contr l H =
+  pair (raise-unit l) (equiv-is-contr H is-contr-raise-unit)
+
+is-small-is-prop :
+  (l : Level) {l1 : Level} {A : UU l1} → is-prop A → is-locally-small l A
+is-small-is-prop l H x y = is-small-is-contr l (H x y)
+
+-- Example 17.5.2 (iii)
+
+is-locally-small-UU :
+  {l : Level} → is-locally-small l (UU l)
+is-locally-small-UU X Y = pair (X ≃ Y) equiv-univalence
+
+-- Example 17.5.2 (iv)
+
+is-small-Π :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  is-small l A → ((x : A) → is-small l (B x)) → is-small l ((x : A) → B x)
+is-small-Π l {B = B} (pair X e) H =
+  pair
+    ( (x : X) → pr1 (H (map-inv-equiv e x)))
+    ( equiv-Π
+      ( λ (x : X) → pr1 (H (map-inv-equiv e x)))
+      ( e)
+      ( λ a →
+        ( equiv-tr
+          ( λ t → pr1 (H t))
+          ( inv (isretr-map-inv-equiv e a))) ∘e
+        ( pr2 (H a))))
+
+is-locally-small-Π :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  is-small l A → ((x : A) → is-locally-small l (B x)) →
+  is-locally-small l ((x : A) → B x)
+is-locally-small-Π l H K f g =
+  is-small-equiv l (f ~ g) equiv-funext
+    ( is-small-Π l H (λ x → K x (f x) (g x)))
+
+-- Example 17.5.2 (v)
+
+UU-is-small : (l1 l2 : Level) → UU (lsuc l1 ⊔ lsuc l2)
+UU-is-small l1 l2 = Σ (UU l2) (is-small l1)
+
+equiv-UU-is-small :
+  (l1 l2 : Level) → UU-is-small l1 l2 ≃ UU-is-small l2 l1
+equiv-UU-is-small l1 l2 =
+  ( equiv-tot (λ X → equiv-tot (λ Y → equiv-inv-equiv))) ∘e
+  ( equiv-Σ-swap (UU l2) (UU l1) _≃_)
+
+-- Example 17.5.2 (vi)
+
+is-small-decidable-Prop :
+  (l1 l2 : Level) → is-small l2 (decidable-Prop l1)
+is-small-decidable-Prop l1 l2 =
+  pair ( raise-Fin l2 two-ℕ)
+       ( equiv-raise l2 (Fin two-ℕ) ∘e equiv-Fin-two-ℕ-decidable-Prop)
+
+-- Proposition 17.5.3
+
+is-prop-is-small :
+  (l : Level) {l1 : Level} (A : UU l1) → is-prop (is-small l A)
+is-prop-is-small l A =
+  is-prop-is-proof-irrelevant
+    ( λ Xe →
+      is-contr-equiv'
+        ( Σ (UU l) (λ Y → (pr1 Xe) ≃ Y))
+        ( equiv-tot ((λ Y → equiv-precomp-equiv (pr2 Xe) Y)))
+        ( is-contr-total-equiv (pr1 Xe)))
+
+is-small-Prop :
+  (l : Level) {l1 : Level} (A : UU l1) → UU-Prop (lsuc l ⊔ l1)
+is-small-Prop l A = pair (is-small l A) (is-prop-is-small l A)
+
+-- Corollary 17.5.4
+
+is-prop-is-locally-small :
+  (l : Level) {l1 : Level} (A : UU l1) → is-prop (is-locally-small l A)
+is-prop-is-locally-small l A =
+  is-prop-Π (λ x → is-prop-Π (λ y → is-prop-is-small l (Id x y)))
+
+is-locally-small-Prop :
+  (l : Level) {l1 : Level} (A : UU l1) → UU-Prop (lsuc l ⊔ l1)
+is-locally-small-Prop l A =
+  pair (is-locally-small l A) (is-prop-is-locally-small l A)
+
+is-prop-is-small-map :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  is-prop (is-small-map l f)
+is-prop-is-small-map l f =
+  is-prop-Π (λ x → is-prop-is-small l (fib f x))
+
+is-small-map-Prop :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  UU-Prop (lsuc l ⊔ l1 ⊔ l2)
+is-small-map-Prop l f =
+  pair (is-small-map l f) (is-prop-is-small-map l f)
+
+-- Corollary 17.5.5
+
+is-small-mere-equiv :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} → mere-equiv A B →
+  is-small l B → is-small l A
+is-small-mere-equiv l e H =
+  apply-universal-property-trunc-Prop e
+    ( is-small-Prop l _)
+    ( λ e' → is-small-equiv l _ e' H)
+
+--------------------------------------------------------------------------------
+
+-- Section 17.6 The binomial types
+
+-- Definition 17.6.1
+
+is-decidable-emb :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → (X → Y) → UU (l1 ⊔ l2)
+is-decidable-emb {Y = Y} f = is-emb f × is-decidable-map f
+
+is-emb-is-decidable-emb :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : X → Y} →
+  is-decidable-emb f → is-emb f
+is-emb-is-decidable-emb H = pr1 H
+
+is-decidable-map-is-decidable-emb :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : X → Y} →
+  is-decidable-emb f → is-decidable-map f
+is-decidable-map-is-decidable-emb H = pr2 H
+
+is-decidable-emb-is-decidable-prop-map :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (f : X → Y) →
+  is-decidable-prop-map f → is-decidable-emb f
+is-decidable-emb-is-decidable-prop-map f H =
+  pair
+    ( is-emb-is-prop-map (is-prop-map-is-decidable-prop-map H))
+    ( is-decidable-map-is-decidable-prop-map H)
+
+_↪d_ :
+  {l1 l2 : Level} (X : UU l1) (Y : UU l2) → UU (l1 ⊔ l2)
+X ↪d Y = Σ (X → Y) is-decidable-emb
+
+map-decidable-emb :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → X ↪d Y → X → Y
+map-decidable-emb e = pr1 e
+
+is-decidable-emb-map-decidable-emb :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ↪d Y) →
+  is-decidable-emb (map-decidable-emb e)
+is-decidable-emb-map-decidable-emb e = pr2 e
+
+is-emb-map-decidable-emb :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ↪d Y) →
+  is-emb (map-decidable-emb e)
+is-emb-map-decidable-emb e =
+  is-emb-is-decidable-emb (is-decidable-emb-map-decidable-emb e)
+
+is-decidable-map-map-decidable-emb :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ↪d Y) →
+  is-decidable-map (map-decidable-emb e)
+is-decidable-map-map-decidable-emb e =
+  is-decidable-map-is-decidable-emb (is-decidable-emb-map-decidable-emb e)
+
+emb-decidable-emb :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → X ↪d Y → X ↪ Y
+emb-decidable-emb e = pair (map-decidable-emb e) (is-emb-map-decidable-emb e)
+
+-- Definition 17.6.2
+
+-- We first define more general binomial types with an extra universe level.
+
+binomial-type-Level :
+  (l : Level) {l1 l2 : Level} (X : UU l1) (Y : UU l2) → UU (lsuc l ⊔ l1 ⊔ l2)
+binomial-type-Level l X Y =
+  Σ (component-UU-Level l Y) (λ Z → type-component-UU-Level Z ↪d X)
+
+type-binomial-type-Level :
+  {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} → binomial-type-Level l3 X Y → UU l3
+type-binomial-type-Level Z = type-component-UU-Level (pr1 Z)
+
+mere-equiv-binomial-type-Level :
+  {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (Z : binomial-type-Level l3 X Y) →
+  mere-equiv Y (type-binomial-type-Level Z)
+mere-equiv-binomial-type-Level Z = mere-equiv-component-UU-Level (pr1 Z)
+
+decidable-emb-binomial-type-Level :
+  {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (Z : binomial-type-Level l3 X Y) →
+  type-binomial-type-Level Z ↪d X
+decidable-emb-binomial-type-Level Z = pr2 Z
+
+map-decidable-emb-binomial-type-Level :
+  {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (Z : binomial-type-Level l3 X Y) →
+  type-binomial-type-Level Z → X
+map-decidable-emb-binomial-type-Level Z =
+  map-decidable-emb (decidable-emb-binomial-type-Level Z)
+
+is-emb-map-emb-binomial-type-Level :
+  {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (Z : binomial-type-Level l3 X Y) →
+  is-emb (map-decidable-emb-binomial-type-Level Z)
+is-emb-map-emb-binomial-type-Level Z =
+  is-emb-map-decidable-emb (decidable-emb-binomial-type-Level Z)
+
+-- We now define the standard binomial types
+
+binomial-type : {l1 l2 : Level} (X : UU l1) (Y : UU l2) → UU (l1 ⊔ lsuc l2)
+binomial-type {l1} {l2} X Y = binomial-type-Level l2 X Y
+
+type-binomial-type :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → binomial-type X Y → UU l2
+type-binomial-type Z = type-component-UU (pr1 Z)
+
+mere-equiv-binomial-type :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (Z : binomial-type X Y) →
+  mere-equiv Y (type-binomial-type Z)
+mere-equiv-binomial-type Z = mere-equiv-component-UU-Level (pr1 Z)
+
+decidable-emb-binomial-type :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (Z : binomial-type X Y) →
+  type-binomial-type Z ↪d X
+decidable-emb-binomial-type Z = pr2 Z
+
+map-decidable-emb-binomial-type :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (Z : binomial-type X Y) →
+  type-binomial-type Z → X
+map-decidable-emb-binomial-type Z =
+  map-decidable-emb (decidable-emb-binomial-type Z)
+
+is-emb-map-emb-binomial-type :
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (Z : binomial-type X Y) →
+  is-emb (map-decidable-emb-binomial-type Z)
+is-emb-map-emb-binomial-type Z =
+  is-emb-map-decidable-emb (decidable-emb-binomial-type Z)
 
 --------------------------------------------------------------------------------
 
@@ -1052,25 +1309,6 @@ equiv-comp-equiv e C =
         ( λ H →
           is-equiv-right-factor' (map-equiv e) g (is-equiv-map-equiv e) H))
 -}
-
-is-prop-is-small :
-  (l : Level) {l1 : Level} (A : UU l1) → is-prop (is-small l A)
-is-prop-is-small l A =
-  is-prop-is-proof-irrelevant
-    ( λ Xe →
-      is-contr-equiv'
-        ( Σ (UU l) (λ Y → (pr1 Xe) ≃ Y))
-        ( equiv-tot ((λ Y → equiv-precomp-equiv (pr2 Xe) Y)))
-        ( is-contr-total-equiv (pr1 Xe)))
-
-is-small-Prop :
-  (l : Level) {l1 : Level} (A : UU l1) → UU-Prop (lsuc l ⊔ l1)
-is-small-Prop l A = pair (is-small l A) (is-prop-is-small l A)
-
-is-prop-is-locally-small :
-  (l : Level) {l1 : Level} (A : UU l1) → is-prop (is-locally-small l A)
-is-prop-is-locally-small l A =
-  is-prop-Π (λ x → is-prop-Π (λ y → is-prop-is-small l (Id x y)))
 
 {-
 is-emb-raise :
@@ -1282,123 +1520,4 @@ issec-bool-aut-bool e =
 --------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------
-
--- The binomial theorem for types
-
-is-decidable-prop : {l : Level} → UU l → UU l
-is-decidable-prop X = is-prop X × (is-decidable X)
-
-is-prop-is-decidable-prop :
-  {l : Level} (X : UU l) → is-prop (is-decidable-prop X)
-is-prop-is-decidable-prop X =
-  is-prop-is-inhabited
-    ( λ H →
-      is-prop-prod
-        ( is-prop-is-prop X)
-        ( is-prop-is-decidable (pr1 H)))
-
-is-decidable-prop-map :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → (X → Y) → UU (l1 ⊔ l2)
-is-decidable-prop-map {Y = Y} f = (y : Y) → is-decidable-prop (fib f y)
-
-is-prop-map-is-decidable-prop-map :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : X → Y} →
-  is-decidable-prop-map f → is-prop-map f
-is-prop-map-is-decidable-prop-map H y = pr1 (H y)
-
-is-decidable-map-is-decidable-prop-map :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : X → Y} →
-  is-decidable-prop-map f → is-decidable-map f
-is-decidable-map-is-decidable-prop-map H y = pr2 (H y)
-
-is-prop-is-decidable-prop-map :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (f : X → Y) →
-  is-prop (is-decidable-prop-map f)
-is-prop-is-decidable-prop-map f =
-  is-prop-Π (λ y → is-prop-is-decidable-prop (fib f y))
-
-is-decidable-emb :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → (X → Y) → UU (l1 ⊔ l2)
-is-decidable-emb {Y = Y} f = is-emb f × is-decidable-map f
-
-is-emb-is-decidable-emb :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : X → Y} →
-  is-decidable-emb f → is-emb f
-is-emb-is-decidable-emb H = pr1 H
-
-is-decidable-map-is-decidable-emb :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : X → Y} →
-  is-decidable-emb f → is-decidable-map f
-is-decidable-map-is-decidable-emb H = pr2 H
-
-is-decidable-emb-is-decidable-prop-map :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (f : X → Y) →
-  is-decidable-prop-map f → is-decidable-emb f
-is-decidable-emb-is-decidable-prop-map f H =
-  pair
-    ( is-emb-is-prop-map (is-prop-map-is-decidable-prop-map H))
-    ( is-decidable-map-is-decidable-prop-map H)
-
-_↪d_ :
-  {l1 l2 : Level} (X : UU l1) (Y : UU l2) → UU (l1 ⊔ l2)
-X ↪d Y = Σ (X → Y) is-decidable-emb
-
-map-decidable-emb :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → X ↪d Y → X → Y
-map-decidable-emb e = pr1 e
-
-is-decidable-emb-map-decidable-emb :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ↪d Y) →
-  is-decidable-emb (map-decidable-emb e)
-is-decidable-emb-map-decidable-emb e = pr2 e
-
-is-emb-map-decidable-emb :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ↪d Y) →
-  is-emb (map-decidable-emb e)
-is-emb-map-decidable-emb e =
-  is-emb-is-decidable-emb (is-decidable-emb-map-decidable-emb e)
-
-is-decidable-map-map-decidable-emb :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ↪d Y) →
-  is-decidable-map (map-decidable-emb e)
-is-decidable-map-map-decidable-emb e =
-  is-decidable-map-is-decidable-emb (is-decidable-emb-map-decidable-emb e)
-
-emb-decidable-emb :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → X ↪d Y → X ↪ Y
-emb-decidable-emb e = pair (map-decidable-emb e) (is-emb-map-decidable-emb e)
-
-choose-UU-Level :
-  (l : Level) {l1 l2 : Level} (X : UU l1) (Y : UU l2) → UU (lsuc l ⊔ l1 ⊔ l2)
-choose-UU-Level l X Y =
-  Σ (component-UU-Level l Y) (λ Z → type-component-UU-Level Z ↪d X)
-
-type-choose-UU-Level :
-  {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} → choose-UU-Level l3 X Y → UU l3
-type-choose-UU-Level Z = type-component-UU-Level (pr1 Z)
-
-mere-equiv-choose-UU-Level :
-  {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (Z : choose-UU-Level l3 X Y) →
-  mere-equiv Y (type-choose-UU-Level Z)
-mere-equiv-choose-UU-Level Z = mere-equiv-component-UU-Level (pr1 Z)
-
-decidable-emb-choose-UU-Level :
-  {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (Z : choose-UU-Level l3 X Y) →
-  type-choose-UU-Level Z ↪d X
-decidable-emb-choose-UU-Level Z = pr2 Z
-
-map-decidable-emb-choose-UU-Level :
-  {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (Z : choose-UU-Level l3 X Y) →
-  type-choose-UU-Level Z → X
-map-decidable-emb-choose-UU-Level Z =
-  map-decidable-emb (decidable-emb-choose-UU-Level Z)
-
-is-emb-map-emb-choose-UU-Level :
-  {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (Z : choose-UU-Level l3 X Y) →
-  is-emb (map-decidable-emb-choose-UU-Level Z)
-is-emb-map-emb-choose-UU-Level Z =
-  is-emb-map-decidable-emb (decidable-emb-choose-UU-Level Z)
-
-_choose-UU_ : {l1 l2 : Level} (X : UU l1) (Y : UU l2) → UU (l1 ⊔ lsuc l2)
-_choose-UU_ {l1} {l2} X Y = choose-UU-Level l2 X Y
 
