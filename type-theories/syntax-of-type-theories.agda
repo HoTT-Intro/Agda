@@ -10,6 +10,8 @@ iterate-using-add :
 iterate-using-add f m zero-ℕ = id
 iterate-using-add f m (succ-ℕ n) = iterate-using-add f m n ∘ f (add-ℕ m n)
 
+interleaved mutual
+
 data type-expr : ℕ → Set
 
 data type-eq : {n : ℕ} (A B : type-expr n) → Set
