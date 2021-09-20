@@ -187,9 +187,34 @@ is-equiv-iff-eq P =
 
 -- Corollary 17.1.4
 
+is-decidable-prop : {l : Level} → UU l → UU l
+is-decidable-prop A = is-prop A × is-decidable A
+
 decidable-Prop :
   (l : Level) → UU (lsuc l)
-decidable-Prop l = Σ (UU-Prop l) (λ P → is-decidable (pr1 P))
+decidable-Prop l = Σ (UU l) is-decidable-prop
+
+prop-decidable-Prop :
+  {l : Level} → decidable-Prop l → UU-Prop l
+prop-decidable-Prop P = pair (pr1 P) (pr1 (pr2 P))
+
+type-decidable-Prop :
+  {l : Level} → decidable-Prop l → UU l
+type-decidable-Prop P = type-Prop (prop-decidable-Prop P)
+
+is-prop-type-decidable-Prop :
+  {l : Level} (P : decidable-Prop l) → is-prop (type-decidable-Prop P)
+is-prop-type-decidable-Prop P = is-prop-type-Prop (prop-decidable-Prop P)
+
+is-decidable-type-decidable-Prop :
+  {l : Level} (P : decidable-Prop l) → is-decidable (type-decidable-Prop P)
+is-decidable-type-decidable-Prop P = pr2 (pr2 P)
+
+is-decidable-prop-decidable-Prop :
+  {l : Level} (P : decidable-Prop l) → UU-Prop l
+is-decidable-prop-decidable-Prop P =
+  pair ( is-decidable (type-decidable-Prop P))
+       ( is-prop-is-decidable (is-prop-type-decidable-Prop P))
 
 is-contr-raise-unit :
   {l1 : Level} → is-contr (raise-unit l1)
@@ -260,17 +285,18 @@ is-contr-total-false-Prop {l1} =
 equiv-Fin-two-ℕ-decidable-Prop :
   {l1 : Level} → decidable-Prop l1 ≃ Fin two-ℕ
 equiv-Fin-two-ℕ-decidable-Prop {l1} =
-  ( equiv-coprod
-    ( equiv-is-contr
-      ( is-contr-total-true-Prop)
-      ( is-contr-Fin-one-ℕ))
-    ( equiv-is-contr
-      ( is-contr-total-false-Prop)
-      ( is-contr-unit))) ∘e
-  ( left-distributive-Σ-coprod
-    ( UU-Prop l1)
-    ( λ P → type-Prop P)
-    ( λ P → type-Prop (neg-Prop P)))
+  ( ( equiv-coprod
+      ( equiv-is-contr
+        ( is-contr-total-true-Prop)
+        ( is-contr-Fin-one-ℕ))
+      ( equiv-is-contr
+        ( is-contr-total-false-Prop)
+        ( is-contr-unit))) ∘e
+    ( left-distributive-Σ-coprod
+      ( UU-Prop l1)
+      ( λ P → type-Prop P)
+      ( λ P → type-Prop (neg-Prop P)))) ∘e
+  ( inv-assoc-Σ (UU l1) is-prop (λ X → is-decidable (pr1 X)))
 
 bool-Fin-two-ℕ : Fin two-ℕ → bool
 bool-Fin-two-ℕ (inl (inr star)) = false
@@ -306,12 +332,7 @@ equiv-bool-decidable-Prop {l} =
 decidable-Eq-Fin :
   (n : ℕ) (i j : Fin n) → decidable-Prop lzero
 decidable-Eq-Fin n i j =
-  pair
-    ( pair (Id i j) (is-set-Fin n i j))
-    ( has-decidable-equality-Fin i j)
-
-is-decidable-prop : {l : Level} → UU l → UU l
-is-decidable-prop X = is-prop X × (is-decidable X)
+  pair (Id i j) (pair (is-set-Fin n i j) ( has-decidable-equality-Fin i j))
 
 is-prop-is-decidable-prop :
   {l : Level} (X : UU l) → is-prop (is-decidable-prop X)
@@ -1216,6 +1237,88 @@ emb-decidable-emb :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → X ↪d Y → X ↪ Y
 emb-decidable-emb e = pair (map-decidable-emb e) (is-emb-map-decidable-emb e)
 
+-- Bureaucracy
+
+equiv-Fib-decidable-Prop :
+  (l : Level) {l1 : Level} (A : UU l1) →
+  Σ (UU (l1 ⊔ l)) (λ X → X ↪d A) ≃ (A → decidable-Prop (l1 ⊔ l))
+equiv-Fib-decidable-Prop l A =
+  ( equiv-Fib-structure l is-decidable-prop A) ∘e
+  ( equiv-tot
+    ( λ X →
+      equiv-tot
+        ( λ f →
+          ( inv-equiv equiv-choice-∞) ∘e
+          ( equiv-prod (equiv-is-prop-map-is-emb f) equiv-id))))
+
+is-decidable-emb-is-equiv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
+  is-equiv f → is-decidable-emb f
+is-decidable-emb-is-equiv H =
+  pair (is-emb-is-equiv H) (λ x → inl (center (is-contr-map-is-equiv H x)))
+
+is-decidable-emb-id :
+  {l1 : Level} {A : UU l1} → is-decidable-emb (id {A = A})
+is-decidable-emb-id {l1} {A} = pair is-emb-id (λ x → inl (pair x refl))
+
+decidable-emb-id :
+  {l1 : Level} {A : UU l1} → A ↪d A
+decidable-emb-id {l1} {A} = pair id is-decidable-emb-id
+
+is-prop-is-decidable-emb :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  is-prop (is-decidable-emb f)
+is-prop-is-decidable-emb f =
+  is-prop-is-inhabited
+    ( λ H →
+      is-prop-prod
+        ( is-prop-is-emb f)
+        ( is-prop-Π
+          ( λ y → is-prop-is-decidable (is-prop-map-is-emb (pr1 H) y))))
+
+fib-comp :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} (g : B → C) (f : A → B)
+  (c : C) → fib (g ∘ f) c ≃ Σ (fib g c) (λ t → fib f (pr1 t))
+fib-comp {A = A} {B} {C} g f c =
+  ( equiv-Σ-swap A (fib g c) (λ a u → Id (f a) (pr1 u))) ∘e
+  ( equiv-tot
+    ( λ a →
+      ( inv-assoc-Σ B (λ b → Id (g b) c) (λ u → Id (f a) (pr1 u))) ∘e
+      ( ( equiv-tot (λ b → commutative-prod)) ∘e
+        ( ( assoc-Σ B (Id (f a)) ( λ u → Id (g (pr1 u)) c)) ∘e
+          ( inv-equiv
+            ( left-unit-law-Σ-is-contr
+              ( is-contr-total-path (f a))
+              ( pair (f a) refl)))))))
+
+is-decidable-emb-comp :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {g : B → C}
+  {f : A → B} →
+  is-decidable-emb f → is-decidable-emb g → is-decidable-emb (g ∘ f)
+is-decidable-emb-comp {g = g} {f} H K =
+  pair
+    ( is-emb-comp' _ _ (pr1 K) (pr1 H))
+    ( λ x →
+      ind-coprod
+        ( λ t → is-decidable (fib (g ∘ f) x))
+        ( λ u →
+          is-decidable-equiv
+            ( fib-comp g f x)
+            ( is-decidable-equiv
+              ( left-unit-law-Σ-is-contr
+                ( is-proof-irrelevant-is-prop
+                  ( is-prop-map-is-emb (is-emb-is-decidable-emb K) x)
+                  ( u))
+                ( u))
+              ( is-decidable-map-is-decidable-emb H (pr1 u))))
+        ( λ α → inr (λ t → α (pair (f (pr1 t)) (pr2 t))))
+        ( pr2 K x))
+
+equiv-precomp-decidable-emb-equiv :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
+  (C : UU l3) → (B ↪d C) ≃ (A ↪d C)
+equiv-precomp-decidable-emb-equiv e C = {!!}
+
 -- Definition 17.6.2
 
 -- We first define more general binomial types with an extra universe level.
@@ -1253,12 +1356,12 @@ is-emb-map-emb-binomial-type-Level Z =
 
 -- We now define the standard binomial types
 
-binomial-type : {l1 l2 : Level} (X : UU l1) (Y : UU l2) → UU (l1 ⊔ lsuc l2)
-binomial-type {l1} {l2} X Y = binomial-type-Level l2 X Y
+binomial-type : {l1 l2 : Level} (X : UU l1) (Y : UU l2) → UU (lsuc (l1 ⊔ l2))
+binomial-type {l1} {l2} X Y = binomial-type-Level (l1 ⊔ l2) X Y
 
 type-binomial-type :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → binomial-type X Y → UU l2
-type-binomial-type Z = type-component-UU (pr1 Z)
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2} → binomial-type X Y → UU (l1 ⊔ l2)
+type-binomial-type Z = type-component-UU-Level (pr1 Z)
 
 mere-equiv-binomial-type :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (Z : binomial-type X Y) →
@@ -1281,6 +1384,92 @@ is-emb-map-emb-binomial-type :
   is-emb (map-decidable-emb-binomial-type Z)
 is-emb-map-emb-binomial-type Z =
   is-emb-map-decidable-emb (decidable-emb-binomial-type Z)
+
+-- Remark 17.6.4
+
+binomial-type-Level' :
+  (l : Level) {l1 l2 : Level} (A : UU l1) (B : UU l2) → UU (lsuc l ⊔ l1 ⊔ l2)
+binomial-type-Level' l A B =
+  Σ ( A → decidable-Prop l)
+    ( λ P → mere-equiv B (Σ A (λ x → type-decidable-Prop (P x))))
+
+equiv-binomial-type-Level :
+  (l : Level) {l1 l2 : Level} (A : UU l1) (B : UU l2) →
+  binomial-type-Level (l1 ⊔ l) A B ≃ binomial-type-Level' (l1 ⊔ l) A B
+equiv-binomial-type-Level l {l1} {l2} A B =
+  ( ( ( equiv-Σ
+        ( λ P → mere-equiv B (Σ A (λ x → type-decidable-Prop (P x))))
+        ( equiv-Fib-decidable-Prop l A)
+        ( λ e →
+          equiv-trunc-Prop
+            ( equiv-postcomp-equiv
+              ( inv-equiv (equiv-total-fib (pr1 (pr2 e)))) B))) ∘e
+      ( inv-assoc-Σ
+        ( UU (l1 ⊔ l))
+        ( λ X → X ↪d A)
+        ( λ X → mere-equiv B (pr1 X)))) ∘e
+    ( equiv-tot (λ X → commutative-prod))) ∘e
+  ( assoc-Σ (UU (l1 ⊔ l)) (λ X → mere-equiv B X) (λ X → (pr1 X) ↪d A))
+
+binomial-type' :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) → UU (lsuc (l1 ⊔ l2))
+binomial-type' {l1} {l2} A B = binomial-type-Level' (l1 ⊔ l2) A B
+
+equiv-binomial-type :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) →
+  binomial-type A B ≃ binomial-type' A B
+equiv-binomial-type {l1} {l2} A B =
+  equiv-binomial-type-Level (l1 ⊔ l2) A B
+
+-- Proposition 17.6.7
+
+is-contr-component-UU-Level-empty :
+  (l : Level) → is-contr (component-UU-Level l empty)
+is-contr-component-UU-Level-empty l =
+  pair
+    ( Fin-UU-Fin-Level l zero-ℕ)
+    ( λ X →
+      eq-equiv-subuniverse
+        ( mere-equiv-Prop empty)
+        ( equiv-is-empty
+          ( map-inv-equiv (equiv-raise l empty))
+          ( λ x →
+            apply-universal-property-trunc-Prop
+              ( pr2 X)
+              ( empty-Prop)
+              ( λ e → map-inv-equiv e x))))
+
+is-contr-component-UU-empty : is-contr (component-UU empty)
+is-contr-component-UU-empty =
+  is-contr-component-UU-Level-empty lzero
+
+is-decidable-emb-ex-falso :
+  {l : Level} {X : UU l} → is-decidable-emb (ex-falso {l} {X})
+is-decidable-emb-ex-falso {l} {X} =
+  pair (is-emb-ex-falso X) (λ x → inr pr1)
+
+binomial-type-empty-empty :
+  {l : Level} {X : UU l} → is-contr (binomial-type X empty)
+binomial-type-empty-empty {l} {X} =
+  is-contr-equiv
+    ( raise-empty l ↪d X)
+    ( left-unit-law-Σ-is-contr
+      ( is-contr-component-UU-Level-empty l)
+      ( Fin-UU-Fin-Level l zero-ℕ))
+    {!!}
+{-
+  is-contr-equiv
+    ( empty ↪d X)
+    ( left-unit-law-Σ-is-contr
+      ( is-contr-component-UU-Level-empty l)
+      ( Fin-UU-Fin-Level l zero-ℕ))
+    ( is-contr-equiv
+      ( is-decidable-emb ex-falso)
+      ( left-unit-law-Σ-is-contr (universal-property-empty' empty) ex-falso)
+      ( is-proof-irrelevant-is-prop
+        ( is-prop-is-decidable-emb ex-falso)
+        ( is-decidable-emb-ex-falso)))
+-}
 
 --------------------------------------------------------------------------------
 

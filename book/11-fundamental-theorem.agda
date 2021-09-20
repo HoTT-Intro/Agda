@@ -375,6 +375,9 @@ emb-id :
   {i : Level} {A : UU i} → (A ↪ A)
 emb-id {i} {A} = emb-equiv equiv-id
 
+is-emb-id : {l : Level} {A : UU l} → is-emb (id {A = A})
+is-emb-id = is-emb-map-emb emb-id
+
 equiv-ap :
   {i j : Level} {A : UU i} {B : UU j} (e : A ≃ B) (x y : A) →
   (Id x y) ≃ (Id (map-equiv e x) (map-equiv e y))
