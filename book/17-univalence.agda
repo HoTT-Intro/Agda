@@ -302,13 +302,25 @@ equiv-Fin-two-ℕ-decidable-Prop {l1} =
       ( is-contr-unit))) ∘e
   ( split-decidable-Prop)
 
+compute-equiv-Fin-two-ℕ-decidable-Prop :
+  {l1 : Level} (P : decidable-Prop l1) →
+  type-decidable-Prop P ≃
+  Id (map-equiv equiv-Fin-two-ℕ-decidable-Prop P) zero-Fin
+compute-equiv-Fin-two-ℕ-decidable-Prop (pair P (pair H (inl p))) =
+  equiv-is-contr
+    ( is-proof-irrelevant-is-prop H p)
+    ( is-proof-irrelevant-is-prop
+      ( is-set-Fin two-ℕ _ zero-Fin) (ap inl (eq-is-contr is-contr-Fin-one-ℕ)))
+compute-equiv-Fin-two-ℕ-decidable-Prop (pair P (pair H (inr f))) =
+  equiv-is-empty f Eq-Fin-eq
+
 bool-Fin-two-ℕ : Fin two-ℕ → bool
-bool-Fin-two-ℕ (inl (inr star)) = false
-bool-Fin-two-ℕ (inr star) = true
+bool-Fin-two-ℕ (inl (inr star)) = true
+bool-Fin-two-ℕ (inr star) = false
 
 Fin-two-ℕ-bool : bool → Fin two-ℕ
-Fin-two-ℕ-bool true = inr star
-Fin-two-ℕ-bool false = inl (inr star)
+Fin-two-ℕ-bool true = inl (inr star)
+Fin-two-ℕ-bool false = inr star
 
 isretr-Fin-two-ℕ-bool : (Fin-two-ℕ-bool ∘ bool-Fin-two-ℕ) ~ id
 isretr-Fin-two-ℕ-bool (inl (inr star)) = refl
@@ -330,6 +342,13 @@ equiv-bool-Fin-two-ℕ =
 equiv-bool-decidable-Prop : {l : Level} → decidable-Prop l ≃ bool
 equiv-bool-decidable-Prop {l} =
   equiv-bool-Fin-two-ℕ ∘e equiv-Fin-two-ℕ-decidable-Prop
+
+compute-equiv-bool-decidable-Prop :
+  {l : Level} (P : decidable-Prop l) →
+  type-decidable-Prop P ≃ Id (map-equiv equiv-bool-decidable-Prop P) true
+compute-equiv-bool-decidable-Prop P =
+  ( equiv-ap equiv-bool-Fin-two-ℕ _ zero-Fin) ∘e
+  ( compute-equiv-Fin-two-ℕ-decidable-Prop P)
 
 -- Bureaucracy
 
@@ -1203,6 +1222,10 @@ equiv-precomp-decidable-emb-equiv e C =
 
 -- Definition 17.5.2
 
+-- Example 17.5.3
+
+-- Definition 17.5.4
+
 -- We first define more general binomial types with an extra universe level.
 
 binomial-type-Level :
@@ -1214,10 +1237,10 @@ type-binomial-type-Level :
   {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} → binomial-type-Level l3 X Y → UU l3
 type-binomial-type-Level Z = type-component-UU-Level (pr1 Z)
 
-mere-equiv-binomial-type-Level :
+mere-compute-binomial-type-Level :
   {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (Z : binomial-type-Level l3 X Y) →
   mere-equiv Y (type-binomial-type-Level Z)
-mere-equiv-binomial-type-Level Z = mere-equiv-component-UU-Level (pr1 Z)
+mere-compute-binomial-type-Level Z = mere-equiv-component-UU-Level (pr1 Z)
 
 decidable-emb-binomial-type-Level :
   {l1 l2 l3 : Level} {X : UU l1} {Y : UU l2} (Z : binomial-type-Level l3 X Y) →
@@ -1245,10 +1268,10 @@ type-binomial-type :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → binomial-type X Y → UU (l1 ⊔ l2)
 type-binomial-type Z = type-component-UU-Level (pr1 Z)
 
-mere-equiv-binomial-type :
+mere-compute-binomial-type :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (Z : binomial-type X Y) →
   mere-equiv Y (type-binomial-type Z)
-mere-equiv-binomial-type Z = mere-equiv-component-UU-Level (pr1 Z)
+mere-compute-binomial-type Z = mere-equiv-component-UU-Level (pr1 Z)
 
 decidable-emb-binomial-type :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (Z : binomial-type X Y) →
@@ -1267,7 +1290,7 @@ is-emb-map-emb-binomial-type :
 is-emb-map-emb-binomial-type Z =
   is-emb-map-decidable-emb (decidable-emb-binomial-type Z)
 
--- Remark 17.5.4
+-- Proposition 17.5.6
 
 binomial-type-Level' :
   (l : Level) {l1 l2 : Level} (A : UU l1) (B : UU l2) → UU (lsuc l ⊔ l1 ⊔ l2)
@@ -1275,10 +1298,10 @@ binomial-type-Level' l A B =
   Σ ( A → decidable-Prop l)
     ( λ P → mere-equiv B (Σ A (λ x → type-decidable-Prop (P x))))
 
-equiv-binomial-type-Level :
+compute-binomial-type-Level :
   (l : Level) {l1 l2 : Level} (A : UU l1) (B : UU l2) →
   binomial-type-Level (l1 ⊔ l) A B ≃ binomial-type-Level' (l1 ⊔ l) A B
-equiv-binomial-type-Level l {l1} {l2} A B =
+compute-binomial-type-Level l {l1} {l2} A B =
   ( ( ( equiv-Σ
         ( λ P → mere-equiv B (Σ A (λ x → type-decidable-Prop (P x))))
         ( equiv-Fib-decidable-Prop l A)
@@ -1297,13 +1320,34 @@ binomial-type' :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) → UU (lsuc (l1 ⊔ l2))
 binomial-type' {l1} {l2} A B = binomial-type-Level' (l1 ⊔ l2) A B
 
-equiv-binomial-type :
+compute-binomial-type :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) →
   binomial-type A B ≃ binomial-type' A B
-equiv-binomial-type {l1} {l2} A B =
-  equiv-binomial-type-Level (l1 ⊔ l2) A B
+compute-binomial-type {l1} {l2} A B =
+  compute-binomial-type-Level (l1 ⊔ l2) A B
 
--- Proposition 17.5.7
+-- Remark 17.5.7
+
+boolean-binomial-type :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) → UU (l1 ⊔ l2)
+boolean-binomial-type A B =
+  Σ (A → bool) (λ f → mere-equiv B (fib f true))
+
+compute-boolean-binomial-type :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) →
+  binomial-type A B ≃ boolean-binomial-type A B
+compute-boolean-binomial-type A B =
+  ( equiv-Σ
+    ( λ f → mere-equiv B (fib f true))
+    ( equiv-postcomp A equiv-bool-decidable-Prop)
+    ( λ P →
+      equiv-trunc-Prop
+        ( equiv-postcomp-equiv
+          ( equiv-tot (λ a → compute-equiv-bool-decidable-Prop (P a)))
+          ( B)))) ∘e
+  ( compute-binomial-type A B)
+
+-- Lemma 17.5.8
 
 is-contr-component-UU-Level-empty :
   (l : Level) → is-contr (component-UU-Level l empty)
@@ -1361,17 +1405,38 @@ recursion-binomial-type' :
   binomial-type' (Maybe A) (Maybe B) ≃
   coprod (binomial-type' A B) (binomial-type' A (Maybe B))
 recursion-binomial-type' A B =
-  ( ( {!!} ∘e
+  ( ( ( left-distributive-Σ-coprod
+        ( A → decidable-Prop _)
+        ( λ P → mere-equiv B (Σ A _))
+        ( λ P → mere-equiv (Maybe B) (Σ A _))) ∘e
       ( equiv-tot
         ( λ P →
           ( ( equiv-coprod
-              (  equiv-trunc-Prop {!!} ∘e
+              ( ( ( equiv-iff
+                    ( mere-equiv-Prop (Maybe B) (Maybe (Σ A _)))
+                    ( mere-equiv-Prop B (Σ A _))
+                    ( functor-trunc-Prop (equiv-equiv-Maybe))
+                    ( functor-trunc-Prop
+                      ( λ e → equiv-coprod e equiv-id))) ∘e
+                  ( equiv-trunc-Prop
+                    ( equiv-postcomp-equiv
+                      ( equiv-coprod
+                        ( equiv-id)
+                        ( equiv-is-contr is-contr-raise-unit is-contr-unit))
+                      ( Maybe B)))) ∘e
                 ( left-unit-law-Σ-is-contr
                   ( is-contr-total-true-Prop)
                   ( pair (raise-unit-Prop _) raise-star)))
-              ( left-unit-law-Σ-is-contr
-                ( is-contr-total-false-Prop)
-                ( pair (raise-empty-Prop _) map-inv-raise))) ∘e
+              ( ( equiv-trunc-Prop
+                  ( equiv-postcomp-equiv
+                    ( right-unit-law-coprod-is-empty
+                      ( Σ A _)
+                      ( raise-empty _)
+                      ( is-empty-raise-empty))
+                    ( Maybe B))) ∘e
+                ( left-unit-law-Σ-is-contr
+                  ( is-contr-total-false-Prop)
+                  ( pair (raise-empty-Prop _) map-inv-raise)))) ∘e
             ( right-distributive-Σ-coprod
               ( Σ (UU-Prop _) type-Prop)
               ( Σ (UU-Prop _) (¬ ∘ type-Prop))
@@ -1428,6 +1493,75 @@ recursion-binomial-type' A B =
             ( right-distributive-Σ-coprod A unit
               ( λ x → type-decidable-Prop (u x))))
           ( Maybe B))))
+
+binomial-type-Maybe :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) →
+  binomial-type (Maybe A) (Maybe B) ≃
+  coprod (binomial-type A B) (binomial-type A (Maybe B))
+binomial-type-Maybe A B =
+  ( inv-equiv
+    ( equiv-coprod
+      ( compute-binomial-type A B)
+      ( compute-binomial-type A (Maybe B))) ∘e
+    ( recursion-binomial-type' A B)) ∘e
+  ( compute-binomial-type (Maybe A) (Maybe B))
+
+-- Theorem 17.5.9
+
+equiv-boolean-binomial-type :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {A' : UU l2} {B : UU l3} {B' : UU l4} →
+  (A ≃ A') → (B ≃ B') → boolean-binomial-type A' B' ≃ boolean-binomial-type A B
+equiv-boolean-binomial-type {l1} {l2} {l3} {l4} {A} {A'} {B} {B'} e f =
+  equiv-Σ
+    ( λ P → mere-equiv B (fib P true))
+    ( equiv-precomp e bool)
+    ( λ P →
+      equiv-trunc-Prop
+        ( ( equiv-postcomp-equiv
+            ( inv-equiv
+              ( ( right-unit-law-Σ-is-contr
+                  ( λ u →
+                    is-contr-map-is-equiv (is-equiv-map-equiv e) (pr1 u))) ∘e
+                ( fib-comp P (map-equiv e) true))) B) ∘e
+          ( equiv-precomp-equiv f (fib P true))))
+
+equiv-binomial-type :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {A' : UU l2} {B : UU l3} {B' : UU l4} →
+  (A ≃ A') → (B ≃ B') → binomial-type A' B' ≃ binomial-type A B
+equiv-binomial-type e f =
+  ( ( inv-equiv (compute-boolean-binomial-type _ _)) ∘e
+    ( equiv-boolean-binomial-type e f)) ∘e
+  ( compute-boolean-binomial-type _ _)
+
+binomial-type-Fin :
+  (n m : ℕ) → binomial-type (Fin n) (Fin m) ≃ Fin (n choose-ℕ m)
+binomial-type-Fin zero-ℕ zero-ℕ =
+  equiv-is-contr binomial-type-over-empty is-contr-Fin-one-ℕ
+binomial-type-Fin zero-ℕ (succ-ℕ m) =
+  equiv-is-empty (binomial-type-empty-under (unit-trunc-Prop (inr star))) id
+binomial-type-Fin (succ-ℕ n) zero-ℕ =
+  equiv-is-contr binomial-type-over-empty is-contr-Fin-one-ℕ
+binomial-type-Fin (succ-ℕ n) (succ-ℕ m) =
+  ( ( inv-equiv (Fin-add-ℕ (n choose-ℕ m) (n choose-ℕ succ-ℕ m))) ∘e
+    ( equiv-coprod
+      ( binomial-type-Fin n m)
+      ( binomial-type-Fin n (succ-ℕ m)))) ∘e
+  ( binomial-type-Maybe (Fin n) (Fin m))
+
+is-finite-binomial-type :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {n m : ℕ} →
+  has-cardinality A n → has-cardinality B m →
+  has-cardinality (binomial-type A B) (n choose-ℕ m)
+is-finite-binomial-type {A = A} {B} {n} {m} H K =
+  apply-universal-property-trunc-Prop H
+    ( has-cardinality-Prop (binomial-type A B) (n choose-ℕ m))
+    ( λ e →
+      apply-universal-property-trunc-Prop K
+        ( has-cardinality-Prop (binomial-type A B) (n choose-ℕ m))
+        ( λ f →
+          unit-trunc-Prop
+            ( inv-equiv
+              ( binomial-type-Fin n m ∘e equiv-binomial-type e f))))
 
 --------------------------------------------------------------------------------
 
