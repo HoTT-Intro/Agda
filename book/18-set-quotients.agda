@@ -168,6 +168,193 @@ is-effective-Set-Quotient :
   (f : A → type-Set B) (H : identifies-Eq-Rel R f) → UU (l1 ⊔ l2 ⊔ l3)
 is-effective-Set-Quotient {A = A} R B f H = (x y : A) → is-equiv (H x y)
 
+--------------------------------------------------------------------------------
+
+-- Section 17.5 Resizing axioms
+
+-- Definition 17.5.1
+
+is-small :
+  (l : Level) {l1 : Level} (A : UU l1) → UU (lsuc l ⊔ l1)
+is-small l A = Σ (UU l) (λ X → A ≃ X)
+
+type-is-small :
+  {l l1 : Level} {A : UU l1} → is-small l A → UU l
+type-is-small = pr1
+
+equiv-is-small :
+  {l l1 : Level} {A : UU l1} (H : is-small l A) → A ≃ type-is-small H
+equiv-is-small = pr2
+
+map-equiv-is-small :
+  {l l1 : Level} {A : UU l1} (H : is-small l A) → A → type-is-small H
+map-equiv-is-small H = map-equiv (equiv-is-small H)
+
+map-inv-equiv-is-small :
+  {l l1 : Level} {A : UU l1} (H : is-small l A) → type-is-small H → A
+map-inv-equiv-is-small H = map-inv-equiv (equiv-is-small H)
+
+is-small-map :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  (A → B) → UU (lsuc l ⊔ (l1 ⊔ l2))
+is-small-map l {B = B} f = (b : B) → is-small l (fib f b)
+
+is-locally-small :
+  (l : Level) {l1 : Level} (A : UU l1) → UU (lsuc l ⊔ l1)
+is-locally-small l A = (x y : A) → is-small l (Id x y)
+
+-- Example 17.5.2
+
+-- Closure properties of small types
+
+is-small-equiv :
+  (l : Level) {l1 l2 : Level} {A : UU l1} (B : UU l2) →
+  A ≃ B → is-small l B → is-small l A
+is-small-equiv l B e (pair X h) = pair X (h ∘e e)
+
+is-small-Σ :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  is-small l A → ((x : A) → is-small l (B x)) → is-small l (Σ A B)
+is-small-Σ l {B = B} (pair X e) H =
+  pair
+    ( Σ X (λ x → pr1 (H (map-inv-equiv e x))))
+    ( equiv-Σ
+      ( λ x → pr1 (H (map-inv-equiv e x)))
+      ( e)
+      ( λ a →
+        ( equiv-tr
+          ( λ t → pr1 (H t))
+          ( inv (isretr-map-inv-equiv e a))) ∘e
+        ( pr2 (H a))))
+
+-- Example 17.5.2 (i)
+
+is-locally-small-is-small :
+  (l : Level) {l1 : Level} {A : UU l1} → is-small l A → is-locally-small l A
+is-locally-small-is-small l (pair X e) x y =
+  pair
+    ( Id (map-equiv e x) (map-equiv e y))
+    ( equiv-ap e x y)
+
+is-small-fib :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  is-small l A → is-small l B → (b : B) → is-small l (fib f b)
+is-small-fib l f H K b =
+  is-small-Σ l H (λ a → is-locally-small-is-small l K (f a) b)
+
+-- Example 17.5.2 (ii)
+
+is-small-is-contr :
+  (l : Level) {l1 : Level} {A : UU l1} → is-contr A → is-small l A
+is-small-is-contr l H =
+  pair (raise-unit l) (equiv-is-contr H is-contr-raise-unit)
+
+is-small-is-prop :
+  (l : Level) {l1 : Level} {A : UU l1} → is-prop A → is-locally-small l A
+is-small-is-prop l H x y = is-small-is-contr l (H x y)
+
+-- Example 17.5.2 (iii)
+
+is-locally-small-UU :
+  {l : Level} → is-locally-small l (UU l)
+is-locally-small-UU X Y = pair (X ≃ Y) equiv-univalence
+
+-- Example 17.5.2 (iv)
+
+is-small-Π :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  is-small l A → ((x : A) → is-small l (B x)) → is-small l ((x : A) → B x)
+is-small-Π l {B = B} (pair X e) H =
+  pair
+    ( (x : X) → pr1 (H (map-inv-equiv e x)))
+    ( equiv-Π
+      ( λ (x : X) → pr1 (H (map-inv-equiv e x)))
+      ( e)
+      ( λ a →
+        ( equiv-tr
+          ( λ t → pr1 (H t))
+          ( inv (isretr-map-inv-equiv e a))) ∘e
+        ( pr2 (H a))))
+
+is-locally-small-Π :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  is-small l A → ((x : A) → is-locally-small l (B x)) →
+  is-locally-small l ((x : A) → B x)
+is-locally-small-Π l H K f g =
+  is-small-equiv l (f ~ g) equiv-funext
+    ( is-small-Π l H (λ x → K x (f x) (g x)))
+
+-- Example 17.5.2 (v)
+
+UU-is-small : (l1 l2 : Level) → UU (lsuc l1 ⊔ lsuc l2)
+UU-is-small l1 l2 = Σ (UU l2) (is-small l1)
+
+equiv-UU-is-small :
+  (l1 l2 : Level) → UU-is-small l1 l2 ≃ UU-is-small l2 l1
+equiv-UU-is-small l1 l2 =
+  ( equiv-tot (λ X → equiv-tot (λ Y → equiv-inv-equiv))) ∘e
+  ( equiv-Σ-swap (UU l2) (UU l1) _≃_)
+
+-- Example 17.5.2 (vi)
+
+is-small-decidable-Prop :
+  (l1 l2 : Level) → is-small l2 (decidable-Prop l1)
+is-small-decidable-Prop l1 l2 =
+  pair ( raise-Fin l2 two-ℕ)
+       ( equiv-raise l2 (Fin two-ℕ) ∘e equiv-Fin-two-ℕ-decidable-Prop)
+
+-- Proposition 17.5.3
+
+is-prop-is-small :
+  (l : Level) {l1 : Level} (A : UU l1) → is-prop (is-small l A)
+is-prop-is-small l A =
+  is-prop-is-proof-irrelevant
+    ( λ Xe →
+      is-contr-equiv'
+        ( Σ (UU l) (λ Y → (pr1 Xe) ≃ Y))
+        ( equiv-tot ((λ Y → equiv-precomp-equiv (pr2 Xe) Y)))
+        ( is-contr-total-equiv (pr1 Xe)))
+
+is-small-Prop :
+  (l : Level) {l1 : Level} (A : UU l1) → UU-Prop (lsuc l ⊔ l1)
+is-small-Prop l A = pair (is-small l A) (is-prop-is-small l A)
+
+-- Corollary 17.5.4
+
+is-prop-is-locally-small :
+  (l : Level) {l1 : Level} (A : UU l1) → is-prop (is-locally-small l A)
+is-prop-is-locally-small l A =
+  is-prop-Π (λ x → is-prop-Π (λ y → is-prop-is-small l (Id x y)))
+
+is-locally-small-Prop :
+  (l : Level) {l1 : Level} (A : UU l1) → UU-Prop (lsuc l ⊔ l1)
+is-locally-small-Prop l A =
+  pair (is-locally-small l A) (is-prop-is-locally-small l A)
+
+is-prop-is-small-map :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  is-prop (is-small-map l f)
+is-prop-is-small-map l f =
+  is-prop-Π (λ x → is-prop-is-small l (fib f x))
+
+is-small-map-Prop :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  UU-Prop (lsuc l ⊔ l1 ⊔ l2)
+is-small-map-Prop l f =
+  pair (is-small-map l f) (is-prop-is-small-map l f)
+
+-- Corollary 17.5.5
+
+is-small-mere-equiv :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} → mere-equiv A B →
+  is-small l B → is-small l A
+is-small-mere-equiv l e H =
+  apply-universal-property-trunc-Prop e
+    ( is-small-Prop l _)
+    ( λ e' → is-small-equiv l _ e' H)
+
+--------------------------------------------------------------------------------
+
 -- Section 13.4
 
 --------------------------------------------------------------------------------

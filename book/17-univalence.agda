@@ -997,194 +997,9 @@ LEM l = (P : UU-Prop l) → is-decidable (type-Prop P)
 
 --------------------------------------------------------------------------------
 
--- Section 17.5 Resizing axioms
+-- Section 17.5 The binomial types
 
 -- Definition 17.5.1
-
-is-small :
-  (l : Level) {l1 : Level} (A : UU l1) → UU (lsuc l ⊔ l1)
-is-small l A = Σ (UU l) (λ X → A ≃ X)
-
-type-is-small :
-  {l l1 : Level} {A : UU l1} → is-small l A → UU l
-type-is-small = pr1
-
-equiv-is-small :
-  {l l1 : Level} {A : UU l1} (H : is-small l A) → A ≃ type-is-small H
-equiv-is-small = pr2
-
-map-equiv-is-small :
-  {l l1 : Level} {A : UU l1} (H : is-small l A) → A → type-is-small H
-map-equiv-is-small H = map-equiv (equiv-is-small H)
-
-map-inv-equiv-is-small :
-  {l l1 : Level} {A : UU l1} (H : is-small l A) → type-is-small H → A
-map-inv-equiv-is-small H = map-inv-equiv (equiv-is-small H)
-
-is-small-map :
-  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-  (A → B) → UU (lsuc l ⊔ (l1 ⊔ l2))
-is-small-map l {B = B} f = (b : B) → is-small l (fib f b)
-
-is-locally-small :
-  (l : Level) {l1 : Level} (A : UU l1) → UU (lsuc l ⊔ l1)
-is-locally-small l A = (x y : A) → is-small l (Id x y)
-
--- Example 17.5.2
-
--- Closure properties of small types
-
-is-small-equiv :
-  (l : Level) {l1 l2 : Level} {A : UU l1} (B : UU l2) →
-  A ≃ B → is-small l B → is-small l A
-is-small-equiv l B e (pair X h) = pair X (h ∘e e)
-
-is-small-Σ :
-  (l : Level) {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  is-small l A → ((x : A) → is-small l (B x)) → is-small l (Σ A B)
-is-small-Σ l {B = B} (pair X e) H =
-  pair
-    ( Σ X (λ x → pr1 (H (map-inv-equiv e x))))
-    ( equiv-Σ
-      ( λ x → pr1 (H (map-inv-equiv e x)))
-      ( e)
-      ( λ a →
-        ( equiv-tr
-          ( λ t → pr1 (H t))
-          ( inv (isretr-map-inv-equiv e a))) ∘e
-        ( pr2 (H a))))
-
--- Example 17.5.2 (i)
-
-is-locally-small-is-small :
-  (l : Level) {l1 : Level} {A : UU l1} → is-small l A → is-locally-small l A
-is-locally-small-is-small l (pair X e) x y =
-  pair
-    ( Id (map-equiv e x) (map-equiv e y))
-    ( equiv-ap e x y)
-
-is-small-fib :
-  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  is-small l A → is-small l B → (b : B) → is-small l (fib f b)
-is-small-fib l f H K b =
-  is-small-Σ l H (λ a → is-locally-small-is-small l K (f a) b)
-
--- Example 17.5.2 (ii)
-
-is-small-is-contr :
-  (l : Level) {l1 : Level} {A : UU l1} → is-contr A → is-small l A
-is-small-is-contr l H =
-  pair (raise-unit l) (equiv-is-contr H is-contr-raise-unit)
-
-is-small-is-prop :
-  (l : Level) {l1 : Level} {A : UU l1} → is-prop A → is-locally-small l A
-is-small-is-prop l H x y = is-small-is-contr l (H x y)
-
--- Example 17.5.2 (iii)
-
-is-locally-small-UU :
-  {l : Level} → is-locally-small l (UU l)
-is-locally-small-UU X Y = pair (X ≃ Y) equiv-univalence
-
--- Example 17.5.2 (iv)
-
-is-small-Π :
-  (l : Level) {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  is-small l A → ((x : A) → is-small l (B x)) → is-small l ((x : A) → B x)
-is-small-Π l {B = B} (pair X e) H =
-  pair
-    ( (x : X) → pr1 (H (map-inv-equiv e x)))
-    ( equiv-Π
-      ( λ (x : X) → pr1 (H (map-inv-equiv e x)))
-      ( e)
-      ( λ a →
-        ( equiv-tr
-          ( λ t → pr1 (H t))
-          ( inv (isretr-map-inv-equiv e a))) ∘e
-        ( pr2 (H a))))
-
-is-locally-small-Π :
-  (l : Level) {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  is-small l A → ((x : A) → is-locally-small l (B x)) →
-  is-locally-small l ((x : A) → B x)
-is-locally-small-Π l H K f g =
-  is-small-equiv l (f ~ g) equiv-funext
-    ( is-small-Π l H (λ x → K x (f x) (g x)))
-
--- Example 17.5.2 (v)
-
-UU-is-small : (l1 l2 : Level) → UU (lsuc l1 ⊔ lsuc l2)
-UU-is-small l1 l2 = Σ (UU l2) (is-small l1)
-
-equiv-UU-is-small :
-  (l1 l2 : Level) → UU-is-small l1 l2 ≃ UU-is-small l2 l1
-equiv-UU-is-small l1 l2 =
-  ( equiv-tot (λ X → equiv-tot (λ Y → equiv-inv-equiv))) ∘e
-  ( equiv-Σ-swap (UU l2) (UU l1) _≃_)
-
--- Example 17.5.2 (vi)
-
-is-small-decidable-Prop :
-  (l1 l2 : Level) → is-small l2 (decidable-Prop l1)
-is-small-decidable-Prop l1 l2 =
-  pair ( raise-Fin l2 two-ℕ)
-       ( equiv-raise l2 (Fin two-ℕ) ∘e equiv-Fin-two-ℕ-decidable-Prop)
-
--- Proposition 17.5.3
-
-is-prop-is-small :
-  (l : Level) {l1 : Level} (A : UU l1) → is-prop (is-small l A)
-is-prop-is-small l A =
-  is-prop-is-proof-irrelevant
-    ( λ Xe →
-      is-contr-equiv'
-        ( Σ (UU l) (λ Y → (pr1 Xe) ≃ Y))
-        ( equiv-tot ((λ Y → equiv-precomp-equiv (pr2 Xe) Y)))
-        ( is-contr-total-equiv (pr1 Xe)))
-
-is-small-Prop :
-  (l : Level) {l1 : Level} (A : UU l1) → UU-Prop (lsuc l ⊔ l1)
-is-small-Prop l A = pair (is-small l A) (is-prop-is-small l A)
-
--- Corollary 17.5.4
-
-is-prop-is-locally-small :
-  (l : Level) {l1 : Level} (A : UU l1) → is-prop (is-locally-small l A)
-is-prop-is-locally-small l A =
-  is-prop-Π (λ x → is-prop-Π (λ y → is-prop-is-small l (Id x y)))
-
-is-locally-small-Prop :
-  (l : Level) {l1 : Level} (A : UU l1) → UU-Prop (lsuc l ⊔ l1)
-is-locally-small-Prop l A =
-  pair (is-locally-small l A) (is-prop-is-locally-small l A)
-
-is-prop-is-small-map :
-  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  is-prop (is-small-map l f)
-is-prop-is-small-map l f =
-  is-prop-Π (λ x → is-prop-is-small l (fib f x))
-
-is-small-map-Prop :
-  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  UU-Prop (lsuc l ⊔ l1 ⊔ l2)
-is-small-map-Prop l f =
-  pair (is-small-map l f) (is-prop-is-small-map l f)
-
--- Corollary 17.5.5
-
-is-small-mere-equiv :
-  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} → mere-equiv A B →
-  is-small l B → is-small l A
-is-small-mere-equiv l e H =
-  apply-universal-property-trunc-Prop e
-    ( is-small-Prop l _)
-    ( λ e' → is-small-equiv l _ e' H)
-
---------------------------------------------------------------------------------
-
--- Section 17.6 The binomial types
-
--- Definition 17.6.1
 
 is-decidable-emb :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → (X → Y) → UU (l1 ⊔ l2)
@@ -1314,12 +1129,75 @@ is-decidable-emb-comp {g = g} {f} H K =
         ( λ α → inr (λ t → α (pair (f (pr1 t)) (pr2 t))))
         ( pr2 K x))
 
+is-decidable-emb-htpy :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f g : A → B} →
+  f ~ g → is-decidable-emb g → is-decidable-emb f
+is-decidable-emb-htpy {f = f} {g} H K =
+  pair ( is-emb-htpy f g H (is-emb-is-decidable-emb K))
+       ( λ b →
+         is-decidable-equiv
+           ( equiv-tot (λ a → equiv-concat (inv (H a)) b))
+           ( is-decidable-map-is-decidable-emb K b))
+
+htpy-decidable-emb :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f g : A ↪d B) → UU (l1 ⊔ l2)
+htpy-decidable-emb f g = map-decidable-emb f ~ map-decidable-emb g
+
+refl-htpy-decidable-emb :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A ↪d B) → htpy-decidable-emb f f
+refl-htpy-decidable-emb f = refl-htpy
+
+htpy-eq-decidable-emb :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f g : A ↪d B) →
+  Id f g → htpy-decidable-emb f g
+htpy-eq-decidable-emb f .f refl = refl-htpy-decidable-emb f
+
+is-contr-total-htpy-decidable-emb :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A ↪d B) →
+  is-contr (Σ (A ↪d B) (htpy-decidable-emb f))
+is-contr-total-htpy-decidable-emb f =
+  is-contr-total-Eq-substructure
+    ( is-contr-total-htpy (map-decidable-emb f))
+    ( is-prop-is-decidable-emb)
+    ( map-decidable-emb f)
+    ( refl-htpy)
+    ( is-decidable-emb-map-decidable-emb f)
+
+is-equiv-htpy-eq-decidable-emb :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f g : A ↪d B) →
+  is-equiv (htpy-eq-decidable-emb f g)
+is-equiv-htpy-eq-decidable-emb f =
+  fundamental-theorem-id f
+    ( refl-htpy-decidable-emb f)
+    ( is-contr-total-htpy-decidable-emb f)
+    ( htpy-eq-decidable-emb f)
+
+eq-htpy-decidable-emb :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f g : A ↪d B} →
+  htpy-decidable-emb f g → Id f g
+eq-htpy-decidable-emb {f = f} {g} =
+  map-inv-is-equiv (is-equiv-htpy-eq-decidable-emb f g)
+
 equiv-precomp-decidable-emb-equiv :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B) →
   (C : UU l3) → (B ↪d C) ≃ (A ↪d C)
-equiv-precomp-decidable-emb-equiv e C = {!!}
+equiv-precomp-decidable-emb-equiv e C =
+  equiv-Σ
+    ( is-decidable-emb)
+    ( equiv-precomp e C)
+    ( λ g →
+      equiv-prop
+        ( is-prop-is-decidable-emb g)
+        ( is-prop-is-decidable-emb (g ∘ map-equiv e))
+        ( is-decidable-emb-comp (is-decidable-emb-is-equiv (pr2 e)))
+        ( λ d →
+          is-decidable-emb-htpy
+            ( λ b → ap g (inv (issec-map-inv-equiv e b)))
+            ( is-decidable-emb-comp
+              ( is-decidable-emb-is-equiv (is-equiv-map-inv-equiv e))
+              ( d)))) 
 
--- Definition 17.6.2
+-- Definition 17.5.2
 
 -- We first define more general binomial types with an extra universe level.
 
@@ -1385,7 +1263,7 @@ is-emb-map-emb-binomial-type :
 is-emb-map-emb-binomial-type Z =
   is-emb-map-decidable-emb (decidable-emb-binomial-type Z)
 
--- Remark 17.6.4
+-- Remark 17.5.4
 
 binomial-type-Level' :
   (l : Level) {l1 l2 : Level} (A : UU l1) (B : UU l2) → UU (lsuc l ⊔ l1 ⊔ l2)
@@ -1421,7 +1299,7 @@ equiv-binomial-type :
 equiv-binomial-type {l1} {l2} A B =
   equiv-binomial-type-Level (l1 ⊔ l2) A B
 
--- Proposition 17.6.7
+-- Proposition 17.5.7
 
 is-contr-component-UU-Level-empty :
   (l : Level) → is-contr (component-UU-Level l empty)
@@ -1448,28 +1326,23 @@ is-decidable-emb-ex-falso :
 is-decidable-emb-ex-falso {l} {X} =
   pair (is-emb-ex-falso X) (λ x → inr pr1)
 
-binomial-type-empty-empty :
+binomial-type-over-empty :
   {l : Level} {X : UU l} → is-contr (binomial-type X empty)
-binomial-type-empty-empty {l} {X} =
+binomial-type-over-empty {l} {X} =
   is-contr-equiv
     ( raise-empty l ↪d X)
     ( left-unit-law-Σ-is-contr
       ( is-contr-component-UU-Level-empty l)
       ( Fin-UU-Fin-Level l zero-ℕ))
-    {!!}
-{-
-  is-contr-equiv
-    ( empty ↪d X)
-    ( left-unit-law-Σ-is-contr
-      ( is-contr-component-UU-Level-empty l)
-      ( Fin-UU-Fin-Level l zero-ℕ))
     ( is-contr-equiv
-      ( is-decidable-emb ex-falso)
-      ( left-unit-law-Σ-is-contr (universal-property-empty' empty) ex-falso)
-      ( is-proof-irrelevant-is-prop
-        ( is-prop-is-decidable-emb ex-falso)
-        ( is-decidable-emb-ex-falso)))
--}
+      ( empty ↪d X)
+      ( equiv-precomp-decidable-emb-equiv (equiv-raise-empty l) X)
+      ( is-contr-equiv
+        ( is-decidable-emb ex-falso)
+        ( left-unit-law-Σ-is-contr (universal-property-empty' X) ex-falso)
+        ( is-proof-irrelevant-is-prop
+          ( is-prop-is-decidable-emb ex-falso)
+          ( is-decidable-emb-ex-falso))))
 
 --------------------------------------------------------------------------------
 
