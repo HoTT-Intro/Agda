@@ -282,21 +282,25 @@ is-contr-total-false-Prop {l1} =
                 ( type-Prop P))))))
     ( is-contr-total-iff (raise-empty-Prop l1))
 
+split-decidable-Prop :
+  {l : Level} →
+  decidable-Prop l ≃
+  coprod (Σ (UU-Prop l) type-Prop) (Σ (UU-Prop l) (λ Q → ¬ (type-Prop Q)))
+split-decidable-Prop {l} =
+  ( left-distributive-Σ-coprod (UU-Prop l) (λ Q → pr1 Q) (λ Q → ¬ (pr1 Q))) ∘e
+  ( inv-assoc-Σ (UU l) is-prop (λ X → is-decidable (pr1 X)))
+
 equiv-Fin-two-ℕ-decidable-Prop :
   {l1 : Level} → decidable-Prop l1 ≃ Fin two-ℕ
 equiv-Fin-two-ℕ-decidable-Prop {l1} =
-  ( ( equiv-coprod
-      ( equiv-is-contr
-        ( is-contr-total-true-Prop)
-        ( is-contr-Fin-one-ℕ))
-      ( equiv-is-contr
-        ( is-contr-total-false-Prop)
-        ( is-contr-unit))) ∘e
-    ( left-distributive-Σ-coprod
-      ( UU-Prop l1)
-      ( λ P → type-Prop P)
-      ( λ P → type-Prop (neg-Prop P)))) ∘e
-  ( inv-assoc-Σ (UU l1) is-prop (λ X → is-decidable (pr1 X)))
+  ( equiv-coprod
+    ( equiv-is-contr
+      ( is-contr-total-true-Prop)
+      ( is-contr-Fin-one-ℕ))
+    ( equiv-is-contr
+      ( is-contr-total-false-Prop)
+      ( is-contr-unit))) ∘e
+  ( split-decidable-Prop)
 
 bool-Fin-two-ℕ : Fin two-ℕ → bool
 bool-Fin-two-ℕ (inl (inr star)) = false
@@ -1343,6 +1347,87 @@ binomial-type-over-empty {l} {X} =
         ( is-proof-irrelevant-is-prop
           ( is-prop-is-decidable-emb ex-falso)
           ( is-decidable-emb-ex-falso))))
+
+binomial-type-empty-under :
+  {l : Level} {X : UU l} → type-trunc-Prop X → is-empty (binomial-type empty X)
+binomial-type-empty-under H Y =
+  apply-universal-property-trunc-Prop H empty-Prop
+    ( λ x →
+      apply-universal-property-trunc-Prop (pr2 (pr1 Y)) empty-Prop
+        ( λ e → map-decidable-emb (pr2 Y) (map-equiv e x)))
+
+recursion-binomial-type' :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) →
+  binomial-type' (Maybe A) (Maybe B) ≃
+  coprod (binomial-type' A B) (binomial-type' A (Maybe B))
+recursion-binomial-type' A B =
+  ( ( {!!} ∘e
+      ( equiv-tot
+        ( λ P →
+          ( ( equiv-coprod
+              (  equiv-trunc-Prop {!!} ∘e
+                ( left-unit-law-Σ-is-contr
+                  ( is-contr-total-true-Prop)
+                  ( pair (raise-unit-Prop _) raise-star)))
+              ( left-unit-law-Σ-is-contr
+                ( is-contr-total-false-Prop)
+                ( pair (raise-empty-Prop _) map-inv-raise))) ∘e
+            ( right-distributive-Σ-coprod
+              ( Σ (UU-Prop _) type-Prop)
+              ( Σ (UU-Prop _) (¬ ∘ type-Prop))
+              ( ind-coprod _
+                ( λ Q →
+                  mere-equiv (Maybe B) (coprod (Σ A _) (type-Prop (pr1 Q))))
+                ( λ Q →
+                  mere-equiv
+                    ( Maybe B)
+                    ( coprod (Σ A _) (type-Prop (pr1 Q))))))) ∘e
+          ( equiv-Σ
+            ( ind-coprod _
+              ( λ Q →
+                mere-equiv
+                  ( Maybe B)
+                  ( coprod
+                    ( Σ A (λ a → type-decidable-Prop (P a)))
+                    ( type-Prop (pr1 Q))))
+              ( λ Q →
+                mere-equiv
+                  ( Maybe B)
+                  ( coprod
+                    ( Σ A (λ a → type-decidable-Prop (P a)))
+                    ( type-Prop (pr1 Q)))))
+            ( split-decidable-Prop)
+            ( ind-Σ
+              ( λ Q →
+                ind-Σ
+                  ( λ H →
+                    ind-coprod _ ( λ q → equiv-id) (λ q → equiv-id)))))))) ∘e
+    ( assoc-Σ
+      ( A → decidable-Prop _)
+      ( λ a → decidable-Prop _)
+      ( λ t →
+        mere-equiv
+          ( Maybe B)
+          ( coprod
+            ( Σ A (λ a → type-decidable-Prop (pr1 t a)))
+            ( type-decidable-Prop (pr2 t)))))) ∘e
+  ( equiv-Σ
+    ( λ p →
+      mere-equiv
+        ( Maybe B)
+        ( coprod
+          ( Σ A (λ a → type-decidable-Prop (pr1 p a)))
+          ( type-decidable-Prop (pr2 p))))
+    ( equiv-universal-property-Maybe)
+    ( λ u →
+      equiv-trunc-Prop
+        ( equiv-postcomp-equiv
+          ( ( equiv-coprod
+              ( equiv-id)
+              ( left-unit-law-Σ (λ y → type-decidable-Prop (u (inr y))))) ∘e
+            ( right-distributive-Σ-coprod A unit
+              ( λ x → type-decidable-Prop (u x))))
+          ( Maybe B))))
 
 --------------------------------------------------------------------------------
 
