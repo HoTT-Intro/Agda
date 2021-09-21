@@ -1328,15 +1328,17 @@ compute-binomial-type {l1} {l2} A B =
 
 -- Remark 17.5.7
 
-boolean-binomial-type :
+-- Note that the universe level of small-binomial-type is lower
+
+small-binomial-type :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) → UU (l1 ⊔ l2)
-boolean-binomial-type A B =
+small-binomial-type A B =
   Σ (A → bool) (λ f → mere-equiv B (fib f true))
 
-compute-boolean-binomial-type :
+compute-small-binomial-type :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) →
-  binomial-type A B ≃ boolean-binomial-type A B
-compute-boolean-binomial-type A B =
+  binomial-type A B ≃ small-binomial-type A B
+compute-small-binomial-type A B =
   ( equiv-Σ
     ( λ f → mere-equiv B (fib f true))
     ( equiv-postcomp A equiv-bool-decidable-Prop)
@@ -1508,10 +1510,10 @@ binomial-type-Maybe A B =
 
 -- Theorem 17.5.9
 
-equiv-boolean-binomial-type :
+equiv-small-binomial-type :
   {l1 l2 l3 l4 : Level} {A : UU l1} {A' : UU l2} {B : UU l3} {B' : UU l4} →
-  (A ≃ A') → (B ≃ B') → boolean-binomial-type A' B' ≃ boolean-binomial-type A B
-equiv-boolean-binomial-type {l1} {l2} {l3} {l4} {A} {A'} {B} {B'} e f =
+  (A ≃ A') → (B ≃ B') → small-binomial-type A' B' ≃ small-binomial-type A B
+equiv-small-binomial-type {l1} {l2} {l3} {l4} {A} {A'} {B} {B'} e f =
   equiv-Σ
     ( λ P → mere-equiv B (fib P true))
     ( equiv-precomp e bool)
@@ -1529,9 +1531,9 @@ equiv-binomial-type :
   {l1 l2 l3 l4 : Level} {A : UU l1} {A' : UU l2} {B : UU l3} {B' : UU l4} →
   (A ≃ A') → (B ≃ B') → binomial-type A' B' ≃ binomial-type A B
 equiv-binomial-type e f =
-  ( ( inv-equiv (compute-boolean-binomial-type _ _)) ∘e
-    ( equiv-boolean-binomial-type e f)) ∘e
-  ( compute-boolean-binomial-type _ _)
+  ( ( inv-equiv (compute-small-binomial-type _ _)) ∘e
+    ( equiv-small-binomial-type e f)) ∘e
+  ( compute-small-binomial-type _ _)
 
 binomial-type-Fin :
   (n m : ℕ) → binomial-type (Fin n) (Fin m) ≃ Fin (n choose-ℕ m)
@@ -1574,7 +1576,19 @@ binomial-type-UU-Fin-Level A B =
 
 binomial-type-UU-Fin :
   {n m : ℕ} → UU-Fin n → UU-Fin m → UU-Fin (n choose-ℕ m)
-binomial-type-UU-Fin A B = ?
+binomial-type-UU-Fin {n} {m} A B =
+  pair ( small-binomial-type (type-UU-Fin A) (type-UU-Fin B))
+       ( apply-universal-property-trunc-Prop
+         ( has-cardinality-binomial-type
+           ( mere-equiv-UU-Fin A)
+           ( mere-equiv-UU-Fin B))
+         ( mere-equiv-Prop
+           ( Fin (n choose-ℕ m))
+           ( small-binomial-type (pr1 A) (pr1 B)))
+         ( λ e →
+           unit-trunc-Prop
+             ( ( compute-small-binomial-type (type-UU-Fin A) (type-UU-Fin B)) ∘e
+               ( e))))
 
 has-finite-cardinality-binomial-type :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} →
@@ -1584,13 +1598,21 @@ has-finite-cardinality-binomial-type (pair n H) (pair m K) =
   pair (n choose-ℕ m) (has-cardinality-binomial-type H K)
 
 is-finite-binomial-type :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} {n m : ℕ} →
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
   is-finite A → is-finite B → is-finite (binomial-type A B)
 is-finite-binomial-type H K =
   is-finite-has-finite-cardinality
     ( has-finite-cardinality-binomial-type
       ( has-finite-cardinality-is-finite H)
       ( has-finite-cardinality-is-finite K))
+
+binomial-type-𝔽 : 𝔽 → 𝔽 → 𝔽
+binomial-type-𝔽 A B =
+  pair
+    ( small-binomial-type (type-𝔽 A) (type-𝔽 B))
+    ( is-finite-equiv
+      ( compute-small-binomial-type (type-𝔽 A) (type-𝔽 B))
+      ( is-finite-binomial-type (is-finite-type-𝔽 A) (is-finite-type-𝔽 B)))
 
 --------------------------------------------------------------------------------
 
