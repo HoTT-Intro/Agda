@@ -1548,11 +1548,11 @@ binomial-type-Fin (succ-ℕ n) (succ-ℕ m) =
       ( binomial-type-Fin n (succ-ℕ m)))) ∘e
   ( binomial-type-Maybe (Fin n) (Fin m))
 
-is-finite-binomial-type :
+has-cardinality-binomial-type :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} {n m : ℕ} →
   has-cardinality A n → has-cardinality B m →
   has-cardinality (binomial-type A B) (n choose-ℕ m)
-is-finite-binomial-type {A = A} {B} {n} {m} H K =
+has-cardinality-binomial-type {A = A} {B} {n} {m} H K =
   apply-universal-property-trunc-Prop H
     ( has-cardinality-Prop (binomial-type A B) (n choose-ℕ m))
     ( λ e →
@@ -1562,6 +1562,35 @@ is-finite-binomial-type {A = A} {B} {n} {m} H K =
           unit-trunc-Prop
             ( inv-equiv
               ( binomial-type-Fin n m ∘e equiv-binomial-type e f))))
+
+binomial-type-UU-Fin-Level :
+  {l1 l2 : Level} {n m : ℕ} → UU-Fin-Level l1 n → UU-Fin-Level l2 m →
+  UU-Fin-Level (lsuc l1 ⊔ lsuc l2) (n choose-ℕ m)
+binomial-type-UU-Fin-Level A B =
+  pair ( binomial-type (type-UU-Fin-Level A) (type-UU-Fin-Level B))
+       ( has-cardinality-binomial-type
+         ( mere-equiv-UU-Fin-Level A)
+         ( mere-equiv-UU-Fin-Level B))
+
+binomial-type-UU-Fin :
+  {n m : ℕ} → UU-Fin n → UU-Fin m → UU-Fin (n choose-ℕ m)
+binomial-type-UU-Fin A B = ?
+
+has-finite-cardinality-binomial-type :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  has-finite-cardinality A → has-finite-cardinality B →
+  has-finite-cardinality (binomial-type A B)
+has-finite-cardinality-binomial-type (pair n H) (pair m K) =
+  pair (n choose-ℕ m) (has-cardinality-binomial-type H K)
+
+is-finite-binomial-type :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {n m : ℕ} →
+  is-finite A → is-finite B → is-finite (binomial-type A B)
+is-finite-binomial-type H K =
+  is-finite-has-finite-cardinality
+    ( has-finite-cardinality-binomial-type
+      ( has-finite-cardinality-is-finite H)
+      ( has-finite-cardinality-is-finite K))
 
 --------------------------------------------------------------------------------
 
