@@ -428,13 +428,13 @@ is-global-subuniverse α P l1 l2 =
 
 equiv-subuniverse :
   {l1 l2 : Level} (P : subuniverse l1 l2) →
-  (s t : total-subuniverse P) → UU l1
-equiv-subuniverse P (pair X p) t = X ≃ (pr1 t)
+  (X Y : total-subuniverse P) → UU l1
+equiv-subuniverse P X Y = (pr1 X) ≃ (pr1 Y)
 
-equiv-subuniverse-eq :
+equiv-eq-subuniverse :
   {l1 l2 : Level} (P : subuniverse l1 l2) →
   (s t : total-subuniverse P) → Id s t → equiv-subuniverse P s t
-equiv-subuniverse-eq P (pair X p) .(pair X p) refl = equiv-id
+equiv-eq-subuniverse P (pair X p) .(pair X p) refl = equiv-id
 
 abstract
   is-contr-total-equiv-subuniverse :
@@ -450,21 +450,21 @@ abstract
       ( p)
 
 abstract
-  is-equiv-equiv-subuniverse-eq :
+  is-equiv-equiv-eq-subuniverse :
     {l1 l2 : Level} (P : subuniverse l1 l2)
-    (s t : total-subuniverse P) → is-equiv (equiv-subuniverse-eq P s t)
-  is-equiv-equiv-subuniverse-eq P (pair X p) =
+    (s t : total-subuniverse P) → is-equiv (equiv-eq-subuniverse P s t)
+  is-equiv-equiv-eq-subuniverse P (pair X p) =
     fundamental-theorem-id
       ( pair X p)
       ( equiv-id)
       ( is-contr-total-equiv-subuniverse P (pair X p))
-      ( equiv-subuniverse-eq P (pair X p))
+      ( equiv-eq-subuniverse P (pair X p))
 
 eq-equiv-subuniverse :
   {l1 l2 : Level} (P : subuniverse l1 l2) →
   {s t : total-subuniverse P} → equiv-subuniverse P s t → Id s t
 eq-equiv-subuniverse P {s} {t} =
-  map-inv-is-equiv (is-equiv-equiv-subuniverse-eq P s t)
+  map-inv-is-equiv (is-equiv-equiv-eq-subuniverse P s t)
 
 -- Connected components of the universe
 
@@ -1626,65 +1626,64 @@ tr-equiv-eq-ap refl = refl-htpy
 
 -- Exercise 17.2
 
-{-
-equiv-comp-equiv :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} →
-  (A ≃ B) → (C : UU l3) → (C ≃ A) ≃ (C ≃ B)
-equiv-comp-equiv e C =
-  equiv-subtype-equiv
-    ( equiv-postcomp C e)
-    ( is-equiv-Prop)
-    ( is-equiv-Prop)
-    ( λ g →
-      pair
-        ( λ H → is-equiv-comp' (map-equiv e) g H (is-equiv-map-equiv e))
-        ( λ H →
-          is-equiv-right-factor' (map-equiv e) g (is-equiv-map-equiv e) H))
--}
+-- Exercise 17.2 (a)
 
-{-
-is-emb-raise :
-  (l1 l2 : Level) → is-emb (raise l2 {l1})
-is-emb-raise l1 l2 =
-  is-emb-is-prop-map (λ X → is-prop-equiv (is-small l1 X) (equiv-tot (λ Y → (equiv-inv-equiv ∘e {!equiv-precomp-equiv (equiv-raise l2 Y) X!}) ∘e equiv-univalence)) {!!})
--}
--- Exercise 17.3
+UU-Contr : (l : Level) → UU (lsuc l)
+UU-Contr l = total-subuniverse is-contr-Prop
 
-subuniverse-is-contr :
-  {i : Level} → subuniverse i i
-subuniverse-is-contr {i} = is-contr-Prop
+type-UU-Contr : {l : Level} → UU-Contr l → UU l
+type-UU-Contr A = pr1 A
 
-unit' :
-  (i : Level) → UU i
-unit' i = pr1 (Raise i unit)
+is-contr-type-UU-Contr :
+  {l : Level} (A : UU-Contr l) → is-contr (type-UU-Contr A)
+is-contr-type-UU-Contr A = pr2 A
+
+equiv-UU-Contr :
+  {l1 l2 : Level} (X : UU-Contr l1) (Y : UU-Contr l2) → UU (l1 ⊔ l2)
+equiv-UU-Contr X Y = type-UU-Contr X ≃ type-UU-Contr Y
+
+equiv-eq-UU-Contr :
+  {l1 : Level} (X Y : UU-Contr l1) → Id X Y → equiv-UU-Contr X Y
+equiv-eq-UU-Contr X Y = equiv-eq-subuniverse is-contr-Prop X Y
+
+is-equiv-equiv-eq-UU-Contr :
+  {l1 : Level} (X Y : UU-Contr l1) → is-equiv (equiv-eq-UU-Contr X Y)
+is-equiv-equiv-eq-UU-Contr X Y =
+  is-equiv-equiv-eq-subuniverse is-contr-Prop X Y
+
+eq-equiv-UU-Contr :
+  {l1 : Level} {X Y : UU-Contr l1} → equiv-UU-Contr X Y → Id X Y
+eq-equiv-UU-Contr = eq-equiv-subuniverse is-contr-Prop
 
 abstract
-  is-contr-unit' :
-    (i : Level) → is-contr (unit' i)
-  is-contr-unit' i =
-    is-contr-equiv' unit (pr2 (Raise i unit)) is-contr-unit
-
-abstract
-  center-UU-contr :
-    (i : Level) → total-subuniverse (subuniverse-is-contr {i})
-  center-UU-contr i =
-    pair (unit' i) (is-contr-unit' i)
+  center-UU-contr : (l : Level) → UU-Contr l
+  center-UU-contr l = pair (raise-unit l) is-contr-raise-unit
   
   contraction-UU-contr :
-    {i : Level} (A : Σ (UU i) is-contr) →
-    Id (center-UU-contr i) A
-  contraction-UU-contr (pair A is-contr-A) =
-    eq-equiv-subuniverse subuniverse-is-contr
-      ( equiv-is-contr (is-contr-unit' _) is-contr-A)
+    {l : Level} (A : UU-Contr l) → Id (center-UU-contr l) A
+  contraction-UU-contr A =
+    eq-equiv-UU-Contr
+      ( equiv-is-contr is-contr-raise-unit (is-contr-type-UU-Contr A))
 
 abstract
-  is-contr-UU-contr : (i : Level) → is-contr (Σ (UU i) is-contr)
-  is-contr-UU-contr i =
-    pair (center-UU-contr i) (contraction-UU-contr)
+  is-contr-UU-Contr : (l : Level) → is-contr (UU-Contr l)
+  is-contr-UU-Contr l = pair (center-UU-contr l) contraction-UU-contr
 
-is-trunc-UU-trunc :
-  (k : 𝕋) (i : Level) → is-trunc (succ-𝕋 k) (Σ (UU i) (is-trunc k))
-is-trunc-UU-trunc k i X Y =
+-- Exercise 17.2 (b)
+
+UU-Trunc : (k : 𝕋) (l : Level) → UU (lsuc l)
+UU-Trunc k l = Σ (UU l) (is-trunc k)
+
+type-UU-Trunc : {k : 𝕋} {l : Level} → UU-Trunc k l → UU l
+type-UU-Trunc A = pr1 A
+
+is-trunc-type-UU-Trunc :
+  {k : 𝕋} {l : Level} (A : UU-Trunc k l) → is-trunc k (type-UU-Trunc A)
+is-trunc-type-UU-Trunc A = pr2 A
+
+is-trunc-UU-Trunc :
+  (k : 𝕋) (l : Level) → is-trunc (succ-𝕋 k) (UU-Trunc k l)
+is-trunc-UU-Trunc k l X Y =
   is-trunc-is-equiv k
     ( Id (pr1 X) (pr1 Y))
     ( ap pr1)
@@ -1698,7 +1697,7 @@ is-trunc-UU-trunc k i X Y =
 
 is-set-UU-Prop :
   (l : Level) → is-set (UU-Prop l)
-is-set-UU-Prop l = is-trunc-UU-trunc (neg-one-𝕋) l
+is-set-UU-Prop l = is-trunc-UU-Trunc (neg-one-𝕋) l
 
 ev-true-false :
   {l : Level} (A : UU l) → (f : bool → A) → A × A
