@@ -6,9 +6,9 @@ open import book.17-univalence public
 
 --------------------------------------------------------------------------------
 
--- Section 16.1 Equivalence relations
+-- Section 18.1 Equivalence relations
 
--- Definition 16.1.1
+-- Definition 18.1.1
 
 Rel-Prop :
   (l : Level) {l1 : Level} (A : UU l1) → UU ((lsuc l) ⊔ l1)
@@ -56,6 +56,11 @@ type-Eq-Rel :
   {l1 l2 : Level} {A : UU l1} → Eq-Rel l2 A → A → A → UU l2
 type-Eq-Rel R = type-Rel-Prop (prop-Eq-Rel R)
 
+is-prop-type-Eq-Rel :
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) (x y : A) →
+  is-prop (type-Eq-Rel R x y)
+is-prop-type-Eq-Rel R = is-prop-type-Rel-Prop (prop-Eq-Rel R)
+
 is-equivalence-relation-prop-Eq-Rel :
   {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) →
   is-equivalence-relation (prop-Eq-Rel R)
@@ -76,7 +81,7 @@ trans-Eq-Rel :
   is-transitive-Rel-Prop (prop-Eq-Rel R)
 trans-Eq-Rel R = pr2 (pr2 (is-equivalence-relation-prop-Eq-Rel R))
 
--- Definition 16.1.2
+-- Definition 18.1.2
 
 class-Eq-Rel :
   {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) (x : A) → A → UU l2
@@ -85,8 +90,8 @@ class-Eq-Rel = type-Eq-Rel
 is-equivalence-class-Eq-Rel :
   {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) →
   (A → UU-Prop l2) → UU (l1 ⊔ lsuc l2)
-is-equivalence-class-Eq-Rel {A = A} R P = 
-  type-trunc-Prop (Σ A (λ x → Id (type-Prop ∘ P) (class-Eq-Rel R x)))
+is-equivalence-class-Eq-Rel {A = A} R P =
+  ∃ (λ x → Id (type-Prop ∘ P) (class-Eq-Rel R x))
 
 quotient-Eq-Rel :
   {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) → UU (l1 ⊔ lsuc l2)
@@ -107,7 +112,7 @@ type-class-quotient-Eq-Rel :
   quotient-Eq-Rel R → (A → UU l2)
 type-class-quotient-Eq-Rel R P x = type-Prop (class-quotient-Eq-Rel R P x)
 
--- Proposition 16.1.3
+-- Proposition 18.1.3
 
 center-total-class-Eq-Rel :
   {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) (x : A) →
