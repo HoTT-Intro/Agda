@@ -185,6 +185,15 @@ is-equiv-iff-eq P =
     ( is-contr-total-iff P)
     ( λ Q → iff-eq {P = P} {Q})
 
+eq-iff' :
+  {l1 : Level} (P Q : UU-Prop l1) → P ⇔ Q → Id P Q
+eq-iff' P Q = map-inv-is-equiv (is-equiv-iff-eq P Q)
+
+eq-iff :
+  {l1 : Level} {P Q : UU-Prop l1} →
+  (type-Prop P → type-Prop Q) → (type-Prop Q → type-Prop P) → Id P Q
+eq-iff {l1} {P} {Q} f g = eq-iff' P Q (pair f g)
+
 -- Corollary 17.1.4
 
 is-decidable-prop : {l : Level} → UU l → UU l

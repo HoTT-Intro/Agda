@@ -26,17 +26,17 @@ is-prop-type-Rel-Prop R x y = pr2 (R x y)
 is-reflexive-Rel-Prop :
   {l1 l2 : Level} {A : UU l1} → Rel-Prop l2 A → UU (l1 ⊔ l2)
 is-reflexive-Rel-Prop {A = A} R =
-  (x : A) → type-Rel-Prop R x x
+  {x : A} → type-Rel-Prop R x x
 
 is-symmetric-Rel-Prop :
   {l1 l2 : Level} {A : UU l1} → Rel-Prop l2 A → UU (l1 ⊔ l2)
 is-symmetric-Rel-Prop {A = A} R =
-  (x y : A) → type-Rel-Prop R x y → type-Rel-Prop R y x
+  {x y : A} → type-Rel-Prop R x y → type-Rel-Prop R y x
 
 is-transitive-Rel-Prop :
   {l1 l2 : Level} {A : UU l1} → Rel-Prop l2 A → UU (l1 ⊔ l2)
 is-transitive-Rel-Prop {A = A} R =
-  (x y z : A) → type-Rel-Prop R x y → type-Rel-Prop R y z → type-Rel-Prop R x z
+  {x y z : A} → type-Rel-Prop R x y → type-Rel-Prop R y z → type-Rel-Prop R x z
 
 is-equivalence-relation :
   {l1 l2 : Level} {A : UU l1} (R : Rel-Prop l2 A) → UU (l1 ⊔ l2)
@@ -76,6 +76,16 @@ symm-Eq-Rel :
   is-symmetric-Rel-Prop (prop-Eq-Rel R)
 symm-Eq-Rel R = pr1 (pr2 (is-equivalence-relation-prop-Eq-Rel R))
 
+equiv-symm-Eq-Rel :
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) (x y : A) →
+  type-Eq-Rel R x y ≃ type-Eq-Rel R y x
+equiv-symm-Eq-Rel R x y =
+  equiv-prop
+    ( is-prop-type-Eq-Rel R x y)
+    ( is-prop-type-Eq-Rel R y x)
+    ( symm-Eq-Rel R)
+    ( symm-Eq-Rel R)
+
 trans-Eq-Rel :
   {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) →
   is-transitive-Rel-Prop (prop-Eq-Rel R)
@@ -93,59 +103,127 @@ is-equivalence-class-Eq-Rel :
 is-equivalence-class-Eq-Rel {A = A} R P =
   ∃ (λ x → Id (type-Prop ∘ P) (class-Eq-Rel R x))
 
-quotient-Eq-Rel :
+set-quotient :
   {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) → UU (l1 ⊔ lsuc l2)
-quotient-Eq-Rel R = im (prop-Eq-Rel R)
+set-quotient R = im (prop-Eq-Rel R)
 
-map-quotient-Eq-Rel :
+map-set-quotient :
   {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) →
-  A → quotient-Eq-Rel R
-map-quotient-Eq-Rel R = map-im (prop-Eq-Rel R)
+  A → set-quotient R
+map-set-quotient R = map-im (prop-Eq-Rel R)
 
-class-quotient-Eq-Rel :
+class-set-quotient :
   {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) →
-  quotient-Eq-Rel R → (A → UU-Prop l2)
-class-quotient-Eq-Rel R P = pr1 P
+  set-quotient R → (A → UU-Prop l2)
+class-set-quotient R P = pr1 P
 
-type-class-quotient-Eq-Rel :
+type-class-set-quotient :
   {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) →
-  quotient-Eq-Rel R → (A → UU l2)
-type-class-quotient-Eq-Rel R P x = type-Prop (class-quotient-Eq-Rel R P x)
+  set-quotient R → (A → UU l2)
+type-class-set-quotient R P x = type-Prop (class-set-quotient R P x)
+
+is-prop-type-class-set-quotient :
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) →
+  (x : set-quotient R) (a : A) → is-prop (type-class-set-quotient R x a)
+is-prop-type-class-set-quotient R P x =
+  is-prop-type-Prop (class-set-quotient R P x)
+
+-- Bureaucracy
+
+is-set-set-quotient :
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) → is-set (set-quotient R)
+is-set-set-quotient {l1} {l2} R =
+  is-set-im (prop-Eq-Rel R) (is-set-function-type (is-set-UU-Prop l2))
+
+quotient-Set :
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) → UU-Set (l1 ⊔ lsuc l2)
+quotient-Set R = pair (set-quotient R) (is-set-set-quotient R)
 
 -- Proposition 18.1.3
 
 center-total-class-Eq-Rel :
   {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) (x : A) →
-  Σ (quotient-Eq-Rel R) (λ P → type-class-quotient-Eq-Rel R P x)
+  Σ (set-quotient R) (λ P → type-class-set-quotient R P x)
 center-total-class-Eq-Rel R x =
   pair
-    ( map-quotient-Eq-Rel R x)
-    ( refl-Eq-Rel R x)
+    ( map-set-quotient R x)
+    ( refl-Eq-Rel R)
 
 contraction-total-class-Eq-Rel :
-  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) (x : A) →
-  ( t : Σ (quotient-Eq-Rel R) (λ P → type-class-quotient-Eq-Rel R P x)) →
-  Id (center-total-class-Eq-Rel R x) t
-contraction-total-class-Eq-Rel R x (pair (pair P p) H) =
-  map-universal-property-trunc-Prop
-    ( pair
-      ( Id (center-total-class-Eq-Rel R x) (pair (pair P p) H))
-      {! is-set-im!})
-    {!!}
-    {!!}
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) (a : A) →
+  ( t : Σ (set-quotient R) (λ P → type-class-set-quotient R P a)) →
+  Id (center-total-class-Eq-Rel R a) t
+contraction-total-class-Eq-Rel {l1} {l2} {A} R a (pair (pair P p) H) =
+  eq-subtype
+    ( λ Q → is-prop-type-class-set-quotient R Q a)
+    ( apply-universal-property-trunc-Prop
+      ( p)
+      ( Id-Prop (quotient-Set R) (map-set-quotient R a) (pair P p))
+      ( α))
+  where
+  α : fib (pr1 R) P → Id (map-set-quotient R a) (pair P p)
+  α (pair x refl) =
+    eq-subtype
+      ( λ z → is-prop-type-trunc-Prop)
+      ( eq-htpy
+        ( λ y →
+          eq-iff
+            ( trans-Eq-Rel R H)
+            ( trans-Eq-Rel R (symm-Eq-Rel R H))))
 
 is-contr-total-class-Eq-Rel :
-  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) (x : A) →
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) (a : A) →
   is-contr
-    ( Σ (quotient-Eq-Rel R) (λ P → type-class-quotient-Eq-Rel R P x))
-is-contr-total-class-Eq-Rel R x =
+    ( Σ (set-quotient R) (λ P → type-class-set-quotient R P a))
+is-contr-total-class-Eq-Rel R a =
   pair
-    ( center-total-class-Eq-Rel R x)
-    ( contraction-total-class-Eq-Rel R x)
+    ( center-total-class-Eq-Rel R a)
+    ( contraction-total-class-Eq-Rel R a)
+
+related-eq-quotient :
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) (a : A)
+  (q : set-quotient R) → Id (map-set-quotient R a) q →
+  type-class-set-quotient R q a
+related-eq-quotient R a .(map-set-quotient R a) refl = refl-Eq-Rel R
+
+is-equiv-related-eq-quotient :
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) (a : A)
+  (q : set-quotient R) → is-equiv (related-eq-quotient R a q)
+is-equiv-related-eq-quotient R a =
+  fundamental-theorem-id
+    ( map-set-quotient R a)
+    ( refl-Eq-Rel R)
+    ( is-contr-total-class-Eq-Rel R a)
+    ( related-eq-quotient R a)
+
+effective-quotient' :
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) (a : A)
+  (q : set-quotient R) →
+  Id (map-set-quotient R a) q ≃ type-class-set-quotient R q a
+effective-quotient' R a q =
+  pair (related-eq-quotient R a q) (is-equiv-related-eq-quotient R a q)
+
+eq-effective-quotient' :
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) (a : A)
+  (q : set-quotient R) → type-class-set-quotient R q a →
+  Id (map-set-quotient R a) q
+eq-effective-quotient' R a q =
+  map-inv-is-equiv (is-equiv-related-eq-quotient R a q)
+
+-- Corollary 18.1.4
+
+effective-quotient :
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) (x y : A) →
+  Id (map-set-quotient R x) (map-set-quotient R y) ≃ type-Eq-Rel R x y
+effective-quotient R x y =
+  ( equiv-symm-Eq-Rel R y x) ∘e
+  ( effective-quotient' R x (map-set-quotient R y))
 
 --------------------------------------------------------------------------------
 
-{- Section 15.2 The universal property of set quotients -}
+{- Section 18.2 The universal property of set quotients -}
+
+-- Definition 18.2.1
 
 identifies-Eq-Rel :
   {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) →
@@ -153,31 +231,39 @@ identifies-Eq-Rel :
 identifies-Eq-Rel {A = A} R f =
   (x y : A) → type-Eq-Rel R x y → Id (f x) (f y)
 
-precomp-map-universal-property-Eq-Rel :
+precomp-map-universal-property-set-quotient :
   {l l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A)
   {B : UU-Set l3} (f : A → type-Set B) (H : identifies-Eq-Rel R f) →
   (X : UU-Set l) → (type-hom-Set B X) → Σ (A → type-Set X) (identifies-Eq-Rel R)
-precomp-map-universal-property-Eq-Rel R f H X g =
+precomp-map-universal-property-set-quotient R f H X g =
   pair (g ∘ f) (λ x y r → ap g (H x y r))
 
-universal-property-set-quotient :
+is-set-quotient :
   (l : Level) {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A)
   {B : UU-Set l3} (f : A → type-Set B) (H : identifies-Eq-Rel R f) → UU _
-universal-property-set-quotient l R {B} f H =
-  (X : UU-Set l) → is-equiv (precomp-map-universal-property-Eq-Rel R {B} f H X)
+is-set-quotient l R {B} f H =
+  (X : UU-Set l) →
+  is-equiv (precomp-map-universal-property-set-quotient R {B} f H X)
 
-{- Effective quotients -}
+-- Remark 18.2.2
 
-is-effective-Set-Quotient :
+-- Theorem 18.2.3
+
+-- Theorem 18.2.3 Condition (ii)
+
+is-effective-Eq-Rel :
   {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
-  (f : A → type-Set B) (H : identifies-Eq-Rel R f) → UU (l1 ⊔ l2 ⊔ l3)
-is-effective-Set-Quotient {A = A} R B f H = (x y : A) → is-equiv (H x y)
+  (f : A → type-Set B) → UU (l1 ⊔ l2 ⊔ l3)
+is-effective-Eq-Rel {A = A} R B f =
+  (x y : A) → (type-Eq-Rel R x y ≃ Id (f x) (f y))
+
+-- Theorem 18.2.3 (ii) implies (iii)
 
 --------------------------------------------------------------------------------
 
--- Section 17.5 Resizing axioms
+-- Section 18.5 Resizing axioms
 
--- Definition 17.5.1
+-- Definition 18.5.1
 
 is-small :
   (l : Level) {l1 : Level} (A : UU l1) → UU (lsuc l ⊔ l1)
@@ -208,7 +294,7 @@ is-locally-small :
   (l : Level) {l1 : Level} (A : UU l1) → UU (lsuc l ⊔ l1)
 is-locally-small l A = (x y : A) → is-small l (Id x y)
 
--- Example 17.5.2
+-- Example 18.5.2
 
 -- Closure properties of small types
 
@@ -232,7 +318,7 @@ is-small-Σ l {B = B} (pair X e) H =
           ( inv (isretr-map-inv-equiv e a))) ∘e
         ( pr2 (H a))))
 
--- Example 17.5.2 (i)
+-- Example 18.5.2 (i)
 
 is-locally-small-is-small :
   (l : Level) {l1 : Level} {A : UU l1} → is-small l A → is-locally-small l A
@@ -247,7 +333,7 @@ is-small-fib :
 is-small-fib l f H K b =
   is-small-Σ l H (λ a → is-locally-small-is-small l K (f a) b)
 
--- Example 17.5.2 (ii)
+-- Example 18.5.2 (ii)
 
 is-small-is-contr :
   (l : Level) {l1 : Level} {A : UU l1} → is-contr A → is-small l A
@@ -258,13 +344,13 @@ is-small-is-prop :
   (l : Level) {l1 : Level} {A : UU l1} → is-prop A → is-locally-small l A
 is-small-is-prop l H x y = is-small-is-contr l (H x y)
 
--- Example 17.5.2 (iii)
+-- Example 18.5.2 (iii)
 
 is-locally-small-UU :
   {l : Level} → is-locally-small l (UU l)
 is-locally-small-UU X Y = pair (X ≃ Y) equiv-univalence
 
--- Example 17.5.2 (iv)
+-- Example 18.5.2 (iv)
 
 is-small-Π :
   (l : Level) {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
@@ -289,7 +375,7 @@ is-locally-small-Π l H K f g =
   is-small-equiv l (f ~ g) equiv-funext
     ( is-small-Π l H (λ x → K x (f x) (g x)))
 
--- Example 17.5.2 (v)
+-- Example 18.5.2 (v)
 
 UU-is-small : (l1 l2 : Level) → UU (lsuc l1 ⊔ lsuc l2)
 UU-is-small l1 l2 = Σ (UU l2) (is-small l1)
@@ -300,7 +386,7 @@ equiv-UU-is-small l1 l2 =
   ( equiv-tot (λ X → equiv-tot (λ Y → equiv-inv-equiv))) ∘e
   ( equiv-Σ-swap (UU l2) (UU l1) _≃_)
 
--- Example 17.5.2 (vi)
+-- Example 18.5.2 (vi)
 
 is-small-decidable-Prop :
   (l1 l2 : Level) → is-small l2 (decidable-Prop l1)
@@ -308,7 +394,7 @@ is-small-decidable-Prop l1 l2 =
   pair ( raise-Fin l2 two-ℕ)
        ( equiv-raise l2 (Fin two-ℕ) ∘e equiv-Fin-two-ℕ-decidable-Prop)
 
--- Proposition 17.5.3
+-- Proposition 18.5.3
 
 is-prop-is-small :
   (l : Level) {l1 : Level} (A : UU l1) → is-prop (is-small l A)
@@ -324,7 +410,7 @@ is-small-Prop :
   (l : Level) {l1 : Level} (A : UU l1) → UU-Prop (lsuc l ⊔ l1)
 is-small-Prop l A = pair (is-small l A) (is-prop-is-small l A)
 
--- Corollary 17.5.4
+-- Corollary 18.5.4
 
 is-prop-is-locally-small :
   (l : Level) {l1 : Level} (A : UU l1) → is-prop (is-locally-small l A)
@@ -348,7 +434,7 @@ is-small-map-Prop :
 is-small-map-Prop l f =
   pair (is-small-map l f) (is-prop-is-small-map l f)
 
--- Corollary 17.5.5
+-- Corollary 18.5.5
 
 is-small-mere-equiv :
   (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} → mere-equiv A B →
@@ -360,7 +446,7 @@ is-small-mere-equiv l e H =
 
 --------------------------------------------------------------------------------
 
--- Section 13.4
+-- Section 18.4
 
 --------------------------------------------------------------------------------
 
