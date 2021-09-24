@@ -263,40 +263,40 @@ is-effective-Eq-Rel :
 is-effective-Eq-Rel {A = A} R B f =
   is-surjective f × is-effective-Eq-Rel' R B f
 
--- Theorem 18.2.3 (iii) implies (ii)
-
-convert-eq-values-htpy :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f g : A → B} (H : f ~ g)
-  (x y : A) → Id (f x) (f y) ≃ Id (g x) (g y)
-convert-eq-values-htpy {f = f} {g} H x y =
-  ( equiv-concat' (g x) (H y)) ∘e (equiv-concat (inv (H x)) (f y))
-
-is-effective-is-image' :
+module _
   {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
-  (i : type-Set B ↪ (A → UU-Prop l2))
-  (q : hom-slice (prop-Eq-Rel R) (map-emb i)) →
-  ({l : Level} → universal-property-image l (prop-Eq-Rel R) i q) →
-  is-effective-Eq-Rel' R B (pr1 q)
-is-effective-is-image' R B i q H x y =
-  ( ( ( inv-equiv (equiv-ap-emb i)) ∘e
-      ( convert-eq-values-htpy
-        ( triangle-hom-slice (prop-Eq-Rel R) (map-emb i) q)
-        ( x)
-        ( y))) ∘e
-    ( equiv-ap-emb (emb-im (prop-Eq-Rel R)))) ∘e
-  ( inv-equiv (effective-quotient R x y))
+  (q : A → type-Set B)
+  where
 
-is-effective-is-image :
-  {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
-  (i : type-Set B ↪ (A → UU-Prop l2))
-  (q : hom-slice (prop-Eq-Rel R) (map-emb i)) →
-  ({l : Level} → universal-property-image l (prop-Eq-Rel R) i q) →
-  is-effective-Eq-Rel R B (pr1 q)
-is-effective-is-image R B i q H =
-  pair ( is-surjective-universal-property-image (prop-Eq-Rel R) i q H)
-       ( is-effective-is-image' R B i q H)
+  
+  -- Theorem 18.2.3 (iii) implies (ii)
+  
+  is-effective-is-image' :
+    (i : type-Set B ↪ (A → UU-Prop l2)) →
+    (T : (prop-Eq-Rel R) ~ ((map-emb i) ∘ q)) →
+    ({l : Level} → universal-property-image l (prop-Eq-Rel R) i (pair q T)) →
+    is-effective-Eq-Rel' R B q
+  is-effective-is-image' i T H x y =
+    ( ( ( inv-equiv (equiv-ap-emb i)) ∘e
+        ( convert-eq-values-htpy T x y)) ∘e
+      ( equiv-ap-emb (emb-im (prop-Eq-Rel R)))) ∘e
+    ( inv-equiv (effective-quotient R x y))
 
--- Theorem 18.2.3 (ii) implies (iii)
+  is-effective-is-image :
+    (i : type-Set B ↪ (A → UU-Prop l2)) → 
+    (T : (prop-Eq-Rel R) ~ ((map-emb i) ∘ q)) →
+    ({l : Level} → universal-property-image l (prop-Eq-Rel R) i (pair q T)) →
+    is-effective-Eq-Rel R B q
+  is-effective-is-image i T H =
+    pair
+      ( is-surjective-universal-property-image (prop-Eq-Rel R) i (pair q T) H)
+      ( is-effective-is-image' i T H)
+
+  -- Theorem 18.2.3 (ii) implies (iii)
+
+  map-emb-is-effective :
+    is-effective-Eq-Rel R B q → type-Set B → A → UU-Prop l3
+  map-emb-is-effective H b a = Id-Prop B b (q a)
 
 --------------------------------------------------------------------------------
 

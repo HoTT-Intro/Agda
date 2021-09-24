@@ -1839,6 +1839,12 @@ equiv-is-empty :
 equiv-is-empty f g =
   ( inv-equiv (pair g (is-equiv-is-empty g id))) ∘e
   ( pair f (is-equiv-is-empty f id))
+
+convert-eq-values-htpy :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f g : A → B} (H : f ~ g)
+  (x y : A) → Id (f x) (f y) ≃ Id (g x) (g y)
+convert-eq-values-htpy {f = f} {g} H x y =
+  ( equiv-concat' (g x) (H y)) ∘e (equiv-concat (inv (H x)) (f y))
     
 -- Exercise 9.5
 
