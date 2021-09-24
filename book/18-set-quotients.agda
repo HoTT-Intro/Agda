@@ -565,6 +565,6 @@ is-equiv-map-trunc-Set :
   is-equiv (map-trunc-Set f)
 is-equiv-map-trunc-Set {A = A} {B} {f} H =
   is-equiv-has-inverse
-    {!!}
+    {! !}
     {!!}
     {!!}

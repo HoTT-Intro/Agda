@@ -1704,9 +1704,12 @@ is-trunc-UU-Trunc k l X Y =
       ( univalence (pr1 X) (pr1 Y))
       ( is-trunc-equiv-is-trunc k (pr2 X) (pr2 Y)))
 
-is-set-UU-Prop :
-  (l : Level) → is-set (UU-Prop l)
+is-set-UU-Prop : (l : Level) → is-set (UU-Prop l)
 is-set-UU-Prop l = is-trunc-UU-Trunc (neg-one-𝕋) l
+
+UU-Prop-Set : (l : Level) → UU-Set (lsuc l)
+UU-Prop-Set l = pair (UU-Prop l) (is-set-UU-Prop l)
+  
 
 ev-true-false :
   {l : Level} (A : UU l) → (f : bool → A) → A × A
@@ -1794,7 +1797,57 @@ eq-false-equiv' e p (inr x) =
           ( pair true p)
           ( pair false (eq-true (map-equiv e false) x)))))
 
--- Exercise 14.11
+-- Exercise 17.3
+
+-- Exercise 17.4
+
+precomp-Set :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} (f : A → B) (C : UU-Set l3) →
+  (B → type-Set C) → (A → type-Set C)
+precomp-Set f C = precomp f (type-Set C)
+
+is-emb-precomp-Set-is-surjective :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
+  is-surjective f → (C : UU-Set l3) → is-emb (precomp-Set f C)
+is-emb-precomp-Set-is-surjective H C =
+  is-emb-is-injective
+    ( is-set-function-type (is-set-type-Set C))
+    ( λ {g} {h} p →
+      eq-htpy (λ b →
+         apply-universal-property-trunc-Prop
+           ( H b)
+           ( Id-Prop C (g b) (h b))
+           ( λ u →
+             ( inv (ap g (pr2 u))) ∙
+             ( ( htpy-eq p (pr1 u))  ∙
+               ( ap h (pr2 u))))))
+
+is-surjective-is-emb-precomp-Set :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
+  ({l3 : Level} (C : UU-Set l3) → is-emb (precomp-Set f C)) → is-surjective f
+is-surjective-is-emb-precomp-Set {l1} {l2} {A} {B} {f} H b =
+  map-equiv
+    ( equiv-eq
+      ( ap ( pr1)
+           ( htpy-eq
+             ( is-injective-is-emb
+               ( H (UU-Prop-Set (l1 ⊔ l2)))
+               { g}
+               { h}
+               ( eq-htpy
+                 ( λ a →
+                   eq-iff
+                     ( λ _ → unit-trunc-Prop (pair a refl))
+                     ( λ _ → raise-star))))
+             ( b))))
+    ( raise-star)
+  where
+  g : B → UU-Prop (l1 ⊔ l2)
+  g y = raise-unit-Prop (l1 ⊔ l2)
+  h : B → UU-Prop (l1 ⊔ l2)
+  h y = ∃-Prop (λ x → Id (f x) y)
+
+-- Exercise 17.11
 
 square-htpy-eq :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} (f : A → B) →
