@@ -251,11 +251,50 @@ is-set-quotient l R {B} f H =
 
 -- Theorem 18.2.3 Condition (ii)
 
+is-effective-Eq-Rel' :
+  {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
+  (f : A → type-Set B) → UU (l1 ⊔ l2 ⊔ l3)
+is-effective-Eq-Rel' {A = A} R B f =
+  (x y : A) → (type-Eq-Rel R x y ≃ Id (f x) (f y))
+
 is-effective-Eq-Rel :
   {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
   (f : A → type-Set B) → UU (l1 ⊔ l2 ⊔ l3)
 is-effective-Eq-Rel {A = A} R B f =
-  (x y : A) → (type-Eq-Rel R x y ≃ Id (f x) (f y))
+  is-surjective f × is-effective-Eq-Rel' R B f
+
+-- Theorem 18.2.3 (iii) implies (ii)
+
+convert-eq-values-htpy :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f g : A → B} (H : f ~ g)
+  (x y : A) → Id (f x) (f y) ≃ Id (g x) (g y)
+convert-eq-values-htpy {f = f} {g} H x y =
+  ( equiv-concat' (g x) (H y)) ∘e (equiv-concat (inv (H x)) (f y))
+
+is-effective-is-image' :
+  {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
+  (i : type-Set B ↪ (A → UU-Prop l2))
+  (q : hom-slice (prop-Eq-Rel R) (map-emb i)) →
+  ({l : Level} → universal-property-image l (prop-Eq-Rel R) i q) →
+  is-effective-Eq-Rel' R B (pr1 q)
+is-effective-is-image' R B i q H x y =
+  ( ( ( inv-equiv (equiv-ap-emb i)) ∘e
+      ( convert-eq-values-htpy
+        ( triangle-hom-slice (prop-Eq-Rel R) (map-emb i) q)
+        ( x)
+        ( y))) ∘e
+    ( equiv-ap-emb (emb-im (prop-Eq-Rel R)))) ∘e
+  ( inv-equiv (effective-quotient R x y))
+
+is-effective-is-image :
+  {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
+  (i : type-Set B ↪ (A → UU-Prop l2))
+  (q : hom-slice (prop-Eq-Rel R) (map-emb i)) →
+  ({l : Level} → universal-property-image l (prop-Eq-Rel R) i q) →
+  is-effective-Eq-Rel R B (pr1 q)
+is-effective-is-image R B i q H =
+  pair ( is-surjective-universal-property-image (prop-Eq-Rel R) i q H)
+       ( is-effective-is-image' R B i q H)
 
 -- Theorem 18.2.3 (ii) implies (iii)
 
@@ -452,17 +491,11 @@ is-small-mere-equiv l e H =
 
 {- Set truncations -}
 
-precomp-Set :
-  { l1 l2 l3 : Level} {A : UU l1} (B : UU-Set l2) →
-  (A → type-Set B) → (C : UU-Set l3) →
-  (type-hom-Set B C) → (A → type-Set C)
-precomp-Set B f C g = g ∘ f
-
 is-set-truncation :
   ( l : Level) {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) →
   ( A → type-Set B) → UU (lsuc l ⊔ l1 ⊔ l2)
 is-set-truncation l B f =
-  (C : UU-Set l) → is-equiv (precomp-Set B f C)
+  (C : UU-Set l) → is-equiv (precomp-Set f C)
 
 universal-property-set-truncation :
   ( l : Level) {l1 l2 : Level} {A : UU l1}
