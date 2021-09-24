@@ -298,6 +298,22 @@ module _
     is-effective-Eq-Rel R B q → type-Set B → A → UU-Prop l3
   map-emb-is-effective H b a = Id-Prop B b (q a)
 
+  is-emb-map-emb-is-effective :
+    (e : is-effective-Eq-Rel R B q) → is-emb (map-emb-is-effective e)
+  is-emb-map-emb-is-effective e =
+    is-emb-is-injective
+      ( is-set-function-type (is-set-UU-Prop l3))
+      ( λ {x} {y} p →
+        apply-universal-property-trunc-Prop
+          ( pr1 e y)
+          ( Id-Prop B x y)
+          ( α p))
+    where
+    α : {x y : type-Set B}
+        (p : Id (map-emb-is-effective e x) (map-emb-is-effective e y)) →
+        fib q y → type-Prop (Id-Prop B x y)
+    α p (pair a refl) = map-inv-equiv (equiv-eq (ap pr1 (htpy-eq p a))) refl
+
 --------------------------------------------------------------------------------
 
 -- Section 18.5 Resizing axioms
