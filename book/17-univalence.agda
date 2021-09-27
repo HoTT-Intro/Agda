@@ -194,6 +194,11 @@ eq-iff :
   (type-Prop P → type-Prop Q) → (type-Prop Q → type-Prop P) → Id P Q
 eq-iff {l1} {P} {Q} f g = eq-iff' P Q (pair f g)
 
+eq-equiv-Prop :
+  {l1 : Level} {P Q : UU-Prop l1} → (type-Prop P ≃ type-Prop Q) → Id P Q
+eq-equiv-Prop e =
+  eq-iff (map-equiv e) (map-inv-equiv e)
+
 -- Corollary 17.1.4
 
 is-decidable-prop : {l : Level} → UU l → UU l

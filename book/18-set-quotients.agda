@@ -6,6 +6,191 @@ open import book.17-univalence public
 
 --------------------------------------------------------------------------------
 
+-- Section 18.0 Resizing axioms
+
+-- Definition 18.0.1
+
+is-small :
+  (l : Level) {l1 : Level} (A : UU l1) → UU (lsuc l ⊔ l1)
+is-small l A = Σ (UU l) (λ X → A ≃ X)
+
+type-is-small :
+  {l l1 : Level} {A : UU l1} → is-small l A → UU l
+type-is-small = pr1
+
+equiv-is-small :
+  {l l1 : Level} {A : UU l1} (H : is-small l A) → A ≃ type-is-small H
+equiv-is-small = pr2
+
+map-equiv-is-small :
+  {l l1 : Level} {A : UU l1} (H : is-small l A) → A → type-is-small H
+map-equiv-is-small H = map-equiv (equiv-is-small H)
+
+map-inv-equiv-is-small :
+  {l l1 : Level} {A : UU l1} (H : is-small l A) → type-is-small H → A
+map-inv-equiv-is-small H = map-inv-equiv (equiv-is-small H)
+
+is-small-map :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  (A → B) → UU (lsuc l ⊔ (l1 ⊔ l2))
+is-small-map l {B = B} f = (b : B) → is-small l (fib f b)
+
+is-locally-small :
+  (l : Level) {l1 : Level} (A : UU l1) → UU (lsuc l ⊔ l1)
+is-locally-small l A = (x y : A) → is-small l (Id x y)
+
+-- Example 18.0.2
+
+-- Closure properties of small types
+
+is-small-equiv :
+  (l : Level) {l1 l2 : Level} {A : UU l1} (B : UU l2) →
+  A ≃ B → is-small l B → is-small l A
+is-small-equiv l B e (pair X h) = pair X (h ∘e e)
+
+is-small-Σ :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  is-small l A → ((x : A) → is-small l (B x)) → is-small l (Σ A B)
+is-small-Σ l {B = B} (pair X e) H =
+  pair
+    ( Σ X (λ x → pr1 (H (map-inv-equiv e x))))
+    ( equiv-Σ
+      ( λ x → pr1 (H (map-inv-equiv e x)))
+      ( e)
+      ( λ a →
+        ( equiv-tr
+          ( λ t → pr1 (H t))
+          ( inv (isretr-map-inv-equiv e a))) ∘e
+        ( pr2 (H a))))
+
+-- Example 18.0.2 (i)
+
+is-locally-small-is-small :
+  (l : Level) {l1 : Level} {A : UU l1} → is-small l A → is-locally-small l A
+is-locally-small-is-small l (pair X e) x y =
+  pair
+    ( Id (map-equiv e x) (map-equiv e y))
+    ( equiv-ap e x y)
+
+is-small-fib :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  is-small l A → is-small l B → (b : B) → is-small l (fib f b)
+is-small-fib l f H K b =
+  is-small-Σ l H (λ a → is-locally-small-is-small l K (f a) b)
+
+-- Example 18.0.2 (ii)
+
+is-small-is-contr :
+  (l : Level) {l1 : Level} {A : UU l1} → is-contr A → is-small l A
+is-small-is-contr l H =
+  pair (raise-unit l) (equiv-is-contr H is-contr-raise-unit)
+
+is-small-is-prop :
+  (l : Level) {l1 : Level} {A : UU l1} → is-prop A → is-locally-small l A
+is-small-is-prop l H x y = is-small-is-contr l (H x y)
+
+-- Example 18.0.2 (iii)
+
+is-locally-small-UU :
+  {l : Level} → is-locally-small l (UU l)
+is-locally-small-UU X Y = pair (X ≃ Y) equiv-univalence
+
+-- Example 18.0.2 (iv)
+
+is-small-Π :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  is-small l A → ((x : A) → is-small l (B x)) → is-small l ((x : A) → B x)
+is-small-Π l {B = B} (pair X e) H =
+  pair
+    ( (x : X) → pr1 (H (map-inv-equiv e x)))
+    ( equiv-Π
+      ( λ (x : X) → pr1 (H (map-inv-equiv e x)))
+      ( e)
+      ( λ a →
+        ( equiv-tr
+          ( λ t → pr1 (H t))
+          ( inv (isretr-map-inv-equiv e a))) ∘e
+        ( pr2 (H a))))
+
+is-locally-small-Π :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  is-small l A → ((x : A) → is-locally-small l (B x)) →
+  is-locally-small l ((x : A) → B x)
+is-locally-small-Π l H K f g =
+  is-small-equiv l (f ~ g) equiv-funext
+    ( is-small-Π l H (λ x → K x (f x) (g x)))
+
+-- Example 18.0.2 (v)
+
+UU-is-small : (l1 l2 : Level) → UU (lsuc l1 ⊔ lsuc l2)
+UU-is-small l1 l2 = Σ (UU l2) (is-small l1)
+
+equiv-UU-is-small :
+  (l1 l2 : Level) → UU-is-small l1 l2 ≃ UU-is-small l2 l1
+equiv-UU-is-small l1 l2 =
+  ( equiv-tot (λ X → equiv-tot (λ Y → equiv-inv-equiv))) ∘e
+  ( equiv-Σ-swap (UU l2) (UU l1) _≃_)
+
+-- Example 18.0.2 (vi)
+
+is-small-decidable-Prop :
+  (l1 l2 : Level) → is-small l2 (decidable-Prop l1)
+is-small-decidable-Prop l1 l2 =
+  pair ( raise-Fin l2 two-ℕ)
+       ( equiv-raise l2 (Fin two-ℕ) ∘e equiv-Fin-two-ℕ-decidable-Prop)
+
+-- Proposition 18.0.3
+
+is-prop-is-small :
+  (l : Level) {l1 : Level} (A : UU l1) → is-prop (is-small l A)
+is-prop-is-small l A =
+  is-prop-is-proof-irrelevant
+    ( λ Xe →
+      is-contr-equiv'
+        ( Σ (UU l) (λ Y → (pr1 Xe) ≃ Y))
+        ( equiv-tot ((λ Y → equiv-precomp-equiv (pr2 Xe) Y)))
+        ( is-contr-total-equiv (pr1 Xe)))
+
+is-small-Prop :
+  (l : Level) {l1 : Level} (A : UU l1) → UU-Prop (lsuc l ⊔ l1)
+is-small-Prop l A = pair (is-small l A) (is-prop-is-small l A)
+
+-- Corollary 18.0.4
+
+is-prop-is-locally-small :
+  (l : Level) {l1 : Level} (A : UU l1) → is-prop (is-locally-small l A)
+is-prop-is-locally-small l A =
+  is-prop-Π (λ x → is-prop-Π (λ y → is-prop-is-small l (Id x y)))
+
+is-locally-small-Prop :
+  (l : Level) {l1 : Level} (A : UU l1) → UU-Prop (lsuc l ⊔ l1)
+is-locally-small-Prop l A =
+  pair (is-locally-small l A) (is-prop-is-locally-small l A)
+
+is-prop-is-small-map :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  is-prop (is-small-map l f)
+is-prop-is-small-map l f =
+  is-prop-Π (λ x → is-prop-is-small l (fib f x))
+
+is-small-map-Prop :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  UU-Prop (lsuc l ⊔ l1 ⊔ l2)
+is-small-map-Prop l f =
+  pair (is-small-map l f) (is-prop-is-small-map l f)
+
+-- Corollary 18.0.5
+
+is-small-mere-equiv :
+  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} → mere-equiv A B →
+  is-small l B → is-small l A
+is-small-mere-equiv l e H =
+  apply-universal-property-trunc-Prop e
+    ( is-small-Prop l _)
+    ( λ e' → is-small-equiv l _ e' H)
+
+--------------------------------------------------------------------------------
+
 -- Section 18.1 Equivalence relations
 
 -- Definition 18.1.1
@@ -212,10 +397,16 @@ eq-effective-quotient' R a q =
 
 -- Corollary 18.1.4
 
-effective-quotient :
-  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) (x y : A) →
-  Id (map-set-quotient R x) (map-set-quotient R y) ≃ type-Eq-Rel R x y
-effective-quotient R x y =
+is-effective :
+  {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
+  (f : A → type-Set B) → UU (l1 ⊔ l2 ⊔ l3)
+is-effective {A = A} R B f =
+  (x y : A) → (Id (f x) (f y) ≃ type-Eq-Rel R x y)
+
+is-effective-map-set-quotient :
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) →
+  is-effective R (quotient-Set R) (map-set-quotient R)
+is-effective-map-set-quotient R x y =
   ( equiv-symm-Eq-Rel R y x) ∘e
   ( effective-quotient' R x (map-set-quotient R y))
 
@@ -251,56 +442,134 @@ is-set-quotient l R {B} f H =
 
 -- Theorem 18.2.3 Condition (ii)
 
-is-effective-Eq-Rel' :
+is-surjective-and-effective :
   {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
   (f : A → type-Set B) → UU (l1 ⊔ l2 ⊔ l3)
-is-effective-Eq-Rel' {A = A} R B f =
-  (x y : A) → (type-Eq-Rel R x y ≃ Id (f x) (f y))
-
-is-effective-Eq-Rel :
-  {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
-  (f : A → type-Set B) → UU (l1 ⊔ l2 ⊔ l3)
-is-effective-Eq-Rel {A = A} R B f =
-  is-surjective f × is-effective-Eq-Rel' R B f
+is-surjective-and-effective {A = A} R B f =
+  is-surjective f × is-effective R B f
 
 module _
   {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
   (q : A → type-Set B)
   where
 
-  
   -- Theorem 18.2.3 (iii) implies (ii)
   
-  is-effective-is-image' :
+  is-effective-is-image :
     (i : type-Set B ↪ (A → UU-Prop l2)) →
     (T : (prop-Eq-Rel R) ~ ((map-emb i) ∘ q)) →
     ({l : Level} → universal-property-image l (prop-Eq-Rel R) i (pair q T)) →
-    is-effective-Eq-Rel' R B q
-  is-effective-is-image' i T H x y =
-    ( ( ( inv-equiv (equiv-ap-emb i)) ∘e
-        ( convert-eq-values-htpy T x y)) ∘e
-      ( equiv-ap-emb (emb-im (prop-Eq-Rel R)))) ∘e
-    ( inv-equiv (effective-quotient R x y))
+    is-effective R B q
+  is-effective-is-image i T H x y =
+    ( is-effective-map-set-quotient R x y) ∘e
+    ( ( inv-equiv (equiv-ap-emb (emb-im (prop-Eq-Rel R)))) ∘e
+      ( ( inv-equiv (convert-eq-values-htpy T x y)) ∘e
+        ( equiv-ap-emb i)))
 
-  is-effective-is-image :
+  is-surjective-and-effective-is-image :
     (i : type-Set B ↪ (A → UU-Prop l2)) → 
     (T : (prop-Eq-Rel R) ~ ((map-emb i) ∘ q)) →
     ({l : Level} → universal-property-image l (prop-Eq-Rel R) i (pair q T)) →
-    is-effective-Eq-Rel R B q
-  is-effective-is-image i T H =
+    is-surjective-and-effective R B q
+  is-surjective-and-effective-is-image i T H =
     pair
       ( is-surjective-universal-property-image (prop-Eq-Rel R) i (pair q T) H)
-      ( is-effective-is-image' i T H)
+      ( is-effective-is-image i T H)
 
   -- Theorem 18.2.3 (ii) implies (iii)
 
-  map-emb-is-effective :
-    is-effective-Eq-Rel R B q → type-Set B → A → UU-Prop l3
-  map-emb-is-effective H b a = Id-Prop B b (q a)
+  is-locally-small-is-surjective-and-effective :
+    is-surjective-and-effective R B q → is-locally-small l2 (type-Set B)
+  is-locally-small-is-surjective-and-effective e x y =
+    apply-universal-property-trunc-Prop
+      ( pr1 e x)
+      ( is-small-Prop l2 (Id x y))
+      ( λ u →
+        apply-universal-property-trunc-Prop
+          ( pr1 e y)
+          ( is-small-Prop l2 (Id x y))
+          ( α u))
+    where
+    α : fib q x → fib q y → is-small l2 (Id x y)
+    α (pair a refl) (pair b refl) =
+      pair (type-Eq-Rel R a b) (pr2 e a b)
 
-  is-emb-map-emb-is-effective :
-    (e : is-effective-Eq-Rel R B q) → is-emb (map-emb-is-effective e)
-  is-emb-map-emb-is-effective e =
+  large-map-emb-is-surjective-and-effective :
+    is-surjective-and-effective R B q → type-Set B → A → UU-Prop l3
+  large-map-emb-is-surjective-and-effective H b a = Id-Prop B b (q a)
+
+  small-map-emb-is-surjective-and-effective :
+    is-surjective-and-effective R B q → type-Set B → A →
+    Σ (UU-Prop l3) (λ P → is-small l2 (type-Prop P))
+  small-map-emb-is-surjective-and-effective H b a =
+    pair ( large-map-emb-is-surjective-and-effective H b a)
+         ( is-locally-small-is-surjective-and-effective H b (q a))
+
+  map-emb-is-surjective-and-effective :
+    is-surjective-and-effective R B q → type-Set B → A → UU-Prop l2
+  map-emb-is-surjective-and-effective H b a =
+    pair ( pr1 (pr2 (small-map-emb-is-surjective-and-effective H b a)))
+         ( is-prop-equiv'
+           ( type-Prop (large-map-emb-is-surjective-and-effective H b a))
+           ( pr2 (pr2 (small-map-emb-is-surjective-and-effective H b a)))
+           ( is-prop-type-Prop
+             ( large-map-emb-is-surjective-and-effective H b a)))
+
+  compute-map-emb-is-surjective-and-effective :
+    (H : is-surjective-and-effective R B q) (b : type-Set B) (a : A) →
+    type-Prop (large-map-emb-is-surjective-and-effective H b a) ≃
+    type-Prop (map-emb-is-surjective-and-effective H b a) 
+  compute-map-emb-is-surjective-and-effective H b a =
+    pr2 (pr2 (small-map-emb-is-surjective-and-effective H b a))
+
+  triangle-emb-is-surjective-and-effective :
+    (H : is-surjective-and-effective R B q) →
+    prop-Eq-Rel R ~ (map-emb-is-surjective-and-effective H ∘ q)
+  triangle-emb-is-surjective-and-effective H a =
+    eq-htpy
+      ( λ x →
+        eq-equiv-Prop
+          ( ( compute-map-emb-is-surjective-and-effective H (q a) x) ∘e
+            ( inv-equiv (pr2 H a x))))
+
+  is-emb-map-emb-is-surjective-and-effective :
+    (H : is-surjective-and-effective R B q) →
+    is-emb (map-emb-is-surjective-and-effective H)
+  is-emb-map-emb-is-surjective-and-effective H =
+    is-emb-is-injective
+      ( is-set-function-type (is-set-UU-Prop l2))
+      ( λ {x} {y} p →
+        apply-universal-property-trunc-Prop
+          ( pr1 H y)
+          ( Id-Prop B x y)
+          ( α p))
+    where
+    α : {x y : type-Set B}
+        (p : Id ( map-emb-is-surjective-and-effective H x)
+                ( map-emb-is-surjective-and-effective H y)) →
+        fib q y → type-Prop (Id-Prop B x y)
+    α {x} p (pair a refl) =
+      map-inv-equiv
+        ( ( inv-equiv
+            ( pr2
+              ( is-locally-small-is-surjective-and-effective
+                H (q a) (q a)))) ∘e
+          ( ( equiv-eq (ap pr1 (htpy-eq p a))) ∘e
+            ( pr2
+              ( is-locally-small-is-surjective-and-effective H x (q a)))))
+        ( refl)
+
+  emb-is-surjective-and-effective :
+    (H : is-surjective-and-effective R B q) →
+    type-Set B ↪ (A → UU-Prop l2)
+  emb-is-surjective-and-effective H =
+    pair ( map-emb-is-surjective-and-effective H)
+         ( is-emb-map-emb-is-surjective-and-effective H)
+
+  is-emb-large-map-emb-is-surjective-and-effective :
+    (e : is-surjective-and-effective R B q) →
+    is-emb (large-map-emb-is-surjective-and-effective e)
+  is-emb-large-map-emb-is-surjective-and-effective e =
     is-emb-is-injective
       ( is-set-function-type (is-set-UU-Prop l3))
       ( λ {x} {y} p →
@@ -310,194 +579,25 @@ module _
           ( α p))
     where
     α : {x y : type-Set B}
-        (p : Id (map-emb-is-effective e x) (map-emb-is-effective e y)) →
+        (p : Id ( large-map-emb-is-surjective-and-effective e x)
+                ( large-map-emb-is-surjective-and-effective e y)) →
         fib q y → type-Prop (Id-Prop B x y)
     α p (pair a refl) = map-inv-equiv (equiv-eq (ap pr1 (htpy-eq p a))) refl
 
---------------------------------------------------------------------------------
+  large-emb-is-surjective-and-effective :
+    is-surjective-and-effective R B q → type-Set B ↪ (A → UU-Prop l3)
+  large-emb-is-surjective-and-effective e =
+    pair ( large-map-emb-is-surjective-and-effective e)
+         ( is-emb-large-map-emb-is-surjective-and-effective e)
 
--- Section 18.5 Resizing axioms
-
--- Definition 18.5.1
-
-is-small :
-  (l : Level) {l1 : Level} (A : UU l1) → UU (lsuc l ⊔ l1)
-is-small l A = Σ (UU l) (λ X → A ≃ X)
-
-type-is-small :
-  {l l1 : Level} {A : UU l1} → is-small l A → UU l
-type-is-small = pr1
-
-equiv-is-small :
-  {l l1 : Level} {A : UU l1} (H : is-small l A) → A ≃ type-is-small H
-equiv-is-small = pr2
-
-map-equiv-is-small :
-  {l l1 : Level} {A : UU l1} (H : is-small l A) → A → type-is-small H
-map-equiv-is-small H = map-equiv (equiv-is-small H)
-
-map-inv-equiv-is-small :
-  {l l1 : Level} {A : UU l1} (H : is-small l A) → type-is-small H → A
-map-inv-equiv-is-small H = map-inv-equiv (equiv-is-small H)
-
-is-small-map :
-  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} →
-  (A → B) → UU (lsuc l ⊔ (l1 ⊔ l2))
-is-small-map l {B = B} f = (b : B) → is-small l (fib f b)
-
-is-locally-small :
-  (l : Level) {l1 : Level} (A : UU l1) → UU (lsuc l ⊔ l1)
-is-locally-small l A = (x y : A) → is-small l (Id x y)
-
--- Example 18.5.2
-
--- Closure properties of small types
-
-is-small-equiv :
-  (l : Level) {l1 l2 : Level} {A : UU l1} (B : UU l2) →
-  A ≃ B → is-small l B → is-small l A
-is-small-equiv l B e (pair X h) = pair X (h ∘e e)
-
-is-small-Σ :
-  (l : Level) {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  is-small l A → ((x : A) → is-small l (B x)) → is-small l (Σ A B)
-is-small-Σ l {B = B} (pair X e) H =
-  pair
-    ( Σ X (λ x → pr1 (H (map-inv-equiv e x))))
-    ( equiv-Σ
-      ( λ x → pr1 (H (map-inv-equiv e x)))
-      ( e)
-      ( λ a →
-        ( equiv-tr
-          ( λ t → pr1 (H t))
-          ( inv (isretr-map-inv-equiv e a))) ∘e
-        ( pr2 (H a))))
-
--- Example 18.5.2 (i)
-
-is-locally-small-is-small :
-  (l : Level) {l1 : Level} {A : UU l1} → is-small l A → is-locally-small l A
-is-locally-small-is-small l (pair X e) x y =
-  pair
-    ( Id (map-equiv e x) (map-equiv e y))
-    ( equiv-ap e x y)
-
-is-small-fib :
-  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  is-small l A → is-small l B → (b : B) → is-small l (fib f b)
-is-small-fib l f H K b =
-  is-small-Σ l H (λ a → is-locally-small-is-small l K (f a) b)
-
--- Example 18.5.2 (ii)
-
-is-small-is-contr :
-  (l : Level) {l1 : Level} {A : UU l1} → is-contr A → is-small l A
-is-small-is-contr l H =
-  pair (raise-unit l) (equiv-is-contr H is-contr-raise-unit)
-
-is-small-is-prop :
-  (l : Level) {l1 : Level} {A : UU l1} → is-prop A → is-locally-small l A
-is-small-is-prop l H x y = is-small-is-contr l (H x y)
-
--- Example 18.5.2 (iii)
-
-is-locally-small-UU :
-  {l : Level} → is-locally-small l (UU l)
-is-locally-small-UU X Y = pair (X ≃ Y) equiv-univalence
-
--- Example 18.5.2 (iv)
-
-is-small-Π :
-  (l : Level) {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  is-small l A → ((x : A) → is-small l (B x)) → is-small l ((x : A) → B x)
-is-small-Π l {B = B} (pair X e) H =
-  pair
-    ( (x : X) → pr1 (H (map-inv-equiv e x)))
-    ( equiv-Π
-      ( λ (x : X) → pr1 (H (map-inv-equiv e x)))
-      ( e)
-      ( λ a →
-        ( equiv-tr
-          ( λ t → pr1 (H t))
-          ( inv (isretr-map-inv-equiv e a))) ∘e
-        ( pr2 (H a))))
-
-is-locally-small-Π :
-  (l : Level) {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  is-small l A → ((x : A) → is-locally-small l (B x)) →
-  is-locally-small l ((x : A) → B x)
-is-locally-small-Π l H K f g =
-  is-small-equiv l (f ~ g) equiv-funext
-    ( is-small-Π l H (λ x → K x (f x) (g x)))
-
--- Example 18.5.2 (v)
-
-UU-is-small : (l1 l2 : Level) → UU (lsuc l1 ⊔ lsuc l2)
-UU-is-small l1 l2 = Σ (UU l2) (is-small l1)
-
-equiv-UU-is-small :
-  (l1 l2 : Level) → UU-is-small l1 l2 ≃ UU-is-small l2 l1
-equiv-UU-is-small l1 l2 =
-  ( equiv-tot (λ X → equiv-tot (λ Y → equiv-inv-equiv))) ∘e
-  ( equiv-Σ-swap (UU l2) (UU l1) _≃_)
-
--- Example 18.5.2 (vi)
-
-is-small-decidable-Prop :
-  (l1 l2 : Level) → is-small l2 (decidable-Prop l1)
-is-small-decidable-Prop l1 l2 =
-  pair ( raise-Fin l2 two-ℕ)
-       ( equiv-raise l2 (Fin two-ℕ) ∘e equiv-Fin-two-ℕ-decidable-Prop)
-
--- Proposition 18.5.3
-
-is-prop-is-small :
-  (l : Level) {l1 : Level} (A : UU l1) → is-prop (is-small l A)
-is-prop-is-small l A =
-  is-prop-is-proof-irrelevant
-    ( λ Xe →
-      is-contr-equiv'
-        ( Σ (UU l) (λ Y → (pr1 Xe) ≃ Y))
-        ( equiv-tot ((λ Y → equiv-precomp-equiv (pr2 Xe) Y)))
-        ( is-contr-total-equiv (pr1 Xe)))
-
-is-small-Prop :
-  (l : Level) {l1 : Level} (A : UU l1) → UU-Prop (lsuc l ⊔ l1)
-is-small-Prop l A = pair (is-small l A) (is-prop-is-small l A)
-
--- Corollary 18.5.4
-
-is-prop-is-locally-small :
-  (l : Level) {l1 : Level} (A : UU l1) → is-prop (is-locally-small l A)
-is-prop-is-locally-small l A =
-  is-prop-Π (λ x → is-prop-Π (λ y → is-prop-is-small l (Id x y)))
-
-is-locally-small-Prop :
-  (l : Level) {l1 : Level} (A : UU l1) → UU-Prop (lsuc l ⊔ l1)
-is-locally-small-Prop l A =
-  pair (is-locally-small l A) (is-prop-is-locally-small l A)
-
-is-prop-is-small-map :
-  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  is-prop (is-small-map l f)
-is-prop-is-small-map l f =
-  is-prop-Π (λ x → is-prop-is-small l (fib f x))
-
-is-small-map-Prop :
-  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  UU-Prop (lsuc l ⊔ l1 ⊔ l2)
-is-small-map-Prop l f =
-  pair (is-small-map l f) (is-prop-is-small-map l f)
-
--- Corollary 18.5.5
-
-is-small-mere-equiv :
-  (l : Level) {l1 l2 : Level} {A : UU l1} {B : UU l2} → mere-equiv A B →
-  is-small l B → is-small l A
-is-small-mere-equiv l e H =
-  apply-universal-property-trunc-Prop e
-    ( is-small-Prop l _)
-    ( λ e' → is-small-equiv l _ e' H)
+  is-image-is-surjective-and-effective :
+    (H : is-surjective-and-effective R B q) →
+    ( {l : Level} →
+      universal-property-image l
+        ( prop-Eq-Rel R)
+        ( emb-is-surjective-and-effective H)
+        ( pair q (triangle-emb-is-surjective-and-effective H)))
+  is-image-is-surjective-and-effective H = {!!}
 
 --------------------------------------------------------------------------------
 
