@@ -392,6 +392,15 @@ dependent-universal-property-surj-is-surjective f is-surj-f P =
         ( λ b → is-propositional-truncation-trunc-Prop (fib f b) (P b))))
     ( is-equiv-map-reduce-Π-fib f ( λ y z → type-Prop (P y)))
 
+equiv-dependent-universal-property-surj-is-surjective :
+  {l l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  is-surjective f → (C : B → UU-Prop l) →
+  ((b : B) → type-Prop (C b)) ≃ ((a : A) → type-Prop (C (f a)))
+equiv-dependent-universal-property-surj-is-surjective f H C =
+  pair
+    ( λ h x → h (f x))
+    ( dependent-universal-property-surj-is-surjective f H C)
+
 -- Corollary 15.2.4
 
 is-surjective-is-propositional-truncation :
@@ -406,14 +415,19 @@ is-propsitional-truncation-is-surjective :
 is-propsitional-truncation-is-surjective f is-surj-f =
   dependent-universal-property-surj-is-surjective f is-surj-f
 
--- Theorem 15.2.3
+-- Theorem 15.2.5
+
+-- Theorem 15.2.5 (i) implies (ii)
 
 is-surjective-universal-property-image :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
   (f : A → X) (i : B ↪ X) (q : hom-slice f (map-emb i)) →
   ({l : Level} → universal-property-image l f i q) →
   is-surjective (map-hom-slice f (map-emb i) q)
-is-surjective-universal-property-image {A = A} {B} {X} f i q up-i = {!!}
+is-surjective-universal-property-image {A = A} {B} {X} f i q up-i b =
+  apply-universal-property-trunc-Prop β
+    ( trunc-Prop (fib (map-hom-slice f (map-emb i) q) b))
+    ( γ)
   where
   g : Σ B (λ b → type-trunc-Prop (fib (map-hom-slice f (map-emb i) q) b)) → X
   g = map-emb i ∘ pr1
@@ -421,6 +435,20 @@ is-surjective-universal-property-image {A = A} {B} {X} f i q up-i = {!!}
   is-emb-g = is-emb-comp' (map-emb i) pr1
     ( is-emb-map-emb i)
     ( is-emb-pr1-is-subtype (λ x → is-prop-type-trunc-Prop))
+  α : hom-slice (map-emb i) g
+  α = map-inv-is-equiv
+        ( up-i
+          ( Σ B ( λ b →
+                  type-trunc-Prop (fib (map-hom-slice f (map-emb i) q) b)))
+          ( pair g is-emb-g))
+        ( pair (λ a → pair (pr1 q a) (unit-trunc-Prop (pair a refl))) (pr2 q))
+  β : type-trunc-Prop (fib (map-hom-slice f (map-emb i) q) (pr1 (pr1 α b)))
+  β = pr2 (pr1 α b)
+  γ : fib (map-hom-slice f (map-emb i) q) (pr1 (pr1 α b)) →
+      type-Prop (trunc-Prop (fib (pr1 q) b))
+  γ (pair a p) =
+    unit-trunc-Prop
+      ( pair a (p ∙ inv (is-injective-is-emb (is-emb-map-emb i) (pr2 α b))))
 
 is-surjective-map-im :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
@@ -433,6 +461,37 @@ is-surjective-map-im f (pair y z) =
   α : fib f y → type-Prop (trunc-Prop (fib (map-im f) (pair y z)))
   α (pair x p) =
     unit-trunc-Prop (pair x (eq-subtype (λ z → is-prop-type-trunc-Prop) p))
+
+-- Theorem 15.2.5 (ii) implies (i)
+
+universal-property-image-is-surjective' :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
+  (f : A → X) (i : B ↪ X) (q : hom-slice f (map-emb i)) →
+  is-surjective (map-hom-slice f (map-emb i) q) →
+  ({l : Level} → universal-property-image' l f i q)
+universal-property-image-is-surjective' f i q H B' m =
+  map-equiv
+    ( ( equiv-hom-slice-fiberwise-hom (map-emb i) (map-emb m)) ∘e
+      ( ( inv-equiv (reduce-Π-fib (map-emb i) (fib (map-emb m)))) ∘e
+        ( inv-equiv
+          ( equiv-dependent-universal-property-surj-is-surjective
+            ( pr1 q)
+            ( H)
+            ( λ b →
+              pair ( fib (map-emb m) (pr1 i b))
+                   ( is-prop-map-emb m (pr1 i b)))) ∘e
+          ( ( equiv-map-Π (λ a → equiv-tr (fib (map-emb m)) (pr2 q a))) ∘e
+            ( ( reduce-Π-fib f (fib (map-emb m))) ∘e
+              ( equiv-fiberwise-hom-hom-slice f (map-emb m)))))))
+
+universal-property-image-is-surjective :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
+  (f : A → X) (i : B ↪ X) (q : hom-slice f (map-emb i)) →
+  is-surjective (map-hom-slice f (map-emb i) q) →
+  ({l : Level} → universal-property-image l f i q)
+universal-property-image-is-surjective f i q H {l} =
+  universal-property-image-universal-property-image' l f i q
+    ( universal-property-image-is-surjective' f i q H)
 
 --------------------------------------------------------------------------------
 

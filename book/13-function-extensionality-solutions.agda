@@ -1850,6 +1850,13 @@ abstract
       ( issec-hom-slice-fiberwise-hom f g)
       ( isretr-hom-slice-fiberwise-hom f g)
 
+equiv-fiberwise-hom-hom-slice :
+  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
+  (f : A → X) (g : B → X) →
+  hom-slice f g ≃ ((x : X) → fib f x → fib g x)
+equiv-fiberwise-hom-hom-slice f g =
+  pair (fiberwise-hom-hom-slice f g) (is-equiv-fiberwise-hom-hom-slice f g)
+
 abstract
   is-equiv-hom-slice-fiberwise-hom :
     {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
@@ -1860,6 +1867,13 @@ abstract
       ( fiberwise-hom-hom-slice f g)
       ( isretr-hom-slice-fiberwise-hom f g)
       ( issec-hom-slice-fiberwise-hom f g)
+
+equiv-hom-slice-fiberwise-hom :
+  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
+  (f : A → X) (g : B → X) →
+  ((x : X) → fib f x → fib g x) ≃ hom-slice f g
+equiv-hom-slice-fiberwise-hom f g =
+  pair (hom-slice-fiberwise-hom f g) (is-equiv-hom-slice-fiberwise-hom f g)
 
 equiv-slice :
   {l1 l2 l3 : Level} (X : UU l1) {A : UU l2} {B : UU l3}
