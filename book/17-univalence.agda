@@ -162,6 +162,10 @@ eq-equiv-fam :
   {l1 l2 : Level} {A : UU l1} {B C : A → UU l2} → equiv-fam B C → Id B C
 eq-equiv-fam {B = B} {C} = map-inv-is-equiv (is-equiv-equiv-eq-fam B C)
 
+tr-equiv-eq-ap : {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {x y : A}
+  (p : Id x y) → (map-equiv (equiv-eq (ap B p))) ~ tr B p
+tr-equiv-eq-ap refl = refl-htpy
+
 -- Theorem 17.1.3
 
 is-contr-total-iff :
@@ -1629,13 +1633,7 @@ binomial-type-𝔽 A B =
 
 -- Exercise 17.1
 
-tr-equiv-eq-ap : {l1 l2 : Level} {A : UU l1} {B : A → UU l2} {x y : A}
-  (p : Id x y) → (map-equiv (equiv-eq (ap B p))) ~ tr B p
-tr-equiv-eq-ap refl = refl-htpy
-
--- Exercise 17.2
-
--- Exercise 17.2 (a)
+-- Exercise 17.1 (a)
 
 UU-Contr : (l : Level) → UU (lsuc l)
 UU-Contr l = total-subuniverse is-contr-Prop
@@ -1678,7 +1676,7 @@ abstract
   is-contr-UU-Contr : (l : Level) → is-contr (UU-Contr l)
   is-contr-UU-Contr l = pair (center-UU-contr l) contraction-UU-contr
 
--- Exercise 17.2 (b)
+-- Exercise 17.1 (b)
 
 UU-Trunc : (k : 𝕋) (l : Level) → UU (lsuc l)
 UU-Trunc k l = Σ (UU l) (is-trunc k)
@@ -1757,6 +1755,7 @@ triangle-ev-true :
   (ev-true) ~ (pr1 ∘ (ev-true-false A))
 triangle-ev-true A = refl-htpy
 
+{-
 aut-bool-bool :
   bool → (bool ≃ bool)
 aut-bool-bool true = equiv-id
@@ -1796,6 +1795,7 @@ eq-false-equiv' e p (inr x) =
           ( is-contr-map-is-equiv (is-equiv-map-equiv e) true)
           ( pair true p)
           ( pair false (eq-true (map-equiv e false) x)))))
+-}
 
 -- Exercise 17.3
 
