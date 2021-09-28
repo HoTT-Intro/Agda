@@ -436,6 +436,15 @@ is-set-quotient l R B f H =
   (X : UU-Set l) →
   is-equiv (precomp-map-universal-property-set-quotient R {B} f H X)
 
+universal-property-set-quotient :
+  {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
+  (f : A → type-Set B) (H : identifies-Eq-Rel R f) →
+  ({l : Level} → is-set-quotient l R B f H) → {l : Level} (X : UU-Set l)
+  (u : Σ (A → type-Set X) (identifies-Eq-Rel R)) →
+  is-contr (fib (precomp-map-universal-property-set-quotient R {B} f H X) u)
+universal-property-set-quotient R B f H Q X u =
+  is-contr-map-is-equiv (Q X) u
+
 -- Remark 18.2.2
 
 -- Theorem 18.2.3
@@ -633,6 +642,18 @@ module _
           ( ap pr1 (issec-map-inv-is-equiv (Q (pair (im q) ε)) (pair α δ)))
     θ : ((β ∘ ζ) ∘ q) ~ q
     θ = (β ·l η) ∙h γ
+    ι : fib ( precomp-map-universal-property-set-quotient R {B} q H B)
+            ( pair q H)
+    ι = pair ( id)
+             ( eq-subtype
+               ( λ h →
+                 is-prop-Π
+                   ( λ x →
+                     is-prop-Π
+                       ( λ y →
+                         is-prop-function-type
+                           ( is-set-type-Set B (h x) (h y)))))
+               ( refl))
 
 --------------------------------------------------------------------------------
 
