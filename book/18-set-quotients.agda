@@ -434,9 +434,9 @@ is-prop-identifies-Eq-Rel R B f =
 
 precomp-map-universal-property-set-quotient :
   {l l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A)
-  {B : UU-Set l3} (f : A → type-Set B) (H : identifies-Eq-Rel R f) →
+  (B : UU-Set l3) (f : A → type-Set B) (H : identifies-Eq-Rel R f) →
   (X : UU-Set l) → (type-hom-Set B X) → Σ (A → type-Set X) (identifies-Eq-Rel R)
-precomp-map-universal-property-set-quotient R f H X g =
+precomp-map-universal-property-set-quotient R B f H X g =
   pair (g ∘ f) (λ x y r → ap g (H x y r))
 
 is-set-quotient :
@@ -444,16 +444,17 @@ is-set-quotient :
   (B : UU-Set l3) (f : A → type-Set B) (H : identifies-Eq-Rel R f) → UU _
 is-set-quotient l R B f H =
   (X : UU-Set l) →
-  is-equiv (precomp-map-universal-property-set-quotient R {B} f H X)
+  is-equiv (precomp-map-universal-property-set-quotient R B f H X)
 
 universal-property-set-quotient :
   {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
   (f : A → type-Set B) (H : identifies-Eq-Rel R f) →
   ({l : Level} → is-set-quotient l R B f H) → {l : Level} (X : UU-Set l)
-  (u : Σ (A → type-Set X) (identifies-Eq-Rel R)) →
-  is-contr (fib (precomp-map-universal-property-set-quotient R {B} f H X) u)
-universal-property-set-quotient R B f H Q X u =
-  is-contr-map-is-equiv (Q X) u
+  (g : A → type-Set X) (G : identifies-Eq-Rel R g) →
+  is-contr
+    ( fib (precomp-map-universal-property-set-quotient R B f H X) (pair g G))
+universal-property-set-quotient R B f H Q X g G =
+  is-contr-map-is-equiv (Q X) (pair g G)
 
 -- Remark 18.2.2
 
@@ -635,7 +636,7 @@ module _
        ( htpy-eq
          ( ap pr1
            ( eq-is-contr
-             ( universal-property-set-quotient R B q H Q B (pair q H))
+             ( universal-property-set-quotient R B q H Q B q H)
              { pair ( inclusion-im q ∘ β)
                     ( eq-subtype (is-prop-identifies-Eq-Rel R B) (eq-htpy δ))}
              { pair id (eq-subtype (is-prop-identifies-Eq-Rel R B) refl)}))
@@ -659,6 +660,35 @@ module _
               ( pair (map-im q) α)))
     δ : ((inclusion-im q ∘ β) ∘ q) ~ q
     δ = (inclusion-im q ·l γ) ∙h (triangle-im q)
+
+  -- Theorem 18.2.3 (ii) implies (i)
+
+  identifies-Eq-Rel-is-surjective-and-effective :
+    is-surjective-and-effective R B q → identifies-Eq-Rel R q
+  identifies-Eq-Rel-is-surjective-and-effective E x y =
+    map-inv-equiv (pr2 E x y)
+
+  universal-property-set-quotient-is-surjective-and-effective :
+    {l : Level} (E : is-surjective-and-effective R B q) (X : UU-Set l) →
+    is-contr-map
+      ( precomp-map-universal-property-set-quotient R B q
+        ( identifies-Eq-Rel-is-surjective-and-effective E)
+        ( X))
+  universal-property-set-quotient-is-surjective-and-effective E X (pair g G) =
+    is-proof-irrelevant-is-prop
+      ( is-prop-equiv
+        ( fib (precomp q (type-Set X)) g)
+        ( equiv-tot
+          ( λ h → equiv-ap-pr1-is-subtype (is-prop-identifies-Eq-Rel R X)))
+        ( is-prop-map-is-emb (is-emb-precomp-is-surjective (pr1 E) X) g))
+      {!!}
+
+  is-set-quotient-is-surjective-and-effective :
+    {l : Level} (E : is-surjective-and-effective R B q) →
+    is-set-quotient l R B q (identifies-Eq-Rel-is-surjective-and-effective E)
+  is-set-quotient-is-surjective-and-effective E X =
+    is-equiv-is-contr-map
+      ( universal-property-set-quotient-is-surjective-and-effective E X)
 
 --------------------------------------------------------------------------------
 
@@ -765,6 +795,7 @@ map-trunc-Set :
 map-trunc-Set {A = A} {B} f x =
   apply-universal-property-trunc-Set x (trunc-Set B) (unit-trunc-Set ∘ f)
 
+{-
 id-map-trunc-Set :
   {l1 : Level} (A : UU l1) → map-trunc-Set (id {A = A}) ~ id
 id-map-trunc-Set A x =
@@ -778,3 +809,4 @@ is-equiv-map-trunc-Set {A = A} {B} {f} H =
     {! !}
     {!!}
     {!!}
+-}
