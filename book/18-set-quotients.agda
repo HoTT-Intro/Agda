@@ -422,6 +422,16 @@ identifies-Eq-Rel :
 identifies-Eq-Rel {A = A} R f =
   (x y : A) → type-Eq-Rel R x y → Id (f x) (f y)
 
+is-prop-identifies-Eq-Rel :
+  {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
+  (f : A → type-Set B) → is-prop (identifies-Eq-Rel R f)
+is-prop-identifies-Eq-Rel R B f =
+  is-prop-Π
+    ( λ x →
+      is-prop-Π
+        ( λ y →
+          is-prop-function-type (is-set-type-Set B (f x) (f y))))
+
 precomp-map-universal-property-set-quotient :
   {l l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A)
   {B : UU-Set l3} (f : A → type-Set B) (H : identifies-Eq-Rel R f) →
@@ -626,8 +636,9 @@ module _
          ( ap pr1
            ( eq-is-contr
              ( universal-property-set-quotient R B q H Q B (pair q H))
-             { pair (inclusion-im q ∘ β) (eq-subtype ε (eq-htpy δ))}
-             { pair id (eq-subtype ε refl)}))
+             { pair ( inclusion-im q ∘ β)
+                    ( eq-subtype (is-prop-identifies-Eq-Rel R B) (eq-htpy δ))}
+             { pair id (eq-subtype (is-prop-identifies-Eq-Rel R B) refl)}))
          ( b))
        ( pr2 (β b))
     where
@@ -648,13 +659,6 @@ module _
               ( pair (map-im q) α)))
     δ : ((inclusion-im q ∘ β) ∘ q) ~ q
     δ = (inclusion-im q ·l γ) ∙h (triangle-im q)
-    ε : is-subtype (identifies-Eq-Rel R)
-    ε h = is-prop-Π
-            ( λ x →
-              is-prop-Π
-                ( λ y →
-                  is-prop-function-type
-                    ( is-set-type-Set B (h x) (h y))))
 
 --------------------------------------------------------------------------------
 
