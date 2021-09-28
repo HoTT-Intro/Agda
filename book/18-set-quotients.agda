@@ -620,40 +620,41 @@ module _
   is-surjective-is-set-quotient :
     (H : identifies-Eq-Rel R q) → ({l : Level} → is-set-quotient l R B q H) →
     is-surjective q
-  is-surjective-is-set-quotient H Q b = {!!}
+  is-surjective-is-set-quotient H Q b =
+    tr ( λ y → type-trunc-Prop (fib q y))
+       ( htpy-eq
+         ( ap pr1
+           ( eq-is-contr
+             ( universal-property-set-quotient R B q H Q B (pair q H))
+             { pair (inclusion-im q ∘ β) (eq-subtype ε (eq-htpy δ))}
+             { pair id (eq-subtype ε refl)}))
+         ( b))
+       ( pr2 (β b))
     where
-    α : A → im q
-    α = map-im q
-    β : im q → type-Set B
-    β = inclusion-im q
-    γ : q ~ (β ∘ α)
-    γ = triangle-im q
-    δ : identifies-Eq-Rel R α
-    δ x y r =
+    α : identifies-Eq-Rel R (map-im q)
+    α x y r =
       is-injective-is-emb
         ( is-emb-inclusion-im q)
-        ( map-equiv (convert-eq-values-htpy γ x y) (H x y r))
-    ε : is-set (im q)
-    ε = is-set-im q (is-set-type-Set B)
-    ζ : type-Set B → im q
-    ζ = map-inv-is-equiv (Q (pair (im q) ε)) (pair α δ)
-    η : (ζ ∘ q) ~ α
-    η = htpy-eq
-          ( ap pr1 (issec-map-inv-is-equiv (Q (pair (im q) ε)) (pair α δ)))
-    θ : ((β ∘ ζ) ∘ q) ~ q
-    θ = (β ·l η) ∙h γ
-    ι : fib ( precomp-map-universal-property-set-quotient R {B} q H B)
-            ( pair q H)
-    ι = pair ( id)
-             ( eq-subtype
-               ( λ h →
-                 is-prop-Π
-                   ( λ x →
-                     is-prop-Π
-                       ( λ y →
-                         is-prop-function-type
-                           ( is-set-type-Set B (h x) (h y)))))
-               ( refl))
+        ( map-equiv (convert-eq-values-htpy (triangle-im q) x y) (H x y r))
+    β : type-Set B → im q
+    β = map-inv-is-equiv
+          ( Q ( pair (im q) (is-set-im q (is-set-type-Set B))))
+          ( pair (map-im q) α)
+    γ : (β ∘ q) ~ map-im q
+    γ = htpy-eq
+          ( ap pr1
+            ( issec-map-inv-is-equiv
+              ( Q (pair (im q) (is-set-im q (is-set-type-Set B))))
+              ( pair (map-im q) α)))
+    δ : ((inclusion-im q ∘ β) ∘ q) ~ q
+    δ = (inclusion-im q ·l γ) ∙h (triangle-im q)
+    ε : is-subtype (identifies-Eq-Rel R)
+    ε h = is-prop-Π
+            ( λ x →
+              is-prop-Π
+                ( λ y →
+                  is-prop-function-type
+                    ( is-set-type-Set B (h x) (h y))))
 
 --------------------------------------------------------------------------------
 
