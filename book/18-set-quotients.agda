@@ -674,14 +674,60 @@ module _
       ( precomp-map-universal-property-set-quotient R B q
         ( identifies-Eq-Rel-is-surjective-and-effective E)
         ( X))
-  universal-property-set-quotient-is-surjective-and-effective E X (pair g G) =
+  universal-property-set-quotient-is-surjective-and-effective
+    {l} E X (pair g G) =
     is-proof-irrelevant-is-prop
       ( is-prop-equiv
         ( fib (precomp q (type-Set X)) g)
         ( equiv-tot
           ( λ h → equiv-ap-pr1-is-subtype (is-prop-identifies-Eq-Rel R X)))
         ( is-prop-map-is-emb (is-emb-precomp-is-surjective (pr1 E) X) g))
-      {!!}
+      ( pair
+        ( λ b → pr1 (α b))
+        ( eq-subtype
+          ( is-prop-identifies-Eq-Rel R X)
+          ( eq-htpy (λ a → ap pr1 (β a)))))
+    where
+    P-Prop : (b : type-Set B) (x : type-Set X) → UU-Prop (l1 ⊔ l3 ⊔ l)
+    P-Prop b x = ∃-Prop (λ a → (Id (g a) x) × (Id (q a) b))
+    P : (b : type-Set B) (x : type-Set X) → UU (l1 ⊔ l3 ⊔ l)
+    P b x = type-Prop (P-Prop b x)
+    Q' : (b : type-Set B) → all-elements-equal (Σ (type-Set X) (P b))
+    Q' b x y =
+      eq-subtype
+        ( λ x → is-prop-type-Prop (P-Prop b x))
+        ( apply-universal-property-trunc-Prop
+          ( pr2 x)
+          ( Id-Prop X (pr1 x) (pr1 y))
+          ( λ u →
+            apply-universal-property-trunc-Prop
+              ( pr2 y)
+              ( Id-Prop X (pr1 x) (pr1 y))
+              ( λ v →
+                ( inv (pr1 (pr2 u))) ∙
+                ( ( G ( pr1 u)
+                      ( pr1 v)
+                      ( map-equiv
+                        ( pr2 E (pr1 u) (pr1 v))
+                        ( (pr2 (pr2 u)) ∙ (inv (pr2 (pr2 v)))))) ∙
+                  ( pr1 (pr2 v))))))
+    Q : (b : type-Set B) → is-prop (Σ (type-Set X) (P b))
+    Q b = is-prop-all-elements-equal (Q' b)
+    α : (b : type-Set B) → Σ (type-Set X) (P b)
+    α =
+      map-inv-is-equiv
+        ( dependent-universal-property-surj-is-surjective q
+          ( pr1 E)
+          ( λ b → pair (Σ (type-Set X) (P b)) (Q b)))
+        ( λ a → pair (g a) (unit-trunc-Prop (pair a (pair refl refl))))
+    β : (a : A) →
+        Id (α (q a)) (pair (g a) (unit-trunc-Prop (pair a (pair refl refl))))
+    β = htpy-eq
+          ( issec-map-inv-is-equiv
+            ( dependent-universal-property-surj-is-surjective q
+              ( pr1 E)
+              ( λ b → pair (Σ (type-Set X) (P b)) (Q b)))
+            ( λ a → pair (g a) (unit-trunc-Prop (pair a (pair refl refl)))))
 
   is-set-quotient-is-surjective-and-effective :
     {l : Level} (E : is-surjective-and-effective R B q) →
