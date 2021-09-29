@@ -398,14 +398,14 @@ eq-effective-quotient' R a q =
 -- Corollary 18.1.4
 
 is-effective :
-  {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
-  (f : A → type-Set B) → UU (l1 ⊔ l2 ⊔ l3)
-is-effective {A = A} R B f =
+  {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) {B : UU l3}
+  (f : A → B) → UU (l1 ⊔ l2 ⊔ l3)
+is-effective {A = A} R f =
   (x y : A) → (Id (f x) (f y) ≃ type-Eq-Rel R x y)
 
 is-effective-map-set-quotient :
   {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) →
-  is-effective R (quotient-Set R) (map-set-quotient R)
+  is-effective R (map-set-quotient R)
 is-effective-map-set-quotient R x y =
   ( equiv-symm-Eq-Rel R y x) ∘e
   ( effective-quotient' R x (map-set-quotient R y))
@@ -463,10 +463,10 @@ universal-property-set-quotient R B f H Q X g G =
 -- Theorem 18.2.3 Condition (ii)
 
 is-surjective-and-effective :
-  {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
-  (f : A → type-Set B) → UU (l1 ⊔ l2 ⊔ l3)
-is-surjective-and-effective {A = A} R B f =
-  is-surjective f × is-effective R B f
+  {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) {B : UU l3}
+  (f : A → B) → UU (l1 ⊔ l2 ⊔ l3)
+is-surjective-and-effective {A = A} R f =
+  is-surjective f × is-effective R f
 
 module _
   {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
@@ -479,7 +479,7 @@ module _
     (i : type-Set B ↪ (A → UU-Prop l2)) →
     (T : (prop-Eq-Rel R) ~ ((map-emb i) ∘ q)) →
     ({l : Level} → universal-property-image l (prop-Eq-Rel R) i (pair q T)) →
-    is-effective R B q
+    is-effective R q
   is-effective-is-image i T H x y =
     ( is-effective-map-set-quotient R x y) ∘e
     ( ( inv-equiv (equiv-ap-emb (emb-im (prop-Eq-Rel R)))) ∘e
@@ -490,7 +490,7 @@ module _
     (i : type-Set B ↪ (A → UU-Prop l2)) → 
     (T : (prop-Eq-Rel R) ~ ((map-emb i) ∘ q)) →
     ({l : Level} → universal-property-image l (prop-Eq-Rel R) i (pair q T)) →
-    is-surjective-and-effective R B q
+    is-surjective-and-effective R q
   is-surjective-and-effective-is-image i T H =
     pair
       ( is-surjective-universal-property-image (prop-Eq-Rel R) i (pair q T) H)
@@ -499,7 +499,7 @@ module _
   -- Theorem 18.2.3 (ii) implies (iii)
 
   is-locally-small-is-surjective-and-effective :
-    is-surjective-and-effective R B q → is-locally-small l2 (type-Set B)
+    is-surjective-and-effective R q → is-locally-small l2 (type-Set B)
   is-locally-small-is-surjective-and-effective e x y =
     apply-universal-property-trunc-Prop
       ( pr1 e x)
@@ -515,11 +515,11 @@ module _
       pair (type-Eq-Rel R a b) (pr2 e a b)
 
   large-map-emb-is-surjective-and-effective :
-    is-surjective-and-effective R B q → type-Set B → A → UU-Prop l3
+    is-surjective-and-effective R q → type-Set B → A → UU-Prop l3
   large-map-emb-is-surjective-and-effective H b a = Id-Prop B b (q a)
 
   small-map-emb-is-surjective-and-effective :
-    is-surjective-and-effective R B q → type-Set B → A →
+    is-surjective-and-effective R q → type-Set B → A →
     Σ (UU-Prop l3) (λ P → is-small l2 (type-Prop P))
   small-map-emb-is-surjective-and-effective H b a =
     pair ( large-map-emb-is-surjective-and-effective H b a)
@@ -527,7 +527,7 @@ module _
 
   abstract
     map-emb-is-surjective-and-effective :
-      is-surjective-and-effective R B q → type-Set B → A → UU-Prop l2
+      is-surjective-and-effective R q → type-Set B → A → UU-Prop l2
     map-emb-is-surjective-and-effective H b a =
       pair ( pr1 (pr2 (small-map-emb-is-surjective-and-effective H b a)))
            ( is-prop-equiv'
@@ -537,14 +537,14 @@ module _
                ( large-map-emb-is-surjective-and-effective H b a)))
   
     compute-map-emb-is-surjective-and-effective :
-      (H : is-surjective-and-effective R B q) (b : type-Set B) (a : A) →
+      (H : is-surjective-and-effective R q) (b : type-Set B) (a : A) →
       type-Prop (large-map-emb-is-surjective-and-effective H b a) ≃
       type-Prop (map-emb-is-surjective-and-effective H b a) 
     compute-map-emb-is-surjective-and-effective H b a =
       pr2 (pr2 (small-map-emb-is-surjective-and-effective H b a))
   
     triangle-emb-is-surjective-and-effective :
-      (H : is-surjective-and-effective R B q) →
+      (H : is-surjective-and-effective R q) →
       prop-Eq-Rel R ~ (map-emb-is-surjective-and-effective H ∘ q)
     triangle-emb-is-surjective-and-effective H a =
       eq-htpy
@@ -554,7 +554,7 @@ module _
               ( inv-equiv (pr2 H a x))))
   
     is-emb-map-emb-is-surjective-and-effective :
-      (H : is-surjective-and-effective R B q) →
+      (H : is-surjective-and-effective R q) →
       is-emb (map-emb-is-surjective-and-effective H)
     is-emb-map-emb-is-surjective-and-effective H =
       is-emb-is-injective
@@ -581,7 +581,7 @@ module _
           ( refl)
 
   emb-is-surjective-and-effective :
-    (H : is-surjective-and-effective R B q) →
+    (H : is-surjective-and-effective R q) →
     type-Set B ↪ (A → UU-Prop l2)
   emb-is-surjective-and-effective H =
     pair ( map-emb-is-surjective-and-effective H)
@@ -589,7 +589,7 @@ module _
 
   abstract
     is-emb-large-map-emb-is-surjective-and-effective :
-      (e : is-surjective-and-effective R B q) →
+      (e : is-surjective-and-effective R q) →
       is-emb (large-map-emb-is-surjective-and-effective e)
     is-emb-large-map-emb-is-surjective-and-effective e =
       is-emb-is-injective
@@ -607,13 +607,13 @@ module _
       α p (pair a refl) = map-inv-equiv (equiv-eq (ap pr1 (htpy-eq p a))) refl
   
   large-emb-is-surjective-and-effective :
-    is-surjective-and-effective R B q → type-Set B ↪ (A → UU-Prop l3)
+    is-surjective-and-effective R q → type-Set B ↪ (A → UU-Prop l3)
   large-emb-is-surjective-and-effective e =
     pair ( large-map-emb-is-surjective-and-effective e)
          ( is-emb-large-map-emb-is-surjective-and-effective e)
 
   is-image-is-surjective-and-effective :
-    (H : is-surjective-and-effective R B q) →
+    (H : is-surjective-and-effective R q) →
     ( {l : Level} →
       universal-property-image l
         ( prop-Eq-Rel R)
@@ -661,27 +661,84 @@ module _
     δ : ((inclusion-im q ∘ β) ∘ q) ~ q
     δ = (inclusion-im q ·l γ) ∙h (triangle-im q)
 
+  is-effective-is-set-quotient :
+    (H : identifies-Eq-Rel R q) → ({l : Level} → is-set-quotient l R B q H) →
+    is-effective R q
+  is-effective-is-set-quotient H Q x y =
+    inv-equiv (compute-P y) ∘e δ (q y)
+    where
+    α : Σ (A → UU-Prop l2) (identifies-Eq-Rel R)
+    α = pair
+          ( prop-Eq-Rel R x)
+          ( λ y z r →
+            eq-iff
+              ( λ s → trans-Eq-Rel R s r)
+              ( λ s → trans-Eq-Rel R s (symm-Eq-Rel R r)))
+    P : type-Set B → UU-Prop l2
+    P = map-inv-is-equiv (Q (UU-Prop-Set l2)) α
+    compute-P : (a : A) → type-Eq-Rel R x a ≃ type-Prop (P (q a))
+    compute-P a =
+      equiv-eq
+        ( ap pr1
+          ( htpy-eq
+            ( ap pr1
+              ( inv (issec-map-inv-is-equiv (Q (UU-Prop-Set l2)) α)))
+            ( a)))
+    point-P : type-Prop (P (q x))
+    point-P = map-equiv (compute-P x) (refl-Eq-Rel R)
+    center-total-P : Σ (type-Set B) (λ b → type-Prop (P b))
+    center-total-P = pair (q x) point-P
+    contraction-total-P :
+      (u : Σ (type-Set B) (λ b → type-Prop (P b))) → Id center-total-P u
+    contraction-total-P (pair b p) =
+      eq-subtype
+        ( λ z → is-prop-type-Prop (P z))
+        ( apply-universal-property-trunc-Prop
+          ( is-surjective-is-set-quotient H Q b)
+          ( Id-Prop B (q x) b)
+          ( λ v →
+            ( H ( x)
+                ( pr1 v)
+                ( map-inv-equiv
+                  ( compute-P (pr1 v))
+                  ( inv-tr (λ b → type-Prop (P b)) (pr2 v) p))) ∙
+            ( pr2 v)))
+    is-contr-total-P : is-contr (Σ (type-Set B) (λ b → type-Prop (P b)))
+    is-contr-total-P = pair center-total-P contraction-total-P
+    β : (b : type-Set B) → Id (q x) b → type-Prop (P b)
+    β .(q x) refl = point-P
+    γ : (b : type-Set B) → is-equiv (β b)
+    γ = fundamental-theorem-id (q x) point-P is-contr-total-P β
+    δ : (b : type-Set B) → Id (q x) b ≃ type-Prop (P b)
+    δ b = pair (β b) (γ b)
+
+  is-surjective-and-effective-is-set-quotient :
+    (H : identifies-Eq-Rel R q) → ({l : Level} → is-set-quotient l R B q H) →
+    is-surjective-and-effective R q
+  is-surjective-and-effective-is-set-quotient H Q =
+    pair (is-surjective-is-set-quotient H Q) (is-effective-is-set-quotient H Q)
+
   -- Theorem 18.2.3 (ii) implies (i)
 
   identifies-Eq-Rel-is-surjective-and-effective :
-    is-surjective-and-effective R B q → identifies-Eq-Rel R q
+    is-surjective-and-effective R q → identifies-Eq-Rel R q
   identifies-Eq-Rel-is-surjective-and-effective E x y =
     map-inv-equiv (pr2 E x y)
 
   universal-property-set-quotient-is-surjective-and-effective :
-    {l : Level} (E : is-surjective-and-effective R B q) (X : UU-Set l) →
+    {l : Level} (E : is-surjective-and-effective R q) (X : UU-Set l) →
     is-contr-map
       ( precomp-map-universal-property-set-quotient R B q
         ( identifies-Eq-Rel-is-surjective-and-effective E)
         ( X))
   universal-property-set-quotient-is-surjective-and-effective
-    {l} E X (pair g G) =
+    {l} E X (pair f H) =
     is-proof-irrelevant-is-prop
       ( is-prop-equiv
-        ( fib (precomp q (type-Set X)) g)
+        ( fib (precomp q (type-Set X)) f)
         ( equiv-tot
           ( λ h → equiv-ap-pr1-is-subtype (is-prop-identifies-Eq-Rel R X)))
-        ( is-prop-map-is-emb (is-emb-precomp-is-surjective (pr1 E) X) g))
+        ( is-prop-map-is-emb (is-emb-precomp-is-surjective (pr1 E) X) f))
       ( pair
         ( λ b → pr1 (α b))
         ( eq-subtype
@@ -689,7 +746,7 @@ module _
           ( eq-htpy (λ a → ap pr1 (β a)))))
     where
     P-Prop : (b : type-Set B) (x : type-Set X) → UU-Prop (l1 ⊔ l3 ⊔ l)
-    P-Prop b x = ∃-Prop (λ a → (Id (g a) x) × (Id (q a) b))
+    P-Prop b x = ∃-Prop (λ a → (Id (f a) x) × (Id (q a) b))
     P : (b : type-Set B) (x : type-Set X) → UU (l1 ⊔ l3 ⊔ l)
     P b x = type-Prop (P-Prop b x)
     Q' : (b : type-Set B) → all-elements-equal (Σ (type-Set X) (P b))
@@ -705,7 +762,7 @@ module _
               ( Id-Prop X (pr1 x) (pr1 y))
               ( λ v →
                 ( inv (pr1 (pr2 u))) ∙
-                ( ( G ( pr1 u)
+                ( ( H ( pr1 u)
                       ( pr1 v)
                       ( map-equiv
                         ( pr2 E (pr1 u) (pr1 v))
@@ -719,18 +776,18 @@ module _
         ( dependent-universal-property-surj-is-surjective q
           ( pr1 E)
           ( λ b → pair (Σ (type-Set X) (P b)) (Q b)))
-        ( λ a → pair (g a) (unit-trunc-Prop (pair a (pair refl refl))))
+        ( λ a → pair (f a) (unit-trunc-Prop (pair a (pair refl refl))))
     β : (a : A) →
-        Id (α (q a)) (pair (g a) (unit-trunc-Prop (pair a (pair refl refl))))
+        Id (α (q a)) (pair (f a) (unit-trunc-Prop (pair a (pair refl refl))))
     β = htpy-eq
           ( issec-map-inv-is-equiv
             ( dependent-universal-property-surj-is-surjective q
               ( pr1 E)
               ( λ b → pair (Σ (type-Set X) (P b)) (Q b)))
-            ( λ a → pair (g a) (unit-trunc-Prop (pair a (pair refl refl)))))
+            ( λ a → pair (f a) (unit-trunc-Prop (pair a (pair refl refl)))))
 
   is-set-quotient-is-surjective-and-effective :
-    {l : Level} (E : is-surjective-and-effective R B q) →
+    {l : Level} (E : is-surjective-and-effective R q) →
     is-set-quotient l R B q (identifies-Eq-Rel-is-surjective-and-effective E)
   is-set-quotient-is-surjective-and-effective E X =
     is-equiv-is-contr-map
