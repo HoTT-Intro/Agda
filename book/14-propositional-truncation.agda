@@ -881,29 +881,29 @@ is-fixed-point-is-decidable-is-inhabited {l} {X} t =
 
 -- Exercise 14.3
 
-merely-Id-Prop :
+mere-eq-Prop :
   {l : Level} {A : UU l} → A → A → UU-Prop l
-merely-Id-Prop x y = trunc-Prop (Id x y)
+mere-eq-Prop x y = trunc-Prop (Id x y)
 
-merely-Id : {l : Level} {A : UU l} → A → A → UU l
-merely-Id x y = type-trunc-Prop (Id x y)
+mere-eq : {l : Level} {A : UU l} → A → A → UU l
+mere-eq x y = type-trunc-Prop (Id x y)
 
-refl-merely-Id :
-  {l : Level} {A : UU l} (x : A) → merely-Id x x
-refl-merely-Id x = unit-trunc-Prop refl
+refl-mere-eq :
+  {l : Level} {A : UU l} {x : A} → mere-eq x x
+refl-mere-eq = unit-trunc-Prop refl
 
-symmetric-merely-Id :
-  {l : Level} {A : UU l} {x y : A} → merely-Id x y → merely-Id y x
-symmetric-merely-Id {x = x} {y} =
+symm-mere-eq :
+  {l : Level} {A : UU l} {x y : A} → mere-eq x y → mere-eq y x
+symm-mere-eq {x = x} {y} =
   functor-trunc-Prop inv
 
-transitive-merely-Id :
+trans-mere-eq :
   {l : Level} {A : UU l} {x y z : A} →
-  merely-Id y z → merely-Id x y → merely-Id x z
-transitive-merely-Id {x = x} {y} {z} p =
+  mere-eq x y → mere-eq y z → mere-eq x z
+trans-mere-eq {x = x} {y} {z} p q =
   apply-universal-property-trunc-Prop p
-    ( hom-Prop (merely-Id-Prop x y) (merely-Id-Prop x z))
-    ( λ q → functor-trunc-Prop (λ p → p ∙ q))
+    ( mere-eq-Prop x z)
+    ( λ p' → functor-trunc-Prop (λ q' → p' ∙ q') q)
 
 -- Exercise 14.4
 

@@ -869,6 +869,14 @@ dependent-universal-property-set-truncation l {A} B f =
   (X : type-Set B → UU-Set l) →
   is-equiv (λ (h : (b : type-Set B) → type-Set (X b)) (a : A) → h (f a))
 
+-- Theorem 18.5.2 Condition (iii)
+
+mere-eq-Eq-Rel : {l1 : Level} (A : UU l1) → Eq-Rel l1 A
+mere-eq-Eq-Rel A =
+  pair
+    mere-eq-Prop
+    ( pair refl-mere-eq (pair symm-mere-eq trans-mere-eq))
+
 -- Theorem 18.5.2 (i) implies (ii)
   
 dependent-universal-property-is-set-truncation :
@@ -887,6 +895,27 @@ dependent-universal-property-is-set-truncation {A = A} B f H X =
       ( ind-Σ (λ g s → refl))
       ( H (Σ-Set B X)))
     ( id)
+
+-- Theorem 18.5.2 (ii) implies (i)
+
+is-set-truncation-dependent-universal-property :
+  {l1 l2 l3 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B) →
+  ({l : Level} → dependent-universal-property-set-truncation l B f) →
+  is-set-truncation l3 B f
+is-set-truncation-dependent-universal-property B f H X =
+  H (λ b → X)
+
+-- Theorem 18.5.2 (iii) implies (i)
+
+identifies-Eq-Rel-map-into-Set :
+  {l1 l2 : Level} {A : UU l1} {X : UU-Set l2} (f : A → type-Set X) → 
+
+is-set-truncation-is-set-quotient :
+  {l1 l2 l3 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B) →
+  ({l : Level} → is-set-quotient l (mere-eq-Eq-Rel A) B f {!!}) →
+  is-set-truncation l3 B f
+is-set-truncation-is-set-quotient B f H X = {!!}
+  
 
 -- Definition 18.5.3
 
