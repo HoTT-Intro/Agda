@@ -1196,12 +1196,12 @@ abstract
     is-set A → ((x : A) → is-set (B x)) → is-set (Σ A B)
   is-set-Σ = is-trunc-Σ zero-𝕋
 
-set-Σ :
+Σ-Set :
   {l1 l2 : Level} (A : UU-Set l1) (B : pr1 A → UU-Set l2) → UU-Set (l1 ⊔ l2)
-set-Σ (pair A is-set-A) B =
+Σ-Set A B =
   pair
-    ( Σ A (λ x → (pr1 (B x))))
-    ( is-set-Σ is-set-A (λ x → pr2 (B x)))
+    ( Σ (type-Set A) (λ x → (type-Set (B x))))
+    ( is-set-Σ (is-set-type-Set A) (λ x → is-set-type-Set (B x)))
 
 -- Exercise 12.5 (b)
 

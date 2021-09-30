@@ -799,7 +799,9 @@ module _
 
 --------------------------------------------------------------------------------
 
-{- Set truncations -}
+-- Section 18.5 Set truncations
+
+-- Definition 18.5.1
 
 is-set-truncation :
   ( l : Level) {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) →
@@ -807,12 +809,26 @@ is-set-truncation :
 is-set-truncation l B f =
   (C : UU-Set l) → is-equiv (precomp-Set f C)
 
+-- Bureaucracy
+
 universal-property-set-truncation :
   ( l : Level) {l1 l2 : Level} {A : UU l1}
   (B : UU-Set l2) (f : A → type-Set B) → UU (lsuc l ⊔ l1 ⊔ l2)
 universal-property-set-truncation l {A = A} B f =
   (C : UU-Set l) (g : A → type-Set C) →
   is-contr (Σ (type-hom-Set B C) (λ h → (h ∘ f) ~  g))
+
+is-set-truncation-universal-property :
+  (l : Level) {l1 l2 : Level} {A : UU l1}
+  (B : UU-Set l2) (f : A → type-Set B) →
+  universal-property-set-truncation l B f →
+  is-set-truncation l B f
+is-set-truncation-universal-property l B f up-f C =
+  is-equiv-is-contr-map
+    ( λ g → is-contr-equiv
+      ( Σ (type-hom-Set B C) (λ h → (h ∘ f) ~ g))
+      ( equiv-tot (λ h → equiv-funext))
+      ( up-f C g))
 
 universal-property-is-set-truncation :
   (l : Level) {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B) →
@@ -832,27 +848,49 @@ map-is-set-truncation B f is-settr-f C g =
     ( center
       ( universal-property-is-set-truncation _ B f is-settr-f C g))
 
-htpy-is-set-truncation :
+compute-map-is-set-truncation :
   {l1 l2 l3 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B) →
   (is-settr-f : {l : Level} → is-set-truncation l B f) →
   (C : UU-Set l3) (g : A → type-Set C) →
   ((map-is-set-truncation B f is-settr-f C g) ∘ f) ~ g
-htpy-is-set-truncation B f is-settr-f C g =
+compute-map-is-set-truncation B f is-settr-f C g =
   pr2
     ( center
       ( universal-property-is-set-truncation _ B f is-settr-f C g))
 
-is-set-truncation-universal-property :
-  (l : Level) {l1 l2 : Level} {A : UU l1}
-  (B : UU-Set l2) (f : A → type-Set B) →
-  universal-property-set-truncation l B f →
-  is-set-truncation l B f
-is-set-truncation-universal-property l B f up-f C =
-  is-equiv-is-contr-map
-    ( λ g → is-contr-equiv
-      ( Σ (type-hom-Set B C) (λ h → (h ∘ f) ~ g))
-      ( equiv-tot (λ h → equiv-funext))
-      ( up-f C g))
+-- Theorem 18.5.2
+
+-- Theorem 18.5.2 Condition (ii)
+
+dependent-universal-property-set-truncation :
+  {l1 l2 : Level} (l : Level) {A : UU l1} (B : UU-Set l2) (f : A → type-Set B) →
+  UU (l1 ⊔ l2 ⊔ lsuc l)
+dependent-universal-property-set-truncation l {A} B f =
+  (X : type-Set B → UU-Set l) →
+  is-equiv (λ (h : (b : type-Set B) → type-Set (X b)) (a : A) → h (f a))
+
+-- Theorem 18.5.2 (i) implies (ii)
+  
+dependent-universal-property-is-set-truncation :
+  {l1 l2 l3 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B) →
+  ({l : Level} → is-set-truncation l B f) →
+  dependent-universal-property-set-truncation l3 B f
+dependent-universal-property-is-set-truncation {A = A} B f H X =
+  is-fiberwise-equiv-is-equiv-map-Σ
+    ( λ (h : A → type-Set B) → (a : A) → type-Set (X (h a)))
+    ( λ (g : type-Set B → type-Set B) → g ∘ f)
+    ( λ g (s : (b : type-Set B) → type-Set (X (g b))) (a : A) → s (f a))
+    ( H B)
+    ( is-equiv-equiv
+      ( equiv-inv-choice-∞ (λ x y → type-Set (X y)))
+      ( equiv-inv-choice-∞ (λ x y → type-Set (X y)))
+      ( ind-Σ (λ g s → refl))
+      ( H (Σ-Set B X)))
+    ( id)
+
+-- Definition 18.5.3
+
+-- We postulate the existence of set truncations
 
 postulate type-trunc-Set : {l : Level} → UU l → UU l
 

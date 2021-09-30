@@ -1834,6 +1834,40 @@ abstract
 
 -- Bureaucracy
 
+is-equiv-equiv :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {X : UU l3} {Y : UU l4}
+  {f : A → B} {g : X → Y} (i : A ≃ X) (j : B ≃ Y)
+  (H : (map-equiv j ∘ f) ~ (g ∘ map-equiv i)) → is-equiv g → is-equiv f
+is-equiv-equiv {f = f} {g} i j H K =
+  is-equiv-right-factor'
+    ( map-equiv j)
+    ( f)
+    ( is-equiv-map-equiv j)
+    ( is-equiv-comp
+      ( map-equiv j ∘ f)
+      ( g)
+      ( map-equiv i)
+      ( H)
+      ( is-equiv-map-equiv i)
+      ( K))
+
+is-equiv-equiv' :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {X : UU l3} {Y : UU l4}
+  {f : A → B} {g : X → Y} (i : A ≃ X) (j : B ≃ Y)
+  (H : (map-equiv j ∘ f) ~ (g ∘ map-equiv i)) → is-equiv f → is-equiv g
+is-equiv-equiv' {f = f} {g} i j H K =
+  is-equiv-left-factor'
+    ( g)
+    ( map-equiv i)
+    ( is-equiv-comp
+      ( g ∘ map-equiv i)
+      ( map-equiv j)
+      ( f)
+      ( inv-htpy H)
+      ( K)
+      ( is-equiv-map-equiv j))
+    ( is-equiv-map-equiv i)
+
 equiv-is-empty :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} → is-empty A → is-empty B → A ≃ B
 equiv-is-empty f g =
