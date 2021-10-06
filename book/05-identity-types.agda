@@ -131,6 +131,14 @@ ap-mul-ℕ :
   {x y x' y' : ℕ} → Id x x' → Id y y' → Id (mul-ℕ x y) (mul-ℕ x' y')
 ap-mul-ℕ p q = ap-binary mul-ℕ p q
 
+ap-add-ℤ :
+  {x y x' y' : ℤ} → Id x x' → Id y y' → Id (add-ℤ x y) (add-ℤ x' y')
+ap-add-ℤ p q = ap-binary add-ℤ p q
+
+ap-mul-ℤ :
+  {x y x' y' : ℤ} → Id x x' → Id y y' → Id (mul-ℤ x y) (mul-ℤ x' y')
+ap-mul-ℤ p q = ap-binary mul-ℤ p q
+
 -- Definition 5.3.2
 
 ap-refl :
@@ -569,11 +577,33 @@ abstract
   right-inverse-law-add-ℤ x =
     ( commutative-add-ℤ x (neg-ℤ x)) ∙ (left-inverse-law-add-ℤ x)
 
--- Exercise 5.8
+issec-add-neg-ℤ :
+  (x y : ℤ) → Id (add-ℤ x (add-ℤ (neg-ℤ x) y)) y
+issec-add-neg-ℤ x y =
+  ( inv (associative-add-ℤ x (neg-ℤ x) y)) ∙
+  ( ap (add-ℤ' y) (right-inverse-law-add-ℤ x))
 
-ap-add-ℤ :
-  {a b a' b' : ℤ} → Id a a' → Id b b' → Id (add-ℤ a b) (add-ℤ a' b')
-ap-add-ℤ p q = ap-binary add-ℤ p q
+isretr-add-neg-ℤ :
+  (x y : ℤ) → Id (add-ℤ (neg-ℤ x) (add-ℤ x y)) y
+isretr-add-neg-ℤ x y =
+  ( inv (associative-add-ℤ (neg-ℤ x) x y)) ∙
+  ( ap (add-ℤ' y) (left-inverse-law-add-ℤ x))
+
+issec-add-neg-ℤ' :
+  (x y : ℤ) → Id (add-ℤ' x (add-ℤ' (neg-ℤ x) y)) y
+issec-add-neg-ℤ' x y =
+  ( associative-add-ℤ y (neg-ℤ x) x) ∙
+  ( ( ap (add-ℤ y) (left-inverse-law-add-ℤ x)) ∙
+    ( right-unit-law-add-ℤ y))
+
+isretr-add-neg-ℤ' :
+  (x y : ℤ) → Id (add-ℤ' (neg-ℤ x) (add-ℤ' x y)) y
+isretr-add-neg-ℤ' x y =
+  ( associative-add-ℤ y x (neg-ℤ x)) ∙
+  ( ( ap (add-ℤ y) (right-inverse-law-add-ℤ x)) ∙
+    ( right-unit-law-add-ℤ y))
+
+-- Exercise 5.8
 
 -- Exercise 5.8 (a)
 
@@ -841,6 +871,13 @@ left-distributive-mul-add-ℤ m k l =
   commutative-mul-ℤ m (add-ℤ k l) ∙
     ( ( right-distributive-mul-add-ℤ k l m) ∙
       ( ap-add-ℤ (commutative-mul-ℤ k m) (commutative-mul-ℤ l m)))
+
+right-negative-law-mul-ℤ :
+  (k l : ℤ) → Id (mul-ℤ k (neg-ℤ l)) (neg-ℤ (mul-ℤ k l))
+right-negative-law-mul-ℤ k l =
+  ( ( commutative-mul-ℤ k (neg-ℤ l)) ∙
+    ( left-negative-law-mul-ℤ l k)) ∙
+  ( ap neg-ℤ (commutative-mul-ℤ l k))
 
 --------------------------------------------------------------------------------
 

@@ -377,6 +377,22 @@ equiv-neg-Fin :
   {k : ℕ} → Fin k ≃ Fin k
 equiv-neg-Fin = pair neg-Fin is-equiv-neg-Fin
 
+-- Further examples
+
+is-equiv-nat-nonnegative-ℤ : is-equiv nat-nonnegative-ℤ
+is-equiv-nat-nonnegative-ℤ =
+  pair ( pair nonnegative-int-ℕ isretr-nat-nonnegative-ℤ)
+       ( pair nonnegative-int-ℕ issec-nat-nonnegative-ℤ)
+
+is-equiv-nonnegative-int-ℕ : is-equiv nonnegative-int-ℕ
+is-equiv-nonnegative-int-ℕ =
+  pair ( pair nat-nonnegative-ℤ issec-nat-nonnegative-ℤ)
+       ( pair nat-nonnegative-ℤ isretr-nat-nonnegative-ℤ)
+
+equiv-nonnegative-int-ℕ : ℕ ≃ nonnegative-ℤ
+equiv-nonnegative-int-ℕ =
+  pair nonnegative-int-ℕ is-equiv-nonnegative-int-ℕ
+
 -- Remark 9.2.6
 
 has-inverse :
@@ -2036,22 +2052,18 @@ equiv-swap-prod A B = pair (swap-prod A B) (is-equiv-swap-prod A B)
 -- Exercise 9.11
 
 abstract
-  is-equiv-add-ℤ-right :
+  is-equiv-add-ℤ :
     (x : ℤ) → is-equiv (add-ℤ x)
-  is-equiv-add-ℤ-right x =
+  is-equiv-add-ℤ x =
     is-equiv-has-inverse
       ( add-ℤ (neg-ℤ x))
-      ( λ y →
-        ( inv (associative-add-ℤ x (neg-ℤ x) y)) ∙
-        ( ap (λ t → add-ℤ t y) (right-inverse-law-add-ℤ x)))
-      ( λ y →
-        ( inv (associative-add-ℤ (neg-ℤ x) x y)) ∙
-        ( ap (λ t → add-ℤ t y) (left-inverse-law-add-ℤ x)))
+      ( issec-add-neg-ℤ x)
+      ( isretr-add-neg-ℤ x)
 
 abstract
-  is-equiv-add-ℤ-left :
-    (y : ℤ) → is-equiv (λ x → add-ℤ x y)
-  is-equiv-add-ℤ-left y =
+  is-equiv-add-ℤ' :
+    (y : ℤ) → is-equiv (add-ℤ' y)
+  is-equiv-add-ℤ' y =
     is-equiv-htpy (add-ℤ y)
       ( λ x → commutative-add-ℤ x y)
       ( is-equiv-add-ℤ-right y)

@@ -276,6 +276,54 @@ trans-Eq-Rel :
   is-transitive-Rel-Prop (prop-Eq-Rel R)
 trans-Eq-Rel R = pr2 (pr2 (is-equivalence-relation-prop-Eq-Rel R))
 
+-- Example
+
+ℕ\0 : UU lzero
+ℕ\0 = Σ ℕ is-nonzero-ℕ
+
+pre-ℚ : UU lzero
+pre-ℚ = ℤ × ℕ\0
+
+numerator-pre-ℚ : pre-ℚ → ℤ
+numerator-pre-ℚ x = pr1 x
+
+denominator-pre-ℚ : pre-ℚ → ℕ
+denominator-pre-ℚ x = pr1 (pr2 x)
+
+is-nonzero-denominator-pre-ℚ : (x : pre-ℚ) → is-nonzero-ℕ (denominator-pre-ℚ x)
+is-nonzero-denominator-pre-ℚ x = pr2 (pr2 x)
+
+sim-pre-ℚ-Prop : pre-ℚ → pre-ℚ → UU-Prop lzero
+sim-pre-ℚ-Prop x y =
+  Id-Prop ℤ-Set
+    (mul-ℤ (numerator-pre-ℚ x) (int-ℕ (denominator-pre-ℚ y)))
+    (mul-ℤ (numerator-pre-ℚ y) (int-ℕ (denominator-pre-ℚ x)))
+
+sim-pre-ℚ : pre-ℚ → pre-ℚ → UU lzero
+sim-pre-ℚ x y = type-Prop (sim-pre-ℚ-Prop x y)
+
+is-prop-sim-pre-ℚ : (x y : pre-ℚ) → is-prop (sim-pre-ℚ x y)
+is-prop-sim-pre-ℚ x y = is-prop-type-Prop (sim-pre-ℚ-Prop x y)
+
+refl-sim-pre-ℚ : (x : pre-ℚ) → sim-pre-ℚ x x
+refl-sim-pre-ℚ x = refl
+
+symm-sim-pre-ℚ : {x y : pre-ℚ} → sim-pre-ℚ x y → sim-pre-ℚ y x
+symm-sim-pre-ℚ r = inv r
+
+trans-sim-pre-ℚ :
+  {x y z : pre-ℚ} → sim-pre-ℚ x y → sim-pre-ℚ y z → sim-pre-ℚ x z
+trans-sim-pre-ℚ {x} {y} {z} r s = {!is-injective-mul-ℕ (denominator-pre-ℚ y) (is-nonzero-denominator-pre-ℚ y) ?!}
+
+{-
+
+r : xm = yn
+s : yk = zm
+xk=zn by
+xkm = xmk = ynk = ykn = zmn = znm
+
+-}
+
 -- Definition 18.1.2
 
 class-Eq-Rel :
