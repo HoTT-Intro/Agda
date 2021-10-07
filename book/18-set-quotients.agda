@@ -290,8 +290,18 @@ numerator-pre-ℚ x = pr1 x
 denominator-pre-ℚ : pre-ℚ → ℕ
 denominator-pre-ℚ x = pr1 (pr2 x)
 
+int-denominator-pre-ℚ : pre-ℚ → ℤ
+int-denominator-pre-ℚ x = int-ℕ (denominator-pre-ℚ x)
+
 is-nonzero-denominator-pre-ℚ : (x : pre-ℚ) → is-nonzero-ℕ (denominator-pre-ℚ x)
 is-nonzero-denominator-pre-ℚ x = pr2 (pr2 x)
+
+is-nonzero-int-denominator-pre-ℚ :
+  (x : pre-ℚ) → is-nonzero-ℤ (int-denominator-pre-ℚ x)
+is-nonzero-int-denominator-pre-ℚ x =
+  is-nonzero-int-ℕ
+    ( denominator-pre-ℚ x)
+    ( is-nonzero-denominator-pre-ℚ x)
 
 sim-pre-ℚ-Prop : pre-ℚ → pre-ℚ → UU-Prop lzero
 sim-pre-ℚ-Prop x y =
@@ -313,16 +323,54 @@ symm-sim-pre-ℚ r = inv r
 
 trans-sim-pre-ℚ :
   {x y z : pre-ℚ} → sim-pre-ℚ x y → sim-pre-ℚ y z → sim-pre-ℚ x z
-trans-sim-pre-ℚ {x} {y} {z} r s = {!is-injective-mul-ℕ (denominator-pre-ℚ y) (is-nonzero-denominator-pre-ℚ y) ?!}
-
-{-
-
-r : xm = yn
-s : yk = zm
-xk=zn by
-xkm = xmk = ynk = ykn = zmn = znm
-
--}
+trans-sim-pre-ℚ {x} {y} {z} r s =
+  is-injective-mul-ℤ'
+    ( int-denominator-pre-ℚ y)
+    ( is-nonzero-int-denominator-pre-ℚ y)
+    ( ( associative-mul-ℤ
+        ( numerator-pre-ℚ x)
+        ( int-denominator-pre-ℚ z)
+        ( int-denominator-pre-ℚ y)) ∙
+      ( ( ap
+          ( mul-ℤ (numerator-pre-ℚ x))
+          ( commutative-mul-ℤ
+            ( int-denominator-pre-ℚ z)
+            ( int-denominator-pre-ℚ y))) ∙
+        ( ( inv
+            ( associative-mul-ℤ
+              ( numerator-pre-ℚ x)
+              ( int-denominator-pre-ℚ y)
+              ( int-denominator-pre-ℚ z))) ∙
+          ( ( ap ( mul-ℤ' (int-denominator-pre-ℚ z)) r) ∙
+            ( ( associative-mul-ℤ
+                ( numerator-pre-ℚ y)
+                ( int-denominator-pre-ℚ x)
+                ( int-denominator-pre-ℚ z)) ∙
+              ( ( ap
+                  ( mul-ℤ (numerator-pre-ℚ y))
+                  ( commutative-mul-ℤ
+                    ( int-denominator-pre-ℚ x)
+                    ( int-denominator-pre-ℚ z))) ∙
+                ( ( inv
+                    ( associative-mul-ℤ
+                      ( numerator-pre-ℚ y)
+                      ( int-denominator-pre-ℚ z)
+                      ( int-denominator-pre-ℚ x))) ∙
+                  ( ( ap (mul-ℤ' (int-denominator-pre-ℚ x)) s) ∙
+                    ( ( associative-mul-ℤ
+                        ( numerator-pre-ℚ z)
+                        ( int-denominator-pre-ℚ y)
+                        ( int-denominator-pre-ℚ x)) ∙
+                      ( ( ap
+                          ( mul-ℤ (numerator-pre-ℚ z))
+                          ( commutative-mul-ℤ
+                            ( int-denominator-pre-ℚ y)
+                            ( int-denominator-pre-ℚ x))) ∙
+                        ( inv
+                          ( associative-mul-ℤ
+                            ( numerator-pre-ℚ z)
+                            ( int-denominator-pre-ℚ x)
+                            ( int-denominator-pre-ℚ y)))))))))))))
 
 -- Definition 18.1.2
 

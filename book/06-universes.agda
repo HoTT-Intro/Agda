@@ -829,6 +829,14 @@ is-zero-ℤ x = Id x zero-ℤ
 is-nonzero-ℤ : ℤ → UU lzero
 is-nonzero-ℤ k = ¬ (is-zero-ℤ k)
 
+is-injective-int-ℕ : is-injective int-ℕ
+is-injective-int-ℕ {zero-ℕ} {zero-ℕ} p = refl
+is-injective-int-ℕ {succ-ℕ x} {succ-ℕ y} p =
+  eq-Eq-ℕ (succ-ℕ x) (succ-ℕ y) (Eq-eq-ℤ p)
+
+is-nonzero-int-ℕ : (n : ℕ) → is-nonzero-ℕ n → is-nonzero-ℤ (int-ℕ n)
+is-nonzero-int-ℕ zero-ℕ H p = H refl
+
 eq-abs-ℤ : (x : ℤ) → is-zero-ℕ (abs-ℤ x) → is-zero-ℤ x
 eq-abs-ℤ (inl x) p = ex-falso (Peano-8 x p)
 eq-abs-ℤ (inr (inl star)) p = refl
