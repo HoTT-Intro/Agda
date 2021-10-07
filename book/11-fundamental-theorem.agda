@@ -317,13 +317,13 @@ is-contr-total-Eq-ℕ :
 is-contr-total-Eq-ℕ m =
   pair (center-total-Eq-ℕ m) (contraction-total-Eq-ℕ m)
 
-is-equiv-Eq-ℕ-eq :
-  {m n : ℕ} → is-equiv (Eq-ℕ-eq {m} {n})
-is-equiv-Eq-ℕ-eq {m} {n} =
+is-equiv-Eq-eq-ℕ :
+  {m n : ℕ} → is-equiv (Eq-eq-ℕ {m} {n})
+is-equiv-Eq-eq-ℕ {m} {n} =
   fundamental-theorem-id m
     ( refl-Eq-ℕ m)
     ( is-contr-total-Eq-ℕ m)
-    ( λ y → Eq-ℕ-eq {m} {y})
+    ( λ y → Eq-eq-ℕ {m} {y})
     ( n)
 
 -- As an application we show that equivalences are embeddings.

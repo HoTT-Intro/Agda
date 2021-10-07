@@ -2051,6 +2051,7 @@ equiv-swap-prod A B = pair (swap-prod A B) (is-equiv-swap-prod A B)
 
 -- Exercise 9.11
 
+{-
 abstract
   is-equiv-add-ℤ :
     (x : ℤ) → is-equiv (add-ℤ x)
@@ -2067,6 +2068,7 @@ abstract
     is-equiv-htpy (add-ℤ y)
       ( λ x → commutative-add-ℤ x y)
       ( is-equiv-add-ℤ-right y)
+-}
 
 -- Exercise 9.12
 

@@ -975,7 +975,7 @@ no-section-type-UU-Fin-Level-two-ℕ :
   {l : Level} → ¬ ((X : UU-Fin-Level l two-ℕ) → type-UU-Fin-Level X)
 no-section-type-UU-Fin-Level-two-ℕ {l} f =
   is-not-contractible-Fin two-ℕ
-    ( Eq-ℕ-eq)
+    ( Eq-eq-ℕ)
     ( is-contr-equiv
       ( Id (Fin-UU-Fin-Level l two-ℕ) (Fin-UU-Fin-Level l two-ℕ))
       ( ( inv-equiv equiv-point-eq-UU-Fin-Level-two-ℕ) ∘e

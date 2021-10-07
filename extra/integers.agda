@@ -509,15 +509,6 @@ mul-ℤ-Monoid =
 
 {- We characterize the identity type of ℤ. -}
 
-Eq-ℤ : ℤ → ℤ → UU lzero
-Eq-ℤ (inl x) (inl y) = Eq-ℕ x y
-Eq-ℤ (inl x) (inr y) = empty
-Eq-ℤ (inr x) (inl x₁) = empty
-Eq-ℤ (inr (inl x)) (inr (inl y)) = unit
-Eq-ℤ (inr (inl x)) (inr (inr y)) = empty
-Eq-ℤ (inr (inr x)) (inr (inl y)) = empty
-Eq-ℤ (inr (inr x)) (inr (inr y)) = Eq-ℕ x y
-
 is-prop-Eq-ℤ :
   (x y : ℤ) → is-prop (Eq-ℤ x y)
 is-prop-Eq-ℤ (inl x) (inl y) = is-prop-Eq-ℕ x y
@@ -527,12 +518,6 @@ is-prop-Eq-ℤ (inr (inl x)) (inr (inl y)) = is-prop-unit
 is-prop-Eq-ℤ (inr (inl x)) (inr (inr y)) = is-prop-empty
 is-prop-Eq-ℤ (inr (inr x)) (inr (inl y)) = is-prop-empty
 is-prop-Eq-ℤ (inr (inr x)) (inr (inr y)) = is-prop-Eq-ℕ x y
-
-refl-Eq-ℤ :
-  (x : ℤ) → Eq-ℤ x x
-refl-Eq-ℤ (inl x) = refl-Eq-ℕ x
-refl-Eq-ℤ (inr (inl x)) = star
-refl-Eq-ℤ (inr (inr x)) = refl-Eq-ℕ x
 
 Eq-ℤ-eq :
   {x y : ℤ} → Id x y → Eq-ℤ x y
@@ -564,10 +549,6 @@ is-equiv-Eq-ℤ-eq x =
     ( is-contr-total-Eq-ℤ x)
     ( λ y → Eq-ℤ-eq {x} {y})
 
-eq-Eq-ℤ :
-  {x y : ℤ} → Eq-ℤ x y → Id x y
-eq-Eq-ℤ {x} {y} = map-inv-is-equiv (is-equiv-Eq-ℤ-eq x y)
-
 --------------------------------------------------------------------------------
 
 {- We prove some basic arithmetic properties of the integers. -}
@@ -582,17 +563,9 @@ is-emb-add-ℤ :
 is-emb-add-ℤ x =
   is-emb-is-equiv (is-equiv-add-ℤ x)
 
-is-injective-add-ℤ :
-  (x y z : ℤ) → Id (add-ℤ x y) (add-ℤ x z) → Id y z
-is-injective-add-ℤ x y z = map-inv-is-equiv (is-emb-add-ℤ x y z)
-
 is-emb-add-ℤ' :
   (y : ℤ) → is-emb (add-ℤ' y)
 is-emb-add-ℤ' y = is-emb-is-equiv (is-equiv-add-ℤ' y)
-
-is-injective-add-ℤ' :
-  (y x w : ℤ) → Id (add-ℤ x y) (add-ℤ w y) → Id x w
-is-injective-add-ℤ' y x w = map-inv-is-equiv (is-emb-add-ℤ' y x w)
 
 --------------------------------------------------------------------------------
 
@@ -600,10 +573,6 @@ is-injective-add-ℤ' y x w = map-inv-is-equiv (is-emb-add-ℤ' y x w)
 
 is-emb-neg-ℤ : is-emb neg-ℤ
 is-emb-neg-ℤ = is-emb-is-equiv is-equiv-neg-ℤ
-
-is-injective-neg-ℤ :
-  (x y : ℤ) → Id (neg-ℤ x) (neg-ℤ y) → Id x y
-is-injective-neg-ℤ x y = map-inv-is-equiv (is-emb-neg-ℤ x y)
 
 --------------------------------------------------------------------------------
 

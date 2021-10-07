@@ -17,7 +17,6 @@ open import extra.flat-modality public
 open import extra.free-group public
 open import extra.globular public
 open import extra.group-completion public
-open import extra.homotopy-finiteness public
 open import extra.ideals public
 open import extra.integers public
 open import extra.interchange public

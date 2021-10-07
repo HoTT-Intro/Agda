@@ -1013,6 +1013,10 @@ eq-diff-ℤ {x} {y} H =
       ( ( ap (add-ℤ' y) (right-inverse-law-add-ℤ x)) ∙
         ( left-unit-law-add-ℤ y))))
 
+is-zero-diff-ℤ :
+  {x y : ℤ} → Id x y → is-zero-ℤ (diff-ℤ x y)
+is-zero-diff-ℤ {x} {.x} refl = left-inverse-law-add-ℤ x
+
 triangle-diff-ℤ :
   (k l m : ℤ) → Id (add-ℤ (diff-ℤ k l) (diff-ℤ l m)) (diff-ℤ k m)
 triangle-diff-ℤ k l m =
@@ -1169,6 +1173,150 @@ preserves-leq-add-ℕ {m} {m'} {n} {n'} H K =
 
 --------------------------------------------------------------------------------
 
+succ-int-ℕ : (x : ℕ) → Id (succ-ℤ (int-ℕ x)) (int-ℕ (succ-ℕ x))
+succ-int-ℕ zero-ℕ = refl
+succ-int-ℕ (succ-ℕ x) = refl
+
+add-int-ℕ : (x y : ℕ) → Id (add-ℤ (int-ℕ x) (int-ℕ y)) (int-ℕ (add-ℕ x y))
+add-int-ℕ x zero-ℕ = right-unit-law-add-ℤ (int-ℕ x)
+add-int-ℕ x (succ-ℕ y) =
+  ( ap (add-ℤ (int-ℕ x)) (inv (succ-int-ℕ y))) ∙
+  ( ( right-successor-law-add-ℤ (int-ℕ x) (int-ℕ y)) ∙
+    ( ( ap succ-ℤ (add-int-ℕ x y)) ∙
+      ( succ-int-ℕ (add-ℕ x y))))
+
+mul-int-ℕ : (x y : ℕ) → Id (mul-ℤ (int-ℕ x) (int-ℕ y)) (int-ℕ (mul-ℕ x y))
+mul-int-ℕ zero-ℕ y = refl
+mul-int-ℕ (succ-ℕ x) y =
+  ( ap (mul-ℤ' (int-ℕ y)) (inv (succ-int-ℕ x))) ∙
+  ( ( left-successor-law-mul-ℤ (int-ℕ x) (int-ℕ y)) ∙
+    ( ( ( ap (add-ℤ (int-ℕ y)) (mul-int-ℕ x y)) ∙
+        ( add-int-ℕ y (mul-ℕ x y))) ∙
+      ( ap int-ℕ (commutative-add-ℕ y (mul-ℕ x y)))))
+
+is-injective-neg-ℤ : is-injective neg-ℤ
+is-injective-neg-ℤ {x} {y} p = inv (neg-neg-ℤ x) ∙ (ap neg-ℤ p ∙ neg-neg-ℤ y)
+
+is-zero-add-ℤ :
+  (x y : ℤ) → Id (add-ℤ x y) y → is-zero-ℤ x
+is-zero-add-ℤ x y H =
+  ( inv (right-unit-law-add-ℤ x)) ∙
+  ( ( inv (ap (add-ℤ x) (right-inverse-law-add-ℤ y))) ∙
+    ( ( inv (associative-add-ℤ x y (neg-ℤ y))) ∙
+      ( ( ap (add-ℤ' (neg-ℤ y)) H) ∙
+        ( right-inverse-law-add-ℤ y))))
+
+is-zero-add-ℤ' :
+  (x y : ℤ) → Id (add-ℤ x y) x → is-zero-ℤ y
+is-zero-add-ℤ' x y H =
+  is-zero-add-ℤ y x (commutative-add-ℤ y x ∙ H)
+
+is-zero-is-zero-neg-ℤ :
+  (x : ℤ) → is-zero-ℤ (neg-ℤ x) → is-zero-ℤ x
+is-zero-is-zero-neg-ℤ (inr (inl star)) H = refl
+
+-- We express mul-ℤ in terms of mul-ℕ
+
+explicit-mul-ℤ : ℤ → ℤ → ℤ
+explicit-mul-ℤ (inl x) (inl y) = int-ℕ (mul-ℕ (succ-ℕ x) (succ-ℕ y))
+explicit-mul-ℤ (inl x) (inr (inl star)) = zero-ℤ
+explicit-mul-ℤ (inl x) (inr (inr y)) =
+  neg-ℤ (int-ℕ (mul-ℕ (succ-ℕ x) (succ-ℕ y)))
+explicit-mul-ℤ (inr (inl star)) (inl y) = zero-ℤ
+explicit-mul-ℤ (inr (inr x)) (inl y) =
+  neg-ℤ (int-ℕ (mul-ℕ (succ-ℕ x) (succ-ℕ y)))
+explicit-mul-ℤ (inr (inl star)) (inr (inl star)) = zero-ℤ
+explicit-mul-ℤ (inr (inl star)) (inr (inr y)) = zero-ℤ
+explicit-mul-ℤ (inr (inr x)) (inr (inl star)) = zero-ℤ
+explicit-mul-ℤ (inr (inr x)) (inr (inr y)) = int-ℕ (mul-ℕ (succ-ℕ x) (succ-ℕ y))
+
+compute-mul-ℤ : (x y : ℤ) → Id (mul-ℤ x y) (explicit-mul-ℤ x y)
+compute-mul-ℤ (inl zero-ℕ) (inl y) =
+  inv (ap int-ℕ (left-unit-law-mul-ℕ (succ-ℕ y)))
+compute-mul-ℤ (inl (succ-ℕ x)) (inl y) =
+  ( ( ap (add-ℤ (int-ℕ (succ-ℕ y))) (compute-mul-ℤ (inl x) (inl y))) ∙
+    ( commutative-add-ℤ
+      ( int-ℕ (succ-ℕ y))
+      ( int-ℕ (mul-ℕ (succ-ℕ x) (succ-ℕ y))))) ∙
+  ( add-int-ℕ (mul-ℕ (succ-ℕ x) (succ-ℕ y)) (succ-ℕ y))
+compute-mul-ℤ (inl zero-ℕ) (inr (inl star)) = refl
+compute-mul-ℤ (inl zero-ℕ) (inr (inr x)) = ap inl (inv (left-unit-law-add-ℕ x))
+compute-mul-ℤ (inl (succ-ℕ x)) (inr (inl star)) = right-zero-law-mul-ℤ (inl x)
+compute-mul-ℤ (inl (succ-ℕ x)) (inr (inr y)) =
+  ( ( ( ap (add-ℤ (inl y)) (compute-mul-ℤ (inl x) (inr (inr y)))) ∙
+      ( inv
+        ( distributive-neg-add-ℤ
+          ( inr (inr y))
+          ( int-ℕ (mul-ℕ (succ-ℕ x) (succ-ℕ y)))))) ∙
+    ( ap
+      ( neg-ℤ)
+      ( commutative-add-ℤ
+        ( int-ℕ (succ-ℕ y))
+        ( int-ℕ (mul-ℕ (succ-ℕ x) (succ-ℕ y)))))) ∙
+  ( ap neg-ℤ (add-int-ℕ (mul-ℕ (succ-ℕ x) (succ-ℕ y)) (succ-ℕ y)))
+compute-mul-ℤ (inr (inl star)) (inl y) = refl
+compute-mul-ℤ (inr (inr zero-ℕ)) (inl y) = ap inl (inv (left-unit-law-add-ℕ y))
+compute-mul-ℤ (inr (inr (succ-ℕ x))) (inl y) =
+  ( ap (add-ℤ (inl y)) (compute-mul-ℤ (inr (inr x)) (inl y))) ∙
+  ( ( ( inv
+        ( distributive-neg-add-ℤ
+          ( inr (inr y))
+          ( inr (inr (add-ℕ (mul-ℕ x (succ-ℕ y)) y))))) ∙
+      ( ap
+        ( neg-ℤ)
+        ( ( add-int-ℕ (succ-ℕ y) (mul-ℕ (succ-ℕ x) (succ-ℕ y))) ∙
+          ( ap
+            ( inr ∘ inr)
+            ( left-successor-law-add-ℕ y (add-ℕ (mul-ℕ x (succ-ℕ y)) y)))))) ∙
+    ( ap inl (commutative-add-ℕ y (mul-ℕ (succ-ℕ x) (succ-ℕ y)))))
+compute-mul-ℤ (inr (inl star)) (inr (inl star)) = refl
+compute-mul-ℤ (inr (inl star)) (inr (inr y)) = refl
+compute-mul-ℤ (inr (inr zero-ℕ)) (inr (inl star)) = refl
+compute-mul-ℤ (inr (inr (succ-ℕ x))) (inr (inl star)) =
+  right-zero-law-mul-ℤ (inr (inr (succ-ℕ x)))
+compute-mul-ℤ (inr (inr zero-ℕ)) (inr (inr y)) =
+  ap ( inr ∘ inr)
+     ( inv
+       ( ( ap (add-ℕ' y) (left-zero-law-mul-ℕ (succ-ℕ y))) ∙
+         ( left-unit-law-add-ℕ y)))
+compute-mul-ℤ (inr (inr (succ-ℕ x))) (inr (inr y)) =
+  ( ap (add-ℤ (inr (inr y))) (compute-mul-ℤ (inr (inr x)) (inr (inr y)))) ∙
+  ( ( add-int-ℕ (succ-ℕ y) (mul-ℕ (succ-ℕ x) (succ-ℕ y))) ∙
+    ( ap int-ℕ (commutative-add-ℕ (succ-ℕ y) (mul-ℕ (succ-ℕ x) (succ-ℕ y)))))
+
+-- We show that mul-ℤ x is injective for nonzero x
+
+is-zero-is-zero-mul-ℤ :
+  (x y : ℤ) → is-zero-ℤ (mul-ℤ x y) → coprod (is-zero-ℤ x) (is-zero-ℤ y)
+is-zero-is-zero-mul-ℤ (inl x) (inl y) H =
+  ex-falso (Eq-eq-ℤ (inv (compute-mul-ℤ (inl x) (inl y)) ∙ H))
+is-zero-is-zero-mul-ℤ (inl x) (inr (inl star)) H = inr refl
+is-zero-is-zero-mul-ℤ (inl x) (inr (inr y)) H =
+  ex-falso (Eq-eq-ℤ (inv (compute-mul-ℤ (inl x) (inr (inr y))) ∙ H))
+is-zero-is-zero-mul-ℤ (inr (inl star)) y H = inl refl
+is-zero-is-zero-mul-ℤ (inr (inr x)) (inl y) H =
+  ex-falso (Eq-eq-ℤ (inv (compute-mul-ℤ (inr (inr x)) (inl y)) ∙ H))
+is-zero-is-zero-mul-ℤ (inr (inr x)) (inr (inl star)) H = inr refl
+is-zero-is-zero-mul-ℤ (inr (inr x)) (inr (inr y)) H =
+  ex-falso (Eq-eq-ℤ (inv (compute-mul-ℤ (inr (inr x)) (inr (inr y))) ∙ H))
+
+is-injective-mul-ℤ :
+  (x : ℤ) → is-nonzero-ℤ x → is-injective (mul-ℤ x)
+is-injective-mul-ℤ x f {y} {z} p =
+  eq-diff-ℤ
+    ( map-left-unit-law-coprod-is-empty
+      ( is-zero-ℤ x)
+      ( is-zero-ℤ (diff-ℤ y z))
+      ( f)
+      ( is-zero-is-zero-mul-ℤ x
+        ( diff-ℤ y z)
+        ( inv (linear-diff-ℤ y z x) ∙ is-zero-diff-ℤ p)))
+
+is-injective-mul-ℤ' :
+  (x : ℤ) → is-nonzero-ℤ x → is-injective (mul-ℤ' x)
+is-injective-mul-ℤ' x f {y} {z} p =
+  is-injective-mul-ℤ x f (commutative-mul-ℤ x y ∙ (p ∙ commutative-mul-ℤ z x))
+
 -- We show that ℤ is an ordered ring
 
 preserves-order-add-ℤ' :
@@ -1195,10 +1343,12 @@ is-nonnegative-mul-ℤ :
   {x y : ℤ} → is-nonnegative-ℤ x → is-nonnegative-ℤ y →
   is-nonnegative-ℤ (mul-ℤ x y)
 is-nonnegative-mul-ℤ {inr (inl star)} {y} H K = star
-is-nonnegative-mul-ℤ {inr (inr zero-ℕ)} {y} H K = K
-is-nonnegative-mul-ℤ {inr (inr (succ-ℕ x))} {y} H K =
-  is-nonnegative-add-ℤ y (mul-ℤ (inr (inr x)) y) K {!!}
+is-nonnegative-mul-ℤ {inr (inr x)} {inr (inl star)} H K =
+  is-nonnegative-eq-ℤ (inv (right-zero-law-mul-ℤ (inr (inr x)))) star
+is-nonnegative-mul-ℤ {inr (inr x)} {inr (inr y)} H K =
+  is-nonnegative-eq-ℤ (inv (compute-mul-ℤ (inr (inr x)) (inr (inr y)))) star
 
+{-
 preserves-order-mul-ℤ' :
   (x y z : ℤ) → is-nonnegative-ℤ z → leq-ℤ x y → leq-ℤ (mul-ℤ z x) (mul-ℤ z y)
 preserves-order-mul-ℤ' x y (inr (inl star)) star K = star
@@ -1207,169 +1357,7 @@ preserves-order-mul-ℤ' x y (inr (inr n)) star K = {!!}
 preserves-order-mul-ℤ :
   (x y z : ℤ) → is-nonnegative-ℤ z → leq-ℤ x y → leq-ℤ (mul-ℤ x z) (mul-ℤ y z)
 preserves-order-mul-ℤ x y z H K = {!!}
-
-{-
-preserves-order-mul-ℕ :
-  (k m n : ℕ) → m ≤-ℕ n → (mul-ℕ m k) ≤-ℕ (mul-ℕ n k)
-preserves-order-mul-ℕ k zero-ℕ n p = star
-preserves-order-mul-ℕ k (succ-ℕ m) (succ-ℕ n) p =
-  preserves-order-add-ℕ k
-    ( mul-ℕ m k)
-    ( mul-ℕ n k)
-    ( preserves-order-mul-ℕ k m n p)
-
-preserves-order-mul-ℕ' :
-  (k m n : ℕ) → m ≤-ℕ n → (mul-ℕ k m) ≤-ℕ (mul-ℕ k n)
-preserves-order-mul-ℕ' k m n H =
-  concatenate-eq-leq-eq-ℕ
-    ( commutative-mul-ℕ k m)
-    ( preserves-order-mul-ℕ k m n H)
-    ( commutative-mul-ℕ n k)
-
-reflects-order-mul-ℕ :
-  (k m n : ℕ) → (mul-ℕ m (succ-ℕ k)) ≤-ℕ (mul-ℕ n (succ-ℕ k)) → m ≤-ℕ n
-reflects-order-mul-ℕ k zero-ℕ n p = star
-reflects-order-mul-ℕ k (succ-ℕ m) (succ-ℕ n) p =
-  reflects-order-mul-ℕ k m n
-    ( reflects-order-add-ℕ
-      ( succ-ℕ k)
-      ( mul-ℕ m (succ-ℕ k))
-      ( mul-ℕ n (succ-ℕ k))
-      ( p))
-
--- We also record the fact that x ≤-ℕ mul-ℕ x (succ-ℕ k)
-
-leq-mul-ℕ :
-  (k x : ℕ) → x ≤-ℕ (mul-ℕ x (succ-ℕ k))
-leq-mul-ℕ k x =
-  concatenate-eq-leq-ℕ
-    ( mul-ℕ x (succ-ℕ k))
-    ( inv (right-unit-law-mul-ℕ x))
-    ( preserves-order-mul-ℕ' x one-ℕ (succ-ℕ k) (leq-zero-ℕ k))
-
-leq-mul-ℕ' :
-  (k x : ℕ) → x ≤-ℕ (mul-ℕ (succ-ℕ k) x)
-leq-mul-ℕ' k x =
-  concatenate-leq-eq-ℕ x
-    ( leq-mul-ℕ k x)
-    ( commutative-mul-ℕ x (succ-ℕ k))
-
-leq-mul-is-nonzero-ℕ :
-  (k x : ℕ) → is-nonzero-ℕ k → x ≤-ℕ (mul-ℕ x k)
-leq-mul-is-nonzero-ℕ k x H with is-successor-is-nonzero-ℕ H
-... | pair l refl = leq-mul-ℕ l x
-
-leq-mul-is-nonzero-ℕ' :
-  (k x : ℕ) → is-nonzero-ℕ k → x ≤-ℕ (mul-ℕ k x)
-leq-mul-is-nonzero-ℕ' k x H with is-successor-is-nonzero-ℕ H
-... | pair l refl = leq-mul-ℕ' l x
-
--- Exercise 6.3 (e)
-
-leq-min-ℕ :
-  (k m n : ℕ) → k ≤-ℕ m → k ≤-ℕ n → k ≤-ℕ (min-ℕ m n)
-leq-min-ℕ zero-ℕ zero-ℕ zero-ℕ H K = star
-leq-min-ℕ zero-ℕ zero-ℕ (succ-ℕ n) H K = star
-leq-min-ℕ zero-ℕ (succ-ℕ m) zero-ℕ H K = star
-leq-min-ℕ zero-ℕ (succ-ℕ m) (succ-ℕ n) H K = star
-leq-min-ℕ (succ-ℕ k) (succ-ℕ m) (succ-ℕ n) H K = leq-min-ℕ k m n H K
-
-leq-left-leq-min-ℕ :
-  (k m n : ℕ) → k ≤-ℕ (min-ℕ m n) → k ≤-ℕ m
-leq-left-leq-min-ℕ zero-ℕ zero-ℕ zero-ℕ H = star
-leq-left-leq-min-ℕ zero-ℕ zero-ℕ (succ-ℕ n) H = star
-leq-left-leq-min-ℕ zero-ℕ (succ-ℕ m) zero-ℕ H = star
-leq-left-leq-min-ℕ zero-ℕ (succ-ℕ m) (succ-ℕ n) H = star
-leq-left-leq-min-ℕ (succ-ℕ k) (succ-ℕ m) (succ-ℕ n) H =
-  leq-left-leq-min-ℕ k m n H
-
-leq-right-leq-min-ℕ :
-  (k m n : ℕ) → k ≤-ℕ (min-ℕ m n) → k ≤-ℕ n
-leq-right-leq-min-ℕ zero-ℕ zero-ℕ zero-ℕ H = star
-leq-right-leq-min-ℕ zero-ℕ zero-ℕ (succ-ℕ n) H = star
-leq-right-leq-min-ℕ zero-ℕ (succ-ℕ m) zero-ℕ H = star
-leq-right-leq-min-ℕ zero-ℕ (succ-ℕ m) (succ-ℕ n) H = star
-leq-right-leq-min-ℕ (succ-ℕ k) (succ-ℕ m) (succ-ℕ n) H =
-  leq-right-leq-min-ℕ k m n H
-
-leq-max-ℕ :
-  (k m n : ℕ) → m ≤-ℕ k → n ≤-ℕ k → (max-ℕ m n) ≤-ℕ k
-leq-max-ℕ zero-ℕ zero-ℕ zero-ℕ H K = star
-leq-max-ℕ (succ-ℕ k) zero-ℕ zero-ℕ H K = star
-leq-max-ℕ (succ-ℕ k) zero-ℕ (succ-ℕ n) H K = K
-leq-max-ℕ (succ-ℕ k) (succ-ℕ m) zero-ℕ H K = H
-leq-max-ℕ (succ-ℕ k) (succ-ℕ m) (succ-ℕ n) H K = leq-max-ℕ k m n H K
-
-leq-left-leq-max-ℕ :
-  (k m n : ℕ) → (max-ℕ m n) ≤-ℕ k → m ≤-ℕ k
-leq-left-leq-max-ℕ k zero-ℕ zero-ℕ H = star
-leq-left-leq-max-ℕ k zero-ℕ (succ-ℕ n) H = star
-leq-left-leq-max-ℕ k (succ-ℕ m) zero-ℕ H = H
-leq-left-leq-max-ℕ (succ-ℕ k) (succ-ℕ m) (succ-ℕ n) H =
-  leq-left-leq-max-ℕ k m n H
-
-leq-right-leq-max-ℕ :
-  (k m n : ℕ) → (max-ℕ m n) ≤-ℕ k → n ≤-ℕ k
-leq-right-leq-max-ℕ k zero-ℕ zero-ℕ H = star
-leq-right-leq-max-ℕ k zero-ℕ (succ-ℕ n) H = H
-leq-right-leq-max-ℕ k (succ-ℕ m) zero-ℕ H = star
-leq-right-leq-max-ℕ (succ-ℕ k) (succ-ℕ m) (succ-ℕ n) H =
-  leq-right-leq-max-ℕ k m n H
 -}
-
--- Section 5.5 Identity systems
-
-succ-fam-Eq-ℕ :
-  {i : Level} (R : (m n : ℕ) → Eq-ℕ m n → UU i) →
-  (m n : ℕ) → Eq-ℕ m n → UU i
-succ-fam-Eq-ℕ R m n e = R (succ-ℕ m) (succ-ℕ n) e
-
-succ-refl-fam-Eq-ℕ :
-  {i : Level} (R : (m n : ℕ) → Eq-ℕ m n → UU i)
-  (ρ : (n : ℕ) → R n n (refl-Eq-ℕ n)) →
-  (n : ℕ) → (succ-fam-Eq-ℕ R n n (refl-Eq-ℕ n))
-succ-refl-fam-Eq-ℕ R ρ n = ρ (succ-ℕ n)
-
-path-ind-Eq-ℕ :
-  {i : Level} (R : (m n : ℕ) → Eq-ℕ m n → UU i)
-  ( ρ : (n : ℕ) → R n n (refl-Eq-ℕ n)) →
-  ( m n : ℕ) (e : Eq-ℕ m n) → R m n e
-path-ind-Eq-ℕ R ρ zero-ℕ zero-ℕ star = ρ zero-ℕ
-path-ind-Eq-ℕ R ρ zero-ℕ (succ-ℕ n) ()
-path-ind-Eq-ℕ R ρ (succ-ℕ m) zero-ℕ ()
-path-ind-Eq-ℕ R ρ (succ-ℕ m) (succ-ℕ n) e =
-  path-ind-Eq-ℕ
-    ( λ m n e → R (succ-ℕ m) (succ-ℕ n) e)
-    ( λ n → ρ (succ-ℕ n)) m n e
-
-comp-path-ind-Eq-ℕ :
-  {i : Level} (R : (m n : ℕ) → Eq-ℕ m n → UU i)
-  ( ρ : (n : ℕ) → R n n (refl-Eq-ℕ n)) →
-  ( n : ℕ) → Id (path-ind-Eq-ℕ R ρ n n (refl-Eq-ℕ n)) (ρ n)
-comp-path-ind-Eq-ℕ R ρ zero-ℕ = refl
-comp-path-ind-Eq-ℕ R ρ (succ-ℕ n) =
-  comp-path-ind-Eq-ℕ
-    ( λ m n e → R (succ-ℕ m) (succ-ℕ n) e)
-    ( λ n → ρ (succ-ℕ n)) n
-
-
-{-
--- Graphs
-Gph : (i : Level) → UU (lsuc i)
-Gph i = Σ (UU i) (λ X → (X → X → (UU i)))
-
--- Reflexive graphs
-rGph : (i : Level) →  UU (lsuc i)
-rGph i = Σ (UU i) (λ X → Σ (X → X → (UU i)) (λ R → (x : X) → R x x))
--}
-
--- Exercise 3.7
-
-{- With the construction of the divisibility relation we open the door to basic
-   number theory. -}
-   
-divides : (d n : ℕ) → UU lzero
-divides d n = Σ ℕ (λ m → Eq-ℕ (mul-ℕ d m) n)
 
 -- We prove some lemmas about inequalities --
 

@@ -99,7 +99,7 @@ is-decidable-iff f g =
 
 has-decidable-equality-ℕ : has-decidable-equality ℕ
 has-decidable-equality-ℕ x y =
-  is-decidable-iff (eq-Eq-ℕ x y) Eq-ℕ-eq (is-decidable-Eq-ℕ x y)
+  is-decidable-iff (eq-Eq-ℕ x y) Eq-eq-ℕ (is-decidable-Eq-ℕ x y)
 
 -- We record some immediate corollaries
 
@@ -697,7 +697,7 @@ is-one-is-proper-divisor-two-ℕ (succ-ℕ (succ-ℕ (succ-ℕ x))) (pair f H) =
   ex-falso (leq-div-succ-ℕ (succ-ℕ (succ-ℕ (succ-ℕ x))) one-ℕ H)
 
 is-prime-easy-two-ℕ : is-prime-easy-ℕ two-ℕ
-is-prime-easy-two-ℕ = pair Eq-ℕ-eq is-one-is-proper-divisor-two-ℕ
+is-prime-easy-two-ℕ = pair Eq-eq-ℕ is-one-is-proper-divisor-two-ℕ
 
 is-prime-two-ℕ : is-prime-ℕ two-ℕ
 is-prime-two-ℕ =
@@ -739,7 +739,7 @@ is-decidable-in-sieve-of-eratosthenes-ℕ n a =
 
 is-nonzero-factorial-ℕ :
   (x : ℕ) → is-nonzero-ℕ (factorial-ℕ x)
-is-nonzero-factorial-ℕ zero-ℕ = Eq-ℕ-eq
+is-nonzero-factorial-ℕ zero-ℕ = Eq-eq-ℕ
 is-nonzero-factorial-ℕ (succ-ℕ x) =
   is-nonzero-mul-ℕ
     ( factorial-ℕ x)
@@ -763,7 +763,7 @@ in-sieve-of-eratosthenes-succ-factorial-ℕ zero-ℕ =
     ( star)
     ( λ x l d →
       ex-falso
-        ( Eq-ℕ-eq
+        ( Eq-eq-ℕ
           ( is-zero-is-zero-div-ℕ x two-ℕ d (is-zero-leq-zero-ℕ x l))))
 in-sieve-of-eratosthenes-succ-factorial-ℕ (succ-ℕ n) =
   pair

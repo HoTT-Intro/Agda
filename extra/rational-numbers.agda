@@ -113,11 +113,6 @@ equiv-add-ℚ'
 mul-ℚ' : ℚ' → ℚ' → ℚ'
 mul-ℚ' (pair x1 x2) (pair y1 y2) = pair (mul-ℤ x1 y1) (mul-ℤ\0 x2 y2)
 
-ap-mul-ℤ :
-  {a b a' b' : ℤ} →
-  Id a a' → Id b b' → Id (mul-ℤ a b) (mul-ℤ a' b')
-ap-mul-ℤ refl refl = refl
-
 equiv-mul-ℚ' :
   (x y x' y' : ℚ') → equiv-ℚ' x x' → equiv-ℚ' y y' →
   equiv-ℚ' (mul-ℚ' x y) (mul-ℚ' x' y')
