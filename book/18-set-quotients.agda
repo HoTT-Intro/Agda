@@ -1185,18 +1185,68 @@ map-trunc-Set :
 map-trunc-Set {A = A} {B} f x =
   apply-universal-property-trunc-Set x (trunc-Set B) (unit-trunc-Set ∘ f)
 
-{-
-id-map-trunc-Set :
-  {l1 : Level} (A : UU l1) → map-trunc-Set (id {A = A}) ~ id
-id-map-trunc-Set A x =
-  {!dependent-universal-property-trunc-Set!}
+--------------------------------------------------------------------------------
 
-is-equiv-map-trunc-Set :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} → is-equiv f →
-  is-equiv (map-trunc-Set f)
-is-equiv-map-trunc-Set {A = A} {B} {f} H =
-  is-equiv-has-inverse
-    {! !}
-    {!!}
-    {!!}
--}
+module _
+  {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A)
+  where
+    
+  is-choice-of-representatives :
+    (A → UU l3) → UU (l1 ⊔ l2 ⊔ l3)
+  is-choice-of-representatives P =
+    (a : A) → is-contr (Σ A (λ x → P x × type-Eq-Rel R a x))
+  
+  representatives :
+    {P : A → UU l3} → is-choice-of-representatives P → UU (l1 ⊔ l3)
+  representatives {P} H = Σ A P
+  
+  map-set-quotient-representatives :
+    {P : A → UU l3} (H : is-choice-of-representatives P) →
+    representatives H → set-quotient R
+  map-set-quotient-representatives H a = map-set-quotient R (pr1 a)
+  
+  is-surjective-map-set-quotient-representatives :
+    {P : A → UU l3} (H : is-choice-of-representatives P) →
+    is-surjective (map-set-quotient-representatives H)
+  is-surjective-map-set-quotient-representatives H (pair Q K) =
+    apply-universal-property-trunc-Prop K
+      ( trunc-Prop (fib (map-set-quotient-representatives H) (pair Q K)))
+      ( λ { (pair a refl) →
+            unit-trunc-Prop
+              ( pair
+                ( pair (pr1 (center (H a))) (pr1 (pr2 (center (H a)))))
+                ( ( map-inv-equiv
+                    ( is-effective-map-set-quotient R (pr1 (center (H a))) a)
+                    ( symm-Eq-Rel R (pr2 (pr2 (center (H a)))))) ∙
+                  ( ap
+                    ( pair (prop-Eq-Rel R a))
+                    ( eq-is-prop is-prop-type-trunc-Prop))))})
+
+  is-emb-map-set-quotient-representatives :
+    {P : A → UU l3} (H : is-choice-of-representatives P) →
+    is-emb (map-set-quotient-representatives H)
+  is-emb-map-set-quotient-representatives {P} H (pair a p) =
+    fundamental-theorem-id
+      ( pair a p)
+      ( refl)
+      ( is-contr-equiv
+        ( Σ A (λ x → P x × type-Eq-Rel R a x))
+        ( ( assoc-Σ A P (λ z → type-Eq-Rel R a (pr1 z))) ∘e
+          ( equiv-tot (λ t → is-effective-map-set-quotient R a (pr1 t))))
+        ( H a))
+      ( λ y → ap (map-set-quotient-representatives H) {pair a p} {y})
+
+  is-equiv-map-set-quotient-representatives :
+    {P : A → UU l3} (H : is-choice-of-representatives P) →
+    is-equiv (map-set-quotient-representatives H)
+  is-equiv-map-set-quotient-representatives H =
+    is-equiv-is-emb-is-surjective
+      ( is-surjective-map-set-quotient-representatives H)
+      ( is-emb-map-set-quotient-representatives H)
+
+  equiv-set-quotient-representatives :
+    {P : A → UU l3} (H : is-choice-of-representatives P) →
+    representatives H ≃ set-quotient R
+  equiv-set-quotient-representatives H =
+    pair ( map-set-quotient-representatives H)
+         ( is-equiv-map-set-quotient-representatives H)
