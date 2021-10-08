@@ -1361,6 +1361,9 @@ sim-unit-ℤ x y = Σ unit-ℤ (λ u → Id (mul-ℤ (pr1 u) x) y)
 refl-sim-unit-ℤ : (x : ℤ) → sim-unit-ℤ x x
 refl-sim-unit-ℤ x = pair one-unit-ℤ (left-unit-law-mul-ℤ x)
 
+sim-unit-eq-ℤ : {x y : ℤ} → Id x y → sim-unit-ℤ x y
+sim-unit-eq-ℤ {x} refl = refl-sim-unit-ℤ x
+
 symm-sim-unit-ℤ : (x y : ℤ) → sim-unit-ℤ x y → sim-unit-ℤ y x
 symm-sim-unit-ℤ x y (pair (pair u H) p) = f (is-one-or-neg-one-is-unit-ℤ u H)
   where
@@ -1368,6 +1371,68 @@ symm-sim-unit-ℤ x y (pair (pair u H) p) = f (is-one-or-neg-one-is-unit-ℤ u H
   f (inl refl) = pair one-unit-ℤ (inv p)
   f (inr refl) =
     pair neg-one-unit-ℤ (inv (inv (neg-neg-ℤ x) ∙ ap (mul-ℤ neg-one-ℤ) p))
+
+trans-sim-unit-ℤ :
+  (x y z : ℤ) → sim-unit-ℤ x y → sim-unit-ℤ y z → sim-unit-ℤ x z
+trans-sim-unit-ℤ x y z (pair (pair u H) p) (pair (pair v K) q) =
+  f (is-one-or-neg-one-is-unit-ℤ u H) (is-one-or-neg-one-is-unit-ℤ v K)
+  where
+  f : is-one-or-neg-one-ℤ u → is-one-or-neg-one-ℤ v → sim-unit-ℤ x z
+  f (inl refl) (inl refl) = pair one-unit-ℤ (p ∙ q)
+  f (inl refl) (inr refl) = pair neg-one-unit-ℤ (ap neg-ℤ p ∙ q)
+  f (inr refl) (inl refl) = pair neg-one-unit-ℤ (p ∙ q)
+  f (inr refl) (inr refl) =
+    pair one-unit-ℤ (inv (neg-neg-ℤ x) ∙ (ap neg-ℤ p ∙ q))
+
+is-unit-mul-ℤ :
+  (x y : ℤ) → is-unit-ℤ x → is-unit-ℤ y → is-unit-ℤ (mul-ℤ x y)
+is-unit-mul-ℤ x y (pair d p) (pair e q) =
+  pair
+    ( mul-ℤ e d)
+    ( ( associative-mul-ℤ x y (mul-ℤ e d)) ∙
+      ( ( ap
+          ( mul-ℤ x)
+          ( ( inv (associative-mul-ℤ y e d)) ∙
+            ( ( ap (mul-ℤ' d) q) ∙
+              ( left-unit-law-mul-ℤ d)))) ∙
+        ( p)))
+
+mul-unit-ℤ : unit-ℤ → unit-ℤ → unit-ℤ
+mul-unit-ℤ (pair x H) (pair y K) = pair (mul-ℤ x y) (is-unit-mul-ℤ x y H K)
+
+is-unit-left-factor-ℤ :
+  (x y : ℤ) → is-unit-ℤ (mul-ℤ x y) → is-unit-ℤ x
+is-unit-left-factor-ℤ x y (pair d p) =
+  pair (mul-ℤ y d) (inv (associative-mul-ℤ x y d) ∙ p)
+
+is-unit-right-factor-ℤ :
+  (x y : ℤ) → is-unit-ℤ (mul-ℤ x y) → is-unit-ℤ y
+is-unit-right-factor-ℤ x y (pair d p) =
+  is-unit-left-factor-ℤ y x (pair d (ap (mul-ℤ' d) (commutative-mul-ℤ y x) ∙ p))
+
+is-decidable-is-zero-ℤ :
+  (x : ℤ) → is-decidable (is-zero-ℤ x)
+is-decidable-is-zero-ℤ x = has-decidable-equality-ℤ x zero-ℤ
+
+antisymmetric-div-ℤ :
+  (x y : ℤ) → div-ℤ x y → div-ℤ y x → sim-unit-ℤ x y
+antisymmetric-div-ℤ x y (pair d p) (pair e q) =
+  f (is-decidable-is-zero-ℤ x)
+  where
+  f : is-decidable (is-zero-ℤ x) → sim-unit-ℤ x y
+  f (inl refl) = sim-unit-eq-ℤ p
+  f (inr g) =
+    pair
+      ( pair d
+        ( pair e
+          ( is-injective-mul-ℤ x g
+            { mul-ℤ d e}
+            { one-ℤ}
+            ( ( inv
+                ( associative-mul-ℤ x d e)) ∙
+              ( ( ap (mul-ℤ' e) p) ∙
+                ( q ∙ inv (right-unit-law-mul-ℤ x)))))))
+      ( commutative-mul-ℤ d x ∙ p)
 
 is-common-divisor-ℤ : ℤ → ℤ → ℤ → UU lzero
 is-common-divisor-ℤ d x y = (div-ℤ d x) × (div-ℤ d y)
