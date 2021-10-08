@@ -403,10 +403,7 @@ is-decidable-is-common-divisor-ℕ a b x =
     ( is-decidable-div-ℕ x b)
 
 is-gcd-ℕ : (a b d : ℕ) → UU lzero
-is-gcd-ℕ a b d =
-  (x : ℕ) →
-    ( (is-common-divisor-ℕ a b x) → (div-ℕ x d)) ×
-    ( (div-ℕ x d) → (is-common-divisor-ℕ a b x))
+is-gcd-ℕ a b d = (x : ℕ) → (is-common-divisor-ℕ a b x) ↔ (div-ℕ x d)
 
 is-common-divisor-is-gcd-ℕ :
   (a b d : ℕ) → is-gcd-ℕ a b d → is-common-divisor-ℕ a b d

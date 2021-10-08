@@ -1250,3 +1250,128 @@ module _
   equiv-set-quotient-representatives H =
     pair ( map-set-quotient-representatives H)
          ( is-equiv-map-set-quotient-representatives H)
+
+div-ℤ : ℤ → ℤ → UU lzero
+div-ℤ d x = fib (mul-ℤ d) x
+
+refl-div-ℤ : (x : ℤ) → div-ℤ x x
+refl-div-ℤ x = pair one-ℤ (right-unit-law-mul-ℤ x)
+
+trans-div-ℤ :
+  (x y z : ℤ) → div-ℤ x y → div-ℤ y z → div-ℤ x z
+trans-div-ℤ x y z (pair d p) (pair e q) =
+  pair
+    ( mul-ℤ d e)
+    ( ( inv (associative-mul-ℤ x d e)) ∙
+      ( ( ap (mul-ℤ' e) p) ∙
+        ( q)))
+
+div-one-ℤ : (x : ℤ) → div-ℤ one-ℤ x
+div-one-ℤ x = pair x (left-unit-law-mul-ℤ x)
+
+div-zero-ℤ : (x : ℤ) → div-ℤ x zero-ℤ
+div-zero-ℤ x = pair zero-ℤ (right-zero-law-mul-ℤ x)
+
+is-zero-div-zero-ℤ :
+  (x : ℤ) → div-ℤ zero-ℤ x → is-zero-ℤ x
+is-zero-div-zero-ℤ x (pair d p) = inv p
+
+is-unit-ℤ : ℤ → UU lzero
+is-unit-ℤ x = div-ℤ x one-ℤ
+
+unit-ℤ : UU lzero
+unit-ℤ = Σ ℤ is-unit-ℤ
+
+div-is-unit-ℤ :
+  (x y : ℤ) → is-unit-ℤ x → div-ℤ x y
+div-is-unit-ℤ x y (pair d p) =
+  pair
+    ( mul-ℤ d y)
+    ( inv (associative-mul-ℤ x d y) ∙ (ap (mul-ℤ' y) p ∙ left-unit-law-mul-ℤ y))
+
+is-one-ℤ : ℤ → UU lzero
+is-one-ℤ x = Id x one-ℤ
+
+is-neg-one-ℤ : ℤ → UU lzero
+is-neg-one-ℤ x = Id x neg-one-ℤ
+
+is-one-or-neg-one-ℤ : ℤ → UU lzero
+is-one-or-neg-one-ℤ x = coprod (is-one-ℤ x) (is-neg-one-ℤ x)
+
+is-unit-one-ℤ : is-unit-ℤ one-ℤ
+is-unit-one-ℤ = refl-div-ℤ one-ℤ
+
+one-unit-ℤ : unit-ℤ
+one-unit-ℤ = pair one-ℤ is-unit-one-ℤ
+
+is-unit-is-one-ℤ :
+  (x : ℤ) → is-one-ℤ x → is-unit-ℤ x
+is-unit-is-one-ℤ .one-ℤ refl = is-unit-one-ℤ
+
+is-unit-neg-one-ℤ : is-unit-ℤ neg-one-ℤ
+is-unit-neg-one-ℤ = pair neg-one-ℤ refl
+
+neg-one-unit-ℤ : unit-ℤ
+neg-one-unit-ℤ = pair neg-one-ℤ is-unit-neg-one-ℤ
+
+is-unit-is-neg-one-ℤ :
+  (x : ℤ) → is-neg-one-ℤ x → is-unit-ℤ x
+is-unit-is-neg-one-ℤ .neg-one-ℤ refl = is-unit-neg-one-ℤ
+
+is-unit-is-one-or-neg-one-ℤ :
+  (x : ℤ) → is-one-or-neg-one-ℤ x → is-unit-ℤ x
+is-unit-is-one-or-neg-one-ℤ x (inl p) = is-unit-is-one-ℤ x p
+is-unit-is-one-or-neg-one-ℤ x (inr p) = is-unit-is-neg-one-ℤ x p
+
+is-one-or-neg-one-is-unit-ℤ :
+  (x : ℤ) → is-unit-ℤ x → is-one-or-neg-one-ℤ x
+is-one-or-neg-one-is-unit-ℤ (inl zero-ℕ) (pair d p) = inr refl
+is-one-or-neg-one-is-unit-ℤ (inl (succ-ℕ x)) (pair (inl zero-ℕ) p) =
+  ex-falso (Eq-eq-ℤ (inv (compute-mul-ℤ (inl (succ-ℕ x)) neg-one-ℤ) ∙ p))
+is-one-or-neg-one-is-unit-ℤ (inl (succ-ℕ x)) (pair (inl (succ-ℕ d)) p) =
+  ex-falso (Eq-eq-ℤ (inv (compute-mul-ℤ (inl (succ-ℕ x)) (inl (succ-ℕ d))) ∙ p))
+is-one-or-neg-one-is-unit-ℤ (inl (succ-ℕ x)) (pair (inr (inl star)) p) =
+  ex-falso (Eq-eq-ℤ (inv (compute-mul-ℤ (inl (succ-ℕ x)) zero-ℤ) ∙ p))
+is-one-or-neg-one-is-unit-ℤ (inl (succ-ℕ x)) (pair (inr (inr zero-ℕ)) p) =
+  ex-falso (Eq-eq-ℤ (inv (compute-mul-ℤ (inl (succ-ℕ x)) one-ℤ) ∙ p))
+is-one-or-neg-one-is-unit-ℤ (inl (succ-ℕ x)) (pair (inr (inr (succ-ℕ d))) p) =
+  ex-falso
+    ( Eq-eq-ℤ (inv (compute-mul-ℤ (inl (succ-ℕ x)) (inr (inr (succ-ℕ d)))) ∙ p))
+is-one-or-neg-one-is-unit-ℤ (inr (inl star)) (pair d p) =
+  ex-falso (Eq-eq-ℤ p)
+is-one-or-neg-one-is-unit-ℤ (inr (inr zero-ℕ)) (pair d p) = inl refl
+is-one-or-neg-one-is-unit-ℤ (inr (inr (succ-ℕ x))) (pair (inl zero-ℕ) p) =
+  ex-falso (Eq-eq-ℤ (inv (compute-mul-ℤ (inr (inr (succ-ℕ x))) neg-one-ℤ) ∙ p))
+is-one-or-neg-one-is-unit-ℤ (inr (inr (succ-ℕ x))) (pair (inl (succ-ℕ d)) p) =
+  ex-falso
+    ( Eq-eq-ℤ (inv (compute-mul-ℤ (inr (inr (succ-ℕ x))) (inl (succ-ℕ d))) ∙ p))
+is-one-or-neg-one-is-unit-ℤ (inr (inr (succ-ℕ x))) (pair (inr (inl star)) p) =
+  ex-falso (Eq-eq-ℤ (inv (compute-mul-ℤ (inr (inr (succ-ℕ x))) zero-ℤ) ∙ p))
+is-one-or-neg-one-is-unit-ℤ (inr (inr (succ-ℕ x))) (pair (inr (inr zero-ℕ)) p) =
+  ex-falso (Eq-eq-ℤ (inv (compute-mul-ℤ (inr (inr (succ-ℕ x))) one-ℤ) ∙ p))
+is-one-or-neg-one-is-unit-ℤ
+  (inr (inr (succ-ℕ x))) (pair (inr (inr (succ-ℕ d))) p) =
+  ex-falso
+    ( Eq-eq-ℤ
+      ( inv (compute-mul-ℤ (inr (inr (succ-ℕ x))) (inr (inr (succ-ℕ d)))) ∙ p))
+
+sim-unit-ℤ : ℤ → ℤ → UU lzero
+sim-unit-ℤ x y = Σ unit-ℤ (λ u → Id (mul-ℤ (pr1 u) x) y)
+
+refl-sim-unit-ℤ : (x : ℤ) → sim-unit-ℤ x x
+refl-sim-unit-ℤ x = pair one-unit-ℤ (left-unit-law-mul-ℤ x)
+
+symm-sim-unit-ℤ : (x y : ℤ) → sim-unit-ℤ x y → sim-unit-ℤ y x
+symm-sim-unit-ℤ x y (pair (pair u H) p) = f (is-one-or-neg-one-is-unit-ℤ u H)
+  where
+  f : is-one-or-neg-one-ℤ u → sim-unit-ℤ y x
+  f (inl refl) = pair one-unit-ℤ (inv p)
+  f (inr refl) =
+    pair neg-one-unit-ℤ (inv (inv (neg-neg-ℤ x) ∙ ap (mul-ℤ neg-one-ℤ) p))
+
+is-common-divisor-ℤ : ℤ → ℤ → ℤ → UU lzero
+is-common-divisor-ℤ d x y = (div-ℤ d x) × (div-ℤ d y)
+
+is-gcd-ℤ : ℤ → ℤ → ℤ → UU lzero
+is-gcd-ℤ x y d =
+  is-nonnegative-ℤ d × ((k : ℤ) → is-common-divisor-ℤ k x y ↔ div-ℤ k d)
