@@ -1400,7 +1400,7 @@ trans-presim-unit-ℤ x y z (pair (pair u H) p) (pair (pair v K) q) =
 is-nonzero-sim-unit-ℤ :
   (x y : ℤ) → sim-unit-ℤ x y → is-nonzero-ℤ x → is-nonzero-ℤ y
 is-nonzero-sim-unit-ℤ x y H f p =
-  Eq-eq-ℤ {x = zero-ℤ} ((inv p ∙ (inv (pr2 S) ∙ ap (mul-ℤ (pr1 (pr1 S))) {!inv (pr2 S)!})) ∙ pr2 (pr2 (pr1 S)))
+  Eq-eq-ℤ {x = zero-ℤ} ((inv p ∙ (inv (pr2 S) ∙ ap (mul-ℤ (pr1 (pr1 S))) {!pr2 S!})) ∙ pr2 (pr2 (pr1 S)))
   where
   S : presim-unit-ℤ x y
   S = H (λ t → f (pr1 t))
