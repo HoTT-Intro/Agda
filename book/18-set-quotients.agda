@@ -1355,34 +1355,63 @@ is-one-or-neg-one-is-unit-ℤ
     ( Eq-eq-ℤ
       ( inv (compute-mul-ℤ (inr (inr (succ-ℕ x))) (inr (inr (succ-ℕ d)))) ∙ p))
 
+presim-unit-ℤ : ℤ → ℤ → UU lzero
+presim-unit-ℤ x y = Σ unit-ℤ (λ u → Id (mul-ℤ (pr1 u) x) y)
+
 sim-unit-ℤ : ℤ → ℤ → UU lzero
-sim-unit-ℤ x y = Σ unit-ℤ (λ u → Id (mul-ℤ (pr1 u) x) y)
+sim-unit-ℤ x y = ¬ (is-zero-ℤ x × is-zero-ℤ y) → presim-unit-ℤ x y
+
+refl-presim-unit-ℤ : (x : ℤ) → presim-unit-ℤ x x
+refl-presim-unit-ℤ x = pair one-unit-ℤ (left-unit-law-mul-ℤ x)
 
 refl-sim-unit-ℤ : (x : ℤ) → sim-unit-ℤ x x
-refl-sim-unit-ℤ x = pair one-unit-ℤ (left-unit-law-mul-ℤ x)
+refl-sim-unit-ℤ x f = refl-presim-unit-ℤ x
+
+presim-unit-eq-ℤ : {x y : ℤ} → Id x y → presim-unit-ℤ x y
+presim-unit-eq-ℤ {x} refl = refl-presim-unit-ℤ x
 
 sim-unit-eq-ℤ : {x y : ℤ} → Id x y → sim-unit-ℤ x y
 sim-unit-eq-ℤ {x} refl = refl-sim-unit-ℤ x
 
-symm-sim-unit-ℤ : (x y : ℤ) → sim-unit-ℤ x y → sim-unit-ℤ y x
-symm-sim-unit-ℤ x y (pair (pair u H) p) = f (is-one-or-neg-one-is-unit-ℤ u H)
+symm-presim-unit-ℤ : (x y : ℤ) → presim-unit-ℤ x y → presim-unit-ℤ y x
+symm-presim-unit-ℤ x y (pair (pair u H) p) = f (is-one-or-neg-one-is-unit-ℤ u H)
   where
-  f : is-one-or-neg-one-ℤ u → sim-unit-ℤ y x
+  f : is-one-or-neg-one-ℤ u → presim-unit-ℤ y x
   f (inl refl) = pair one-unit-ℤ (inv p)
   f (inr refl) =
     pair neg-one-unit-ℤ (inv (inv (neg-neg-ℤ x) ∙ ap (mul-ℤ neg-one-ℤ) p))
 
-trans-sim-unit-ℤ :
-  (x y z : ℤ) → sim-unit-ℤ x y → sim-unit-ℤ y z → sim-unit-ℤ x z
-trans-sim-unit-ℤ x y z (pair (pair u H) p) (pair (pair v K) q) =
+symm-sim-unit-ℤ : (x y : ℤ) → sim-unit-ℤ x y → sim-unit-ℤ y x
+symm-sim-unit-ℤ x y H f =
+  symm-presim-unit-ℤ x y (H (λ p → f (pair (pr2 p) (pr1 p))))
+
+trans-presim-unit-ℤ :
+  (x y z : ℤ) → presim-unit-ℤ x y → presim-unit-ℤ y z → presim-unit-ℤ x z
+trans-presim-unit-ℤ x y z (pair (pair u H) p) (pair (pair v K) q) =
   f (is-one-or-neg-one-is-unit-ℤ u H) (is-one-or-neg-one-is-unit-ℤ v K)
   where
-  f : is-one-or-neg-one-ℤ u → is-one-or-neg-one-ℤ v → sim-unit-ℤ x z
+  f : is-one-or-neg-one-ℤ u → is-one-or-neg-one-ℤ v → presim-unit-ℤ x z
   f (inl refl) (inl refl) = pair one-unit-ℤ (p ∙ q)
   f (inl refl) (inr refl) = pair neg-one-unit-ℤ (ap neg-ℤ p ∙ q)
   f (inr refl) (inl refl) = pair neg-one-unit-ℤ (p ∙ q)
   f (inr refl) (inr refl) =
     pair one-unit-ℤ (inv (neg-neg-ℤ x) ∙ (ap neg-ℤ p ∙ q))
+
+is-nonzero-sim-unit-ℤ :
+  (x y : ℤ) → sim-unit-ℤ x y → is-nonzero-ℤ x → is-nonzero-ℤ y
+is-nonzero-sim-unit-ℤ x y H f p =
+  Eq-eq-ℤ {x = zero-ℤ} ((inv p ∙ (inv (pr2 S) ∙ ap (mul-ℤ (pr1 (pr1 S))) {!inv (pr2 S)!})) ∙ pr2 (pr2 (pr1 S)))
+  where
+  S : presim-unit-ℤ x y
+  S = H (λ t → f (pr1 t))
+  q : Id (pr1 (pr1 S)) zero-ℤ
+  q = is-injective-mul-ℤ' x f {pr1 (pr1 S)} {zero-ℤ} (pr2 S ∙ p)
+  u : ℤ
+  u = pr1 (pr2 (pr1 S))
+
+trans-sim-unit-ℤ :
+  (x y z : ℤ) → sim-unit-ℤ x y → sim-unit-ℤ y z → sim-unit-ℤ x z
+trans-sim-unit-ℤ x y z H K f = {!!}
 
 is-unit-mul-ℤ :
   (x y : ℤ) → is-unit-ℤ x → is-unit-ℤ y → is-unit-ℤ (mul-ℤ x y)
@@ -1415,12 +1444,12 @@ is-decidable-is-zero-ℤ :
 is-decidable-is-zero-ℤ x = has-decidable-equality-ℤ x zero-ℤ
 
 antisymmetric-div-ℤ :
-  (x y : ℤ) → div-ℤ x y → div-ℤ y x → sim-unit-ℤ x y
+  (x y : ℤ) → div-ℤ x y → div-ℤ y x → presim-unit-ℤ x y
 antisymmetric-div-ℤ x y (pair d p) (pair e q) =
   f (is-decidable-is-zero-ℤ x)
   where
-  f : is-decidable (is-zero-ℤ x) → sim-unit-ℤ x y
-  f (inl refl) = sim-unit-eq-ℤ p
+  f : is-decidable (is-zero-ℤ x) → presim-unit-ℤ x y
+  f (inl refl) = presim-unit-eq-ℤ p
   f (inr g) =
     pair
       ( pair d
