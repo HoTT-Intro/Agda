@@ -11,6 +11,7 @@ open import book.05-identity-types public
 open import book.06-universes public
 open import book.07-modular-arithmetic public
 open import book.08-decidability-in-number-theory public
+open import book.08-integers public
 open import book.09-equivalences public
 open import book.10-contractible-types public
 open import book.11-fundamental-theorem public

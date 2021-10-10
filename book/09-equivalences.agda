@@ -1,10 +1,8 @@
-
 {-# OPTIONS --without-K --exact-split --safe #-}
 
 module book.09-equivalences where
 
-import book.08-decidability-in-number-theory
-open book.08-decidability-in-number-theory public
+open import book.08-integers public
 
 --------------------------------------------------------------------------------
 
@@ -2223,11 +2221,6 @@ Fin-add-ℕ :
 Fin-add-ℕ k l = inv-equiv (coprod-Fin k l)
 
 {- We construct the functoriality of cartesian products. -}
-
-map-prod :
-  {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {D : UU l4}
-  (f : A → C) (g : B → D) → (A × B) → (C × D)
-map-prod f g (pair a b) = pair (f a) (g b)
 
 map-prod-pr1 :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {D : UU l4}

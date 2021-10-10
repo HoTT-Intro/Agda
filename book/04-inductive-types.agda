@@ -169,6 +169,11 @@ pair' = pair
 _×_ :  {l1 l2 : Level} (A : UU l1) (B : UU l2) → UU (l1 ⊔ l2)
 A × B = prod A B
 
+map-prod :
+  {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {D : UU l4}
+  (f : A → C) (g : B → D) → (A × B) → (C × D)
+map-prod f g (pair a b) = pair (f a) (g b)
+
 --------------------------------------------------------------------------------
 
 -- Section 4.7 The type of integers
