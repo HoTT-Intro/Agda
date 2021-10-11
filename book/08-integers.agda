@@ -621,6 +621,27 @@ div-div-int-abs-ℤ :
 div-div-int-abs-ℤ {x} {y} =
   div-sim-unit-ℤ (sim-unit-abs-ℤ x) (refl-sim-unit-ℤ y)
 
+is-common-divisor-sim-unit-ℤ :
+  {x x' y y' d d' : ℤ} → sim-unit-ℤ x x' → sim-unit-ℤ y y' → sim-unit-ℤ d d' →
+  is-common-divisor-ℤ x y d → is-common-divisor-ℤ x' y' d'
+is-common-divisor-sim-unit-ℤ H K L =
+  map-prod (div-sim-unit-ℤ L H) (div-sim-unit-ℤ L K)
+
+is-gcd-sim-unit-ℤ :
+  {x x' y y' d : ℤ} → sim-unit-ℤ x x' → sim-unit-ℤ y y' →
+  is-gcd-ℤ x y d → is-gcd-ℤ x' y' d
+is-gcd-sim-unit-ℤ H K =
+  map-prod id
+    ( λ G k →
+      pair
+        ( ( pr1 (G k)) ∘
+          ( is-common-divisor-sim-unit-ℤ
+            ( symm-sim-unit-ℤ H)
+            ( symm-sim-unit-ℤ K)
+            ( refl-sim-unit-ℤ k)))
+        ( ( is-common-divisor-sim-unit-ℤ H K (refl-sim-unit-ℤ k)) ∘
+          ( pr2 (G k))))
+
 is-common-divisor-int-abs-is-common-divisor-ℤ :
   {x y d : ℤ} →
   is-common-divisor-ℤ x y d → is-common-divisor-ℤ x y (int-abs-ℤ d)
@@ -661,3 +682,41 @@ is-gcd-is-gcd-int-ℕ {x} {y} {d} H k =
     ( ( ( is-common-divisor-is-common-divisor-int-ℕ) ∘
         ( pr2 (pr2 H (int-ℕ k)))) ∘
       ( div-int-div-ℕ))
+
+nat-gcd-ℤ : ℤ → ℤ → ℕ
+nat-gcd-ℤ x y = gcd-ℕ (abs-ℤ x) (abs-ℤ y)
+
+gcd-ℤ : ℤ → ℤ → ℤ
+gcd-ℤ x y = int-ℕ (nat-gcd-ℤ x y)
+
+is-nonnegative-gcd-ℤ : (x y : ℤ) → is-nonnegative-ℤ (gcd-ℤ x y)
+is-nonnegative-gcd-ℤ x y = is-nonnegative-int-ℕ (nat-gcd-ℤ x y)
+
+is-gcd-gcd-ℤ : (x y : ℤ) → is-gcd-ℤ x y (gcd-ℤ x y)
+is-gcd-gcd-ℤ x y =
+  pair
+    ( is-nonnegative-gcd-ℤ x y)
+    ( λ k →
+      pair
+        ( ( ( ( ( ( div-sim-unit-ℤ
+                    ( sim-unit-abs-ℤ k)
+                    ( refl-sim-unit-ℤ (gcd-ℤ x y))) ∘
+                  ( div-int-div-ℕ)) ∘
+                ( pr1 (is-gcd-gcd-ℕ (abs-ℤ x) (abs-ℤ y) (abs-ℤ k)))) ∘
+              ( is-common-divisor-is-common-divisor-int-ℕ)) ∘
+            ( is-common-divisor-int-abs-is-common-divisor-ℤ)) ∘
+          ( is-common-divisor-sim-unit-ℤ
+            ( symm-sim-unit-ℤ (sim-unit-abs-ℤ x))
+            ( symm-sim-unit-ℤ (sim-unit-abs-ℤ y))
+            ( refl-sim-unit-ℤ k)))
+        ( ( ( ( ( ( is-common-divisor-sim-unit-ℤ
+                    ( sim-unit-abs-ℤ x)
+                    ( sim-unit-abs-ℤ y)
+                    ( refl-sim-unit-ℤ k)) ∘
+                  ( is-common-divisor-is-common-divisor-int-abs-ℤ)) ∘
+                ( is-common-divisor-int-is-common-divisor-ℕ)) ∘
+              ( pr2 (is-gcd-gcd-ℕ (abs-ℤ x) (abs-ℤ y) (abs-ℤ k)))) ∘
+            ( div-div-int-ℕ)) ∘
+          ( div-sim-unit-ℤ
+            ( symm-sim-unit-ℤ (sim-unit-abs-ℤ k))
+            ( refl-sim-unit-ℤ (gcd-ℤ x y)))))
