@@ -160,6 +160,46 @@ is-injective-mul-ℤ' :
 is-injective-mul-ℤ' x f {y} {z} p =
   is-injective-mul-ℤ x f (commutative-mul-ℤ x y ∙ (p ∙ commutative-mul-ℤ z x))
 
+-- Lemmas about positive integers
+
+is-positive-left-factor-ℤ :
+  {x y : ℤ} → is-positive-ℤ (mul-ℤ x y) → is-positive-ℤ y → is-positive-ℤ x
+is-positive-left-factor-ℤ {inl x} {inr (inr y)} H K =
+  is-positive-eq-ℤ (compute-mul-ℤ (inl x) (inr (inr y))) H
+is-positive-left-factor-ℤ {inr (inl star)} {inr (inr y)} H K =
+  is-positive-eq-ℤ (compute-mul-ℤ zero-ℤ (inr (inr y))) H
+is-positive-left-factor-ℤ {inr (inr x)} {inr (inr y)} H K = star
+
+is-positive-right-factor-ℤ :
+  {x y : ℤ} → is-positive-ℤ (mul-ℤ x y) → is-positive-ℤ x → is-positive-ℤ y
+is-positive-right-factor-ℤ {x} {y} H =
+  is-positive-left-factor-ℤ (is-positive-eq-ℤ (commutative-mul-ℤ x y) H)
+
+-- Lemmas about nonnegative integers
+
+is-nonnegative-mul-ℤ :
+  {x y : ℤ} → is-nonnegative-ℤ x → is-nonnegative-ℤ y →
+  is-nonnegative-ℤ (mul-ℤ x y)
+is-nonnegative-mul-ℤ {inr (inl star)} {y} H K = star
+is-nonnegative-mul-ℤ {inr (inr x)} {inr (inl star)} H K =
+  is-nonnegative-eq-ℤ (inv (right-zero-law-mul-ℤ (inr (inr x)))) star
+is-nonnegative-mul-ℤ {inr (inr x)} {inr (inr y)} H K =
+  is-nonnegative-eq-ℤ (inv (compute-mul-ℤ (inr (inr x)) (inr (inr y)))) star
+
+is-nonnegative-left-factor-is-nonnegative-mul-ℤ :
+  {x y : ℤ} →
+  is-nonnegative-ℤ (mul-ℤ x y) → is-positive-ℤ y → is-nonnegative-ℤ x
+is-nonnegative-left-factor-is-nonnegative-mul-ℤ {inl x} {inr (inr y)} H K =
+  ex-falso (is-nonnegative-eq-ℤ (compute-mul-ℤ (inl x) (inr (inr y))) H)
+is-nonnegative-left-factor-is-nonnegative-mul-ℤ {inr x} {inr y} H K = star
+
+is-nonnegative-right-factor-is-nonnegative-mul-ℤ :
+  {x y : ℤ} →
+  is-nonnegative-ℤ (mul-ℤ x y) → is-positive-ℤ x → is-nonnegative-ℤ y
+is-nonnegative-right-factor-is-nonnegative-mul-ℤ {x} {y} H =
+  is-nonnegative-left-factor-is-nonnegative-mul-ℤ
+    ( is-nonnegative-eq-ℤ (commutative-mul-ℤ x y) H)
+
 -- We show that ℤ is an ordered ring
 
 preserves-order-add-ℤ' :
@@ -182,15 +222,6 @@ reflects-order-add-ℤ :
 reflects-order-add-ℤ {x} {y} {z} =
   is-nonnegative-eq-ℤ (left-translation-diff-ℤ {x} {y} {z})
 
-is-nonnegative-mul-ℤ :
-  {x y : ℤ} → is-nonnegative-ℤ x → is-nonnegative-ℤ y →
-  is-nonnegative-ℤ (mul-ℤ x y)
-is-nonnegative-mul-ℤ {inr (inl star)} {y} H K = star
-is-nonnegative-mul-ℤ {inr (inr x)} {inr (inl star)} H K =
-  is-nonnegative-eq-ℤ (inv (right-zero-law-mul-ℤ (inr (inr x)))) star
-is-nonnegative-mul-ℤ {inr (inr x)} {inr (inr y)} H K =
-  is-nonnegative-eq-ℤ (inv (compute-mul-ℤ (inr (inr x)) (inr (inr y)))) star
-
 {-
 preserves-order-mul-ℤ' :
   (x y z : ℤ) → is-nonnegative-ℤ z → leq-ℤ x y → leq-ℤ (mul-ℤ z x) (mul-ℤ z y)
@@ -202,7 +233,7 @@ preserves-order-mul-ℤ :
 preserves-order-mul-ℤ x y z H K = {!!}
 -}
 
--- We define the divisibility relation 
+-- We define the divisibility relation on ℤ
 
 div-ℤ : ℤ → ℤ → UU lzero
 div-ℤ d x = Σ ℤ (λ k → Id (mul-ℤ d k) x)
@@ -478,18 +509,31 @@ div-int-div-ℕ :
 div-int-div-ℕ {x} {y} (pair d p) =
   pair (int-ℕ d) (mul-int-ℕ x d ∙ ap int-ℕ (commutative-mul-ℕ x d ∙ p))
 
-{-
-is-nonnegative-left-factor-is-nonnegative-mul-ℤ :
-  {x y : ℤ} →
-  is-nonnegative-ℤ (mul-ℤ x y) → is-nonnegative-ℤ y → is-nonnegative-ℤ x
-is-nonnegative-left-factor-is-nonnegative-mul-ℤ {inl x} {inr y} H K = {!!}
-is-nonnegative-left-factor-is-nonnegative-mul-ℤ {inr x} {inr y} H K = {!!}
+int-abs-is-nonnegative-ℤ :
+  (x : ℤ) → is-nonnegative-ℤ x → Id (int-abs-ℤ x) x
+int-abs-is-nonnegative-ℤ (inr (inl star)) star = refl
+int-abs-is-nonnegative-ℤ (inr (inr x)) star = refl
 
 div-div-int-ℕ :
   {x y : ℕ} → div-ℤ (int-ℕ x) (int-ℕ y) → div-ℕ x y
-div-div-int-ℕ {x} {y} (pair d p) =
-  pair (abs-ℤ d) {!!}
--}
+div-div-int-ℕ {zero-ℕ} {y} (pair d p) =
+  div-eq-ℕ zero-ℕ y
+    ( inv (is-injective-int-ℕ (is-zero-div-zero-ℤ (int-ℕ y) (pair d p))))
+div-div-int-ℕ {succ-ℕ x} {y} (pair d p) =
+  pair
+    ( abs-ℤ d)
+    ( is-injective-int-ℕ
+      ( ( inv (mul-int-ℕ (abs-ℤ d) (succ-ℕ x))) ∙
+        ( ( ( ap
+              ( mul-ℤ' (inr (inr x)))
+              ( int-abs-is-nonnegative-ℤ d
+                ( is-nonnegative-right-factor-is-nonnegative-mul-ℤ
+                  { inr (inr x)}
+                  { d}
+                  ( is-nonnegative-eq-ℤ (inv p) (is-nonnegative-int-ℕ y))
+                  ( star)))) ∙
+            ( commutative-mul-ℤ d (inr (inr x)))) ∙
+          ( p))))
 
 is-common-divisor-int-is-common-divisor-ℕ :
   {x y d : ℕ} →
@@ -497,11 +541,18 @@ is-common-divisor-int-is-common-divisor-ℕ :
 is-common-divisor-int-is-common-divisor-ℕ =
   map-prod div-int-div-ℕ div-int-div-ℕ
 
-{-
+is-common-divisor-is-common-divisor-int-ℕ :
+  {x y d : ℕ} →
+  is-common-divisor-ℤ (int-ℕ d) (int-ℕ x) (int-ℕ y) → is-common-divisor-ℕ x y d
+is-common-divisor-is-common-divisor-int-ℕ {x} {y} {d} =
+  map-prod div-div-int-ℕ div-div-int-ℕ
+
 is-gcd-int-is-gcd-ℕ :
   {x y d : ℕ} → is-gcd-ℕ x y d → is-gcd-ℤ (int-ℕ x) (int-ℕ y) (int-ℕ d)
 is-gcd-int-is-gcd-ℕ {x} {y} {d} H =
   pair
     ( is-nonnegative-int-ℕ d)
-    {!( λ k → ?)!}
--}
+    ( λ k →
+      pair
+        ({!H (nat-is-nonnegative-ℤ !} ∘ (is-common-divisor-is-common-divisor-int-ℕ {x} {y} {{!!}}))
+        {!!})
