@@ -650,3 +650,14 @@ is-gcd-int-is-gcd-ℕ {x} {y} {d} H =
               ( pr2 (H (abs-ℤ k)))) ∘
             ( div-div-int-ℕ)) ∘
           ( div-int-abs-div-ℤ)))
+
+is-gcd-is-gcd-int-ℕ :
+  {x y d : ℕ} → is-gcd-ℤ (int-ℕ x) (int-ℕ y) (int-ℕ d) → is-gcd-ℕ x y d
+is-gcd-is-gcd-int-ℕ {x} {y} {d} H k =
+  pair
+    ( ( ( div-div-int-ℕ) ∘
+        ( pr1 (pr2 H (int-ℕ k)))) ∘
+      ( is-common-divisor-int-is-common-divisor-ℕ))
+    ( ( ( is-common-divisor-is-common-divisor-int-ℕ) ∘
+        ( pr2 (pr2 H (int-ℕ k)))) ∘
+      ( div-int-div-ℕ))
