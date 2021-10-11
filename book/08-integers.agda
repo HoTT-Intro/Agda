@@ -236,33 +236,33 @@ preserves-order-mul-ℤ x y z H K = {!!}
 -- We define the divisibility relation on ℤ
 
 div-ℤ : ℤ → ℤ → UU lzero
-div-ℤ d x = Σ ℤ (λ k → Id (mul-ℤ d k) x)
+div-ℤ d x = Σ ℤ (λ k → Id (mul-ℤ k d) x)
 
 -- The divisibility relation is a preorder
 
 refl-div-ℤ : (x : ℤ) → div-ℤ x x
-refl-div-ℤ x = pair one-ℤ (right-unit-law-mul-ℤ x)
+refl-div-ℤ x = pair one-ℤ (left-unit-law-mul-ℤ x)
 
 trans-div-ℤ :
   (x y z : ℤ) → div-ℤ x y → div-ℤ y z → div-ℤ x z
 trans-div-ℤ x y z (pair d p) (pair e q) =
   pair
-    ( mul-ℤ d e)
-    ( ( inv (associative-mul-ℤ x d e)) ∙
-      ( ( ap (mul-ℤ' e) p) ∙
+    ( mul-ℤ e d)
+    ( ( associative-mul-ℤ e d x) ∙
+      ( ( ap (mul-ℤ e) p) ∙
         ( q)))
 
 -- Basic properties of divisibility
 
 div-one-ℤ : (x : ℤ) → div-ℤ one-ℤ x
-div-one-ℤ x = pair x (left-unit-law-mul-ℤ x)
+div-one-ℤ x = pair x (right-unit-law-mul-ℤ x)
 
 div-zero-ℤ : (x : ℤ) → div-ℤ x zero-ℤ
-div-zero-ℤ x = pair zero-ℤ (right-zero-law-mul-ℤ x)
+div-zero-ℤ x = pair zero-ℤ (left-zero-law-mul-ℤ x)
 
 is-zero-div-zero-ℤ :
   (x : ℤ) → div-ℤ zero-ℤ x → is-zero-ℤ x
-is-zero-div-zero-ℤ x (pair d p) = inv p
+is-zero-div-zero-ℤ x (pair d p) = inv p ∙ right-zero-law-mul-ℤ d
 
 -- We introduce units
 
@@ -272,12 +272,18 @@ is-unit-ℤ x = div-ℤ x one-ℤ
 unit-ℤ : UU lzero
 unit-ℤ = Σ ℤ is-unit-ℤ
 
+int-unit-ℤ : unit-ℤ → ℤ
+int-unit-ℤ = pr1
+
+is-unit-int-unit-ℤ : (x : unit-ℤ) → is-unit-ℤ (int-unit-ℤ x)
+is-unit-int-unit-ℤ = pr2
+
 div-is-unit-ℤ :
   (x y : ℤ) → is-unit-ℤ x → div-ℤ x y
 div-is-unit-ℤ x y (pair d p) =
   pair
-    ( mul-ℤ d y)
-    ( inv (associative-mul-ℤ x d y) ∙ (ap (mul-ℤ' y) p ∙ left-unit-law-mul-ℤ y))
+    ( mul-ℤ y d)
+    ( associative-mul-ℤ y d x ∙ (ap (mul-ℤ y) p ∙ right-unit-law-mul-ℤ y))
 
 -- An integer is a unit if and only if it is 1 or -1.
 
@@ -313,33 +319,70 @@ is-one-or-neg-one-is-unit-ℤ :
   (x : ℤ) → is-unit-ℤ x → is-one-or-neg-one-ℤ x
 is-one-or-neg-one-is-unit-ℤ (inl zero-ℕ) (pair d p) = inr refl
 is-one-or-neg-one-is-unit-ℤ (inl (succ-ℕ x)) (pair (inl zero-ℕ) p) =
-  ex-falso (Eq-eq-ℤ (inv (compute-mul-ℤ (inl (succ-ℕ x)) neg-one-ℤ) ∙ p))
+  ex-falso (Eq-eq-ℤ (inv p ∙ compute-mul-ℤ neg-one-ℤ (inl (succ-ℕ x))))
 is-one-or-neg-one-is-unit-ℤ (inl (succ-ℕ x)) (pair (inl (succ-ℕ d)) p) =
-  ex-falso (Eq-eq-ℤ (inv (compute-mul-ℤ (inl (succ-ℕ x)) (inl (succ-ℕ d))) ∙ p))
+  ex-falso (Eq-eq-ℤ (inv p ∙ compute-mul-ℤ (inl (succ-ℕ d)) (inl (succ-ℕ x))))
 is-one-or-neg-one-is-unit-ℤ (inl (succ-ℕ x)) (pair (inr (inl star)) p) =
-  ex-falso (Eq-eq-ℤ (inv (compute-mul-ℤ (inl (succ-ℕ x)) zero-ℤ) ∙ p))
+  ex-falso (Eq-eq-ℤ (inv p ∙ compute-mul-ℤ zero-ℤ (inl (succ-ℕ x))))
 is-one-or-neg-one-is-unit-ℤ (inl (succ-ℕ x)) (pair (inr (inr zero-ℕ)) p) =
-  ex-falso (Eq-eq-ℤ (inv (compute-mul-ℤ (inl (succ-ℕ x)) one-ℤ) ∙ p))
+  ex-falso (Eq-eq-ℤ (inv p ∙ compute-mul-ℤ one-ℤ (inl (succ-ℕ x))))
 is-one-or-neg-one-is-unit-ℤ (inl (succ-ℕ x)) (pair (inr (inr (succ-ℕ d))) p) =
   ex-falso
-    ( Eq-eq-ℤ (inv (compute-mul-ℤ (inl (succ-ℕ x)) (inr (inr (succ-ℕ d)))) ∙ p))
+    ( Eq-eq-ℤ (inv p ∙ compute-mul-ℤ (inr (inr (succ-ℕ d))) (inl (succ-ℕ x))))
 is-one-or-neg-one-is-unit-ℤ (inr (inl star)) (pair d p) =
-  ex-falso (Eq-eq-ℤ p)
+  ex-falso (Eq-eq-ℤ (inv (right-zero-law-mul-ℤ d) ∙ p))
 is-one-or-neg-one-is-unit-ℤ (inr (inr zero-ℕ)) (pair d p) = inl refl
 is-one-or-neg-one-is-unit-ℤ (inr (inr (succ-ℕ x))) (pair (inl zero-ℕ) p) =
-  ex-falso (Eq-eq-ℤ (inv (compute-mul-ℤ (inr (inr (succ-ℕ x))) neg-one-ℤ) ∙ p))
+  ex-falso (Eq-eq-ℤ (inv p ∙ compute-mul-ℤ neg-one-ℤ (inr (inr (succ-ℕ x)))))
 is-one-or-neg-one-is-unit-ℤ (inr (inr (succ-ℕ x))) (pair (inl (succ-ℕ d)) p) =
   ex-falso
-    ( Eq-eq-ℤ (inv (compute-mul-ℤ (inr (inr (succ-ℕ x))) (inl (succ-ℕ d))) ∙ p))
+    ( Eq-eq-ℤ (inv p ∙ compute-mul-ℤ (inl (succ-ℕ d)) (inr (inr (succ-ℕ x)))))
 is-one-or-neg-one-is-unit-ℤ (inr (inr (succ-ℕ x))) (pair (inr (inl star)) p) =
-  ex-falso (Eq-eq-ℤ (inv (compute-mul-ℤ (inr (inr (succ-ℕ x))) zero-ℤ) ∙ p))
+  ex-falso (Eq-eq-ℤ (inv p ∙ compute-mul-ℤ zero-ℤ (inr (inr (succ-ℕ x)))))
 is-one-or-neg-one-is-unit-ℤ (inr (inr (succ-ℕ x))) (pair (inr (inr zero-ℕ)) p) =
-  ex-falso (Eq-eq-ℤ (inv (compute-mul-ℤ (inr (inr (succ-ℕ x))) one-ℤ) ∙ p))
+  ex-falso (Eq-eq-ℤ (inv p ∙ compute-mul-ℤ one-ℤ (inr (inr (succ-ℕ x)))))
 is-one-or-neg-one-is-unit-ℤ
   (inr (inr (succ-ℕ x))) (pair (inr (inr (succ-ℕ d))) p) =
   ex-falso
     ( Eq-eq-ℤ
-      ( inv (compute-mul-ℤ (inr (inr (succ-ℕ x))) (inr (inr (succ-ℕ d)))) ∙ p))
+      ( inv p ∙ compute-mul-ℤ (inr (inr (succ-ℕ d))) (inr (inr (succ-ℕ x)))))
+
+idempotent-is-unit-ℤ : {x : ℤ} → is-unit-ℤ x → Id (mul-ℤ x x) one-ℤ
+idempotent-is-unit-ℤ {x} H =
+  f (is-one-or-neg-one-is-unit-ℤ x H)
+  where
+  f : is-one-or-neg-one-ℤ x → Id (mul-ℤ x x) one-ℤ
+  f (inl refl) = refl
+  f (inr refl) = refl
+
+-- The product xy is a unit if and only if both x and y are units
+
+is-unit-mul-ℤ :
+  (x y : ℤ) → is-unit-ℤ x → is-unit-ℤ y → is-unit-ℤ (mul-ℤ x y)
+is-unit-mul-ℤ x y (pair d p) (pair e q) =
+  pair
+    ( mul-ℤ e d)
+    ( ( associative-mul-ℤ e d (mul-ℤ x y)) ∙
+      ( ( ap
+          ( mul-ℤ e)
+          ( ( inv (associative-mul-ℤ d x y)) ∙
+            ( ap (mul-ℤ' y) p))) ∙
+        ( q)))
+
+mul-unit-ℤ : unit-ℤ → unit-ℤ → unit-ℤ
+mul-unit-ℤ (pair x H) (pair y K) = pair (mul-ℤ x y) (is-unit-mul-ℤ x y H K)
+
+is-unit-left-factor-ℤ :
+  (x y : ℤ) → is-unit-ℤ (mul-ℤ x y) → is-unit-ℤ x
+is-unit-left-factor-ℤ x y (pair d p) =
+  pair
+    ( mul-ℤ d y)
+    ( associative-mul-ℤ d y x ∙ (ap (mul-ℤ d) (commutative-mul-ℤ y x) ∙ p))
+
+is-unit-right-factor-ℤ :
+  (x y : ℤ) → is-unit-ℤ (mul-ℤ x y) → is-unit-ℤ y
+is-unit-right-factor-ℤ x y (pair d p) =
+  is-unit-left-factor-ℤ y x (pair d (ap (mul-ℤ d) (commutative-mul-ℤ y x) ∙ p))
 
 -- We introduce the equivalence relation ux = y, where u is a unit
 
@@ -355,46 +398,32 @@ presim-unit-ℤ x y = Σ unit-ℤ (λ u → Id (mul-ℤ (pr1 u) x) y)
 sim-unit-ℤ : ℤ → ℤ → UU lzero
 sim-unit-ℤ x y = ¬ (is-zero-ℤ x × is-zero-ℤ y) → presim-unit-ℤ x y
 
-refl-presim-unit-ℤ : (x : ℤ) → presim-unit-ℤ x x
-refl-presim-unit-ℤ x = pair one-unit-ℤ (left-unit-law-mul-ℤ x)
+-- The relations presim-unit-ℤ and sim-unit-ℤ are logially equivalent
 
-refl-sim-unit-ℤ : (x : ℤ) → sim-unit-ℤ x x
-refl-sim-unit-ℤ x f = refl-presim-unit-ℤ x
+sim-unit-presim-unit-ℤ :
+  {x y : ℤ} → presim-unit-ℤ x y → sim-unit-ℤ x y
+sim-unit-presim-unit-ℤ {x} {y} H f = H
 
-presim-unit-eq-ℤ : {x y : ℤ} → Id x y → presim-unit-ℤ x y
-presim-unit-eq-ℤ {x} refl = refl-presim-unit-ℤ x
+presim-unit-sim-unit-ℤ :
+  {x y : ℤ} → sim-unit-ℤ x y → presim-unit-ℤ x y
+presim-unit-sim-unit-ℤ {inl x} {inl y} H = H (λ t → Eq-eq-ℤ (pr1 t))
+presim-unit-sim-unit-ℤ {inl x} {inr y} H = H (λ t → Eq-eq-ℤ (pr1 t))
+presim-unit-sim-unit-ℤ {inr x} {inl y} H = H (λ t → Eq-eq-ℤ (pr2 t))
+presim-unit-sim-unit-ℤ {inr (inl star)} {inr (inl star)} H =
+  pair one-unit-ℤ refl
+presim-unit-sim-unit-ℤ {inr (inl star)} {inr (inr y)} H =
+  H (λ t → Eq-eq-ℤ (pr2 t))
+presim-unit-sim-unit-ℤ {inr (inr x)} {inr (inl star)} H =
+  H (λ t → Eq-eq-ℤ (pr1 t))
+presim-unit-sim-unit-ℤ {inr (inr x)} {inr (inr y)} H =
+  H (λ t → Eq-eq-ℤ (pr1 t))
 
-sim-unit-eq-ℤ : {x y : ℤ} → Id x y → sim-unit-ℤ x y
-sim-unit-eq-ℤ {x} refl = refl-sim-unit-ℤ x
-
-symm-presim-unit-ℤ : (x y : ℤ) → presim-unit-ℤ x y → presim-unit-ℤ y x
-symm-presim-unit-ℤ x y (pair (pair u H) p) = f (is-one-or-neg-one-is-unit-ℤ u H)
-  where
-  f : is-one-or-neg-one-ℤ u → presim-unit-ℤ y x
-  f (inl refl) = pair one-unit-ℤ (inv p)
-  f (inr refl) =
-    pair neg-one-unit-ℤ (inv (inv (neg-neg-ℤ x) ∙ ap (mul-ℤ neg-one-ℤ) p))
-
-symm-sim-unit-ℤ : (x y : ℤ) → sim-unit-ℤ x y → sim-unit-ℤ y x
-symm-sim-unit-ℤ x y H f =
-  symm-presim-unit-ℤ x y (H (λ p → f (pair (pr2 p) (pr1 p))))
-
-trans-presim-unit-ℤ :
-  (x y z : ℤ) → presim-unit-ℤ x y → presim-unit-ℤ y z → presim-unit-ℤ x z
-trans-presim-unit-ℤ x y z (pair (pair u H) p) (pair (pair v K) q) =
-  f (is-one-or-neg-one-is-unit-ℤ u H) (is-one-or-neg-one-is-unit-ℤ v K)
-  where
-  f : is-one-or-neg-one-ℤ u → is-one-or-neg-one-ℤ v → presim-unit-ℤ x z
-  f (inl refl) (inl refl) = pair one-unit-ℤ (p ∙ q)
-  f (inl refl) (inr refl) = pair neg-one-unit-ℤ (ap neg-ℤ p ∙ q)
-  f (inr refl) (inl refl) = pair neg-one-unit-ℤ (p ∙ q)
-  f (inr refl) (inr refl) =
-    pair one-unit-ℤ (inv (neg-neg-ℤ x) ∙ (ap neg-ℤ p ∙ q))
+-- The relations presim-unit-ℤ and sim-unit-ℤ relate zero-ℤ only to itself
 
 is-nonzero-presim-unit-ℤ :
   {x y : ℤ} → presim-unit-ℤ x y → is-nonzero-ℤ x → is-nonzero-ℤ y
 is-nonzero-presim-unit-ℤ {x} {y} (pair (pair v (pair u α)) β) f p =
-  Eq-eq-ℤ (ap (mul-ℤ' u) (inv q) ∙ α)
+  Eq-eq-ℤ (ap (mul-ℤ' u) (inv q) ∙ (commutative-mul-ℤ v u ∙ α))
   where
   q : Id v zero-ℤ
   q = is-injective-mul-ℤ' x f {v} {zero-ℤ} (β ∙ p)
@@ -403,10 +432,6 @@ is-nonzero-sim-unit-ℤ :
   {x y : ℤ} → sim-unit-ℤ x y → is-nonzero-ℤ x → is-nonzero-ℤ y
 is-nonzero-sim-unit-ℤ H f =
   is-nonzero-presim-unit-ℤ (H (f ∘ pr1)) f
-
-is-nonzero-sim-unit-ℤ' :
-  {x y : ℤ} → sim-unit-ℤ x y → is-nonzero-ℤ y → is-nonzero-ℤ x
-is-nonzero-sim-unit-ℤ' H = is-nonzero-sim-unit-ℤ (symm-sim-unit-ℤ _ _ H)
 
 is-zero-sim-unit-ℤ :
   {x y : ℤ} → sim-unit-ℤ x y → is-zero-ℤ x → is-zero-ℤ y
@@ -425,9 +450,52 @@ is-zero-sim-unit-ℤ {x} {y} H p =
   β : (g : is-nonzero-ℤ y) → Id (mul-ℤ (u g) x) y
   β g = pr2 (K g)
 
+-- The relations presim-unit-ℤ and sim-unit-ℤ are equivalence relations
+
+refl-presim-unit-ℤ : (x : ℤ) → presim-unit-ℤ x x
+refl-presim-unit-ℤ x = pair one-unit-ℤ (left-unit-law-mul-ℤ x)
+
+refl-sim-unit-ℤ : (x : ℤ) → sim-unit-ℤ x x
+refl-sim-unit-ℤ x f = refl-presim-unit-ℤ x
+
+presim-unit-eq-ℤ : {x y : ℤ} → Id x y → presim-unit-ℤ x y
+presim-unit-eq-ℤ {x} refl = refl-presim-unit-ℤ x
+
+sim-unit-eq-ℤ : {x y : ℤ} → Id x y → sim-unit-ℤ x y
+sim-unit-eq-ℤ {x} refl = refl-sim-unit-ℤ x
+
+symm-presim-unit-ℤ : {x y : ℤ} → presim-unit-ℤ x y → presim-unit-ℤ y x
+symm-presim-unit-ℤ {x} {y} (pair (pair u H) p) =
+  f (is-one-or-neg-one-is-unit-ℤ u H)
+  where
+  f : is-one-or-neg-one-ℤ u → presim-unit-ℤ y x
+  f (inl refl) = pair one-unit-ℤ (inv p)
+  f (inr refl) =
+    pair neg-one-unit-ℤ (inv (inv (neg-neg-ℤ x) ∙ ap (mul-ℤ neg-one-ℤ) p))
+
+symm-sim-unit-ℤ : {x y : ℤ} → sim-unit-ℤ x y → sim-unit-ℤ y x
+symm-sim-unit-ℤ {x} {y} H f =
+  symm-presim-unit-ℤ (H (λ p → f (pair (pr2 p) (pr1 p))))
+
+is-nonzero-sim-unit-ℤ' :
+  {x y : ℤ} → sim-unit-ℤ x y → is-nonzero-ℤ y → is-nonzero-ℤ x
+is-nonzero-sim-unit-ℤ' H = is-nonzero-sim-unit-ℤ (symm-sim-unit-ℤ H)
+
 is-zero-sim-unit-ℤ' :
   {x y : ℤ} → sim-unit-ℤ x y → is-zero-ℤ y → is-zero-ℤ x
-is-zero-sim-unit-ℤ' H = is-zero-sim-unit-ℤ (symm-sim-unit-ℤ _ _ H)
+is-zero-sim-unit-ℤ' H = is-zero-sim-unit-ℤ (symm-sim-unit-ℤ H)
+
+trans-presim-unit-ℤ :
+  (x y z : ℤ) → presim-unit-ℤ x y → presim-unit-ℤ y z → presim-unit-ℤ x z
+trans-presim-unit-ℤ x y z (pair (pair u H) p) (pair (pair v K) q) =
+  f (is-one-or-neg-one-is-unit-ℤ u H) (is-one-or-neg-one-is-unit-ℤ v K)
+  where
+  f : is-one-or-neg-one-ℤ u → is-one-or-neg-one-ℤ v → presim-unit-ℤ x z
+  f (inl refl) (inl refl) = pair one-unit-ℤ (p ∙ q)
+  f (inl refl) (inr refl) = pair neg-one-unit-ℤ (ap neg-ℤ p ∙ q)
+  f (inr refl) (inl refl) = pair neg-one-unit-ℤ (p ∙ q)
+  f (inr refl) (inr refl) =
+    pair one-unit-ℤ (inv (neg-neg-ℤ x) ∙ (ap neg-ℤ p ∙ q))
 
 trans-sim-unit-ℤ :
   (x y z : ℤ) → sim-unit-ℤ x y → sim-unit-ℤ y z → sim-unit-ℤ x z
@@ -435,34 +503,6 @@ trans-sim-unit-ℤ x y z H K f =
   trans-presim-unit-ℤ x y z
     ( H (λ {(pair p q) → f (pair p (is-zero-sim-unit-ℤ K q))}))
     ( K (λ {(pair p q) → f (pair (is-zero-sim-unit-ℤ' H p) q)}))
-
--- The product xy is a unit if and only if both x and y are units
-
-is-unit-mul-ℤ :
-  (x y : ℤ) → is-unit-ℤ x → is-unit-ℤ y → is-unit-ℤ (mul-ℤ x y)
-is-unit-mul-ℤ x y (pair d p) (pair e q) =
-  pair
-    ( mul-ℤ e d)
-    ( ( associative-mul-ℤ x y (mul-ℤ e d)) ∙
-      ( ( ap
-          ( mul-ℤ x)
-          ( ( inv (associative-mul-ℤ y e d)) ∙
-            ( ( ap (mul-ℤ' d) q) ∙
-              ( left-unit-law-mul-ℤ d)))) ∙
-        ( p)))
-
-mul-unit-ℤ : unit-ℤ → unit-ℤ → unit-ℤ
-mul-unit-ℤ (pair x H) (pair y K) = pair (mul-ℤ x y) (is-unit-mul-ℤ x y H K)
-
-is-unit-left-factor-ℤ :
-  (x y : ℤ) → is-unit-ℤ (mul-ℤ x y) → is-unit-ℤ x
-is-unit-left-factor-ℤ x y (pair d p) =
-  pair (mul-ℤ y d) (inv (associative-mul-ℤ x y d) ∙ p)
-
-is-unit-right-factor-ℤ :
-  (x y : ℤ) → is-unit-ℤ (mul-ℤ x y) → is-unit-ℤ y
-is-unit-right-factor-ℤ x y (pair d p) =
-  is-unit-left-factor-ℤ y x (pair d (ap (mul-ℤ' d) (commutative-mul-ℤ y x) ∙ p))
 
 -- We show that sim-unit-ℤ x y holds if and only if x|y and y|x
 
@@ -472,19 +512,17 @@ antisymmetric-div-ℤ x y (pair d p) (pair e q) H =
   f (is-decidable-is-zero-ℤ x)
   where
   f : is-decidable (is-zero-ℤ x) → presim-unit-ℤ x y
-  f (inl refl) = presim-unit-eq-ℤ p
+  f (inl refl) = presim-unit-eq-ℤ (inv (right-zero-law-mul-ℤ d) ∙ p)
   f (inr g) =
     pair
       ( pair d
         ( pair e
           ( is-injective-mul-ℤ x g
-            { mul-ℤ d e}
-            { one-ℤ}
-            ( ( inv
-                ( associative-mul-ℤ x d e)) ∙
-              ( ( ap (mul-ℤ' e) p) ∙
-                ( q ∙ inv (right-unit-law-mul-ℤ x)))))))
-      ( commutative-mul-ℤ d x ∙ p)
+            ( ( commutative-mul-ℤ x (mul-ℤ e d)) ∙
+              ( ( associative-mul-ℤ e d x) ∙
+                ( ( ap (mul-ℤ e) p) ∙
+                  ( q ∙ inv (right-unit-law-mul-ℤ x))))))))
+      ( p)
 
 -- We show that sim-unit-ℤ |x| x holds
 
@@ -496,18 +534,18 @@ sim-unit-abs-ℤ (inr (inr x)) = refl-sim-unit-ℤ (inr (inr x))
 -- We introduce the condition on ℤ of being a gcd.
 
 is-common-divisor-ℤ : ℤ → ℤ → ℤ → UU lzero
-is-common-divisor-ℤ d x y = (div-ℤ d x) × (div-ℤ d y)
+is-common-divisor-ℤ x y d = (div-ℤ d x) × (div-ℤ d y)
 
 is-gcd-ℤ : ℤ → ℤ → ℤ → UU lzero
 is-gcd-ℤ x y d =
-  is-nonnegative-ℤ d × ((k : ℤ) → is-common-divisor-ℤ k x y ↔ div-ℤ k d)
+  is-nonnegative-ℤ d × ((k : ℤ) → is-common-divisor-ℤ x y k ↔ div-ℤ k d)
 
 -- We relate divisibility and being a gcd on ℕ and on ℤ
 
 div-int-div-ℕ :
   {x y : ℕ} → div-ℕ x y → div-ℤ (int-ℕ x) (int-ℕ y)
 div-int-div-ℕ {x} {y} (pair d p) =
-  pair (int-ℕ d) (mul-int-ℕ x d ∙ ap int-ℕ (commutative-mul-ℕ x d ∙ p))
+  pair (int-ℕ d) (mul-int-ℕ d x ∙ ap int-ℕ p)
 
 int-abs-is-nonnegative-ℤ :
   (x : ℤ) → is-nonnegative-ℤ x → Id (int-abs-ℤ x) x
@@ -524,28 +562,76 @@ div-div-int-ℕ {succ-ℕ x} {y} (pair d p) =
     ( abs-ℤ d)
     ( is-injective-int-ℕ
       ( ( inv (mul-int-ℕ (abs-ℤ d) (succ-ℕ x))) ∙
-        ( ( ( ap
-              ( mul-ℤ' (inr (inr x)))
-              ( int-abs-is-nonnegative-ℤ d
-                ( is-nonnegative-right-factor-is-nonnegative-mul-ℤ
-                  { inr (inr x)}
-                  { d}
-                  ( is-nonnegative-eq-ℤ (inv p) (is-nonnegative-int-ℕ y))
-                  ( star)))) ∙
-            ( commutative-mul-ℤ d (inr (inr x)))) ∙
+        ( ( ap
+            ( mul-ℤ' (inr (inr x)))
+            { int-abs-ℤ d}
+            { d}
+            ( int-abs-is-nonnegative-ℤ d
+              ( is-nonnegative-left-factor-is-nonnegative-mul-ℤ
+                { d}
+                { inr (inr x)}
+                ( is-nonnegative-eq-ℤ (inv p) (is-nonnegative-int-ℕ y))
+                ( star)))) ∙
           ( p))))
 
 is-common-divisor-int-is-common-divisor-ℕ :
   {x y d : ℕ} →
-  is-common-divisor-ℕ x y d → is-common-divisor-ℤ (int-ℕ d) (int-ℕ x) (int-ℕ y)
+  is-common-divisor-ℕ x y d → is-common-divisor-ℤ (int-ℕ x) (int-ℕ y) (int-ℕ d)
 is-common-divisor-int-is-common-divisor-ℕ =
   map-prod div-int-div-ℕ div-int-div-ℕ
 
 is-common-divisor-is-common-divisor-int-ℕ :
   {x y d : ℕ} →
-  is-common-divisor-ℤ (int-ℕ d) (int-ℕ x) (int-ℕ y) → is-common-divisor-ℕ x y d
+  is-common-divisor-ℤ (int-ℕ x) (int-ℕ y) (int-ℕ d) → is-common-divisor-ℕ x y d
 is-common-divisor-is-common-divisor-int-ℕ {x} {y} {d} =
   map-prod div-div-int-ℕ div-div-int-ℕ
+
+div-presim-unit-ℤ :
+  {x y x' y' : ℤ} → presim-unit-ℤ x x' → presim-unit-ℤ y y' →
+  div-ℤ x y → div-ℤ x' y'
+div-presim-unit-ℤ {x} {y} {x'} {y'} (pair u q) (pair v r) (pair d p) =
+  pair
+    ( mul-ℤ (mul-ℤ (int-unit-ℤ v) d) (int-unit-ℤ u))
+    ( ( ap (mul-ℤ (mul-ℤ (mul-ℤ (int-unit-ℤ v) d) (int-unit-ℤ u))) (inv q)) ∙
+      ( ( associative-mul-ℤ
+          ( mul-ℤ (int-unit-ℤ v) d)
+          ( int-unit-ℤ u)
+          ( mul-ℤ (int-unit-ℤ u) x)) ∙
+        ( ( ap
+            ( mul-ℤ (mul-ℤ (int-unit-ℤ v) d))
+            ( ( inv (associative-mul-ℤ (int-unit-ℤ u) (int-unit-ℤ u) x)) ∙
+              ( ap (mul-ℤ' x) (idempotent-is-unit-ℤ (is-unit-int-unit-ℤ u))))) ∙
+          ( ( associative-mul-ℤ (int-unit-ℤ v) d x) ∙
+            ( ( ap (mul-ℤ (int-unit-ℤ v)) p) ∙
+              ( r))))))
+
+div-sim-unit-ℤ :
+  {x y x' y' : ℤ} → sim-unit-ℤ x x' → sim-unit-ℤ y y' →
+  div-ℤ x y → div-ℤ x' y'
+div-sim-unit-ℤ {x} {y} {x'} {y'} H K =
+  div-presim-unit-ℤ (presim-unit-sim-unit-ℤ H) (presim-unit-sim-unit-ℤ K)
+
+div-int-abs-div-ℤ :
+  {x y : ℤ} → div-ℤ x y → div-ℤ (int-abs-ℤ x) y
+div-int-abs-div-ℤ {x} {y} =
+  div-sim-unit-ℤ (symm-sim-unit-ℤ (sim-unit-abs-ℤ x)) (refl-sim-unit-ℤ y)
+
+div-div-int-abs-ℤ :
+  {x y : ℤ} → div-ℤ (int-abs-ℤ x) y → div-ℤ x y
+div-div-int-abs-ℤ {x} {y} =
+  div-sim-unit-ℤ (sim-unit-abs-ℤ x) (refl-sim-unit-ℤ y)
+
+is-common-divisor-int-abs-is-common-divisor-ℤ :
+  {x y d : ℤ} →
+  is-common-divisor-ℤ x y d → is-common-divisor-ℤ x y (int-abs-ℤ d)
+is-common-divisor-int-abs-is-common-divisor-ℤ =
+  map-prod div-int-abs-div-ℤ div-int-abs-div-ℤ
+
+is-common-divisor-is-common-divisor-int-abs-ℤ :
+  {x y d : ℤ} →
+  is-common-divisor-ℤ x y (int-abs-ℤ d) → is-common-divisor-ℤ x y d
+is-common-divisor-is-common-divisor-int-abs-ℤ =
+  map-prod div-div-int-abs-ℤ div-div-int-abs-ℤ
 
 is-gcd-int-is-gcd-ℕ :
   {x y d : ℕ} → is-gcd-ℕ x y d → is-gcd-ℤ (int-ℕ x) (int-ℕ y) (int-ℕ d)
@@ -554,5 +640,13 @@ is-gcd-int-is-gcd-ℕ {x} {y} {d} H =
     ( is-nonnegative-int-ℕ d)
     ( λ k →
       pair
-        ({!H (nat-is-nonnegative-ℤ !} ∘ (is-common-divisor-is-common-divisor-int-ℕ {x} {y} {{!!}}))
-        {!!})
+        ( ( ( ( ( div-div-int-abs-ℤ) ∘
+                ( div-int-div-ℕ)) ∘
+              ( pr1 (H (abs-ℤ k)))) ∘
+            ( is-common-divisor-is-common-divisor-int-ℕ)) ∘
+          ( is-common-divisor-int-abs-is-common-divisor-ℤ))
+        ( ( ( ( ( is-common-divisor-is-common-divisor-int-abs-ℤ) ∘
+                ( is-common-divisor-int-is-common-divisor-ℕ)) ∘
+              ( pr2 (H (abs-ℤ k)))) ∘
+            ( div-div-int-ℕ)) ∘
+          ( div-int-abs-div-ℤ)))
