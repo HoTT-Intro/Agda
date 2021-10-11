@@ -75,6 +75,7 @@ htpy-map-initial-pset-with-automorphisms X Y pt-Y f up-Y Z pt-Z g =
 {- We show a dependent elimination property for the initial pointed set with
    an automorphism for each x : X. -}
 
+{-
 dependent-up-initial-pset-with-automorphisms :
   { l1 l2 l3 l4 : Level} (X : UU-Set l1) (Y : UU-Set l2) (pt-Y : type-Set Y)
   ( f : type-Set X → (type-Set Y ≃ type-Set Y)) →
@@ -90,7 +91,7 @@ dependent-up-initial-pset-with-automorphisms :
   type-Set (P (map-initial-pset-with-automorphisms X Y pt-Y f up-Y Z pt-Z g y))
 dependent-up-initial-pset-with-automorphisms X Y pt-Y f up-Y Z pt-Z g P p e =
   {!!}
-        
+-}        
   
 {- We show that the initial set equipped with a point and an automorphism for
    each x : X is a group. -}
@@ -106,6 +107,7 @@ mul-initial-pset-with-automorphisms {l1} {l2} X Y pt-Y f up-Y =
     X Y pt-Y f up-Y (hom-Set Y Y) id
     ( λ x → equiv-postcomp (type-Set Y) (f x))
 
+{-
 associative-mul-initial-pset-with-automorphisms :
   {l1 l2 : Level} (X : UU-Set l1) (Y : UU-Set l2)
   (pt-Y : type-Set Y) (f : type-Set X → (type-Set Y ≃ type-Set Y)) →
@@ -117,3 +119,4 @@ associative-mul-initial-pset-with-automorphisms :
      ( mul-initial-pset-with-automorphisms X Y pt-Y f up-Y x
        ( mul-initial-pset-with-automorphisms X Y pt-Y f up-Y y z))
 associative-mul-initial-pset-with-automorphisms X Y pt-Y f up-Y x y z = {!refl!}
+-}

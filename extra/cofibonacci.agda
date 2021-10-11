@@ -88,11 +88,13 @@ div-Fibonacci-add-ℕ d m (succ-ℕ n) H1 H2 =
             ( commutative-mul-ℕ (Fibonacci-ℕ n) (Fibonacci-ℕ m))
             ( div-mul-ℕ (Fibonacci-ℕ n) d (Fibonacci-ℕ m) H1)))
 
+{-
 div-Fibonacci-left-summand-ℕ :
   (d m n : ℕ) → div-ℕ d (Fibonacci-ℕ n) → div-ℕ d (Fibonacci-ℕ (add-ℕ m n)) →
   div-ℕ d (Fibonacci-ℕ m)
 div-Fibonacci-left-summand-ℕ d m n H1 H2 =
   {!!}
+-}
 
 div-Fibonacci-div-ℕ :
   (d m n : ℕ) → div-ℕ m n → div-ℕ d (Fibonacci-ℕ m) → div-ℕ d (Fibonacci-ℕ n)
@@ -373,6 +375,7 @@ forward-is-left-adjoint-cofibonacci (succ-ℕ m) (succ-ℕ n) H =
         ( succ-ℕ m)
         ( is-nonzero-succ-ℕ m)))
 
+{-
 converse-is-left-adjoint-cofibonacci :
   (m n : ℕ) → div-ℕ m (Fibonacci-ℕ n) → div-ℕ (cofibonacci m) n
 converse-is-left-adjoint-cofibonacci m n H = {!!}
@@ -381,3 +384,4 @@ is-left-adjoint-cofibonacci :
   (m n : ℕ) → div-ℕ (cofibonacci m) n ↔ div-ℕ m (Fibonacci-ℕ n)
 is-left-adjoint-cofibonacci zero-ℕ n = {!!}
 is-left-adjoint-cofibonacci (succ-ℕ m) n = {!!}
+-}

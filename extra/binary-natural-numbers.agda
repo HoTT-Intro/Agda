@@ -303,6 +303,7 @@ nat-Fin₂ {double-plus-three-ℕ₂ k} (inr (inr x)) = succ-ℕ₂ (succ-ℕ₂
 
 -- We show that the inclusion of Fin₂ k into ℕ₂ is bounded
 
+{-
 strict-upper-bound-nat-Fin-ℕ₂ :
   (k : ℕ₂) (x : Fin₂ k) → (nat-Fin₂ x) <-ℕ₂ k
 strict-upper-bound-nat-Fin-ℕ₂ one-ℕ₂ star = star
@@ -310,3 +311,4 @@ strict-upper-bound-nat-Fin-ℕ₂ (double-plus-two-ℕ₂ k) (inl (inl x)) = {!!
 strict-upper-bound-nat-Fin-ℕ₂ (double-plus-two-ℕ₂ k) (inl (inr x)) = {!!}
 strict-upper-bound-nat-Fin-ℕ₂ (double-plus-two-ℕ₂ k) (inr x) = {!!}
 strict-upper-bound-nat-Fin-ℕ₂ (double-plus-three-ℕ₂ k) x = {!!}
+-}

@@ -120,12 +120,13 @@ module B where
     system.type A (add-ℕ n k) → system.type A n
   iterate-system-ft A n k = iterate-using-add-system-ft A n k refl
 
+{-
   slice-system :
     {l1 l2 : Level} (A : system l1 l2) {n : ℕ} → context A n →
     system l1 (l1 ⊔ l2)
   slice-system A (pair empty-context p) = {!A!}
   slice-system A (pair (extension-context Γ x) p) = {!!}
-
+-}
 
 --   slice-system :
 --     {l1 l2 : Level} (A : system l1 l2) {n : ℕ} → system.type A n →

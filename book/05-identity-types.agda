@@ -922,12 +922,3 @@ comp-odd-div-two-ℕ (succ-ℕ n) =
         ( ( right-successor-law-mul-ℕ two-ℕ n) ∙
           ( left-two-law-add-ℕ (mul-ℕ two-ℕ n)))) ∙
    ( ap succ-ℕ (comp-odd-div-two-ℕ n))
-
-{-
-comp-triangular-number :
-  (n : ℕ) → Id (triangular-number n) (div-two-ℕ (mul-ℕ n (succ-ℕ n)))
-comp-triangular-number zero-ℕ = refl
-comp-triangular-number (succ-ℕ n) =
-  inv (comp-even-div-two-ℕ (triangular-number (succ-ℕ n))) ∙
-  ap div-two-ℕ {!!}
--}

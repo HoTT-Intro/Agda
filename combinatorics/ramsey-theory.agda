@@ -25,7 +25,7 @@ is-ramsey-set {k} q r A =
           (Q : subset-of-size r A) →
           ((x : type-𝔽 A) → type-Prop ((pr1 Q) x) → type-Prop ((pr1 P) x)) →
           Id (c Q) i))
-
+{-
 is-ramsey-set-empty-coloring : (r : ℕ) → is-ramsey-set ex-falso r empty-𝔽
 is-ramsey-set-empty-coloring zero-ℕ c = {!!}
 is-ramsey-set-empty-coloring (succ-ℕ r) c = {!!}
@@ -49,4 +49,5 @@ is-ramsey-set-Fin-r q .(q i) (pair i refl) c =
       ( pair ( full-subset (Fin {!!}))
              ( unit-trunc-Prop (inv-equiv right-unit-law-prod)))
       ( λ Q H → {!!}))
+-}
 -}

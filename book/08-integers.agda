@@ -692,6 +692,9 @@ gcd-ℤ x y = int-ℕ (nat-gcd-ℤ x y)
 is-nonnegative-gcd-ℤ : (x y : ℤ) → is-nonnegative-ℤ (gcd-ℤ x y)
 is-nonnegative-gcd-ℤ x y = is-nonnegative-int-ℕ (nat-gcd-ℤ x y)
 
+gcd-nonnegative-ℤ : ℤ → ℤ → nonnegative-ℤ
+gcd-nonnegative-ℤ x y = pair (gcd-ℤ x y) (is-nonnegative-gcd-ℤ x y)
+
 is-gcd-gcd-ℤ : (x y : ℤ) → is-gcd-ℤ x y (gcd-ℤ x y)
 is-gcd-gcd-ℤ x y =
   pair

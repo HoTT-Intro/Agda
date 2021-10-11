@@ -57,6 +57,7 @@ is-dn-sheaf-dn P Q =
     ( is-prop-function-type is-prop-neg)
     ( dn-extend)
 
+{-
 is-dn-sheafification-intro-dn :
   (k : Level) {l : Level} (P : UU l) →
   universal-property-dn-sheafification k (intro-dn {P = P}) (is-dn-sheaf-dn P)
@@ -70,3 +71,4 @@ is-dn-sheafification-intro-dn k {l} P X is-dn-sheaf-X =
     {!!}
     {!!}
     {!!}
+-}

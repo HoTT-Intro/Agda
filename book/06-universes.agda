@@ -969,6 +969,9 @@ is-positive-ℤ (inl x) = empty
 is-positive-ℤ (inr (inl x)) = empty
 is-positive-ℤ (inr (inr x)) = unit
 
+positive-ℤ : UU lzero
+positive-ℤ = Σ ℤ is-positive-ℤ
+
 is-nonnegative-is-positive-ℤ : {x : ℤ} → is-positive-ℤ x → is-nonnegative-ℤ x
 is-nonnegative-is-positive-ℤ {inr (inr x)} H = H
 
@@ -977,6 +980,9 @@ is-positive-eq-ℤ {x} refl = id
 
 is-positive-one-ℤ : is-positive-ℤ one-ℤ
 is-positive-one-ℤ = star
+
+one-positive-ℤ : positive-ℤ
+one-positive-ℤ = pair one-ℤ is-positive-one-ℤ
 
 is-positive-succ-ℤ : {x : ℤ} → is-nonnegative-ℤ x → is-positive-ℤ (succ-ℤ x)
 is-positive-succ-ℤ {inr (inl star)} H = is-positive-one-ℤ

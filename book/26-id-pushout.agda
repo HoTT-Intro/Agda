@@ -392,6 +392,7 @@ equiv-is-equiv-hom-Fam-pushout P Q h is-equiv-h =
 
 {- Theorem 19.1.3. Characterization of identity types of pushouts. -}
 
+{-
 hom-identity-is-universal-Fam-pushout :
   { l1 l2 l3 l4 l5 : Level} {S : UU l1} {A : UU l2} {B : UU l3} {X : UU l5}
   { f : S → A} {g : S → B} (c : cocone f g X) →
@@ -412,3 +413,4 @@ is-identity-is-universal-Fam-pushout :
   Σ ( equiv-Fam-pushout P (desc-fam c (Id (pr1 c a))))
     ( λ e → Id (map-equiv (pr1 e a) p) refl)
 is-identity-is-universal-Fam-pushout {f = f} {g} c up-X a P p₀ is-eq-P = {!!}
+-}

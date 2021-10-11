@@ -65,9 +65,11 @@ incident-edges-vertex-Graph-𝔽 G x =
   Σ ( unordered-pair (type-𝔽 (Graph-𝔽.vertex G)))
     ( λ p → fib (pair-unordered-pair p) x)
 
+{-
 neighbor-Graph-𝔽 :
   (G : Graph-𝔽) (x : vertices-Graph-𝔽 G) → UU (lsuc lzero)
 neighbor-Graph-𝔽 G x = Σ (vertices-Graph-𝔽 G) (λ y → type-trunc-Prop {!!})
+-}
 
 --------------------------------------------------------------------------------
 

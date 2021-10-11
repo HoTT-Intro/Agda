@@ -1250,3 +1250,5 @@ module _
   equiv-set-quotient-representatives H =
     pair ( map-set-quotient-representatives H)
          ( is-equiv-map-set-quotient-representatives H)
+
+-- We construct ℚ by unique representatives of sim-pre-ℚ

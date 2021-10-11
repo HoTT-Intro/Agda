@@ -582,18 +582,6 @@ is-emb-neg-ℤ = is-emb-is-equiv is-equiv-neg-ℤ
 
 {- We show that multiplication by a non-zero integer is an embedding. -}
 
-{-
-is-injective-mul-ℤ :
-  (x y z : ℤ) → ¬ (Id zero-ℤ x) → Id (mul-ℤ x y) (mul-ℤ x z) → Id y z
-is-injective-mul-ℤ (inl zero-ℕ) y z p q = is-injective-neg-ℤ y z q
-is-injective-mul-ℤ (inl (succ-ℕ x)) y z p q = {!!}
-is-injective-mul-ℤ (inr x) y z p q = {!x!}
-
-neq-zero-mul-ℤ :
-  (x y : ℤ) → ¬ (Id zero-ℤ x) → ¬ (Id zero-ℤ y) → ¬ (Id zero-ℤ (mul-ℤ x y))
-neq-zero-mul-ℤ x y Hx Hy = {!!}
--}
-
 --------------------------------------------------------------------------------
 
 {- We prove some interchange laws and moves on iterated multiplications. -}
