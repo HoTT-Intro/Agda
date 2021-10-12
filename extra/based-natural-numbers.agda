@@ -2,8 +2,7 @@
 
 module extra.based-natural-numbers where
 
-import book
-open book public
+open import book public
 
 -- Some further observations about the k-ary natural numbers
 

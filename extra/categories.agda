@@ -2,8 +2,7 @@
 
 module extra.categories where
 
-import book
-open book public
+open import book public
 
 {-
 {- We introduce precategories and categories. -}

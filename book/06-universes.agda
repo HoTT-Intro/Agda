@@ -975,6 +975,9 @@ positive-ℤ = Σ ℤ is-positive-ℤ
 is-nonnegative-is-positive-ℤ : {x : ℤ} → is-positive-ℤ x → is-nonnegative-ℤ x
 is-nonnegative-is-positive-ℤ {inr (inr x)} H = H
 
+is-nonzero-is-positive-ℤ : (x : ℤ) → is-positive-ℤ x → is-nonzero-ℤ x
+is-nonzero-is-positive-ℤ (inr (inr x)) H p = Eq-eq-ℤ p
+
 is-positive-eq-ℤ : {x y : ℤ} → Id x y → is-positive-ℤ x → is-positive-ℤ y
 is-positive-eq-ℤ {x} refl = id
 
@@ -1002,6 +1005,19 @@ is-positive-mul-ℤ {inr (inr zero-ℕ)} {inr (inr y)} H K = star
 is-positive-mul-ℤ {inr (inr (succ-ℕ x))} {inr (inr y)} H K =
   is-positive-add-ℤ {inr (inr y)} K
     ( is-positive-mul-ℤ {inr (inr x)} {inr (inr y)} H K)
+
+is-positive-abs-ℤ :
+  (x : ℤ) → is-positive-ℤ x → is-positive-ℤ (int-abs-ℤ x)
+is-positive-abs-ℤ (inr (inr x)) H = star
+
+is-nonzero-abs-ℤ :
+  (x : ℤ) → is-positive-ℤ x → is-nonzero-ℕ (abs-ℤ x)
+is-nonzero-abs-ℤ (inr (inr x)) H = is-nonzero-succ-ℕ x
+
+is-positive-int-ℕ :
+  (x : ℕ) → is-nonzero-ℕ x → is-positive-ℤ (int-ℕ x)
+is-positive-int-ℕ zero-ℕ H = ex-falso (H refl)
+is-positive-int-ℕ (succ-ℕ x) H = star
 
 -- Basics of nonnegative integers
 

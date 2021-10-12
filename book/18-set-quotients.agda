@@ -278,36 +278,34 @@ trans-Eq-Rel R = pr2 (pr2 (is-equivalence-relation-prop-Eq-Rel R))
 
 -- Example
 
-ℕ\0 : UU lzero
-ℕ\0 = Σ ℕ is-nonzero-ℕ
-
 pre-ℚ : UU lzero
-pre-ℚ = ℤ × ℕ\0
+pre-ℚ = ℤ × positive-ℤ
 
 numerator-pre-ℚ : pre-ℚ → ℤ
 numerator-pre-ℚ x = pr1 x
 
-denominator-pre-ℚ : pre-ℚ → ℕ
-denominator-pre-ℚ x = pr1 (pr2 x)
+positive-denominator-pre-ℚ : pre-ℚ → positive-ℤ
+positive-denominator-pre-ℚ x = pr2 x
 
-int-denominator-pre-ℚ : pre-ℚ → ℤ
-int-denominator-pre-ℚ x = int-ℕ (denominator-pre-ℚ x)
+denominator-pre-ℚ : pre-ℚ → ℤ
+denominator-pre-ℚ x = pr1 (positive-denominator-pre-ℚ x)
 
-is-nonzero-denominator-pre-ℚ : (x : pre-ℚ) → is-nonzero-ℕ (denominator-pre-ℚ x)
-is-nonzero-denominator-pre-ℚ x = pr2 (pr2 x)
+is-positive-denominator-pre-ℚ :
+  (x : pre-ℚ) → is-positive-ℤ (denominator-pre-ℚ x)
+is-positive-denominator-pre-ℚ x = pr2 (positive-denominator-pre-ℚ x)
 
-is-nonzero-int-denominator-pre-ℚ :
-  (x : pre-ℚ) → is-nonzero-ℤ (int-denominator-pre-ℚ x)
-is-nonzero-int-denominator-pre-ℚ x =
-  is-nonzero-int-ℕ
+is-nonzero-denominator-pre-ℚ :
+  (x : pre-ℚ) → is-nonzero-ℤ (denominator-pre-ℚ x)
+is-nonzero-denominator-pre-ℚ x =
+  is-nonzero-is-positive-ℤ
     ( denominator-pre-ℚ x)
-    ( is-nonzero-denominator-pre-ℚ x)
+    ( is-positive-denominator-pre-ℚ x)
 
 sim-pre-ℚ-Prop : pre-ℚ → pre-ℚ → UU-Prop lzero
 sim-pre-ℚ-Prop x y =
   Id-Prop ℤ-Set
-    (mul-ℤ (numerator-pre-ℚ x) (int-ℕ (denominator-pre-ℚ y)))
-    (mul-ℤ (numerator-pre-ℚ y) (int-ℕ (denominator-pre-ℚ x)))
+    (mul-ℤ (numerator-pre-ℚ x) (denominator-pre-ℚ y))
+    (mul-ℤ (numerator-pre-ℚ y) (denominator-pre-ℚ x))
 
 sim-pre-ℚ : pre-ℚ → pre-ℚ → UU lzero
 sim-pre-ℚ x y = type-Prop (sim-pre-ℚ-Prop x y)
@@ -325,53 +323,53 @@ trans-sim-pre-ℚ :
   {x y z : pre-ℚ} → sim-pre-ℚ x y → sim-pre-ℚ y z → sim-pre-ℚ x z
 trans-sim-pre-ℚ {x} {y} {z} r s =
   is-injective-mul-ℤ'
-    ( int-denominator-pre-ℚ y)
-    ( is-nonzero-int-denominator-pre-ℚ y)
+    ( denominator-pre-ℚ y)
+    ( is-nonzero-denominator-pre-ℚ y)
     ( ( associative-mul-ℤ
         ( numerator-pre-ℚ x)
-        ( int-denominator-pre-ℚ z)
-        ( int-denominator-pre-ℚ y)) ∙
+        ( denominator-pre-ℚ z)
+        ( denominator-pre-ℚ y)) ∙
       ( ( ap
           ( mul-ℤ (numerator-pre-ℚ x))
           ( commutative-mul-ℤ
-            ( int-denominator-pre-ℚ z)
-            ( int-denominator-pre-ℚ y))) ∙
+            ( denominator-pre-ℚ z)
+            ( denominator-pre-ℚ y))) ∙
         ( ( inv
             ( associative-mul-ℤ
               ( numerator-pre-ℚ x)
-              ( int-denominator-pre-ℚ y)
-              ( int-denominator-pre-ℚ z))) ∙
-          ( ( ap ( mul-ℤ' (int-denominator-pre-ℚ z)) r) ∙
+              ( denominator-pre-ℚ y)
+              ( denominator-pre-ℚ z))) ∙
+          ( ( ap ( mul-ℤ' (denominator-pre-ℚ z)) r) ∙
             ( ( associative-mul-ℤ
                 ( numerator-pre-ℚ y)
-                ( int-denominator-pre-ℚ x)
-                ( int-denominator-pre-ℚ z)) ∙
+                ( denominator-pre-ℚ x)
+                ( denominator-pre-ℚ z)) ∙
               ( ( ap
                   ( mul-ℤ (numerator-pre-ℚ y))
                   ( commutative-mul-ℤ
-                    ( int-denominator-pre-ℚ x)
-                    ( int-denominator-pre-ℚ z))) ∙
+                    ( denominator-pre-ℚ x)
+                    ( denominator-pre-ℚ z))) ∙
                 ( ( inv
                     ( associative-mul-ℤ
                       ( numerator-pre-ℚ y)
-                      ( int-denominator-pre-ℚ z)
-                      ( int-denominator-pre-ℚ x))) ∙
-                  ( ( ap (mul-ℤ' (int-denominator-pre-ℚ x)) s) ∙
+                      ( denominator-pre-ℚ z)
+                      ( denominator-pre-ℚ x))) ∙
+                  ( ( ap (mul-ℤ' (denominator-pre-ℚ x)) s) ∙
                     ( ( associative-mul-ℤ
                         ( numerator-pre-ℚ z)
-                        ( int-denominator-pre-ℚ y)
-                        ( int-denominator-pre-ℚ x)) ∙
+                        ( denominator-pre-ℚ y)
+                        ( denominator-pre-ℚ x)) ∙
                       ( ( ap
                           ( mul-ℤ (numerator-pre-ℚ z))
                           ( commutative-mul-ℤ
-                            ( int-denominator-pre-ℚ y)
-                            ( int-denominator-pre-ℚ x))) ∙
+                            ( denominator-pre-ℚ y)
+                            ( denominator-pre-ℚ x))) ∙
                         ( inv
                           ( associative-mul-ℤ
                             ( numerator-pre-ℚ z)
-                            ( int-denominator-pre-ℚ x)
-                            ( int-denominator-pre-ℚ y)))))))))))))
-
+                            ( denominator-pre-ℚ x)
+                            ( denominator-pre-ℚ y)))))))))))))
+                            
 -- Definition 18.1.2
 
 class-Eq-Rel :
@@ -1252,3 +1250,73 @@ module _
          ( is-equiv-map-set-quotient-representatives H)
 
 -- We construct ℚ by unique representatives of sim-pre-ℚ
+
+is-relative-prime-ℤ : ℤ → ℤ → UU lzero
+is-relative-prime-ℤ x y = is-one-ℤ (gcd-ℤ x y)
+
+is-reduced-pre-ℚ : pre-ℚ → UU lzero
+is-reduced-pre-ℚ x =
+  is-relative-prime-ℤ (numerator-pre-ℚ x) (denominator-pre-ℚ x)
+
+ℚ : UU lzero
+ℚ = Σ pre-ℚ is-reduced-pre-ℚ
+
+reduce-numerator-pre-ℚ :
+  (x : pre-ℚ) →
+  div-ℤ (gcd-ℤ (numerator-pre-ℚ x) (denominator-pre-ℚ x)) (numerator-pre-ℚ x)
+reduce-numerator-pre-ℚ x =
+  pr1 (is-common-divisor-gcd-ℤ (numerator-pre-ℚ x) (denominator-pre-ℚ x))
+
+int-reduce-numerator-pre-ℚ : pre-ℚ → ℤ
+int-reduce-numerator-pre-ℚ x = pr1 (reduce-numerator-pre-ℚ x)
+
+eq-reduce-numerator-pre-ℚ :
+  (x : pre-ℚ) →
+  Id ( mul-ℤ
+       ( int-reduce-numerator-pre-ℚ x)
+       ( gcd-ℤ (numerator-pre-ℚ x) (denominator-pre-ℚ x)))
+     ( numerator-pre-ℚ x)
+eq-reduce-numerator-pre-ℚ x = pr2 (reduce-numerator-pre-ℚ x)
+
+reduce-denominator-pre-ℚ :
+  (x : pre-ℚ) →
+  div-ℤ (gcd-ℤ (numerator-pre-ℚ x) (denominator-pre-ℚ x)) (denominator-pre-ℚ x)
+reduce-denominator-pre-ℚ x =
+  pr2 (is-common-divisor-gcd-ℤ (numerator-pre-ℚ x) (denominator-pre-ℚ x))
+
+int-reduce-denominator-pre-ℚ : pre-ℚ → ℤ
+int-reduce-denominator-pre-ℚ x =
+  pr1 (reduce-denominator-pre-ℚ x)
+
+eq-reduce-denominator-pre-ℚ :
+  (x : pre-ℚ) →
+  Id ( mul-ℤ
+       ( int-reduce-denominator-pre-ℚ x)
+       ( gcd-ℤ (numerator-pre-ℚ x) (denominator-pre-ℚ x)))
+     ( denominator-pre-ℚ x)
+eq-reduce-denominator-pre-ℚ x =
+  pr2 (reduce-denominator-pre-ℚ x)
+
+is-positive-int-reduce-denominator-pre-ℚ :
+  (x : pre-ℚ) → is-positive-ℤ (int-reduce-denominator-pre-ℚ x)
+is-positive-int-reduce-denominator-pre-ℚ x =
+  is-positive-left-factor-ℤ
+    ( is-positive-eq-ℤ
+      ( inv (eq-reduce-denominator-pre-ℚ x))
+      ( is-positive-denominator-pre-ℚ x))
+    ( is-positive-gcd-is-positive-right-ℤ
+      ( numerator-pre-ℚ x)
+      ( denominator-pre-ℚ x)
+      ( is-positive-denominator-pre-ℚ x))
+
+reduce-pre-ℚ : pre-ℚ → pre-ℚ
+reduce-pre-ℚ x =
+  pair
+    ( int-reduce-numerator-pre-ℚ x)
+    ( pair
+      ( int-reduce-denominator-pre-ℚ x)
+      ( is-positive-int-reduce-denominator-pre-ℚ x))
+
+is-reduced-reduce-pre-ℚ :
+  (x : pre-ℚ) → is-reduced-pre-ℚ (reduce-pre-ℚ x)
+is-reduced-reduce-pre-ℚ x = {!!}

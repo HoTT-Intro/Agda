@@ -723,3 +723,50 @@ is-gcd-gcd-ℤ x y =
           ( div-sim-unit-ℤ
             ( symm-sim-unit-ℤ (sim-unit-abs-ℤ k))
             ( refl-sim-unit-ℤ (gcd-ℤ x y)))))
+
+is-common-divisor-gcd-ℤ :
+  (x y : ℤ) → is-common-divisor-ℤ x y (gcd-ℤ x y)
+is-common-divisor-gcd-ℤ x y =
+  pr2 (pr2 (is-gcd-gcd-ℤ x y) (gcd-ℤ x y)) (refl-div-ℤ (gcd-ℤ x y))
+
+div-gcd-is-common-divisor-ℤ :
+  (x y k : ℤ) → is-common-divisor-ℤ x y k → div-ℤ k (gcd-ℤ x y)
+div-gcd-is-common-divisor-ℤ x y k H =
+  pr1 (pr2 (is-gcd-gcd-ℤ x y) k) H
+
+is-positive-gcd-is-positive-left-ℤ :
+  (x y : ℤ) → is-positive-ℤ x → is-positive-ℤ (gcd-ℤ x y)
+is-positive-gcd-is-positive-left-ℤ x y H =
+  is-positive-int-ℕ
+    ( gcd-ℕ (abs-ℤ x) (abs-ℤ y))
+    ( is-nonzero-gcd-ℕ
+      ( abs-ℤ x)
+      ( abs-ℤ y)
+      ( λ p → is-nonzero-abs-ℤ x H (f p)))
+  where
+  f : is-zero-ℕ (add-ℕ (abs-ℤ x) (abs-ℤ y)) → is-zero-ℕ (abs-ℤ x)
+  f = is-zero-left-is-zero-add-ℕ (abs-ℤ x) (abs-ℤ y)
+
+is-positive-gcd-is-positive-right-ℤ :
+  (x y : ℤ) → is-positive-ℤ y → is-positive-ℤ (gcd-ℤ x y)
+is-positive-gcd-is-positive-right-ℤ x y H =
+  is-positive-int-ℕ
+    ( gcd-ℕ (abs-ℤ x) (abs-ℤ y))
+    ( is-nonzero-gcd-ℕ
+      ( abs-ℤ x)
+      ( abs-ℤ y)
+      ( λ p → is-nonzero-abs-ℤ y H (f p)))
+  where
+  f : is-zero-ℕ (add-ℕ (abs-ℤ x) (abs-ℤ y)) → is-zero-ℕ (abs-ℤ y)
+  f = is-zero-right-is-zero-add-ℕ (abs-ℤ x) (abs-ℤ y)
+
+is-positive-gcd-ℤ :
+  (x y : ℤ) → coprod (is-positive-ℤ x) (is-positive-ℤ y) →
+  is-positive-ℤ (gcd-ℤ x y)
+is-positive-gcd-ℤ x y (inl H) = is-positive-gcd-is-positive-left-ℤ x y H
+is-positive-gcd-ℤ x y (inr H) = is-positive-gcd-is-positive-right-ℤ x y H
+
+is-commutative-gcd-ℤ :
+  (x y : ℤ) → Id (gcd-ℤ x y) (gcd-ℤ y x)
+is-commutative-gcd-ℤ x y =
+  ap int-ℕ (is-commutative-gcd-ℕ (abs-ℤ x) (abs-ℤ y)) 

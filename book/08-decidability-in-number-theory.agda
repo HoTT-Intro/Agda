@@ -615,6 +615,19 @@ is-gcd-gcd-ℕ a b x =
     ( div-gcd-is-common-divisor-ℕ a b x)
     ( is-common-divisor-div-gcd-ℕ a b x)
 
+-- We show that gcd-ℕ is commutative
+
+is-commutative-gcd-ℕ : (a b : ℕ) → Id (gcd-ℕ a b) (gcd-ℕ b a)
+is-commutative-gcd-ℕ a b =
+  anti-symmetric-div-ℕ
+    ( gcd-ℕ a b)
+    ( gcd-ℕ b a)
+    ( pr1 (is-gcd-gcd-ℕ b a (gcd-ℕ a b)) (σ (is-common-divisor-gcd-ℕ a b)))
+    ( pr1 (is-gcd-gcd-ℕ a b (gcd-ℕ b a)) (σ (is-common-divisor-gcd-ℕ b a)))
+  where
+  σ : {A B : UU lzero} → A × B → B × A
+  σ (pair x y) = pair y x
+
 --------------------------------------------------------------------------------
 
 {- Section 8.5 The infinitude of primes -}

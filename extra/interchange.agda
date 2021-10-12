@@ -2,8 +2,7 @@
 
 module extra.interchange where
 
-import book
-open book public
+open import book public
 
 --------------------------------------------------------------------------------
 
