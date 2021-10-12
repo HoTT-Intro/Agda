@@ -2,8 +2,7 @@
 
 module extra.subuniverses where
 
-import book
-open book public
+open import book public
 
 {-
 is-local :

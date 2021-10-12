@@ -2,7 +2,7 @@
 
 module extra.isolated-points where
 
-open import book.17-univalence public
+open import book public
 
 {-------------------------------------------------------------------------------
 

@@ -2,7 +2,7 @@
 
 module extra.seven-trees-in-one where
 
-open import book.16-finite-types public
+open import book public
 
 {-------------------------------------------------------------------------------
 

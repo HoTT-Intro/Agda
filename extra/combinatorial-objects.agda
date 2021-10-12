@@ -2,8 +2,7 @@
 
 module extra.combinatorial-objects where
 
-import book
-open book public
+open import book public
 
 {- The type ℍ of hereditarily finite types is introduces as an inductive type.
 

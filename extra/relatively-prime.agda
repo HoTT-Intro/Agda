@@ -2,7 +2,7 @@
 
 module extra.relatively-prime where
 
-open import book.08-decidability-in-number-theory public
+open import book public
 
 {-------------------------------------------------------------------------------
 

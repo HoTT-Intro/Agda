@@ -2,8 +2,7 @@
 
 module extra.flat-modality where
 
-import book
-open book public
+open import book public
 
 {- Agda has crisp contexts which allow us to seperate crisp variables. This let's us work with (something that is hopefully) the flat modality.
 

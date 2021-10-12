@@ -2,8 +2,7 @@
 
 module extra.dependent-preorders where
 
-import book
-open book public
+open import book public
 
 --------------------------------------------------------------------------------
 

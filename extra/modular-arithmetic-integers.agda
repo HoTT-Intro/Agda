@@ -2,8 +2,7 @@
 
 module extra.modular-arithmetic-integers where
 
-import book
-open book public
+open import book public
 
 dist-ℤ : ℤ → ℤ → ℕ
 dist-ℤ (inl x) (inl y) = dist-ℕ x y

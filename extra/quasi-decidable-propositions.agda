@@ -2,7 +2,7 @@
 
 module extra.quasi-decidable-propositions where
 
-open import book.17-univalence public
+open import book public
 
 is-quasi-decidable : UU-Prop lzero → UU (lsuc lzero)
 is-quasi-decidable P =

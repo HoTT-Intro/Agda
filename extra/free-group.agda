@@ -2,8 +2,7 @@
 
 module extra.free-group where
 
-import book
-open book public
+open import book public
 
 {- We state the universal property of the free group on a set X -}
 

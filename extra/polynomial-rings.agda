@@ -2,8 +2,7 @@
 
 module extra.polynomial-rings where
 
-import extra.rings
-open extra.rings public
+open import extra.rings public
 
 {- We state the universal property of the polynomial ring R[x]. -}
 

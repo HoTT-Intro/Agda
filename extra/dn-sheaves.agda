@@ -2,8 +2,7 @@
 
 module extra.dn-sheaves where
 
-import book
-open book public
+open import book public
 
 {- We postulate a propositional resizing axiom -}
 

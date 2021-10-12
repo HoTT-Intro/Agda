@@ -2,8 +2,7 @@
 
 module extra.towers where
 
-import book
-open book public
+open import book public
 
 record tower (l : Level) : UU (lsuc l)
   where

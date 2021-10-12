@@ -2,8 +2,7 @@
 
 module extra.rings-with-properties where
 
-import extra.rings
-open extra.rings public
+open import extra.rings public
 
 --------------------------------------------------------------------------------
 

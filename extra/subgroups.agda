@@ -2,8 +2,7 @@
 
 module extra.subgroups where
 
-import book
-open book public
+open import book public
 
 {- Subsets of groups -}
 

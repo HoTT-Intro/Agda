@@ -21,8 +21,7 @@
 
 module extra.models where
 
-import book
-open book public
+open import book public
 
 Contexts :
   ( l : Level) → UU (lsuc l)

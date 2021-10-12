@@ -2,8 +2,7 @@
 
 module extra.lists where
 
-import book
-open book public
+open import book public
 
 Eq-list : {l1 : Level} {A : UU l1} → list A → list A → UU l1
 Eq-list {l1} nil nil = raise-unit l1

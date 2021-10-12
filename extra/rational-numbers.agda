@@ -2,8 +2,7 @@
 
 module extra.rational-numbers where
 
-import extra.integers
-open extra.integers public
+open import extra.integers public
 
 --------------------------------------------------------------------------------
 

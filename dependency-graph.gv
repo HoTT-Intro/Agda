@@ -209,7 +209,7 @@ digraph dependencies {
    m43 -> m82;
    m43 -> m83;
    m44 -> m1;
-   m45 -> m10;
+   m45 -> m1;
    m46 -> m1;
    m47 -> m48;
    m48 -> m49;
@@ -220,7 +220,7 @@ digraph dependencies {
    m52 -> m1;
    m53 -> m1;
    m54 -> m1;
-   m55 -> m20;
+   m55 -> m1;
    m56 -> m57;
    m57 -> m1;
    m57 -> m58;
@@ -236,12 +236,12 @@ digraph dependencies {
    m66 -> m1;
    m67 -> m1;
    m67 -> m68;
-   m68 -> m9;
+   m68 -> m1;
    m69 -> m47;
    m7 -> m8;
-   m70 -> m9;
+   m70 -> m1;
    m71 -> m1;
-   m72 -> m10;
+   m72 -> m1;
    m73 -> m1;
    m74 -> m49;
    m75 -> m48;
@@ -255,7 +255,7 @@ digraph dependencies {
    m8 -> m9;
    m80 -> m61;
    m81 -> m1;
-   m82 -> m10;
+   m82 -> m1;
    m83 -> m1;
    m84 -> m85;
    m84 -> m86;

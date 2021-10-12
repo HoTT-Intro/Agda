@@ -2,8 +2,7 @@
 
 module extra.globular where
 
-import book
-open book public
+open import book public
 
 record Glob (l : Level) : UU (lsuc l) where
   coinductive

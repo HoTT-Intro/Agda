@@ -2,8 +2,7 @@
 
 module extra.weakly-constant-maps where
 
-import book
-open book public
+open import book public
 
 is-higher-constant-map :
   {l1 l2 : Level} → ℕ → {A : UU l1} {B : UU l2} → (A → B) → UU (l1 ⊔ l2)

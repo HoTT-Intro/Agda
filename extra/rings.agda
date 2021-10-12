@@ -2,8 +2,7 @@
 
 module extra.rings where
 
-import extra.abelian-groups
-open extra.abelian-groups public
+open import extra.abelian-groups public
 
 has-mul-Ab :
   { l1 : Level} (A : Ab l1) → UU l1

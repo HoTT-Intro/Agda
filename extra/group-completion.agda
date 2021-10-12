@@ -2,6 +2,5 @@
 
 module extra.group-completion where
 
-import book
-open book public
+open import book public
 
