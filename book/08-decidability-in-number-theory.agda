@@ -414,7 +414,7 @@ is-common-divisor-is-gcd-ℕ a b d H = pr2 (H d) (refl-div-ℕ d)
 uniqueness-is-gcd-ℕ :
   (a b d d' : ℕ) → is-gcd-ℕ a b d → is-gcd-ℕ a b d' → Id d d'
 uniqueness-is-gcd-ℕ a b d d' H H' =
-  anti-symmetric-div-ℕ d d'
+  antisymmetric-div-ℕ d d'
     ( pr1 (H' d) (is-common-divisor-is-gcd-ℕ a b d H))
     ( pr1 (H d') (is-common-divisor-is-gcd-ℕ a b d' H'))
 
@@ -506,6 +506,9 @@ is-zero-gcd-ℕ a b p =
         ( add-ℕ a b)
         ( sum-is-multiple-of-gcd-ℕ a b))
       ( p))
+
+is-zero-gcd-zero-zero-ℕ : is-zero-ℕ (gcd-ℕ zero-ℕ zero-ℕ)
+is-zero-gcd-zero-zero-ℕ = is-zero-gcd-ℕ zero-ℕ zero-ℕ refl
 
 is-zero-add-is-zero-gcd-ℕ :
   (a b : ℕ) → is-zero-ℕ (gcd-ℕ a b) → is-zero-ℕ (add-ℕ a b)
@@ -619,7 +622,7 @@ is-gcd-gcd-ℕ a b x =
 
 is-commutative-gcd-ℕ : (a b : ℕ) → Id (gcd-ℕ a b) (gcd-ℕ b a)
 is-commutative-gcd-ℕ a b =
-  anti-symmetric-div-ℕ
+  antisymmetric-div-ℕ
     ( gcd-ℕ a b)
     ( gcd-ℕ b a)
     ( pr1 (is-gcd-gcd-ℕ b a (gcd-ℕ a b)) (σ (is-common-divisor-gcd-ℕ a b)))
@@ -1519,19 +1522,47 @@ minimal-element-decidable-subtype-Fin {l} {succ-ℕ k} {P} d (pair (inr star) p)
 
 -- Laws of the gcd
 
-div-quotient-div-ℕ :
-  (x y d : ℕ) (H : div-ℕ d y) → div-ℕ (mul-ℕ (quotient-div-ℕ d y H) x) y →
-  div-ℕ x (quotient-div-ℕ d y H)
-div-quotient-div-ℕ x y d H K = {!div-mul-ℕ!}
+preserves-is-common-divisor-mul-ℕ :
+  (k a b d : ℕ) → is-common-divisor-ℕ a b d →
+  is-common-divisor-ℕ (mul-ℕ k a) (mul-ℕ k b) (mul-ℕ k d)
+preserves-is-common-divisor-mul-ℕ k a b d =
+  map-prod
+    ( preserves-div-mul-ℕ k d a)
+    ( preserves-div-mul-ℕ k d b)
+
+reflects-is-common-divisor-mul-ℕ :
+  (k a b d : ℕ) → is-nonzero-ℕ k →
+  is-common-divisor-ℕ (mul-ℕ k a) (mul-ℕ k b) (mul-ℕ k d) →
+  is-common-divisor-ℕ a b d
+reflects-is-common-divisor-mul-ℕ k a b d H =
+  map-prod
+    ( reflects-div-mul-ℕ k d a H)
+    ( reflects-div-mul-ℕ k d b H)
+
+distributive-mul-gcd-ℕ :
+  (k a b : ℕ) → Id (mul-ℕ k (gcd-ℕ a b)) (gcd-ℕ (mul-ℕ k a) (mul-ℕ k b))
+distributive-mul-gcd-ℕ zero-ℕ a b = inv is-zero-gcd-zero-zero-ℕ
+distributive-mul-gcd-ℕ (succ-ℕ k) a b =
+  antisymmetric-div-ℕ
+    ( mul-ℕ (succ-ℕ k) (gcd-ℕ a b))
+    ( gcd-ℕ (mul-ℕ (succ-ℕ k) a) (mul-ℕ (succ-ℕ k) b))
+    ( div-gcd-is-common-divisor-ℕ
+      ( mul-ℕ (succ-ℕ k) a)
+      ( mul-ℕ (succ-ℕ k) b)
+      ( mul-ℕ (succ-ℕ k) (gcd-ℕ a b))
+      ( preserves-is-common-divisor-mul-ℕ (succ-ℕ k) a b
+        ( gcd-ℕ a b)
+        ( is-common-divisor-gcd-ℕ a b)))
+    {! reflects-is-common-divisor-mul-ℕ ? ? ? ? ? (is-common-divisor-gcd-ℕ (mul-ℕ (succ-ℕ k) a) (mul-ℕ (succ-ℕ k) b))!}
 
 distributive-quotient-div-gcd-ℕ :
   (a b d : ℕ) (H : is-common-divisor-ℕ a b d) →
-  Id (gcd-ℕ (quotient-div-ℕ d a (pr1 H)) (quotient-div-ℕ d b (pr2 H)))
-     (quotient-div-ℕ d (gcd-ℕ a b) (div-gcd-is-common-divisor-ℕ a b d H))
+  Id (quotient-div-ℕ d (gcd-ℕ a b) (div-gcd-is-common-divisor-ℕ a b d H))
+     (gcd-ℕ (quotient-div-ℕ d a (pr1 H)) (quotient-div-ℕ d b (pr2 H)))
 distributive-quotient-div-gcd-ℕ a b d H =
-  anti-symmetric-div-ℕ
-    ( gcd-ℕ (quotient-div-ℕ d a (pr1 H)) (quotient-div-ℕ d b (pr2 H)))
+  antisymmetric-div-ℕ
     ( quotient-div-ℕ d (gcd-ℕ a b) (div-gcd-is-common-divisor-ℕ a b d H))
+    ( gcd-ℕ (quotient-div-ℕ d a (pr1 H)) (quotient-div-ℕ d b (pr2 H)))
     {!!}
     {!!}
   
