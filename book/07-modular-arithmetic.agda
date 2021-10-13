@@ -16,6 +16,18 @@ open book.06-universes public
 div-ℕ : ℕ → ℕ → UU lzero
 div-ℕ m n = Σ ℕ (λ k → Id (mul-ℕ k m) n)
 
+quotient-div-ℕ : (x y : ℕ) → div-ℕ x y → ℕ
+quotient-div-ℕ x y H = pr1 H
+
+eq-quotient-div-ℕ :
+  (x y : ℕ) (H : div-ℕ x y) → Id (mul-ℕ (quotient-div-ℕ x y H) x) y
+eq-quotient-div-ℕ x y H = pr2 H
+
+eq-quotient-div-ℕ' :
+  (x y : ℕ) (H : div-ℕ x y) → Id (mul-ℕ x (quotient-div-ℕ x y H)) y
+eq-quotient-div-ℕ' x y H =
+  commutative-mul-ℕ x (quotient-div-ℕ x y H) ∙ eq-quotient-div-ℕ x y H
+
 concatenate-eq-div-ℕ :
   {x y z : ℕ} → Id x y → div-ℕ y z → div-ℕ x z
 concatenate-eq-div-ℕ refl p = p
@@ -93,6 +105,8 @@ div-right-summand-ℕ :
   (d x y : ℕ) → div-ℕ d x → div-ℕ d (add-ℕ x y) → div-ℕ d y
 div-right-summand-ℕ d x y H1 H2 =
   div-left-summand-ℕ d y x H1 (concatenate-div-eq-ℕ H2 (commutative-add-ℕ x y))
+
+--------------------------------------------------------------------------------
 
 {- Section 7.2 The congruence relations -}
 
@@ -797,6 +811,25 @@ div-mul-ℕ :
   (k x y : ℕ) → div-ℕ x y → div-ℕ x (mul-ℕ k y)
 div-mul-ℕ k x y H =
   transitive-div-ℕ x y (mul-ℕ k y) H (pair k refl)
+
+preserves-div-mul-ℕ :
+  (k x y : ℕ) → div-ℕ x y → div-ℕ (mul-ℕ k x) (mul-ℕ k y)
+preserves-div-mul-ℕ k x y (pair q p) =
+  pair q
+    ( ( inv (associative-mul-ℕ q k x)) ∙
+      ( ( ap (mul-ℕ' x) (commutative-mul-ℕ q k)) ∙
+        ( ( associative-mul-ℕ k q x) ∙
+          ( ap (mul-ℕ k) p))))
+
+reflects-div-mul-ℕ :
+  (k x y : ℕ) → is-nonzero-ℕ k → div-ℕ (mul-ℕ k x) (mul-ℕ k y) → div-ℕ x y
+reflects-div-mul-ℕ k x y H (pair q p) =
+  pair q
+    ( is-injective-mul-ℕ k H
+      ( ( inv (associative-mul-ℕ k q x)) ∙
+        ( ( ap (mul-ℕ' x) (commutative-mul-ℕ k q)) ∙
+          ( ( associative-mul-ℕ q k x) ∙
+            ( p)))))
 
 -- We conclude that 0 | x implies x = 0 and x | 1 implies x = 1.
 

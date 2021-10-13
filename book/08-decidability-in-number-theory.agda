@@ -1516,3 +1516,22 @@ minimal-element-decidable-subtype-Fin {l} {succ-ℕ k} {P} d (pair (inr star) p)
   g (inr star) q = refl-leq-Fin (neg-one-Fin {k})
 
 --------------------------------------------------------------------------------
+
+-- Laws of the gcd
+
+div-quotient-div-ℕ :
+  (x y d : ℕ) (H : div-ℕ d y) → div-ℕ (mul-ℕ (quotient-div-ℕ d y H) x) y →
+  div-ℕ x (quotient-div-ℕ d y H)
+div-quotient-div-ℕ x y d H K = {!div-mul-ℕ!}
+
+distributive-quotient-div-gcd-ℕ :
+  (a b d : ℕ) (H : is-common-divisor-ℕ a b d) →
+  Id (gcd-ℕ (quotient-div-ℕ d a (pr1 H)) (quotient-div-ℕ d b (pr2 H)))
+     (quotient-div-ℕ d (gcd-ℕ a b) (div-gcd-is-common-divisor-ℕ a b d H))
+distributive-quotient-div-gcd-ℕ a b d H =
+  anti-symmetric-div-ℕ
+    ( gcd-ℕ (quotient-div-ℕ d a (pr1 H)) (quotient-div-ℕ d b (pr2 H)))
+    ( quotient-div-ℕ d (gcd-ℕ a b) (div-gcd-is-common-divisor-ℕ a b d H))
+    {!!}
+    {!!}
+  
