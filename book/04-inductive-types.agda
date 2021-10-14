@@ -242,10 +242,15 @@ succ-ℤ (inr (inr x)) = inr (inr (succ-ℕ x))
 
 --------------------------------------------------------------------------------
 
-{- Section 4.8 The Curry-Howard correspondence -}
+-- Logical equivalence
 
 _↔_ : {l1 l2 : Level} → UU l1 → UU l2 → UU (l1 ⊔ l2)
 A ↔ B = (A → B) × (B → A)
+
+_∘iff_ :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
+  (B ↔ C) → (A ↔ B) → (A ↔ C)
+(pair g1 g2) ∘iff (pair f1 f2) = pair (g1 ∘ f1) (f2 ∘ g2)
 
 --------------------------------------------------------------------------------
 

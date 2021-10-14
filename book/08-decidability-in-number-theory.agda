@@ -1522,7 +1522,7 @@ minimal-element-decidable-subtype-Fin {l} {succ-ℕ k} {P} d (pair (inr star) p)
 div-quotient-div-ℕ :
   (x y d : ℕ) (H : div-ℕ d y) → div-ℕ (mul-ℕ (quotient-div-ℕ d y H) x) y →
   div-ℕ x (quotient-div-ℕ d y H)
-div-quotient-div-ℕ x y d H K = {!div-mul-ℕ!}
+div-quotient-div-ℕ x y d H K = {!preserves-div-mul-ℕ!}
 
 distributive-quotient-div-gcd-ℕ :
   (a b d : ℕ) (H : is-common-divisor-ℕ a b d) →
