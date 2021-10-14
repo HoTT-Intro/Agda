@@ -172,14 +172,14 @@ cong-zero-ℕ k =
 
 -- We show that cong-ℕ is an equivalence relation.
 
-reflexive-cong-ℕ :
+refl-cong-ℕ :
   (k x : ℕ) → cong-ℕ k x x
-reflexive-cong-ℕ k x =
+refl-cong-ℕ k x =
   pair zero-ℕ ((left-zero-law-mul-ℕ (succ-ℕ k)) ∙ (inv (dist-eq-ℕ x x refl)))
 
 cong-identification-ℕ :
   (k : ℕ) {x y : ℕ} → Id x y → cong-ℕ k x y
-cong-identification-ℕ k {x} refl = reflexive-cong-ℕ k x
+cong-identification-ℕ k {x} refl = refl-cong-ℕ k x
 
 symmetric-cong-ℕ :
   (k x y : ℕ) → cong-ℕ k x y → cong-ℕ k y x
@@ -702,7 +702,7 @@ associative-add-Fin {succ-ℕ k} x y z =
         { x' = add-ℕ (nat-Fin x) (nat-Fin y)}
         { y' = nat-Fin z}
         ( cong-add-Fin x y)
-        ( reflexive-cong-ℕ (succ-ℕ k) (nat-Fin z)))
+        ( refl-cong-ℕ (succ-ℕ k) (nat-Fin z)))
       ( associative-add-ℕ (nat-Fin x) (nat-Fin y) (nat-Fin z))
       ( congruence-add-ℕ
         ( succ-ℕ k)
@@ -710,7 +710,7 @@ associative-add-Fin {succ-ℕ k} x y z =
         { y = add-ℕ (nat-Fin y) (nat-Fin z)}
         { x' = nat-Fin x}
         { y' = nat-Fin (add-Fin y z)}
-        ( reflexive-cong-ℕ (succ-ℕ k) (nat-Fin x))
+        ( refl-cong-ℕ (succ-ℕ k) (nat-Fin x))
         ( symmetric-cong-ℕ
           ( succ-ℕ k)
           ( nat-Fin (add-Fin y z))
@@ -731,7 +731,7 @@ right-unit-law-add-Fin {k} x =
       { y = nat-Fin {succ-ℕ k} zero-Fin}
       { x' = nat-Fin x}
       { y' = zero-ℕ}
-      ( reflexive-cong-ℕ (succ-ℕ k) (nat-Fin {succ-ℕ k} x))
+      ( refl-cong-ℕ (succ-ℕ k) (nat-Fin {succ-ℕ k} x))
       ( cong-nat-zero-Fin {k}))) ∙
   ( issec-nat-Fin x)
 
@@ -1162,7 +1162,7 @@ associative-mul-Fin {succ-ℕ k} x y z =
         { x = nat-Fin (mul-Fin x y)}
         { y = nat-Fin z}
         ( cong-mul-Fin x y)
-        ( reflexive-cong-ℕ (succ-ℕ k) (nat-Fin z)))
+        ( refl-cong-ℕ (succ-ℕ k) (nat-Fin z)))
       ( associative-mul-ℕ (nat-Fin x) (nat-Fin y) (nat-Fin z))
       ( symmetric-cong-ℕ
         ( succ-ℕ k)
@@ -1172,7 +1172,7 @@ associative-mul-Fin {succ-ℕ k} x y z =
           ( succ-ℕ k)
           { x = nat-Fin x}
           { y = nat-Fin (mul-Fin y z)}
-          ( reflexive-cong-ℕ (succ-ℕ k) (nat-Fin x))
+          ( refl-cong-ℕ (succ-ℕ k) (nat-Fin x))
           ( cong-mul-Fin y z))))
 
 commutative-mul-Fin :
@@ -1225,7 +1225,7 @@ left-distributive-mul-add-Fin {succ-ℕ k} x y z =
         { y = nat-Fin (add-Fin y z)}
         { x' = nat-Fin x}
         { y' = add-ℕ (nat-Fin y) (nat-Fin z)}
-        ( reflexive-cong-ℕ (succ-ℕ k) (nat-Fin x))
+        ( refl-cong-ℕ (succ-ℕ k) (nat-Fin x))
         ( cong-add-Fin y z))
       ( left-distributive-mul-add-ℕ (nat-Fin x) (nat-Fin y) (nat-Fin z))
       ( symmetric-cong-ℕ (succ-ℕ k)
@@ -1281,99 +1281,61 @@ leq-nat-mod-succ-ℕ k (succ-ℕ x) =
 
 -- Now we solve the exercise
 
-euclidean-division-succ-ℕ :
-  (k x : ℕ) → Σ ℕ (λ r → (cong-ℕ (succ-ℕ k) x r) × (le-ℕ r (succ-ℕ k)))
-euclidean-division-succ-ℕ k x =
+euclidean-division-ℕ :
+  (k x : ℕ) → Σ ℕ (λ r → (cong-ℕ k x r) × (is-nonzero-ℕ k → le-ℕ r k))
+euclidean-division-ℕ zero-ℕ x =
+  pair x (pair (refl-cong-ℕ zero-ℕ x) (λ f → ex-falso (f refl)))
+euclidean-division-ℕ (succ-ℕ k) x =
   pair
     ( nat-Fin (mod-succ-ℕ k x))
     ( pair
       ( symmetric-cong-ℕ (succ-ℕ k) (nat-Fin (mod-succ-ℕ k x)) x
         ( cong-nat-mod-succ-ℕ k x))
-      ( strict-upper-bound-nat-Fin (mod-succ-ℕ k x)))
+      ( λ f → strict-upper-bound-nat-Fin (mod-succ-ℕ k x)))
 
-remainder-euclidean-division-succ-ℕ : (k x : ℕ) → ℕ
-remainder-euclidean-division-succ-ℕ k x =
-  pr1 (euclidean-division-succ-ℕ k x)
-
-strict-upper-bound-remainder-euclidean-division-succ-ℕ :
-  (k x : ℕ) → le-ℕ (remainder-euclidean-division-succ-ℕ k x) (succ-ℕ k)
-strict-upper-bound-remainder-euclidean-division-succ-ℕ k x =
-  pr2 (pr2 (euclidean-division-succ-ℕ k x))
-
-cong-euclidean-division-succ-ℕ :
-  (k x : ℕ) → cong-ℕ (succ-ℕ k) x (remainder-euclidean-division-succ-ℕ k x)
-cong-euclidean-division-succ-ℕ k x =
-  pr1 (pr2 (euclidean-division-succ-ℕ k x))
-
-quotient-euclidean-division-succ-ℕ : (k x : ℕ) → ℕ
-quotient-euclidean-division-succ-ℕ k x =
-  pr1 (cong-euclidean-division-succ-ℕ k x)
-
-eq-quotient-euclidean-division-succ-ℕ :
-  (k x : ℕ) →
-  Id ( mul-ℕ (quotient-euclidean-division-succ-ℕ k x) (succ-ℕ k))
-     ( dist-ℕ x (remainder-euclidean-division-succ-ℕ k x))
-eq-quotient-euclidean-division-succ-ℕ k x =
-  pr2 (cong-euclidean-division-succ-ℕ k x)
-
-eq-euclidean-division-succ-ℕ :
-  (k x : ℕ) →
-  Id ( add-ℕ ( mul-ℕ (quotient-euclidean-division-succ-ℕ k x) (succ-ℕ k))
-             ( remainder-euclidean-division-succ-ℕ k x))
-     ( x)
-eq-euclidean-division-succ-ℕ k x =
-  ( ap ( add-ℕ' (remainder-euclidean-division-succ-ℕ k x))
-       ( ( pr2 (cong-euclidean-division-succ-ℕ k x)) ∙
-         ( symmetric-dist-ℕ x (remainder-euclidean-division-succ-ℕ k x)))) ∙
-  ( is-difference-dist-ℕ' (remainder-euclidean-division-succ-ℕ k x) x
-    ( leq-nat-mod-succ-ℕ k x))
-
-euclidean-division-ℕ :
-  (k x : ℕ) → is-nonzero-ℕ k → Σ ℕ (λ r → (cong-ℕ k x r) × (le-ℕ r k))
-euclidean-division-ℕ k x is-nonzero-k with
-  is-successor-is-nonzero-ℕ is-nonzero-k
-... | pair l refl = euclidean-division-succ-ℕ l x
-
-remainder-euclidean-division-ℕ : (k x : ℕ) → is-nonzero-ℕ k → ℕ
-remainder-euclidean-division-ℕ k x is-nonzero-k with
-  is-successor-is-nonzero-ℕ is-nonzero-k
-... | pair l refl = remainder-euclidean-division-succ-ℕ l x
-
-strict-upper-bound-remainder-euclidean-division-ℕ :
-  (k x : ℕ) (is-nonzero-k : is-nonzero-ℕ k) →
-  le-ℕ (remainder-euclidean-division-ℕ k x is-nonzero-k) k
-strict-upper-bound-remainder-euclidean-division-ℕ k x is-nonzero-k with
-  is-successor-is-nonzero-ℕ is-nonzero-k
-... | pair l refl = strict-upper-bound-remainder-euclidean-division-succ-ℕ l x
+remainder-euclidean-division-ℕ : ℕ → ℕ → ℕ
+remainder-euclidean-division-ℕ k x =
+  pr1 (euclidean-division-ℕ k x)
 
 cong-euclidean-division-ℕ :
-  (k x : ℕ) (is-nonzero-k : is-nonzero-ℕ k) →
-  cong-ℕ k x (remainder-euclidean-division-ℕ k x is-nonzero-k)
-cong-euclidean-division-ℕ k x is-nonzero-k with
-  is-successor-is-nonzero-ℕ is-nonzero-k
-... | pair l refl = cong-euclidean-division-succ-ℕ l x
+  (k x : ℕ) → cong-ℕ k x (remainder-euclidean-division-ℕ k x)
+cong-euclidean-division-ℕ k x =
+  pr1 (pr2 (euclidean-division-ℕ k x))
 
-quotient-euclidean-division-ℕ : (k x : ℕ) → is-nonzero-ℕ k → ℕ
-quotient-euclidean-division-ℕ k x is-nonzero-k with
-  is-successor-is-nonzero-ℕ is-nonzero-k
-... | pair l refl = quotient-euclidean-division-succ-ℕ l x
+strict-upper-bound-remainder-euclidean-division-ℕ :
+  (k x : ℕ) → is-nonzero-ℕ k → le-ℕ (remainder-euclidean-division-ℕ k x) k
+strict-upper-bound-remainder-euclidean-division-ℕ k x =
+  pr2 (pr2 (euclidean-division-ℕ k x))
+
+quotient-euclidean-division-ℕ : ℕ → ℕ → ℕ
+quotient-euclidean-division-ℕ k x =
+  pr1 (cong-euclidean-division-ℕ k x)
 
 eq-quotient-euclidean-division-ℕ :
-  (k x : ℕ) (H : is-nonzero-ℕ k) →
-  Id ( mul-ℕ (quotient-euclidean-division-ℕ k x H) k)
-     ( dist-ℕ x (remainder-euclidean-division-ℕ k x H))
-eq-quotient-euclidean-division-ℕ k x H with
-  is-successor-is-nonzero-ℕ H
-... | pair l refl = eq-quotient-euclidean-division-succ-ℕ l x
+  (k x : ℕ) →
+  Id ( mul-ℕ (quotient-euclidean-division-ℕ k x) k)
+     ( dist-ℕ x (remainder-euclidean-division-ℕ k x))
+eq-quotient-euclidean-division-ℕ k x =
+  pr2 (cong-euclidean-division-ℕ k x)
 
 eq-euclidean-division-ℕ :
-  (k x : ℕ) (is-nonzero-k : is-nonzero-ℕ k) →
-  Id ( add-ℕ ( mul-ℕ ( quotient-euclidean-division-ℕ k x is-nonzero-k) k)
-             ( remainder-euclidean-division-ℕ k x is-nonzero-k))
+  (k x : ℕ) →
+  Id ( add-ℕ ( mul-ℕ (quotient-euclidean-division-ℕ k x) k)
+             ( remainder-euclidean-division-ℕ k x))
      ( x)
-eq-euclidean-division-ℕ k x is-nonzero-k with
-  is-successor-is-nonzero-ℕ is-nonzero-k
-... | pair l refl = eq-euclidean-division-succ-ℕ l x
+eq-euclidean-division-ℕ zero-ℕ x =
+  ( inv
+    ( ap
+      ( add-ℕ' x)
+      ( right-zero-law-mul-ℕ (quotient-euclidean-division-ℕ zero-ℕ x)))) ∙
+  ( left-unit-law-add-ℕ x)
+eq-euclidean-division-ℕ (succ-ℕ k) x =
+  ( ap ( add-ℕ' (remainder-euclidean-division-ℕ (succ-ℕ k) x))
+       ( ( pr2 (cong-euclidean-division-ℕ (succ-ℕ k) x)) ∙
+         ( symmetric-dist-ℕ x
+           ( remainder-euclidean-division-ℕ (succ-ℕ k) x)))) ∙
+  ( is-difference-dist-ℕ' (remainder-euclidean-division-ℕ (succ-ℕ k) x) x
+    ( leq-nat-mod-succ-ℕ k x))
 
 {- Exercise 7.10 -}
 

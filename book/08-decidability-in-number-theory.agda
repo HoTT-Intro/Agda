@@ -567,12 +567,12 @@ is-divisor-left-div-gcd-ℕ a b x d with
                      ( concatenate-div-eq-ℕ (pr1 H) (inv β)))))) ∙
         ( right-unit-law-dist-ℕ a)))
   where
-  r = remainder-euclidean-division-ℕ (gcd-ℕ a b) a (is-nonzero-gcd-ℕ a b np)
-  q = quotient-euclidean-division-ℕ (gcd-ℕ a b) a (is-nonzero-gcd-ℕ a b np)
-  α = eq-quotient-euclidean-division-ℕ (gcd-ℕ a b) a (is-nonzero-gcd-ℕ a b np)
+  r = remainder-euclidean-division-ℕ (gcd-ℕ a b) a
+  q = quotient-euclidean-division-ℕ (gcd-ℕ a b) a
+  α = eq-quotient-euclidean-division-ℕ (gcd-ℕ a b) a
   B = strict-upper-bound-remainder-euclidean-division-ℕ (gcd-ℕ a b) a
        ( is-nonzero-gcd-ℕ a b np)
-  β = eq-euclidean-division-ℕ (gcd-ℕ a b) a (is-nonzero-gcd-ℕ a b np)
+  β = eq-euclidean-division-ℕ (gcd-ℕ a b) a
 
 -- any divisor of gcd a b also divides b
 is-divisor-right-div-gcd-ℕ :
@@ -593,12 +593,12 @@ is-divisor-right-div-gcd-ℕ a b x d with
                      ( concatenate-div-eq-ℕ (pr2 H) (inv β)))))) ∙
         ( right-unit-law-dist-ℕ b)))
   where
-  r = remainder-euclidean-division-ℕ (gcd-ℕ a b) b (is-nonzero-gcd-ℕ a b np)
-  q = quotient-euclidean-division-ℕ (gcd-ℕ a b) b (is-nonzero-gcd-ℕ a b np)
-  α = eq-quotient-euclidean-division-ℕ (gcd-ℕ a b) b (is-nonzero-gcd-ℕ a b np)
+  r = remainder-euclidean-division-ℕ (gcd-ℕ a b) b
+  q = quotient-euclidean-division-ℕ (gcd-ℕ a b) b
+  α = eq-quotient-euclidean-division-ℕ (gcd-ℕ a b) b
   B = strict-upper-bound-remainder-euclidean-division-ℕ (gcd-ℕ a b) b
        ( is-nonzero-gcd-ℕ a b np)
-  β = eq-euclidean-division-ℕ (gcd-ℕ a b) b (is-nonzero-gcd-ℕ a b np)
+  β = eq-euclidean-division-ℕ (gcd-ℕ a b) b
 
 -- any divisor of gcd a b is a common divisor
 is-common-divisor-div-gcd-ℕ :
@@ -1341,22 +1341,27 @@ is-linear-combination-dist-is-bounded-linear-combination-dist-ℕ x y z
   (pair k (pair H (pair l p))) =
   pair k (pair l p)
 
-{-
 is-bounded-linear-combination-dist-is-linear-combination-dist-ℕ :
-  (x y z : ℕ) → is-linear-combination-dist-ℕ (succ-ℕ x) (succ-ℕ y) z →
-  is-bounded-linear-combination-dist-ℕ (succ-ℕ x) (succ-ℕ y) z
-is-bounded-linear-combination-dist-is-linear-combination-dist-ℕ x y z
-  (pair k (pair l p)) =
-  pair r (pair P (pair {!!} {!!}))
+  (x y z : ℕ) → is-linear-combination-dist-ℕ x y z →
+  is-bounded-linear-combination-dist-ℕ x y z
+is-bounded-linear-combination-dist-is-linear-combination-dist-ℕ x zero-ℕ z (pair k (pair l p)) = {!!}
+  where
+  q : Id (mul-ℕ k x) z
+  q = ( inv (right-unit-law-dist-ℕ (mul-ℕ k x))) ∙
+      ( ( ap (dist-ℕ (mul-ℕ k x)) (inv (right-zero-law-mul-ℕ l))) ∙
+        ( p))
+is-bounded-linear-combination-dist-is-linear-combination-dist-ℕ x (succ-ℕ y) z (pair k (pair l p)) = {!!}
+{-
   where
   r : ℕ
-  r = remainder-euclidean-division-succ-ℕ y k
-  P : le-ℕ r (succ-ℕ y)
-  P = strict-upper-bound-remainder-euclidean-division-succ-ℕ y k
+  r = remainder-euclidean-division-ℕ y k
+  P : le-ℕ r y
+  P = strict-upper-bound-remainder-euclidean-division-ℕ y k
   q : ℕ
-  q = quotient-euclidean-division-succ-ℕ y k
-  α : Id (add-ℕ (mul-ℕ q (succ-ℕ y)) r) k
-  α = eq-euclidean-division-succ-ℕ y k
+  q = quotient-euclidean-division-ℕ y k
+  α : Id (add-ℕ (mul-ℕ q y) r) k
+  α = eq-euclidean-division-ℕ y k
+-}
 
 is-decidable-is-linear-combination-dist-ℕ :
   (x y z : ℕ) → is-decidable (is-linear-combination-dist-ℕ x y z)
@@ -1371,7 +1376,6 @@ Bezout x y =
     ( pair
       {!!}
       {!!})
--}
 
 {-
  l := x / gcd x y
