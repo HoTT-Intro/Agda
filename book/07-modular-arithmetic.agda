@@ -784,14 +784,14 @@ right-inverse-law-add-Fin x =
 refl-div-ℕ : (x : ℕ) → div-ℕ x x
 refl-div-ℕ x = pair one-ℕ (left-unit-law-mul-ℕ x)
 
-anti-symmetric-div-ℕ :
+antisymmetric-div-ℕ :
   (x y : ℕ) → div-ℕ x y → div-ℕ y x → Id x y
-anti-symmetric-div-ℕ zero-ℕ zero-ℕ H K = refl
-anti-symmetric-div-ℕ zero-ℕ (succ-ℕ y) (pair k p) K =
+antisymmetric-div-ℕ zero-ℕ zero-ℕ H K = refl
+antisymmetric-div-ℕ zero-ℕ (succ-ℕ y) (pair k p) K =
   inv (right-zero-law-mul-ℕ k) ∙ p
-anti-symmetric-div-ℕ (succ-ℕ x) zero-ℕ H (pair l q) =
+antisymmetric-div-ℕ (succ-ℕ x) zero-ℕ H (pair l q) =
   inv q ∙ right-zero-law-mul-ℕ l
-anti-symmetric-div-ℕ (succ-ℕ x) (succ-ℕ y) (pair k p) (pair l q) =
+antisymmetric-div-ℕ (succ-ℕ x) (succ-ℕ y) (pair k p) (pair l q) =
   ( inv (left-unit-law-mul-ℕ (succ-ℕ x))) ∙
   ( ( ap ( mul-ℕ' (succ-ℕ x))
          ( inv
@@ -831,16 +831,33 @@ reflects-div-mul-ℕ k x y H (pair q p) =
           ( ( associative-mul-ℕ q k x) ∙
             ( p)))))
 
+div-quotient-div-div-ℕ :
+  (x y d : ℕ) (H : div-ℕ d y) → is-nonzero-ℕ d →
+  div-ℕ (mul-ℕ d x) y → div-ℕ x (quotient-div-ℕ d y H)
+div-quotient-div-div-ℕ x y d H f K =
+  reflects-div-mul-ℕ d x
+    ( quotient-div-ℕ d y H)
+    ( f)
+    ( tr (div-ℕ (mul-ℕ d x)) (inv (eq-quotient-div-ℕ' d y H)) K)
+
+div-div-quotient-div-ℕ :
+  (x y d : ℕ) (H : div-ℕ d y) →
+  div-ℕ x (quotient-div-ℕ d y H) → div-ℕ (mul-ℕ d x) y
+div-div-quotient-div-ℕ x y d H K =
+  tr ( div-ℕ (mul-ℕ d x))
+     ( eq-quotient-div-ℕ' d y H)
+     ( preserves-div-mul-ℕ d x (quotient-div-ℕ d y H) K)
+
 -- We conclude that 0 | x implies x = 0 and x | 1 implies x = 1.
 
 is-zero-div-zero-ℕ : (x : ℕ) → div-ℕ zero-ℕ x → is-zero-ℕ x
-is-zero-div-zero-ℕ x H = anti-symmetric-div-ℕ x zero-ℕ (div-zero-ℕ x) H
+is-zero-div-zero-ℕ x H = antisymmetric-div-ℕ x zero-ℕ (div-zero-ℕ x) H
 
 is-zero-is-zero-div-ℕ : (x y : ℕ) → div-ℕ x y → is-zero-ℕ x → is-zero-ℕ y
 is-zero-is-zero-div-ℕ .zero-ℕ y d refl = is-zero-div-zero-ℕ y d
 
 is-one-div-one-ℕ : (x : ℕ) → div-ℕ x one-ℕ → is-one-ℕ x
-is-one-div-one-ℕ x H = anti-symmetric-div-ℕ x one-ℕ H (div-one-ℕ x)
+is-one-div-one-ℕ x H = antisymmetric-div-ℕ x one-ℕ H (div-one-ℕ x)
 
 is-one-div-ℕ : (x y : ℕ) → div-ℕ x y → div-ℕ x (succ-ℕ y) → is-one-ℕ x
 is-one-div-ℕ x y H K = is-one-div-one-ℕ x (div-right-summand-ℕ x y one-ℕ H K)
