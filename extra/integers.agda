@@ -584,6 +584,18 @@ is-emb-neg-ℤ = is-emb-is-equiv is-equiv-neg-ℤ
 
 --------------------------------------------------------------------------------
 
+interchange-2-3-add-ℤ :
+  (a b c d : ℤ) →
+  Id (add-ℤ (add-ℤ a b) (add-ℤ c d)) (add-ℤ (add-ℤ a c) (add-ℤ b d))
+interchange-2-3-add-ℤ a b c d =
+  ( associative-add-ℤ a b (add-ℤ c d)) ∙
+  ( ( ap
+      ( add-ℤ a)
+      ( ( inv (associative-add-ℤ b c d)) ∙
+        ( ( ap (add-ℤ' d) (commutative-add-ℤ b c)) ∙
+          ( associative-add-ℤ c b d)))) ∙
+    ( inv (associative-add-ℤ a c (add-ℤ b d))))
+
 {- We prove some interchange laws and moves on iterated multiplications. -}
 
 interchange-2-3-mul-ℤ :

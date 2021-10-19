@@ -1203,6 +1203,10 @@ abstract
     ( Σ (type-Set A) (λ x → (type-Set (B x))))
     ( is-set-Σ (is-set-type-Set A) (λ x → is-set-type-Set (B x)))
 
+prod-Set :
+  {l1 l2 : Level} (A : UU-Set l1) (B : UU-Set l2) → UU-Set (l1 ⊔ l2)
+prod-Set A B = Σ-Set A (λ x → B)
+
 -- Exercise 12.5 (b)
 
 abstract
@@ -1288,11 +1292,6 @@ abstract
     {l1 l2 : Level} {A : UU l1} {B : UU l2} →
     is-set A → is-set B → is-set (A × B)
   is-set-prod = is-trunc-prod zero-𝕋
-
-set-prod :
-  {l1 l2 : Level} (A : UU-Set l1) (B : UU-Set l2) → UU-Set (l1 ⊔ l2)
-set-prod (pair A is-set-A) (pair B is-set-B) =
-  pair (A × B) (is-set-prod is-set-A is-set-B)
 
 -- Exercise 12.7
 
