@@ -337,9 +337,9 @@ nat-Fin : {k : ℕ} → Fin k → ℕ
 nat-Fin {succ-ℕ k} (inl x) = nat-Fin x
 nat-Fin {succ-ℕ k} (inr x) = k
 
-nat-ℤ-Mod : {k : ℕ} → ℤ-Mod k → ℕ
-nat-ℤ-Mod {zero-ℕ} x = x
-nat-ℤ-Mod {succ-ℕ k} x = nat-Fin x
+nat-ℤ-Mod : (k : ℕ) → ℤ-Mod k → ℕ
+nat-ℤ-Mod zero-ℕ x = x
+nat-ℤ-Mod (succ-ℕ k) x = nat-Fin x
 
 {- Lemma 7.3.5 -}
 
@@ -382,7 +382,7 @@ is-injective-nat-Fin {succ-ℕ k} {inr star} {inl y} p =
 is-injective-nat-Fin {succ-ℕ k} {inr star} {inr star} p =
   refl
 
-is-injective-nat-ℤ-Mod : {k : ℕ} → is-injective (nat-ℤ-Mod {k})
+is-injective-nat-ℤ-Mod : {k : ℕ} → is-injective (nat-ℤ-Mod k)
 is-injective-nat-ℤ-Mod {zero-ℕ} = is-injective-id
 is-injective-nat-ℤ-Mod {succ-ℕ k} = is-injective-nat-Fin
 
@@ -437,6 +437,10 @@ is-zero-ℤ-Mod {k} x = Id x (zero-ℤ-Mod {k})
 is-nonzero-ℤ-Mod : {k : ℕ} → ℤ-Mod k → UU lzero
 is-nonzero-ℤ-Mod {k} x = ¬ (is-zero-ℤ-Mod {k} x)
 
+succ-ℤ-Mod : {k : ℕ} → ℤ-Mod k → ℤ-Mod k
+succ-ℤ-Mod {zero-ℕ} = succ-ℕ
+succ-ℤ-Mod {succ-ℕ k} = succ-Fin {succ-ℕ k}
+
 {- Definition 7.4.3 -}
 
 -- We define the modulo function
@@ -451,14 +455,21 @@ mod-two-ℕ = mod-succ-ℕ one-ℕ
 mod-three-ℕ : ℕ → Fin three-ℕ
 mod-three-ℕ = mod-succ-ℕ two-ℕ
 
+mod-ℕ : (k : ℕ) → ℕ → ℤ-Mod k
+mod-ℕ zero-ℕ x = x
+mod-ℕ (succ-ℕ k) x = mod-succ-ℕ k x
+
 {- Lemma 7.4.4 -}
 
 -- We prove three things to help calculating with nat-Fin.
 
-nat-zero-Fin :
-  {k : ℕ} → is-zero-ℕ (nat-Fin (zero-Fin {k}))
-nat-zero-Fin {zero-ℕ} = refl 
-nat-zero-Fin {succ-ℕ k} = nat-zero-Fin {k}
+is-zero-nat-zero-Fin : {k : ℕ} → is-zero-ℕ (nat-Fin (zero-Fin {k}))
+is-zero-nat-zero-Fin {zero-ℕ} = refl 
+is-zero-nat-zero-Fin {succ-ℕ k} = is-zero-nat-zero-Fin {k}
+
+is-zero-nat-zero-ℤ-Mod : {k : ℕ} → is-zero-ℕ (nat-ℤ-Mod k (zero-ℤ-Mod {k}))
+is-zero-nat-zero-ℤ-Mod {zero-ℕ} = refl
+is-zero-nat-zero-ℤ-Mod {succ-ℕ k} = is-zero-nat-zero-Fin {k}
 
 nat-skip-zero-Fin :
   {k : ℕ} (x : Fin k) → Id (nat-Fin (skip-zero-Fin x)) (succ-ℕ (nat-Fin x))
@@ -483,8 +494,14 @@ cong-nat-succ-Fin (succ-ℕ k) (inr star) =
     { nat-Fin {succ-ℕ k} zero-Fin}
     { zero-ℕ}
     { succ-ℕ k}
-    ( nat-zero-Fin {k})
+    ( is-zero-nat-zero-Fin {k})
     ( cong-zero-ℕ' (succ-ℕ k))
+
+cong-nat-succ-ℤ-Mod :
+  (k : ℕ) (x : ℤ-Mod k) →
+  cong-ℕ k (nat-ℤ-Mod k (succ-ℤ-Mod {k} x)) (succ-ℕ (nat-ℤ-Mod k x))
+cong-nat-succ-ℤ-Mod zero-ℕ x = refl-cong-ℕ zero-ℕ (succ-ℕ x)
+cong-nat-succ-ℤ-Mod (succ-ℕ k) x = cong-nat-succ-Fin (succ-ℕ k) x
 
 {- Proposition 7.4.5 -}
 
@@ -493,7 +510,7 @@ cong-nat-succ-Fin (succ-ℕ k) (inr star) =
 cong-nat-mod-succ-ℕ :
   (k x : ℕ) → cong-ℕ (succ-ℕ k) (nat-Fin (mod-succ-ℕ k x)) x
 cong-nat-mod-succ-ℕ k zero-ℕ =
-  cong-identification-ℕ (succ-ℕ k) (nat-zero-Fin {k})
+  cong-identification-ℕ (succ-ℕ k) (is-zero-nat-zero-Fin {k})
 cong-nat-mod-succ-ℕ k (succ-ℕ x) =
   trans-cong-ℕ
     ( succ-ℕ k)
@@ -502,6 +519,10 @@ cong-nat-mod-succ-ℕ k (succ-ℕ x) =
     ( succ-ℕ x)
     ( cong-nat-succ-Fin (succ-ℕ k) (mod-succ-ℕ k x) )
     ( cong-nat-mod-succ-ℕ k x)
+
+cong-nat-mod-ℕ : (k x : ℕ) → cong-ℕ k (nat-ℤ-Mod k (mod-ℕ k x)) x
+cong-nat-mod-ℕ zero-ℕ x = refl-cong-ℕ zero-ℕ x
+cong-nat-mod-ℕ (succ-ℕ k) x = cong-nat-mod-succ-ℕ k x
 
 {- Proposition 7.4.6 -}
 
@@ -537,14 +558,19 @@ eq-cong-le-ℕ k x y H K =
 {- We show that if mod-succ-ℕ k x = mod-succ-ℕ k y, then x and y must be
    congruent modulo succ-ℕ n. This is the forward direction of the theorm. -}
 
-cong-eq-ℕ :
+cong-eq-mod-succ-ℕ :
   (k x y : ℕ) → Id (mod-succ-ℕ k x) (mod-succ-ℕ k y) → cong-ℕ (succ-ℕ k) x y
-cong-eq-ℕ k x y p =
+cong-eq-mod-succ-ℕ k x y p =
   concatenate-cong-eq-cong-ℕ {succ-ℕ k} {x}
     ( symm-cong-ℕ (succ-ℕ k) (nat-Fin (mod-succ-ℕ k x)) x
       ( cong-nat-mod-succ-ℕ k x))
     ( ap nat-Fin p)
     ( cong-nat-mod-succ-ℕ k y)
+
+cong-eq-mod-ℕ :
+  (k x y : ℕ) → Id (mod-ℕ k x) (mod-ℕ k y) → cong-ℕ k x y
+cong-eq-mod-ℕ zero-ℕ x y p = cong-identification-ℕ zero-ℕ p
+cong-eq-mod-ℕ (succ-ℕ k) x y p = cong-eq-mod-succ-ℕ k x y p
 
 eq-cong-nat-Fin :
   (k : ℕ) (x y : Fin k) → cong-ℕ k (nat-Fin x) (nat-Fin y) → Id x y
@@ -555,9 +581,9 @@ eq-cong-nat-Fin (succ-ℕ k) x y H =
       ( strict-upper-bound-nat-Fin y)
       ( H))
 
-eq-cong-ℕ :
+eq-mod-succ-cong-ℕ :
   (k x y : ℕ) → cong-ℕ (succ-ℕ k) x y → Id (mod-succ-ℕ k x) (mod-succ-ℕ k y)
-eq-cong-ℕ k x y H =
+eq-mod-succ-cong-ℕ k x y H =
   eq-cong-nat-Fin
     ( succ-ℕ k)
     ( mod-succ-ℕ k x)
@@ -577,13 +603,15 @@ eq-cong-ℕ k x y H =
 is-zero-Fin-div-ℕ :
   (k x : ℕ) → div-ℕ (succ-ℕ k) x → is-zero-Fin (mod-succ-ℕ k x)
 is-zero-Fin-div-ℕ k x d =
-  eq-cong-ℕ k x zero-ℕ
+  eq-mod-succ-cong-ℕ k x zero-ℕ
     ( concatenate-div-eq-ℕ d (inv (right-unit-law-dist-ℕ x)))
 
 div-ℕ-is-zero-Fin :
   (k x : ℕ) → is-zero-Fin (mod-succ-ℕ k x) → div-ℕ (succ-ℕ k) x
 div-ℕ-is-zero-Fin k x p =
-  concatenate-div-eq-ℕ (cong-eq-ℕ k x zero-ℕ p) (right-unit-law-dist-ℕ x)
+  concatenate-div-eq-ℕ
+    ( cong-eq-mod-succ-ℕ k x zero-ℕ p)
+    ( right-unit-law-dist-ℕ x)
 
 {- Theorem 7.4.8 -}
 
@@ -634,9 +662,9 @@ neg-Fin {succ-ℕ k} x =
 
 {- Remark 7.5.2 -}
 
-cong-nat-zero-Fin :
+cong-is-zero-nat-zero-Fin :
   {k : ℕ} → cong-ℕ (succ-ℕ k) (nat-Fin (zero-Fin {k})) zero-ℕ
-cong-nat-zero-Fin {k} = cong-nat-mod-succ-ℕ k zero-ℕ
+cong-is-zero-nat-zero-Fin {k} = cong-nat-mod-succ-ℕ k zero-ℕ
 
 cong-add-Fin :
   {k : ℕ} (x y : Fin k) →
@@ -699,7 +727,7 @@ mod-succ-add-ℕ :
   (k x y : ℕ) →
   Id (mod-succ-ℕ k (add-ℕ x y)) (add-Fin (mod-succ-ℕ k x) (mod-succ-ℕ k y))
 mod-succ-add-ℕ k x y =
-  eq-cong-ℕ k
+  eq-mod-succ-cong-ℕ k
     ( add-ℕ x y)
     ( add-ℕ (nat-Fin (mod-succ-ℕ k x)) (nat-Fin (mod-succ-ℕ k y)))
     ( congruence-add-ℕ
@@ -727,7 +755,7 @@ associative-add-Fin :
   {k : ℕ} (x y z : Fin k) →
   Id (add-Fin (add-Fin x y) z) (add-Fin x (add-Fin y z))
 associative-add-Fin {succ-ℕ k} x y z =
-  eq-cong-ℕ k
+  eq-mod-succ-cong-ℕ k
     ( add-ℕ (nat-Fin (add-Fin x y)) (nat-Fin z))
     ( add-ℕ (nat-Fin x) (nat-Fin (add-Fin y z)))
     ( concatenate-cong-eq-cong-ℕ
@@ -762,7 +790,7 @@ associative-add-Fin {succ-ℕ k} x y z =
 right-unit-law-add-Fin :
   {k : ℕ} (x : Fin (succ-ℕ k)) → Id (add-Fin x zero-Fin) x
 right-unit-law-add-Fin {k} x =
-  ( eq-cong-ℕ k
+  ( eq-mod-succ-cong-ℕ k
     ( add-ℕ (nat-Fin x) (nat-Fin {succ-ℕ k} zero-Fin))
     ( add-ℕ (nat-Fin x) zero-ℕ)
     ( congruence-add-ℕ
@@ -772,7 +800,7 @@ right-unit-law-add-Fin {k} x =
       { x' = nat-Fin x}
       { y' = zero-ℕ}
       ( refl-cong-ℕ (succ-ℕ k) (nat-Fin {succ-ℕ k} x))
-      ( cong-nat-zero-Fin {k}))) ∙
+      ( cong-is-zero-nat-zero-Fin {k}))) ∙
   ( issec-nat-Fin x)
 
 left-unit-law-add-Fin :
@@ -786,7 +814,7 @@ left-unit-law-add-Fin {k} x =
 left-inverse-law-add-Fin :
   {k : ℕ} (x : Fin (succ-ℕ k)) → is-zero-Fin (add-Fin (neg-Fin x) x)
 left-inverse-law-add-Fin {k} x =
-  eq-cong-ℕ k
+  eq-mod-succ-cong-ℕ k
     ( add-ℕ (nat-Fin (neg-Fin x)) (nat-Fin x))
     ( zero-ℕ)
     ( concatenate-cong-eq-cong-ℕ
@@ -904,6 +932,24 @@ is-one-div-ℕ x y H K = is-one-div-one-ℕ x (div-right-summand-ℕ x y one-ℕ
 
 div-eq-ℕ : (x y : ℕ) → Id x y → div-ℕ x y
 div-eq-ℕ x .x refl = refl-div-ℕ x
+
+-- Bureaucracy
+
+eq-cong-zero-ℕ : (x y : ℕ) → cong-ℕ zero-ℕ x y → Id x y
+eq-cong-zero-ℕ x y H =
+  eq-dist-ℕ x y (is-zero-div-zero-ℕ (dist-ℕ x y) H)
+
+eq-cong-nat-ℤ-Mod :
+  (k : ℕ) (x y : ℤ-Mod k) →
+  cong-ℕ k (nat-ℤ-Mod k x) (nat-ℤ-Mod k y) → Id x y
+eq-cong-nat-ℤ-Mod zero-ℕ x y H =
+  eq-cong-zero-ℕ (nat-ℤ-Mod zero-ℕ x) (nat-ℤ-Mod zero-ℕ y) H
+eq-cong-nat-ℤ-Mod (succ-ℕ k) x y = eq-cong-nat-Fin (succ-ℕ k) x y
+
+eq-mod-cong-ℕ :
+  (k x y : ℕ) → cong-ℕ k x y → Id (mod-ℕ k x) (mod-ℕ k y)
+eq-mod-cong-ℕ zero-ℕ x y H = eq-cong-zero-ℕ x y H
+eq-mod-cong-ℕ (succ-ℕ k) x y = eq-mod-succ-cong-ℕ k x y
 
 {- Exercise 7.3 -}
 
@@ -1193,7 +1239,7 @@ associative-mul-Fin :
   {k : ℕ} (x y z : Fin k) →
   Id (mul-Fin (mul-Fin x y) z) (mul-Fin x (mul-Fin y z))
 associative-mul-Fin {succ-ℕ k} x y z =
-  eq-cong-ℕ k
+  eq-mod-succ-cong-ℕ k
     ( mul-ℕ (nat-Fin (mul-Fin x y)) (nat-Fin z))
     ( mul-ℕ (nat-Fin x) (nat-Fin (mul-Fin y z)))
     ( concatenate-cong-eq-cong-ℕ
@@ -1222,7 +1268,7 @@ associative-mul-Fin {succ-ℕ k} x y z =
 commutative-mul-Fin :
   {k : ℕ} (x y : Fin k) → Id (mul-Fin x y) (mul-Fin y x)
 commutative-mul-Fin {succ-ℕ k} x y =
-  eq-cong-ℕ k
+  eq-mod-succ-cong-ℕ k
     ( mul-ℕ (nat-Fin x) (nat-Fin y))
     ( mul-ℕ (nat-Fin y) (nat-Fin x))
     ( cong-identification-ℕ
@@ -1233,7 +1279,7 @@ left-unit-law-mul-Fin :
   {k : ℕ} (x : Fin (succ-ℕ k)) → Id (mul-Fin one-Fin x) x
 left-unit-law-mul-Fin {zero-ℕ} (inr star) = refl
 left-unit-law-mul-Fin {succ-ℕ k} x =
-  ( eq-cong-ℕ (succ-ℕ k)
+  ( eq-mod-succ-cong-ℕ (succ-ℕ k)
     ( mul-ℕ (nat-Fin (one-Fin {succ-ℕ k})) (nat-Fin x))
     ( nat-Fin x)
     ( cong-identification-ℕ
@@ -1252,14 +1298,14 @@ right-unit-law-mul-Fin x =
 left-zero-law-mul-Fin :
   {k : ℕ} (x : Fin (succ-ℕ k)) → Id (mul-Fin zero-Fin x) zero-Fin
 left-zero-law-mul-Fin {k} x =
-  ( eq-cong-ℕ k
+  ( eq-mod-succ-cong-ℕ k
     ( mul-ℕ (nat-Fin (zero-Fin {k})) (nat-Fin x))
     ( nat-Fin (zero-Fin {k}))
     ( cong-identification-ℕ
       ( succ-ℕ k)
       { mul-ℕ (nat-Fin (zero-Fin {k})) (nat-Fin x)}
       { nat-Fin (zero-Fin {k})}
-      ( ap (mul-ℕ' (nat-Fin x)) (nat-zero-Fin {k}) ∙ inv (nat-zero-Fin {k})))) ∙
+      ( ap (mul-ℕ' (nat-Fin x)) (is-zero-nat-zero-Fin {k}) ∙ inv (is-zero-nat-zero-Fin {k})))) ∙
   ( issec-nat-Fin (zero-Fin {k}))
 
 right-zero-law-mul-Fin :
@@ -1272,7 +1318,7 @@ left-distributive-mul-add-Fin :
   {k : ℕ} (x y z : Fin k) →
   Id (mul-Fin x (add-Fin y z)) (add-Fin (mul-Fin x y) (mul-Fin x z))
 left-distributive-mul-add-Fin {succ-ℕ k} x y z =
-  eq-cong-ℕ k
+  eq-mod-succ-cong-ℕ k
     ( mul-ℕ (nat-Fin x) (nat-Fin (add-Fin y z)))
     ( add-ℕ (nat-Fin (mul-Fin x y)) (nat-Fin (mul-Fin x z)))
     ( concatenate-cong-eq-cong-ℕ
@@ -1363,13 +1409,13 @@ leq-nat-succ-Fin (succ-ℕ k) (inl x) =
 leq-nat-succ-Fin (succ-ℕ k) (inr star) =
   concatenate-eq-leq-ℕ
     ( succ-ℕ (nat-Fin (inr star)))
-    ( nat-zero-Fin {succ-ℕ k})
+    ( is-zero-nat-zero-Fin {succ-ℕ k})
     ( leq-zero-ℕ (succ-ℕ (nat-Fin {succ-ℕ k} (inr star))))
 
 leq-nat-mod-succ-ℕ :
   (k x : ℕ) → leq-ℕ (nat-Fin (mod-succ-ℕ k x)) x
 leq-nat-mod-succ-ℕ k zero-ℕ =
-  concatenate-eq-leq-ℕ zero-ℕ (nat-zero-Fin {k}) (refl-leq-ℕ zero-ℕ)
+  concatenate-eq-leq-ℕ zero-ℕ (is-zero-nat-zero-Fin {k}) (refl-leq-ℕ zero-ℕ)
 leq-nat-mod-succ-ℕ k (succ-ℕ x) =
   transitive-leq-ℕ
     ( nat-Fin (mod-succ-ℕ k (succ-ℕ x)))
@@ -1587,7 +1633,7 @@ convert-based-succ-based-ℕ (succ-ℕ k) (constant-based-ℕ .(succ-ℕ k) (inl
   nat-succ-Fin x
 convert-based-succ-based-ℕ
   ( succ-ℕ k) (constant-based-ℕ .(succ-ℕ k) (inr star)) =
-  ( ap (λ t → add-ℕ (mul-ℕ (succ-ℕ k) (succ-ℕ t)) t) (nat-zero-Fin {k})) ∙
+  ( ap (λ t → add-ℕ (mul-ℕ (succ-ℕ k) (succ-ℕ t)) t) (is-zero-nat-zero-Fin {k})) ∙
   ( right-unit-law-mul-ℕ (succ-ℕ k))
 convert-based-succ-based-ℕ (succ-ℕ k) (unary-op-based-ℕ .(succ-ℕ k) (inl x) n) =
   ap ( add-ℕ (mul-ℕ (succ-ℕ k) (succ-ℕ (convert-based-ℕ (succ-ℕ k) n))))
@@ -1598,7 +1644,7 @@ convert-based-succ-based-ℕ
          ( mul-ℕ
            ( succ-ℕ k)
            ( succ-ℕ (convert-based-ℕ (succ-ℕ k) (succ-based-ℕ (succ-ℕ k) n)))))
-       ( nat-zero-Fin {k})) ∙
+       ( is-zero-nat-zero-Fin {k})) ∙
   ( ( ap ( (mul-ℕ (succ-ℕ k)) ∘ succ-ℕ)
          ( convert-based-succ-based-ℕ (succ-ℕ k) n)) ∙
     ( ( right-successor-law-mul-ℕ
@@ -1610,7 +1656,7 @@ convert-based-succ-based-ℕ
    
 issec-inv-convert-based-ℕ :
   (k n : ℕ) → Id (convert-based-ℕ (succ-ℕ k) (inv-convert-based-ℕ k n)) n
-issec-inv-convert-based-ℕ k zero-ℕ = nat-zero-Fin {k}
+issec-inv-convert-based-ℕ k zero-ℕ = is-zero-nat-zero-Fin {k}
 issec-inv-convert-based-ℕ k (succ-ℕ n) =
   ( convert-based-succ-based-ℕ (succ-ℕ k) (inv-convert-based-ℕ  k n)) ∙
   ( ap succ-ℕ (issec-inv-convert-based-ℕ k n))

@@ -1298,7 +1298,7 @@ is-unit-neg-one-Fin {zero-ℕ} = refl-div-Fin neg-one-Fin
 is-unit-neg-one-Fin {succ-ℕ k} =
   pair
     ( neg-one-Fin)
-    ( eq-cong-ℕ
+    ( eq-mod-succ-cong-ℕ
       ( succ-ℕ k)
       ( mul-ℕ (succ-ℕ k) (succ-ℕ k))
       ( one-ℕ)
@@ -1368,10 +1368,10 @@ is-mod-unit-sim-unit-mod-succ-ℕ :
 is-mod-unit-sim-unit-mod-succ-ℕ k x (pair u p) =
   pair
     ( nat-Fin (pr1 u))
-    ( cong-eq-ℕ k
+    ( cong-eq-mod-succ-ℕ k
       ( mul-ℕ (nat-Fin (pr1 u)) x)
       ( one-ℕ)
-      ( ( eq-cong-ℕ k
+      ( ( eq-mod-succ-cong-ℕ k
           ( mul-ℕ (nat-Fin (pr1 u)) x)
           ( mul-ℕ (nat-Fin (pr1 u)) (nat-Fin (mod-succ-ℕ k x)))
           ( scalar-invariant-cong-ℕ
@@ -1412,6 +1412,7 @@ is-linear-combination-dist-ℕ : ℕ → ℕ → ℕ → UU lzero
 is-linear-combination-dist-ℕ x y z =
   Σ ℕ (λ k → Σ ℕ (λ l → Id (dist-ℕ (mul-ℕ k x) (mul-ℕ l y)) z))
 
+{-
 sim-unit-dist-ℕ :
   (k x y : ℕ) →
   sim-unit-Fin (mod-succ-ℕ x (dist-ℕ (mul-ℕ k (succ-ℕ x)) y)) (mod-succ-ℕ x y)
@@ -1426,7 +1427,7 @@ sim-unit-dist-ℕ k x y = {!decide-leq-ℕ!}
       ( one-unit-Fin)
       ( ( left-unit-law-mul-Fin
           ( mod-succ-ℕ x (dist-ℕ (mul-ℕ k (succ-ℕ x)) y))) ∙
-        ( eq-cong-ℕ x
+        ( eq-mod-succ-cong-ℕ x
           ( dist-ℕ (mul-ℕ k (succ-ℕ x)) y)
           ( y)
           ( concatenate-eq-cong-eq-ℕ
@@ -1443,7 +1444,7 @@ sim-unit-dist-ℕ k x y = {!decide-leq-ℕ!}
     pair
       ( neg-one-unit-Fin)
       ( ( mul-neg-one-Fin (mod-succ-ℕ x (dist-ℕ (mul-ℕ k (succ-ℕ x)) y))) ∙
-        ( eq-cong-ℕ x
+        ( eq-mod-succ-cong-ℕ x
            ( dist-ℕ
              ( nat-Fin (mod-succ-ℕ x (dist-ℕ (mul-ℕ k (succ-ℕ x)) y)))
              ( succ-ℕ x))
@@ -1470,6 +1471,7 @@ Bezout x y =
     ( pair
       {!!}
       {!!})
+-}
 
 {-
  l := x / gcd x y
@@ -1621,6 +1623,7 @@ reflects-is-common-divisor-mul-ℕ k a b d H =
     ( reflects-div-mul-ℕ k d a H)
     ( reflects-div-mul-ℕ k d b H)
 
+{-
 distributive-mul-gcd-ℕ :
   (k a b : ℕ) → Id (mul-ℕ k (gcd-ℕ a b)) (gcd-ℕ (mul-ℕ k a) (mul-ℕ k b))
 distributive-mul-gcd-ℕ zero-ℕ a b = inv is-zero-gcd-zero-zero-ℕ
@@ -1647,3 +1650,4 @@ distributive-quotient-div-gcd-ℕ a b d H =
     ( gcd-ℕ (quotient-div-ℕ d a (pr1 H)) (quotient-div-ℕ d b (pr2 H)))
     {!!}
     {!!}
+-}
