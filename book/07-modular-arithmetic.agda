@@ -181,15 +181,15 @@ cong-identification-ℕ :
   (k : ℕ) {x y : ℕ} → Id x y → cong-ℕ k x y
 cong-identification-ℕ k {x} refl = refl-cong-ℕ k x
 
-symmetric-cong-ℕ :
+symm-cong-ℕ :
   (k x y : ℕ) → cong-ℕ k x y → cong-ℕ k y x
-symmetric-cong-ℕ k x y (pair d p) =
+symm-cong-ℕ k x y (pair d p) =
   pair d (p ∙ (symmetric-dist-ℕ x y))
 
 cong-zero-ℕ' :
   (k : ℕ) → cong-ℕ k zero-ℕ k
 cong-zero-ℕ' k =
-  symmetric-cong-ℕ k k zero-ℕ (cong-zero-ℕ k)
+  symm-cong-ℕ k k zero-ℕ (cong-zero-ℕ k)
 
 {- Before we show that cong-ℕ is transitive, we give some lemmas that will help 
    us showing that cong is an equivalence relation. They are basically 
@@ -272,16 +272,16 @@ is-total-dist-ℕ x y z | inr (inr (inr (pair H1 H2))) =
 
 -- Finally, we show that cong-ℕ is transitive.
 
-transitive-cong-ℕ :
+trans-cong-ℕ :
   (k x y z : ℕ) →
   cong-ℕ k x y → cong-ℕ k y z → cong-ℕ k x z
-transitive-cong-ℕ k x y z d e with is-total-dist-ℕ x y z
-transitive-cong-ℕ k x y z d e | inl α =
+trans-cong-ℕ k x y z d e with is-total-dist-ℕ x y z
+trans-cong-ℕ k x y z d e | inl α =
   concatenate-div-eq-ℕ (div-add-ℕ k (dist-ℕ x y) (dist-ℕ y z) d e) α
-transitive-cong-ℕ k x y z d e | inr (inl α) =
+trans-cong-ℕ k x y z d e | inr (inl α) =
   div-right-summand-ℕ k (dist-ℕ y z) (dist-ℕ x z) e
     ( concatenate-div-eq-ℕ d (inv α))
-transitive-cong-ℕ k x y z d e | inr (inr α) =
+trans-cong-ℕ k x y z d e | inr (inr α) =
   div-left-summand-ℕ k (dist-ℕ x z) (dist-ℕ x y) d
     ( concatenate-div-eq-ℕ e (inv α))
 
@@ -289,14 +289,14 @@ concatenate-cong-eq-cong-ℕ :
   {k x1 x2 x3 x4 : ℕ} →
   cong-ℕ k x1 x2 → Id x2 x3 → cong-ℕ k x3 x4 → cong-ℕ k x1 x4
 concatenate-cong-eq-cong-ℕ {k} {x} {y} {.y} {z} H refl K =
-  transitive-cong-ℕ k x y z H K
+  trans-cong-ℕ k x y z H K
   
 concatenate-eq-cong-eq-cong-eq-ℕ :
   (k : ℕ) {x1 x2 x3 x4 x5 x6 : ℕ} →
   Id x1 x2 → cong-ℕ k x2 x3 → Id x3 x4 →
   cong-ℕ k x4 x5 → Id x5 x6 → cong-ℕ k x1 x6
 concatenate-eq-cong-eq-cong-eq-ℕ k {x} {.x} {y} {.y} {z} {.z} refl H refl K refl =
-  transitive-cong-ℕ k x y z H K
+  trans-cong-ℕ k x y z H K
 
 --------------------------------------------------------------------------------
 
@@ -323,6 +323,12 @@ neg-one-Fin {k} = inr star
 is-neg-one-Fin : {k : ℕ} → Fin k → UU lzero
 is-neg-one-Fin {succ-ℕ k} x = Id x neg-one-Fin
 
+-- We also define the type ℤ-Mod
+
+ℤ-Mod : (k : ℕ) → UU lzero
+ℤ-Mod zero-ℕ = ℕ
+ℤ-Mod (succ-ℕ k) = Fin (succ-ℕ k)
+
 {- Definition 7.3.4 -}
 
 -- We define the inclusion of Fin k into ℕ.
@@ -330,6 +336,10 @@ is-neg-one-Fin {succ-ℕ k} x = Id x neg-one-Fin
 nat-Fin : {k : ℕ} → Fin k → ℕ
 nat-Fin {succ-ℕ k} (inl x) = nat-Fin x
 nat-Fin {succ-ℕ k} (inr x) = k
+
+nat-ℤ-Mod : {k : ℕ} → ℤ-Mod k → ℕ
+nat-ℤ-Mod {zero-ℕ} x = x
+nat-ℤ-Mod {succ-ℕ k} x = nat-Fin x
 
 {- Lemma 7.3.5 -}
 
@@ -372,6 +382,10 @@ is-injective-nat-Fin {succ-ℕ k} {inr star} {inl y} p =
 is-injective-nat-Fin {succ-ℕ k} {inr star} {inr star} p =
   refl
 
+is-injective-nat-ℤ-Mod : {k : ℕ} → is-injective (nat-ℤ-Mod {k})
+is-injective-nat-ℤ-Mod {zero-ℕ} = is-injective-id
+is-injective-nat-ℤ-Mod {succ-ℕ k} = is-injective-nat-Fin
+
 --------------------------------------------------------------------------------
 
 {- Section 7.4 The natural numbers modulo k+1 -}
@@ -410,6 +424,18 @@ skip-zero-Fin {succ-ℕ k} (inr star) = inr star
 succ-Fin : {k : ℕ} → Fin k → Fin k
 succ-Fin {succ-ℕ k} (inl x) = skip-zero-Fin x
 succ-Fin {succ-ℕ k} (inr star) = zero-Fin
+
+-- The same for ℤ-Mod
+
+zero-ℤ-Mod : {k : ℕ} → ℤ-Mod k
+zero-ℤ-Mod {zero-ℕ} = zero-ℕ
+zero-ℤ-Mod {succ-ℕ k} = zero-Fin
+
+is-zero-ℤ-Mod : {k : ℕ} → ℤ-Mod k → UU lzero
+is-zero-ℤ-Mod {k} x = Id x (zero-ℤ-Mod {k})
+
+is-nonzero-ℤ-Mod : {k : ℕ} → ℤ-Mod k → UU lzero
+is-nonzero-ℤ-Mod {k} x = ¬ (is-zero-ℤ-Mod {k} x)
 
 {- Definition 7.4.3 -}
 
@@ -469,7 +495,7 @@ cong-nat-mod-succ-ℕ :
 cong-nat-mod-succ-ℕ k zero-ℕ =
   cong-identification-ℕ (succ-ℕ k) (nat-zero-Fin {k})
 cong-nat-mod-succ-ℕ k (succ-ℕ x) =
-  transitive-cong-ℕ
+  trans-cong-ℕ
     ( succ-ℕ k)
     ( nat-Fin (mod-succ-ℕ k (succ-ℕ x)))
     ( succ-ℕ (nat-Fin (mod-succ-ℕ k x)))
@@ -515,7 +541,7 @@ cong-eq-ℕ :
   (k x y : ℕ) → Id (mod-succ-ℕ k x) (mod-succ-ℕ k y) → cong-ℕ (succ-ℕ k) x y
 cong-eq-ℕ k x y p =
   concatenate-cong-eq-cong-ℕ {succ-ℕ k} {x}
-    ( symmetric-cong-ℕ (succ-ℕ k) (nat-Fin (mod-succ-ℕ k x)) x
+    ( symm-cong-ℕ (succ-ℕ k) (nat-Fin (mod-succ-ℕ k x)) x
       ( cong-nat-mod-succ-ℕ k x))
     ( ap nat-Fin p)
     ( cong-nat-mod-succ-ℕ k y)
@@ -536,14 +562,14 @@ eq-cong-ℕ k x y H =
     ( succ-ℕ k)
     ( mod-succ-ℕ k x)
     ( mod-succ-ℕ k y)
-    ( transitive-cong-ℕ
+    ( trans-cong-ℕ
       ( succ-ℕ k)
       ( nat-Fin (mod-succ-ℕ k x))
       ( x)
       ( nat-Fin (mod-succ-ℕ k y))
       ( cong-nat-mod-succ-ℕ k x)
-      ( transitive-cong-ℕ (succ-ℕ k) x y (nat-Fin (mod-succ-ℕ k y)) H
-        ( symmetric-cong-ℕ (succ-ℕ k) (nat-Fin (mod-succ-ℕ k y)) y
+      ( trans-cong-ℕ (succ-ℕ k) x y (nat-Fin (mod-succ-ℕ k y)) H
+        ( symm-cong-ℕ (succ-ℕ k) (nat-Fin (mod-succ-ℕ k y)) y
           ( cong-nat-mod-succ-ℕ k y))))
 
 -- We record some immediate corollaries
@@ -645,13 +671,27 @@ step-invariant-cong-ℕ :
   (k x y : ℕ) → cong-ℕ k x y → cong-ℕ k (succ-ℕ x) (succ-ℕ y)
 step-invariant-cong-ℕ k x y = translation-invariant-cong-ℕ' k x y one-ℕ
 
+reflects-cong-add-ℕ :
+  {k : ℕ} (x : ℕ) {y z : ℕ} → cong-ℕ k (add-ℕ x y) (add-ℕ x z) → cong-ℕ k y z
+reflects-cong-add-ℕ {k} x {y} {z} (pair d p) =
+  pair d (p ∙ translation-invariant-dist-ℕ x y z)
+
+reflects-cong-add-ℕ' :
+  {k : ℕ} (x : ℕ) {y z : ℕ} → cong-ℕ k (add-ℕ' x y) (add-ℕ' x z) → cong-ℕ k y z
+reflects-cong-add-ℕ' {k} x {y} {z} H =
+  reflects-cong-add-ℕ x {y} {z}
+    ( concatenate-eq-cong-eq-ℕ k
+      ( commutative-add-ℕ x y)
+      ( H)
+      ( commutative-add-ℕ z x))
+
 -- We show that addition respects the congruence relation --
 
 congruence-add-ℕ :
   (k : ℕ) {x y x' y' : ℕ} →
   cong-ℕ k x x' → cong-ℕ k y y' → cong-ℕ k (add-ℕ x y) (add-ℕ x' y')
 congruence-add-ℕ k {x} {y} {x'} {y'} H K =
-  transitive-cong-ℕ k (add-ℕ x y) (add-ℕ x y') (add-ℕ x' y')
+  trans-cong-ℕ k (add-ℕ x y) (add-ℕ x y') (add-ℕ x' y')
     ( translation-invariant-cong-ℕ k y y' x K)
     ( translation-invariant-cong-ℕ' k x x' y' H)
 
@@ -668,9 +708,9 @@ mod-succ-add-ℕ k x y =
       { y}
       { nat-Fin (mod-succ-ℕ k x)}
       { nat-Fin (mod-succ-ℕ k y)}
-      ( symmetric-cong-ℕ (succ-ℕ k) (nat-Fin (mod-succ-ℕ k x)) x
+      ( symm-cong-ℕ (succ-ℕ k) (nat-Fin (mod-succ-ℕ k x)) x
         ( cong-nat-mod-succ-ℕ k x))
-      ( symmetric-cong-ℕ (succ-ℕ k) (nat-Fin (mod-succ-ℕ k y)) y
+      ( symm-cong-ℕ (succ-ℕ k) (nat-Fin (mod-succ-ℕ k y)) y
         ( cong-nat-mod-succ-ℕ k y)))
 
 {- Theorem 7.5.4 -}
@@ -711,7 +751,7 @@ associative-add-Fin {succ-ℕ k} x y z =
         { x' = nat-Fin x}
         { y' = nat-Fin (add-Fin y z)}
         ( refl-cong-ℕ (succ-ℕ k) (nat-Fin x))
-        ( symmetric-cong-ℕ
+        ( symm-cong-ℕ
           ( succ-ℕ k)
           ( nat-Fin (add-Fin y z))
           ( add-ℕ (nat-Fin y) (nat-Fin z))
@@ -1099,6 +1139,10 @@ mul-Fin :
   {k : ℕ} → Fin k → Fin k → Fin k
 mul-Fin {succ-ℕ k} x y = mod-succ-ℕ k (mul-ℕ (nat-Fin x) (nat-Fin y))
 
+mul-Fin' :
+  {k : ℕ} → Fin k → Fin k → Fin k
+mul-Fin' {k} x y = mul-Fin y x
+
 ap-mul-Fin :
   {k : ℕ} {x y x' y' : Fin k} →
   Id x x' → Id y y' → Id (mul-Fin x y) (mul-Fin x' y')
@@ -1123,7 +1167,7 @@ scalar-invariant-cong-ℕ k x y z (pair d p) =
     ( mul-ℕ z d)
     ( ( associative-mul-ℕ z d k) ∙
       ( ( ap (mul-ℕ z) p) ∙
-        ( inv (linear-dist-ℕ x y z))))
+        ( left-distributive-mul-dist-ℕ x y z)))
 
 scalar-invariant-cong-ℕ' :
   (k x y z : ℕ) → cong-ℕ k x y → cong-ℕ k (mul-ℕ x z) (mul-ℕ y z)
@@ -1139,7 +1183,7 @@ congruence-mul-ℕ :
   (k : ℕ) {x y x' y' : ℕ} →
   cong-ℕ  k x x' → cong-ℕ k y y' → cong-ℕ k (mul-ℕ x y) (mul-ℕ x' y')
 congruence-mul-ℕ k {x} {y} {x'} {y'} H K =
-  transitive-cong-ℕ k (mul-ℕ x y) (mul-ℕ x y') (mul-ℕ x' y')
+  trans-cong-ℕ k (mul-ℕ x y) (mul-ℕ x y') (mul-ℕ x' y')
     ( scalar-invariant-cong-ℕ k y y' x K)
     ( scalar-invariant-cong-ℕ' k x x' y' H)
 
@@ -1164,7 +1208,7 @@ associative-mul-Fin {succ-ℕ k} x y z =
         ( cong-mul-Fin x y)
         ( refl-cong-ℕ (succ-ℕ k) (nat-Fin z)))
       ( associative-mul-ℕ (nat-Fin x) (nat-Fin y) (nat-Fin z))
-      ( symmetric-cong-ℕ
+      ( symm-cong-ℕ
         ( succ-ℕ k)
         ( mul-ℕ (nat-Fin x) (nat-Fin (mul-Fin y z)))
         ( mul-ℕ (nat-Fin x) (mul-ℕ (nat-Fin y) (nat-Fin z)))
@@ -1205,6 +1249,25 @@ right-unit-law-mul-Fin x =
   ( commutative-mul-Fin x one-Fin) ∙
   ( left-unit-law-mul-Fin x)
 
+left-zero-law-mul-Fin :
+  {k : ℕ} (x : Fin (succ-ℕ k)) → Id (mul-Fin zero-Fin x) zero-Fin
+left-zero-law-mul-Fin {k} x =
+  ( eq-cong-ℕ k
+    ( mul-ℕ (nat-Fin (zero-Fin {k})) (nat-Fin x))
+    ( nat-Fin (zero-Fin {k}))
+    ( cong-identification-ℕ
+      ( succ-ℕ k)
+      { mul-ℕ (nat-Fin (zero-Fin {k})) (nat-Fin x)}
+      { nat-Fin (zero-Fin {k})}
+      ( ap (mul-ℕ' (nat-Fin x)) (nat-zero-Fin {k}) ∙ inv (nat-zero-Fin {k})))) ∙
+  ( issec-nat-Fin (zero-Fin {k}))
+
+right-zero-law-mul-Fin :
+  {k : ℕ} (x : Fin (succ-ℕ k)) → Id (mul-Fin x zero-Fin) zero-Fin
+right-zero-law-mul-Fin x =
+  ( commutative-mul-Fin x zero-Fin) ∙
+  ( left-zero-law-mul-Fin x)
+
 left-distributive-mul-add-Fin :
   {k : ℕ} (x y z : Fin k) →
   Id (mul-Fin x (add-Fin y z)) (add-Fin (mul-Fin x y) (mul-Fin x z))
@@ -1228,7 +1291,7 @@ left-distributive-mul-add-Fin {succ-ℕ k} x y z =
         ( refl-cong-ℕ (succ-ℕ k) (nat-Fin x))
         ( cong-add-Fin y z))
       ( left-distributive-mul-add-ℕ (nat-Fin x) (nat-Fin y) (nat-Fin z))
-      ( symmetric-cong-ℕ (succ-ℕ k)
+      ( symm-cong-ℕ (succ-ℕ k)
         ( add-ℕ ( nat-Fin (mul-Fin x y))
                 ( nat-Fin (mul-Fin x z)))
         ( add-ℕ ( mul-ℕ (nat-Fin x) (nat-Fin y))
@@ -1249,6 +1312,42 @@ right-distributive-mul-add-Fin {k} x y z =
   ( commutative-mul-Fin (add-Fin x y) z) ∙
   ( ( left-distributive-mul-add-Fin z x y) ∙
     ( ap-add-Fin (commutative-mul-Fin z x) (commutative-mul-Fin z y)))
+
+add-add-neg-Fin :
+  {k : ℕ} (x y : Fin k) → Id (add-Fin x (add-Fin (neg-Fin x) y)) y
+add-add-neg-Fin {succ-ℕ k} x y =
+  ( inv (associative-add-Fin x (neg-Fin x) y)) ∙
+  ( ( ap (add-Fin' y) (right-inverse-law-add-Fin x)) ∙
+    ( left-unit-law-add-Fin y))
+
+add-neg-add-Fin :
+  {k : ℕ} (x y : Fin k) → Id (add-Fin (neg-Fin x) (add-Fin x y)) y
+add-neg-add-Fin {succ-ℕ k} x y =
+  ( inv (associative-add-Fin (neg-Fin x) x y)) ∙
+  ( ( ap (add-Fin' y) (left-inverse-law-add-Fin x)) ∙
+    ( left-unit-law-add-Fin y))
+
+is-injective-add-Fin :
+  {k : ℕ} (x : Fin k) → is-injective (add-Fin x)
+is-injective-add-Fin {k} x {y} {z} p =
+  ( inv (add-neg-add-Fin x y)) ∙
+  ( ( ap (add-Fin (neg-Fin x)) p) ∙
+    ( add-neg-add-Fin x z))
+
+mul-neg-one-Fin :
+  {k : ℕ} (x : Fin (succ-ℕ k)) → Id (mul-Fin neg-one-Fin x) (neg-Fin x)
+mul-neg-one-Fin {k} x =
+  is-injective-add-Fin x
+    ( ( ( ap
+          ( add-Fin' (mul-Fin neg-one-Fin x))
+          ( inv (left-unit-law-mul-Fin x))) ∙
+        ( ( inv (right-distributive-mul-add-Fin one-Fin neg-one-Fin x)) ∙
+          ( ( ap
+              ( mul-Fin' x)
+              ( ( commutative-add-Fin one-Fin neg-one-Fin) ∙
+                ( inv (is-add-one-succ-Fin neg-one-Fin)))) ∙
+            ( left-zero-law-mul-Fin x)))) ∙
+      ( inv (right-inverse-law-add-Fin x)))
 
 {- Exercise 7.9 -}
 
@@ -1289,7 +1388,7 @@ euclidean-division-ℕ (succ-ℕ k) x =
   pair
     ( nat-Fin (mod-succ-ℕ k x))
     ( pair
-      ( symmetric-cong-ℕ (succ-ℕ k) (nat-Fin (mod-succ-ℕ k x)) x
+      ( symm-cong-ℕ (succ-ℕ k) (nat-Fin (mod-succ-ℕ k x)) x
         ( cong-nat-mod-succ-ℕ k x))
       ( λ f → strict-upper-bound-nat-Fin (mod-succ-ℕ k x)))
 
@@ -1441,7 +1540,7 @@ is-injective-convert-based-ℕ
         { unary-op-ℕ (succ-ℕ k) x (convert-based-ℕ (succ-ℕ k) n)}
         { unary-op-ℕ (succ-ℕ k) y (convert-based-ℕ (succ-ℕ k) m)}
         { nat-Fin y}
-        ( symmetric-cong-ℕ
+        ( symm-cong-ℕ
           ( succ-ℕ k)
           ( unary-op-ℕ (succ-ℕ k) x (convert-based-ℕ (succ-ℕ k) n))
           ( nat-Fin x)
@@ -1524,3 +1623,8 @@ isretr-inv-convert-based-ℕ k x =
     ( succ-ℕ k)
     ( issec-inv-convert-based-ℕ k (convert-based-ℕ (succ-ℕ k) x))
 
+--------------------------------------------------------------------------------
+
+map-extended-euclidean-algorithm : ℕ × ℕ → ℕ × ℕ
+map-extended-euclidean-algorithm (pair x y) =
+  pair y (remainder-euclidean-division-ℕ y x)

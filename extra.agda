@@ -15,6 +15,7 @@ open import extra.Euclidean-algorithm public
 open import extra.final-coalgebras public
 open import extra.flat-modality public
 open import extra.free-group public
+open import extra.Gaussian-integers public
 open import extra.globular public
 open import extra.group-completion public
 open import extra.ideals public

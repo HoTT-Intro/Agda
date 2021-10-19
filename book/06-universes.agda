@@ -67,6 +67,9 @@ is-not-injective :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) → UU (l1 ⊔ l2)
 is-not-injective f = ¬ (is-injective f)
 
+is-injective-id : {l1 : Level} {A : UU l1} → is-injective (id {A = A})
+is-injective-id p = p
+
 is-injective-succ-ℕ : is-injective succ-ℕ
 is-injective-succ-ℕ {x} {y} e = eq-Eq-ℕ x y (Eq-eq-ℕ e)
 
@@ -772,26 +775,36 @@ translation-invariant-dist-ℕ' k m n =
 
 -- We show that dist-ℕ is linear with respect to scalar multiplication
 
-linear-dist-ℕ :
-  (m n k : ℕ) → Id (dist-ℕ (mul-ℕ k m) (mul-ℕ k n)) (mul-ℕ k (dist-ℕ m n))
-linear-dist-ℕ zero-ℕ zero-ℕ zero-ℕ = refl
-linear-dist-ℕ zero-ℕ zero-ℕ (succ-ℕ k) = linear-dist-ℕ zero-ℕ zero-ℕ k
-linear-dist-ℕ zero-ℕ (succ-ℕ n) zero-ℕ = refl
-linear-dist-ℕ zero-ℕ (succ-ℕ n) (succ-ℕ k) =
-  ap (dist-ℕ' (mul-ℕ (succ-ℕ k) (succ-ℕ n))) (right-zero-law-mul-ℕ (succ-ℕ k))
-linear-dist-ℕ (succ-ℕ m) zero-ℕ zero-ℕ = refl
-linear-dist-ℕ (succ-ℕ m) zero-ℕ (succ-ℕ k) =
-  ap (dist-ℕ (mul-ℕ (succ-ℕ k) (succ-ℕ m))) (right-zero-law-mul-ℕ (succ-ℕ k))
-linear-dist-ℕ (succ-ℕ m) (succ-ℕ n) zero-ℕ = refl
-linear-dist-ℕ (succ-ℕ m) (succ-ℕ n) (succ-ℕ k) =
-  ( ap-dist-ℕ
-    ( right-successor-law-mul-ℕ (succ-ℕ k) m)
-    ( right-successor-law-mul-ℕ (succ-ℕ k) n)) ∙
-  ( ( translation-invariant-dist-ℕ
-      ( succ-ℕ k)
-      ( mul-ℕ (succ-ℕ k) m)
-      ( mul-ℕ (succ-ℕ k) n)) ∙
-    ( linear-dist-ℕ m n (succ-ℕ k)))
+left-distributive-mul-dist-ℕ :
+  (m n k : ℕ) → Id (mul-ℕ k (dist-ℕ m n)) (dist-ℕ (mul-ℕ k m) (mul-ℕ k n))
+left-distributive-mul-dist-ℕ zero-ℕ zero-ℕ zero-ℕ = refl
+left-distributive-mul-dist-ℕ zero-ℕ zero-ℕ (succ-ℕ k) = left-distributive-mul-dist-ℕ zero-ℕ zero-ℕ k
+left-distributive-mul-dist-ℕ zero-ℕ (succ-ℕ n) zero-ℕ = refl
+left-distributive-mul-dist-ℕ zero-ℕ (succ-ℕ n) (succ-ℕ k) =
+  ap ( dist-ℕ' (mul-ℕ (succ-ℕ k) (succ-ℕ n)))
+     ( inv (right-zero-law-mul-ℕ (succ-ℕ k)))
+left-distributive-mul-dist-ℕ (succ-ℕ m) zero-ℕ zero-ℕ = refl
+left-distributive-mul-dist-ℕ (succ-ℕ m) zero-ℕ (succ-ℕ k) =
+  ap ( dist-ℕ (mul-ℕ (succ-ℕ k) (succ-ℕ m)))
+     ( inv (right-zero-law-mul-ℕ (succ-ℕ k)))
+left-distributive-mul-dist-ℕ (succ-ℕ m) (succ-ℕ n) zero-ℕ = refl
+left-distributive-mul-dist-ℕ (succ-ℕ m) (succ-ℕ n) (succ-ℕ k) =
+  inv
+    ( ( ap-dist-ℕ
+        ( right-successor-law-mul-ℕ (succ-ℕ k) m)
+        ( right-successor-law-mul-ℕ (succ-ℕ k) n)) ∙
+      ( ( translation-invariant-dist-ℕ
+          ( succ-ℕ k)
+          ( mul-ℕ (succ-ℕ k) m)
+          ( mul-ℕ (succ-ℕ k) n)) ∙
+        ( inv (left-distributive-mul-dist-ℕ m n (succ-ℕ k)))))
+
+right-distributive-mul-dist-ℕ :
+  (x y k : ℕ) → Id (mul-ℕ (dist-ℕ x y) k) (dist-ℕ (mul-ℕ x k) (mul-ℕ y k))
+right-distributive-mul-dist-ℕ x y k =
+  ( commutative-mul-ℕ (dist-ℕ x y) k) ∙
+  ( ( left-distributive-mul-dist-ℕ x y k) ∙
+    ( ap-dist-ℕ (commutative-mul-ℕ k x) (commutative-mul-ℕ k y)))
 
 -- Exercise 6.5 (d)
 

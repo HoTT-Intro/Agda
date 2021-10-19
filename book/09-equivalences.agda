@@ -303,20 +303,6 @@ equiv-pred-Fin = pair pred-Fin is-equiv-pred-Fin
 
 -- We show that add-Fin k x is an equivalence
 
-add-add-neg-Fin :
-  {k : ℕ} (x y : Fin k) → Id (add-Fin x (add-Fin (neg-Fin x) y)) y
-add-add-neg-Fin {succ-ℕ k} x y =
-  ( inv (associative-add-Fin x (neg-Fin x) y)) ∙
-  ( ( ap (add-Fin' y) (right-inverse-law-add-Fin x)) ∙
-    ( left-unit-law-add-Fin y))
-
-add-neg-add-Fin :
-  {k : ℕ} (x y : Fin k) → Id (add-Fin (neg-Fin x) (add-Fin x y)) y
-add-neg-add-Fin {succ-ℕ k} x y =
-  ( inv (associative-add-Fin (neg-Fin x) x y)) ∙
-  ( ( ap (add-Fin' y) (left-inverse-law-add-Fin x)) ∙
-    ( left-unit-law-add-Fin y))
-
 is-equiv-add-Fin :
   {k : ℕ} (x : Fin k) → is-equiv (add-Fin x)
 is-equiv-add-Fin x =

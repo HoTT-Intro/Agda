@@ -111,6 +111,18 @@ exp-ℕ : ℕ → (ℕ → ℕ)
 exp-ℕ m zero-ℕ = one-ℕ
 exp-ℕ m (succ-ℕ n) = mul-ℕ (exp-ℕ m n) m
 
+double-ℕ : ℕ → ℕ
+double-ℕ x = mul-ℕ two-ℕ x
+
+triple-ℕ : ℕ → ℕ
+triple-ℕ x = mul-ℕ three-ℕ x
+
+square-ℕ : ℕ → ℕ
+square-ℕ x = mul-ℕ x x
+
+cube-ℕ : ℕ → ℕ
+cube-ℕ x = mul-ℕ (square-ℕ x) x
+
 -- Exercise 3.2
 
 min-ℕ : ℕ → (ℕ → ℕ)

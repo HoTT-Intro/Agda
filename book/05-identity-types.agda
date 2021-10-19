@@ -362,6 +362,15 @@ abstract
       ( ap succ-ℕ (associative-add-ℕ x (mul-ℕ x y) y))) ∙
     ( inv (left-successor-law-add-ℕ x (add-ℕ (mul-ℕ x y) y)))
 
+-- Immediate consequences
+
+square-succ-ℕ :
+  (k : ℕ) →
+  Id (square-ℕ (succ-ℕ k)) (succ-ℕ (mul-ℕ (succ-ℕ (succ-ℕ k)) k))
+square-succ-ℕ k =
+  ( right-successor-law-mul-ℕ (succ-ℕ k) k) ∙
+  ( commutative-add-ℕ (succ-ℕ k) (mul-ℕ (succ-ℕ k) k))
+
 -- Exercise 5.5 (b)
 
 abstract

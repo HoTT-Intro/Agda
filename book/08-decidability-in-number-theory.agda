@@ -1257,111 +1257,205 @@ is-decidable-strictly-bounded-Σ-ℕ' m P d =
 
 {- Exercise 8.11 -}
 
-is-linear-combination-dist-ℕ' : ℕ → ℕ → ℕ → ℕ → UU lzero
-is-linear-combination-dist-ℕ' x y z k =
-  Σ ℕ (λ l → Id (dist-ℕ (mul-ℕ k x) (mul-ℕ l y)) z)
+-- Before we solve the exercise we introduce divisibility in Fin k
+-- The exercise can also be solved more directly
 
-cases-div-or-cong-is-linear-combination-dist-ℕ' :
-  (x y z k : ℕ) (H : is-linear-combination-dist-ℕ' x y z k) →
-  coprod (mul-ℕ k x ≤-ℕ mul-ℕ (pr1 H) y) (mul-ℕ (pr1 H) y ≤-ℕ mul-ℕ k x) →
-  coprod ( div-ℕ y (add-ℕ (mul-ℕ k x) z))
-         ( leq-ℕ z (mul-ℕ k x) × cong-ℕ y (mul-ℕ k x) z)
-cases-div-or-cong-is-linear-combination-dist-ℕ' x y z k (pair l p) (inl K) =
-  inl (pair l α)
-  where
-  α : Id (mul-ℕ l y) (add-ℕ (mul-ℕ k x) z)
-  α = ( inv (is-additive-right-inverse-dist-ℕ (mul-ℕ k x) (mul-ℕ l y) K)) ∙
-      ( ap (add-ℕ (mul-ℕ k x)) p)
-cases-div-or-cong-is-linear-combination-dist-ℕ' x y z k (pair l p) (inr K) =
-  inr
-    ( pair
-      ( concatenate-eq-leq-eq-ℕ
-        ( inv p)
-        ( leq-add-ℕ' (dist-ℕ (mul-ℕ k x) (mul-ℕ l y)) (mul-ℕ l y))
-        ( ( ap (add-ℕ (mul-ℕ l y)) (symmetric-dist-ℕ (mul-ℕ k x) (mul-ℕ l y))) ∙
-          ( is-additive-right-inverse-dist-ℕ (mul-ℕ l y) (mul-ℕ k x) K)))
-      ( pair l ( ( rewrite-left-add-dist-ℕ (mul-ℕ l y) z (mul-ℕ k x) (inv α)) ∙
-                 ( symmetric-dist-ℕ z (mul-ℕ k x)))))
-  where
-  α : Id (mul-ℕ k x) (add-ℕ (mul-ℕ l y) z)
-  α = ( inv (is-additive-right-inverse-dist-ℕ (mul-ℕ l y) (mul-ℕ k x) K)) ∙
-      ( ap (add-ℕ (mul-ℕ l y)) (symmetric-dist-ℕ (mul-ℕ l y) (mul-ℕ k x) ∙ p))
+div-Fin : {k : ℕ} → Fin k → Fin k → UU lzero
+div-Fin {k} x y = Σ (Fin k) (λ u → Id (mul-Fin u x) y)
 
-div-or-cong-is-linear-combination-dist-ℕ' :
-  (x y z k : ℕ) (H : is-linear-combination-dist-ℕ' x y z k) →
-  coprod ( div-ℕ y (add-ℕ (mul-ℕ k x) z))
-         ( leq-ℕ z (mul-ℕ k x) × cong-ℕ y (mul-ℕ k x) z)
-div-or-cong-is-linear-combination-dist-ℕ' x y z k H =
-  cases-div-or-cong-is-linear-combination-dist-ℕ' x y z k H
-    ( decide-leq-ℕ (mul-ℕ k x) (mul-ℕ (pr1 H) y))
+refl-div-Fin : {k : ℕ} (x : Fin k) → div-Fin x x
+refl-div-Fin {succ-ℕ k} x = pair one-Fin (left-unit-law-mul-Fin x)
 
-is-linear-combination-dist-div-or-cong-ℕ' :
-  (x y z k : ℕ) →
-  coprod ( div-ℕ y (add-ℕ (mul-ℕ k x) z))
-         ( leq-ℕ z (mul-ℕ k x) × cong-ℕ y (mul-ℕ k x) z) →
-  is-linear-combination-dist-ℕ' x y z k
-is-linear-combination-dist-div-or-cong-ℕ' x y z k (inl (pair l p)) =
-  pair l (inv (rewrite-right-add-dist-ℕ (mul-ℕ k x) z (mul-ℕ l y) (inv p)))
-is-linear-combination-dist-div-or-cong-ℕ' x y z k (inr (pair H (pair l p))) =
-  pair l ( inv
-           ( ( rewrite-right-add-dist-ℕ
-               ( mul-ℕ l y)
-               ( z)
-               ( mul-ℕ k x)
-               ( ( ap (add-ℕ' z) (p ∙ symmetric-dist-ℕ (mul-ℕ k x) z)) ∙
-                 ( ( commutative-add-ℕ (dist-ℕ z (mul-ℕ k x)) z) ∙
-                   ( is-additive-right-inverse-dist-ℕ z (mul-ℕ k x) H)))) ∙
-             ( symmetric-dist-ℕ (mul-ℕ l y) (mul-ℕ k x))))
+trans-div-Fin :
+  {k : ℕ} (x y z : Fin k) → div-Fin x y → div-Fin y z → div-Fin x z
+trans-div-Fin x y z (pair u p) (pair v q) =
+  pair (mul-Fin v u) (associative-mul-Fin v u x ∙ (ap (mul-Fin v) p ∙ q))
 
-is-decidable-is-linear-combination-dist-ℕ' :
-  (x y z k : ℕ) →
-  is-decidable (Σ ℕ (λ l → Id (dist-ℕ (mul-ℕ k x) (mul-ℕ l y)) z))
-is-decidable-is-linear-combination-dist-ℕ' x y z k =
+div-zero-Fin : {k : ℕ} (x : Fin (succ-ℕ k)) → div-Fin x zero-Fin
+div-zero-Fin x = pair zero-Fin (left-zero-law-mul-Fin x)
+
+div-one-Fin : {k : ℕ} (x : Fin (succ-ℕ k)) → div-Fin one-Fin x
+div-one-Fin x = pair x (right-unit-law-mul-Fin x)
+
+is-zero-div-zero-Fin :
+  {k : ℕ} (x : Fin (succ-ℕ k)) → div-Fin zero-Fin x → is-zero-Fin x
+is-zero-div-zero-Fin {k} x (pair u p) = inv p ∙ right-zero-law-mul-Fin u
+
+is-unit-Fin : {k : ℕ} → Fin k → UU lzero
+is-unit-Fin {succ-ℕ k} x = div-Fin x one-Fin
+
+unit-Fin : ℕ → UU lzero
+unit-Fin k = Σ (Fin k) is-unit-Fin
+
+is-unit-one-Fin : {k : ℕ} → is-unit-Fin (one-Fin {k})
+is-unit-one-Fin {k} = refl-div-Fin one-Fin
+
+one-unit-Fin : {k : ℕ} → unit-Fin (succ-ℕ k)
+one-unit-Fin {k} = pair one-Fin is-unit-one-Fin
+
+is-unit-neg-one-Fin : {k : ℕ} → is-unit-Fin (neg-one-Fin {k})
+is-unit-neg-one-Fin {zero-ℕ} = refl-div-Fin neg-one-Fin
+is-unit-neg-one-Fin {succ-ℕ k} =
+  pair
+    ( neg-one-Fin)
+    ( eq-cong-ℕ
+      ( succ-ℕ k)
+      ( mul-ℕ (succ-ℕ k) (succ-ℕ k))
+      ( one-ℕ)
+      ( concatenate-eq-cong-ℕ
+        ( succ-ℕ (succ-ℕ k))
+        { x3 = one-ℕ}
+        ( square-succ-ℕ k)
+        ( pair k
+          ( ( commutative-mul-ℕ k (succ-ℕ (succ-ℕ k))) ∙
+            ( inv (right-unit-law-dist-ℕ (mul-ℕ (succ-ℕ (succ-ℕ k)) k)))))))
+
+neg-one-unit-Fin : {k : ℕ} → unit-Fin (succ-ℕ k)
+neg-one-unit-Fin = pair neg-one-Fin is-unit-neg-one-Fin
+
+is-unit-mul-Fin :
+  {k : ℕ} {x y : Fin k} →
+  is-unit-Fin x → is-unit-Fin y → is-unit-Fin (mul-Fin x y)
+is-unit-mul-Fin {succ-ℕ k} {x} {y} (pair d p) (pair e q) =
+  pair
+    ( mul-Fin e d)
+    ( ( associative-mul-Fin e d (mul-Fin x y)) ∙
+      ( ( ap
+          ( mul-Fin e)
+          ( ( inv (associative-mul-Fin d x y)) ∙
+            ( ap (mul-Fin' y) p ∙ left-unit-law-mul-Fin y))) ∙
+        ( q)))
+
+mul-unit-Fin : {k : ℕ} → unit-Fin k → unit-Fin k → unit-Fin k
+mul-unit-Fin u v =
+  pair (mul-Fin (pr1 u) (pr1 v)) (is-unit-mul-Fin (pr2 u) (pr2 v))
+
+inv-unit-Fin : {k : ℕ} → unit-Fin k → unit-Fin k
+inv-unit-Fin {succ-ℕ k} (pair u (pair v p)) =
+  pair v (pair u (commutative-mul-Fin u v ∙ p))
+
+sim-unit-Fin :
+  {k : ℕ} → Fin k → Fin k → UU lzero
+sim-unit-Fin {k} x y = Σ (unit-Fin k) (λ u → Id (mul-Fin (pr1 u) x) y)
+
+refl-sim-unit-Fin :
+  {k : ℕ} (x : Fin k) → sim-unit-Fin x x
+refl-sim-unit-Fin {succ-ℕ k} x = pair one-unit-Fin (left-unit-law-mul-Fin x)
+
+symm-sim-unit-Fin :
+  {k : ℕ} (x y : Fin k) → sim-unit-Fin x y → sim-unit-Fin y x
+symm-sim-unit-Fin {succ-ℕ k} x y (pair (pair u (pair v q)) p) =
+  pair
+    ( inv-unit-Fin (pair u (pair v q)))
+    ( ( ( ( ap (mul-Fin v) (inv p)) ∙
+          ( inv (associative-mul-Fin v u x))) ∙
+        ( ap (mul-Fin' x) q)) ∙
+      ( left-unit-law-mul-Fin x))
+
+trans-sim-unit-Fin :
+  {k : ℕ} (x y z : Fin k) → sim-unit-Fin x y → sim-unit-Fin y z →
+  sim-unit-Fin x z
+trans-sim-unit-Fin {succ-ℕ k} x y z (pair u p) (pair v q) =
+  pair
+    ( mul-unit-Fin v u)
+    ( associative-mul-Fin (pr1 v) (pr1 u) x ∙ (ap (mul-Fin (pr1 v)) p ∙ q))
+
+is-mod-unit-ℕ : (k x : ℕ) → UU lzero
+is-mod-unit-ℕ k x = Σ ℕ (λ l → cong-ℕ k (mul-ℕ l x) one-ℕ)
+
+is-mod-unit-sim-unit-mod-succ-ℕ :
+  (k x : ℕ) → sim-unit-Fin (mod-succ-ℕ k x) one-Fin → is-mod-unit-ℕ (succ-ℕ k) x
+is-mod-unit-sim-unit-mod-succ-ℕ k x (pair u p) =
+  pair
+    ( nat-Fin (pr1 u))
+    ( cong-eq-ℕ k
+      ( mul-ℕ (nat-Fin (pr1 u)) x)
+      ( one-ℕ)
+      ( ( eq-cong-ℕ k
+          ( mul-ℕ (nat-Fin (pr1 u)) x)
+          ( mul-ℕ (nat-Fin (pr1 u)) (nat-Fin (mod-succ-ℕ k x)))
+          ( scalar-invariant-cong-ℕ
+            ( succ-ℕ k)
+            ( x)
+            ( nat-Fin (mod-succ-ℕ k x))
+            ( nat-Fin (pr1 u))
+            ( symm-cong-ℕ
+              ( succ-ℕ k)
+              ( nat-Fin (mod-succ-ℕ k x))
+              ( x)
+              ( cong-nat-mod-succ-ℕ k x)))) ∙
+        ( p)))
+
+-- We now come back to the solution of the exercise
+  
+is-decidable-Σ-Fin :
+  {l : Level} {k : ℕ} {P : Fin k → UU l} →
+  ((x : Fin k) → is-decidable (P x)) → is-decidable (Σ (Fin k) P)
+is-decidable-Σ-Fin {l} {zero-ℕ} {P} d = inr pr1
+is-decidable-Σ-Fin {l} {succ-ℕ k} {P} d with d (inr star)
+... | inl p = inl (pair (inr star) p)
+... | inr f =
   is-decidable-iff
-    ( is-linear-combination-dist-div-or-cong-ℕ' x y z k)
-    ( div-or-cong-is-linear-combination-dist-ℕ' x y z k)
-    ( is-decidable-coprod
-      ( is-decidable-div-ℕ y (add-ℕ (mul-ℕ k x) z))
-      ( is-decidable-prod
-        ( is-decidable-leq-ℕ z (mul-ℕ k x))
-        ( is-decidable-div-ℕ y (dist-ℕ (mul-ℕ k x) z))))
+    ( λ t → pair (inl (pr1 t)) (pr2 t))
+    ( g)
+    ( is-decidable-Σ-Fin {l} {k} {P ∘ inl} (λ x → d (inl x)))
+  where
+  g : Σ (Fin (succ-ℕ k)) P → Σ (Fin k) (P ∘ inl)
+  g (pair (inl x) p) = pair x p
+  g (pair (inr star) p) = ex-falso (f p)
+
+is-decidable-div-Fin : {k : ℕ} (x y : Fin k) → is-decidable (div-Fin x y)
+is-decidable-div-Fin x y =
+  is-decidable-Σ-Fin (λ u → has-decidable-equality-Fin (mul-Fin u x) y)
 
 is-linear-combination-dist-ℕ : ℕ → ℕ → ℕ → UU lzero
 is-linear-combination-dist-ℕ x y z =
-  Σ ℕ (is-linear-combination-dist-ℕ' x y z)
+  Σ ℕ (λ k → Σ ℕ (λ l → Id (dist-ℕ (mul-ℕ k x) (mul-ℕ l y)) z))
 
-is-bounded-linear-combination-dist-ℕ : ℕ → ℕ → ℕ → UU lzero
-is-bounded-linear-combination-dist-ℕ x y z =
-  Σ ℕ (λ k → (le-ℕ k y) × Σ ℕ (λ l → Id (dist-ℕ (mul-ℕ k x) (mul-ℕ l y)) z))
-
-is-linear-combination-dist-is-bounded-linear-combination-dist-ℕ :
-  (x y z : ℕ) → is-bounded-linear-combination-dist-ℕ x y z →
-  is-linear-combination-dist-ℕ x y z
-is-linear-combination-dist-is-bounded-linear-combination-dist-ℕ x y z
-  (pair k (pair H (pair l p))) =
-  pair k (pair l p)
-
-is-bounded-linear-combination-dist-is-linear-combination-dist-ℕ :
-  (x y z : ℕ) → is-linear-combination-dist-ℕ x y z →
-  is-bounded-linear-combination-dist-ℕ x y z
-is-bounded-linear-combination-dist-is-linear-combination-dist-ℕ x zero-ℕ z (pair k (pair l p)) = {!!}
+sim-unit-dist-ℕ :
+  (k x y : ℕ) →
+  sim-unit-Fin (mod-succ-ℕ x (dist-ℕ (mul-ℕ k (succ-ℕ x)) y)) (mod-succ-ℕ x y)
+sim-unit-dist-ℕ k x y = {!decide-leq-ℕ!}
   where
-  q : Id (mul-ℕ k x) z
-  q = ( inv (right-unit-law-dist-ℕ (mul-ℕ k x))) ∙
-      ( ( ap (dist-ℕ (mul-ℕ k x)) (inv (right-zero-law-mul-ℕ l))) ∙
-        ( p))
-is-bounded-linear-combination-dist-is-linear-combination-dist-ℕ x (succ-ℕ y) z (pair k (pair l p)) = {!!}
-{-
-  where
-  r : ℕ
-  r = remainder-euclidean-division-ℕ y k
-  P : le-ℕ r y
-  P = strict-upper-bound-remainder-euclidean-division-ℕ y k
-  q : ℕ
-  q = quotient-euclidean-division-ℕ y k
-  α : Id (add-ℕ (mul-ℕ q y) r) k
-  α = eq-euclidean-division-ℕ y k
--}
+  f : coprod (mul-ℕ k (succ-ℕ x) ≤-ℕ y) (y ≤-ℕ mul-ℕ k (succ-ℕ x)) →
+      sim-unit-Fin
+        ( mod-succ-ℕ x (dist-ℕ (mul-ℕ k (succ-ℕ x)) y))
+        ( mod-succ-ℕ x y)
+  f (inl H) =
+    pair
+      ( one-unit-Fin)
+      ( ( left-unit-law-mul-Fin
+          ( mod-succ-ℕ x (dist-ℕ (mul-ℕ k (succ-ℕ x)) y))) ∙
+        ( eq-cong-ℕ x
+          ( dist-ℕ (mul-ℕ k (succ-ℕ x)) y)
+          ( y)
+          ( concatenate-eq-cong-eq-ℕ
+            ( succ-ℕ x)
+            ( inv (left-unit-law-add-ℕ (dist-ℕ (mul-ℕ k (succ-ℕ x)) y)))
+            ( translation-invariant-cong-ℕ'
+              ( succ-ℕ x)
+              ( zero-ℕ)
+              ( mul-ℕ k (succ-ℕ x))
+              ( dist-ℕ (mul-ℕ k (succ-ℕ x)) y)
+              ( pair k refl))
+            ( is-difference-dist-ℕ (mul-ℕ k (succ-ℕ x)) y H))))
+  f (inr H) =
+    pair
+      ( neg-one-unit-Fin)
+      ( ( mul-neg-one-Fin (mod-succ-ℕ x (dist-ℕ (mul-ℕ k (succ-ℕ x)) y))) ∙
+        ( eq-cong-ℕ x
+           ( dist-ℕ
+             ( nat-Fin (mod-succ-ℕ x (dist-ℕ (mul-ℕ k (succ-ℕ x)) y)))
+             ( succ-ℕ x))
+           ( y)
+           ( {!!})))
+    -- cong-nat-mod-succ-ℕ x (dist-ℕ (mul-ℕ k (succ-ℕ x)) y)
+
+div-is-linear-combination-dist-ℕ :
+  (x y z : ℕ) → is-linear-combination-dist-ℕ (succ-ℕ x) y z →
+  div-Fin (mod-succ-ℕ x y) (mod-succ-ℕ x z)
+div-is-linear-combination-dist-ℕ x y z (pair k (pair l p)) =
+  pair (mod-succ-ℕ x l) {!!}
 
 is-decidable-is-linear-combination-dist-ℕ :
   (x y z : ℕ) → is-decidable (is-linear-combination-dist-ℕ x y z)
@@ -1473,22 +1567,6 @@ is-lower-bound-inl-Fin :
 is-lower-bound-inl-Fin H (inl y) p = H y p
 is-lower-bound-inl-Fin {l} {k} {P} {x} H (inr star) p =
   ( leq-neg-one-Fin (inl x))
-
-is-decidable-Σ-Fin :
-  {l : Level} {k : ℕ} {P : Fin k → UU l} →
-  ((x : Fin k) → is-decidable (P x)) → is-decidable (Σ (Fin k) P)
-is-decidable-Σ-Fin {l} {zero-ℕ} {P} d = inr pr1
-is-decidable-Σ-Fin {l} {succ-ℕ k} {P} d with d (inr star)
-... | inl p = inl (pair (inr star) p)
-... | inr f =
-  is-decidable-iff
-    ( λ t → pair (inl (pr1 t)) (pr2 t))
-    ( g)
-    ( is-decidable-Σ-Fin {l} {k} {P ∘ inl} (λ x → d (inl x)))
-  where
-  g : Σ (Fin (succ-ℕ k)) P → Σ (Fin k) (P ∘ inl)
-  g (pair (inl x) p) = pair x p
-  g (pair (inr star) p) = ex-falso (f p)
 
 minimal-element-decidable-subtype-Fin :
   {l : Level} {k : ℕ} {P : Fin k → UU l} →
