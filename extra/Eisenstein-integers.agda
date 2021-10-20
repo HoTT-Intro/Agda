@@ -433,7 +433,7 @@ right-distributive-mul-add-ℤ[ω] x y z =
   ( ( left-distributive-mul-add-ℤ[ω] z x y) ∙
     ( ap-add-ℤ[ω] (commutative-mul-ℤ[ω] z x) (commutative-mul-ℤ[ω] z y)))
 
--- We complete the construction of the ring of Gaussian integers
+-- We complete the construction of the ring of Eisenstein integers
 
 ℤ[ω]-Semi-Group : Semi-Group lzero
 ℤ[ω]-Semi-Group =
