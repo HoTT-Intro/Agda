@@ -391,3 +391,78 @@ associative-mul-ℤ[ω] (pair a b) (pair c d) (pair e f) =
     cf = mul-ℤ c f
     ed = mul-ℤ e d
     df = mul-ℤ d f
+
+left-distributive-mul-add-ℤ[ω] :
+  (x y z : ℤ[ω]) →
+  Id (mul-ℤ[ω] x (add-ℤ[ω] y z)) (add-ℤ[ω] (mul-ℤ[ω] x y) (mul-ℤ[ω] x z))
+left-distributive-mul-add-ℤ[ω] (pair a b) (pair c d) (pair e f) =
+  eq-Eq-ℤ[ω]
+    ( ( ap-add-ℤ
+        ( left-distributive-mul-add-ℤ a c e)
+        ( ( ap
+            ( neg-ℤ)
+            ( left-distributive-mul-add-ℤ b d f)) ∙
+          ( distributive-neg-add-ℤ (mul-ℤ b d) (mul-ℤ b f)))) ∙
+      ( interchange-2-3-add-ℤ
+        ( mul-ℤ a c)
+        ( mul-ℤ a e)
+        ( neg-ℤ (mul-ℤ b d))
+        ( neg-ℤ (mul-ℤ b f))))
+    ( ( ap-add-ℤ
+        ( ( ap-add-ℤ
+            ( left-distributive-mul-add-ℤ a d f)
+            ( right-distributive-mul-add-ℤ c e b)) ∙
+          ( interchange-2-3-add-ℤ
+            ( mul-ℤ a d)
+            ( mul-ℤ a f)
+            ( mul-ℤ c b)
+            ( mul-ℤ e b)))
+        ( ( ap neg-ℤ (left-distributive-mul-add-ℤ b d f)) ∙
+          ( distributive-neg-add-ℤ (mul-ℤ b d) (mul-ℤ b f)))) ∙
+      ( interchange-2-3-add-ℤ
+        ( add-ℤ (mul-ℤ a d) (mul-ℤ c b))
+        ( add-ℤ (mul-ℤ a f) (mul-ℤ e b))
+        ( neg-ℤ (mul-ℤ b d))
+        ( neg-ℤ (mul-ℤ b f))))
+
+right-distributive-mul-add-ℤ[ω] :
+  (x y z : ℤ[ω]) →
+  Id (mul-ℤ[ω] (add-ℤ[ω] x y) z) (add-ℤ[ω] (mul-ℤ[ω] x z) (mul-ℤ[ω] y z))
+right-distributive-mul-add-ℤ[ω] x y z =
+  ( commutative-mul-ℤ[ω] (add-ℤ[ω] x y) z) ∙
+  ( ( left-distributive-mul-add-ℤ[ω] z x y) ∙
+    ( ap-add-ℤ[ω] (commutative-mul-ℤ[ω] z x) (commutative-mul-ℤ[ω] z y)))
+
+-- We complete the construction of the ring of Gaussian integers
+
+ℤ[ω]-Semi-Group : Semi-Group lzero
+ℤ[ω]-Semi-Group =
+  pair
+    ( prod-Set ℤ-Set ℤ-Set)
+    ( pair add-ℤ[ω] associative-add-ℤ[ω])
+
+ℤ[ω]-Group : Group lzero
+ℤ[ω]-Group =
+  pair
+    ( ℤ[ω]-Semi-Group)
+    ( pair
+      ( pair zero-ℤ[ω] (pair left-unit-law-add-ℤ[ω] right-unit-law-add-ℤ[ω]))
+      ( pair neg-ℤ[ω]
+        ( pair left-inverse-law-add-ℤ[ω] right-inverse-law-add-ℤ[ω])))
+
+ℤ[ω]-Ab : Ab lzero
+ℤ[ω]-Ab =
+  pair
+    ( ℤ[ω]-Group)
+    ( commutative-add-ℤ[ω])
+
+
+ℤ[ω]-Ring : Ring lzero
+ℤ[ω]-Ring =
+  pair
+    ( ℤ[ω]-Ab)
+    ( pair
+      ( pair mul-ℤ[ω] associative-mul-ℤ[ω])
+      ( pair
+        ( pair one-ℤ[ω] (pair left-unit-law-mul-ℤ[ω] right-unit-law-mul-ℤ[ω]))
+        ( pair left-distributive-mul-add-ℤ[ω] right-distributive-mul-add-ℤ[ω])))
