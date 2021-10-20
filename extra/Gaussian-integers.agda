@@ -245,6 +245,8 @@ right-distributive-mul-add-ℤ[i] x y z =
   ( ( left-distributive-mul-add-ℤ[i] z x y) ∙
     ( ap-add-ℤ[i] (commutative-mul-ℤ[i] z x) (commutative-mul-ℤ[i] z y)))
 
+-- We complete the construction of the ring of Gaussian integers
+
 ℤ[i]-Semi-Group : Semi-Group lzero
 ℤ[i]-Semi-Group =
   pair
