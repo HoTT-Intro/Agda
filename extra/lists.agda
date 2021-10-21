@@ -10,13 +10,13 @@ Eq-list {l1} nil (cons x l') = raise-empty l1
 Eq-list {l1} (cons x l) nil = raise-empty l1
 Eq-list {l1} (cons x l) (cons x' l') = (Id x x') × Eq-list l l'
 
-reflexive-Eq-list : {l1 : Level} {A : UU l1} (l : list A) → Eq-list l l
-reflexive-Eq-list nil = raise-star
-reflexive-Eq-list (cons x l) = pair refl (reflexive-Eq-list l)
+refl-Eq-list : {l1 : Level} {A : UU l1} (l : list A) → Eq-list l l
+refl-Eq-list nil = raise-star
+refl-Eq-list (cons x l) = pair refl (refl-Eq-list l)
 
 Eq-list-eq :
   {l1 : Level} {A : UU l1} (l l' : list A) → Id l l' → Eq-list l l'
-Eq-list-eq l .l refl = reflexive-Eq-list l
+Eq-list-eq l .l refl = refl-Eq-list l
 
 eq-Eq-list :
   {l1 : Level} {A : UU l1} (l l' : list A) → Eq-list l l' → Id l l'
@@ -25,6 +25,56 @@ eq-Eq-list nil (cons x l') (map-raise f) = ex-falso f
 eq-Eq-list (cons x l) nil (map-raise f) = ex-falso f
 eq-Eq-list (cons x l) (cons .x l') (pair refl e) =
   ap (cons x) (eq-Eq-list l l' e)
+
+square-eq-Eq-list :
+  {l1 : Level} {A : UU l1} {x : A} {l l' : list A} (p : Id l l') →
+  Id (Eq-list-eq (cons x l) (cons x l') (ap (cons x) p))
+     (pair refl (Eq-list-eq l l' p))
+square-eq-Eq-list refl = refl
+
+issec-eq-Eq-list :
+  {l1 : Level} {A : UU l1} (l l' : list A) (e : Eq-list l l') →
+  Id (Eq-list-eq l l' (eq-Eq-list l l' e)) e
+issec-eq-Eq-list nil nil e = eq-is-contr is-contr-raise-unit
+issec-eq-Eq-list nil (cons x l') e = ex-falso (is-empty-raise-empty e)
+issec-eq-Eq-list (cons x l) nil e = ex-falso (is-empty-raise-empty e)
+issec-eq-Eq-list (cons x l) (cons .x l') (pair refl e) =
+  ( square-eq-Eq-list (eq-Eq-list l l' e)) ∙
+  ( ap (pair refl) (issec-eq-Eq-list l l' e))
+
+eq-Eq-refl-Eq-list :
+  {l1 : Level} {A : UU l1} (l : list A) →
+  Id (eq-Eq-list l l (refl-Eq-list l)) refl
+eq-Eq-refl-Eq-list nil = refl
+eq-Eq-refl-Eq-list (cons x l) = ap (ap (cons x)) (eq-Eq-refl-Eq-list l)
+
+isretr-eq-Eq-list :
+  {l1 : Level} {A : UU l1} (l l' : list A) (p : Id l l') →
+  Id (eq-Eq-list l l' (Eq-list-eq l l' p)) p
+isretr-eq-Eq-list nil .nil refl = refl
+isretr-eq-Eq-list (cons x l) .(cons x l) refl = eq-Eq-refl-Eq-list (cons x l)
+
+is-equiv-Eq-list-eq :
+  {l1 : Level} {A : UU l1} (l l' : list A) → is-equiv (Eq-list-eq l l')
+is-equiv-Eq-list-eq l l' =
+  is-equiv-has-inverse
+    ( eq-Eq-list l l')
+    ( issec-eq-Eq-list l l')
+    ( isretr-eq-Eq-list l l')
+
+equiv-Eq-list :
+  {l1 : Level} {A : UU l1} (l l' : list A) → Id l l' ≃ Eq-list l l'
+equiv-Eq-list l l' =
+  pair (Eq-list-eq l l') (is-equiv-Eq-list-eq l l')
+
+is-contr-total-Eq-list :
+  {l1 : Level} {A : UU l1} (l : list A) →
+  is-contr (Σ (list A) (Eq-list l))
+is-contr-total-Eq-list {A = A} l =
+  is-contr-equiv'
+    ( Σ (list A) (Id l))
+    ( equiv-tot (equiv-Eq-list l))
+    ( is-contr-total-path l)
 
 has-decidable-equality-list :
   {l1 : Level} {A : UU l1} →
@@ -118,6 +168,9 @@ right-unit-law-concat-list :
 right-unit-law-concat-list nil = refl
 right-unit-law-concat-list (cons a x) =
   ap (cons a) (right-unit-law-concat-list x)
+
+list-Monoid : {l : Level} (X : UU-Set l) → Monoid l
+list-Monoid X = pair (pair {!is-trunc-list!} (pair {!concat!} {!!})) {!!}
 
 {- The length operation or course behaves well with respect to the other list
    operations. -}
