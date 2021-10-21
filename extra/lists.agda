@@ -14,9 +14,9 @@ refl-Eq-list : {l1 : Level} {A : UU l1} (l : list A) → Eq-list l l
 refl-Eq-list nil = raise-star
 refl-Eq-list (cons x l) = pair refl (refl-Eq-list l)
 
-Eq-list-eq :
+Eq-eq-list :
   {l1 : Level} {A : UU l1} (l l' : list A) → Id l l' → Eq-list l l'
-Eq-list-eq l .l refl = refl-Eq-list l
+Eq-eq-list l .l refl = refl-Eq-list l
 
 eq-Eq-list :
   {l1 : Level} {A : UU l1} (l l' : list A) → Eq-list l l' → Id l l'
@@ -28,13 +28,13 @@ eq-Eq-list (cons x l) (cons .x l') (pair refl e) =
 
 square-eq-Eq-list :
   {l1 : Level} {A : UU l1} {x : A} {l l' : list A} (p : Id l l') →
-  Id (Eq-list-eq (cons x l) (cons x l') (ap (cons x) p))
-     (pair refl (Eq-list-eq l l' p))
+  Id (Eq-eq-list (cons x l) (cons x l') (ap (cons x) p))
+     (pair refl (Eq-eq-list l l' p))
 square-eq-Eq-list refl = refl
 
 issec-eq-Eq-list :
   {l1 : Level} {A : UU l1} (l l' : list A) (e : Eq-list l l') →
-  Id (Eq-list-eq l l' (eq-Eq-list l l' e)) e
+  Id (Eq-eq-list l l' (eq-Eq-list l l' e)) e
 issec-eq-Eq-list nil nil e = eq-is-contr is-contr-raise-unit
 issec-eq-Eq-list nil (cons x l') e = ex-falso (is-empty-raise-empty e)
 issec-eq-Eq-list (cons x l) nil e = ex-falso (is-empty-raise-empty e)
@@ -50,13 +50,13 @@ eq-Eq-refl-Eq-list (cons x l) = ap (ap (cons x)) (eq-Eq-refl-Eq-list l)
 
 isretr-eq-Eq-list :
   {l1 : Level} {A : UU l1} (l l' : list A) (p : Id l l') →
-  Id (eq-Eq-list l l' (Eq-list-eq l l' p)) p
+  Id (eq-Eq-list l l' (Eq-eq-list l l' p)) p
 isretr-eq-Eq-list nil .nil refl = refl
 isretr-eq-Eq-list (cons x l) .(cons x l) refl = eq-Eq-refl-Eq-list (cons x l)
 
-is-equiv-Eq-list-eq :
-  {l1 : Level} {A : UU l1} (l l' : list A) → is-equiv (Eq-list-eq l l')
-is-equiv-Eq-list-eq l l' =
+is-equiv-Eq-eq-list :
+  {l1 : Level} {A : UU l1} (l l' : list A) → is-equiv (Eq-eq-list l l')
+is-equiv-Eq-eq-list l l' =
   is-equiv-has-inverse
     ( eq-Eq-list l l')
     ( issec-eq-Eq-list l l')
@@ -65,7 +65,7 @@ is-equiv-Eq-list-eq l l' =
 equiv-Eq-list :
   {l1 : Level} {A : UU l1} (l l' : list A) → Id l l' ≃ Eq-list l l'
 equiv-Eq-list l l' =
-  pair (Eq-list-eq l l') (is-equiv-Eq-list-eq l l')
+  pair (Eq-eq-list l l') (is-equiv-Eq-eq-list l l')
 
 is-contr-total-Eq-list :
   {l1 : Level} {A : UU l1} (l : list A) →
@@ -76,22 +76,51 @@ is-contr-total-Eq-list {A = A} l =
     ( equiv-tot (equiv-Eq-list l))
     ( is-contr-total-path l)
 
+is-trunc-Eq-list :
+  (k : 𝕋) {l : Level} {A : UU l} → is-trunc (succ-𝕋 (succ-𝕋 k)) A →
+  (l l' : list A) → is-trunc (succ-𝕋 k) (Eq-list l l')
+is-trunc-Eq-list k H nil nil =
+  is-trunc-is-contr (succ-𝕋 k) is-contr-raise-unit
+is-trunc-Eq-list k H nil (cons x l') =
+  is-trunc-is-empty k is-empty-raise-empty
+is-trunc-Eq-list k H (cons x l) nil =
+  is-trunc-is-empty k is-empty-raise-empty
+is-trunc-Eq-list k H (cons x l) (cons y l') =
+  is-trunc-prod (succ-𝕋 k) (H x y) (is-trunc-Eq-list k H l l')
+
+is-trunc-list :
+  (k : 𝕋) {l : Level} {A : UU l} → is-trunc (succ-𝕋 (succ-𝕋 k)) A →
+  is-trunc (succ-𝕋 (succ-𝕋 k)) (list A)
+is-trunc-list k H l l' =
+  is-trunc-equiv
+    ( succ-𝕋 k)
+    ( Eq-list l l')
+    ( equiv-Eq-list l l')
+    ( is-trunc-Eq-list k H l l')
+
+is-set-list :
+  {l : Level} {A : UU l} → is-set A → is-set (list A)
+is-set-list = is-trunc-list neg-two-𝕋
+
+list-Set : {l : Level} → UU-Set l → UU-Set l
+list-Set A = pair (list (type-Set A)) (is-set-list (is-set-type-Set A))
+
 has-decidable-equality-list :
   {l1 : Level} {A : UU l1} →
   has-decidable-equality A → has-decidable-equality (list A)
 has-decidable-equality-list d nil nil = inl refl
 has-decidable-equality-list d nil (cons x l) =
-  inr (map-inv-raise ∘ Eq-list-eq nil (cons x l))
+  inr (map-inv-raise ∘ Eq-eq-list nil (cons x l))
 has-decidable-equality-list d (cons x l) nil =
-  inr (map-inv-raise ∘ Eq-list-eq (cons x l) nil)
+  inr (map-inv-raise ∘ Eq-eq-list (cons x l) nil)
 has-decidable-equality-list d (cons x l) (cons x' l') =
   is-decidable-iff
     ( eq-Eq-list (cons x l) (cons x' l'))
-    ( Eq-list-eq (cons x l) (cons x' l'))
+    ( Eq-eq-list (cons x l) (cons x' l'))
     ( is-decidable-prod
       ( d x x')
       ( is-decidable-iff
-        ( Eq-list-eq l l')
+        ( Eq-eq-list l l')
         ( eq-Eq-list l l')
         ( has-decidable-equality-list d l l')))
 
@@ -113,7 +142,7 @@ has-decidable-equality-has-decidable-equality-list :
 has-decidable-equality-has-decidable-equality-list d x y =
   is-decidable-left-factor
     ( is-decidable-iff
-      ( Eq-list-eq (cons x nil) (cons y nil))
+      ( Eq-eq-list (cons x nil) (cons y nil))
       ( eq-Eq-list (cons x nil) (cons y nil))
       ( d (cons x nil) (cons y nil)))
     ( raise-star)
@@ -170,7 +199,10 @@ right-unit-law-concat-list (cons a x) =
   ap (cons a) (right-unit-law-concat-list x)
 
 list-Monoid : {l : Level} (X : UU-Set l) → Monoid l
-list-Monoid X = pair (pair {!is-trunc-list!} (pair {!concat!} {!!})) {!!}
+list-Monoid X =
+  pair
+    ( pair (list-Set X) (pair concat-list assoc-concat-list))
+    ( pair nil (pair left-unit-law-concat-list right-unit-law-concat-list))
 
 {- The length operation or course behaves well with respect to the other list
    operations. -}
@@ -459,38 +491,3 @@ is-equiv-map-algebra-list A =
     ( inv-map-algebra-list A)
     ( issec-inv-map-algebra-list A)
     ( isretr-inv-map-algebra-list A)
-
---------------------------------------------------------------------------------
-
-data Eq-list' {l1 : Level} {A : UU l1} : list A → list A → UU l1 where
-  refl-nil : Eq-list' nil nil
-  eq-cons :
-    (x y : list A) (a b : A) →
-    Eq-list' x y → Id a b → Eq-list' (cons a x) (cons b y)
-
-{-
-refl-Eq-list :
-  {l1 : Level} {A : UU l1} (x : list A) → Eq-list x x
-refl-Eq-list nil = map-raise star
-refl-Eq-list (cons a x) = pair refl (refl-Eq-list x)
-
-contraction-total-Eq-list :
-  {l1 : Level} {A : UU l1} (x : list A) →
-  (y : Σ (list A) (Eq-list x)) →
-  Id (pair x (refl-Eq-list x)) y
-contraction-total-Eq-list nil (pair nil (map-raise star)) = refl
-contraction-total-Eq-list nil (pair (cons b y) (map-raise ()))
-contraction-total-Eq-list (cons a x) (pair nil (map-raise ()))
-contraction-total-Eq-list (cons a x) (pair (cons .a y) (pair refl e)) =
-  {!!}
-
-is-contr-total-Eq-list :
-  {l1 : Level} {A : UU l1} (x : list A) →
-  is-contr (Σ (list A) (Eq-list x))
-is-contr-total-Eq-list nil =
-  pair
-    ( pair nil (map-raise star))
-    {!!}
-is-contr-total-Eq-list (cons x x₁) = {!!}
--}
-

@@ -729,6 +729,10 @@ abstract
   is-trunc-succ-empty : (k : 𝕋) → is-trunc (succ-𝕋 k) empty
   is-trunc-succ-empty k = ind-empty
 
+is-trunc-is-empty :
+  {l : Level} (k : 𝕋) {A : UU l} → is-empty A → is-trunc (succ-𝕋 k) A
+is-trunc-is-empty k f = is-trunc-is-prop k (λ x → ex-falso (f x))
+
 -- Corollary 12.4.4
 
 abstract
