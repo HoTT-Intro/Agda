@@ -43,3 +43,4 @@ open import extra.syllepsis public
 open import extra.towers public
 open import extra.univalent-combinatorics public
 open import extra.weakly-constant-maps public
+open import extra.wild-monoids public
