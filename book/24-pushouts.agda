@@ -437,10 +437,24 @@ pt-UU-pt = pr2
 
 -- Definition 6.3.2
 
-_→*_ : {i j : Level} → UU-pt i → UU-pt j → UU-pt (i ⊔ j)
+_→*_ : {l1 l2 : Level} → UU-pt l1 → UU-pt l2 → UU (l1 ⊔ l2)
 A →* B =
+  Σ (type-UU-pt A → type-UU-pt B) (λ f → Id (f (pt-UU-pt A)) (pt-UU-pt B))
+
+map-pointed-map :
+  {l1 l2 : Level} (A : UU-pt l1) (B : UU-pt l2) (f : A →* B) →
+  type-UU-pt A → type-UU-pt B
+map-pointed-map A B f = pr1 f
+
+preserves-point-map-pointed-map :
+  {l1 l2 : Level} (A : UU-pt l1) (B : UU-pt l2) (f : A →* B) →
+  Id (map-pointed-map A B f (pt-UU-pt A)) (pt-UU-pt B)
+preserves-point-map-pointed-map A B f = pr2 f
+
+[_→*_] : {l1 l2 : Level} → UU-pt l1 → UU-pt l2 → UU-pt (l1 ⊔ l2)
+[ A →* B ] =
   pair
-    ( Σ (type-UU-pt A → type-UU-pt B) (λ f → Id (f (pt-UU-pt A)) (pt-UU-pt B)))
+    ( A →* B)
     ( pair
       ( const (type-UU-pt A) (type-UU-pt B) (pt-UU-pt B))
       ( refl))

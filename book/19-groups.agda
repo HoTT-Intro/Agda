@@ -479,18 +479,24 @@ aut-Group X =
    homomorphisms between their underlying semi-groups. -}
 
 preserves-mul :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (μA : A → A → A) (μB : B → B → B) →
+  (A → B) → UU (l1 ⊔ l2)
+preserves-mul {A = A} {B} μA μB f =
+  (x y : A) → Id (f (μA x y)) (μB (f x) (f y))
+  
+preserves-mul-Semi-Group :
   { l1 l2 : Level} (G : Semi-Group l1) (H : Semi-Group l2) →
   (type-Semi-Group G → type-Semi-Group H) → UU (l1 ⊔ l2)
-preserves-mul G H f =
-  (x y : type-Semi-Group G) →
-      Id (f (mul-Semi-Group G x y)) (mul-Semi-Group H (f x) (f y))
+preserves-mul-Semi-Group G H f =
+  preserves-mul (mul-Semi-Group G) (mul-Semi-Group H) f
 
 abstract
-  is-prop-preserves-mul :
+  is-prop-preserves-mul-Semi-Group :
     { l1 l2 : Level} (G : Semi-Group l1) (H : Semi-Group l2) →
     ( f : type-Semi-Group G → type-Semi-Group H) →
-    is-prop (preserves-mul G H f)
-  is-prop-preserves-mul G (pair (pair H is-set-H) (pair μ-H assoc-H)) f =
+    is-prop (preserves-mul-Semi-Group G H f)
+  is-prop-preserves-mul-Semi-Group
+    G (pair (pair H is-set-H) (pair μ-H assoc-H)) f =
     is-prop-Π (λ x →
       is-prop-Π (λ y →
         is-set-H (f (mul-Semi-Group G x y)) (μ-H (f x) (f y))))
@@ -499,7 +505,7 @@ hom-Semi-Group :
   { l1 l2 : Level} (G : Semi-Group l1) (H : Semi-Group l2) → UU (l1 ⊔ l2)
 hom-Semi-Group G H =
   Σ ( type-Semi-Group G → type-Semi-Group H)
-    ( preserves-mul G H)
+    ( preserves-mul-Semi-Group G H)
 
 --------------------------------------------------------------------------------
 
@@ -514,7 +520,7 @@ map-hom-Semi-Group G H f = pr1 f
 preserves-mul-hom-Semi-Group :
   { l1 l2 : Level} (G : Semi-Group l1) (H : Semi-Group l2) →
   ( f : hom-Semi-Group G H) →
-  preserves-mul G H (map-hom-Semi-Group G H f)
+  preserves-mul-Semi-Group G H (map-hom-Semi-Group G H f)
 preserves-mul-hom-Semi-Group G H f = pr2 f
 
 --------------------------------------------------------------------------------
@@ -545,7 +551,7 @@ abstract
   is-contr-total-htpy-hom-Semi-Group G H f =
     is-contr-total-Eq-substructure
       ( is-contr-total-htpy (map-hom-Semi-Group G H f))
-      ( is-prop-preserves-mul G H)
+      ( is-prop-preserves-mul-Semi-Group G H)
       ( map-hom-Semi-Group G H f)
       ( refl-htpy)
       ( preserves-mul-hom-Semi-Group G H f)
@@ -610,7 +616,7 @@ preserves-mul-Group :
   { l1 l2 : Level} (G : Group l1) (H : Group l2) →
   (type-Group G → type-Group H) → UU (l1 ⊔ l2)
 preserves-mul-Group G H f =
-  preserves-mul (semi-group-Group G) (semi-group-Group H) f
+  preserves-mul-Semi-Group (semi-group-Group G) (semi-group-Group H) f
 
 hom-Group :
   { l1 l2 : Level} (G : Group l1) (H : Group l2) → UU (l1 ⊔ l2)
@@ -632,7 +638,7 @@ map-hom-Group G H = pr1
 preserves-mul-hom-Group :
   { l1 l2 : Level} (G : Group l1) (H : Group l2) →
   ( f : hom-Group G H) →
-  preserves-mul
+  preserves-mul-Semi-Group
     ( semi-group-Group G)
     ( semi-group-Group H)
     ( map-hom-Group G H f)
@@ -703,7 +709,7 @@ is-set-hom-Group G H =
    compositions of group homomorphisms are again group homomorphisms. -}
 
 preserves-mul-id :
-  {l : Level} (G : Semi-Group l) → preserves-mul G G id
+  {l : Level} (G : Semi-Group l) → preserves-mul-Semi-Group G G id
 preserves-mul-id (pair (pair G is-set-G) (pair μ-G assoc-G)) x y = refl
 
 id-hom-Semi-Group :
@@ -865,7 +871,7 @@ abstract
     { l1 l2 : Level} (G : Semi-Group l1) (H : Semi-Group l2) →
     ( f : hom-Semi-Group G H)
     ( is-equiv-f : is-equiv (map-hom-Semi-Group G H f)) →
-    preserves-mul H G (map-inv-is-equiv is-equiv-f)
+    preserves-mul-Semi-Group H G (map-inv-is-equiv is-equiv-f)
   preserves-mul-map-inv-is-equiv-Semi-Group
     ( pair (pair G is-set-G) (pair μ-G assoc-G))
     ( pair (pair H is-set-H) (pair μ-H assoc-H))
@@ -925,19 +931,20 @@ equiv-Semi-Group :
   { l1 l2 : Level} (G : Semi-Group l1) (H : Semi-Group l2) → UU (l1 ⊔ l2)
 equiv-Semi-Group G H =
   Σ ( type-Semi-Group G ≃ type-Semi-Group H)
-    ( λ e → preserves-mul G H (map-equiv e))
+    ( λ e → preserves-mul-Semi-Group G H (map-equiv e))
 
 total-is-equiv-hom-Semi-Group :
   { l1 l2 : Level} (G : Semi-Group l1) (H : Semi-Group l2) → UU (l1 ⊔ l2)
 total-is-equiv-hom-Semi-Group G H =
   Σ (hom-Semi-Group G H) (λ f → is-equiv (map-hom-Semi-Group G H f))
 
-preserves-mul' :
+preserves-mul-Semi-Group' :
   { l1 l2 : Level} (G : Semi-Group l1) (H : UU-Set l2)
   ( μ-H : has-associative-bin-op H) →
   ( e : (type-Semi-Group G) ≃ (type-Set H)) →
   UU (l1 ⊔ l2)
-preserves-mul' G H μ-H e = preserves-mul G (pair H μ-H) (map-equiv e)
+preserves-mul-Semi-Group' G H μ-H e =
+  preserves-mul-Semi-Group G (pair H μ-H) (map-equiv e)
 
 equiv-Semi-Group' :
   { l1 l2 : Level} (G : Semi-Group l1) (H : Semi-Group l2) → UU (l1 ⊔ l2)
@@ -956,33 +963,37 @@ abstract
         ( ( inv-equiv
             ( assoc-Σ
               ( type-Semi-Group G → type-Semi-Group H)
-              ( preserves-mul G H)
+              ( preserves-mul-Semi-Group G H)
               ( λ f → is-equiv (map-hom-Semi-Group G H f)))) ∘e
           ( equiv-tot
-            ( λ f → equiv-swap-prod (is-equiv f) (preserves-mul G H f))))) ∘e
+            ( λ f →
+              equiv-swap-prod
+                ( is-equiv f)
+                ( preserves-mul-Semi-Group G H f))))) ∘e
       ( assoc-Σ
         ( type-Semi-Group G → type-Semi-Group H)
         ( is-equiv)
-        ( λ e → preserves-mul G H (map-equiv e)))) ∘e
+        ( λ e → preserves-mul-Semi-Group G H (map-equiv e)))) ∘e
     ( equiv-tr (equiv-Semi-Group G) (η-pair H))
 
 center-total-preserves-mul-id :
   { l1 : Level} (G : Semi-Group l1) →
-  Σ (has-associative-bin-op (pr1 G)) (λ μ → preserves-mul G (pair (pr1 G) μ) id)
+  Σ ( has-associative-bin-op (pr1 G))
+    ( λ μ → preserves-mul-Semi-Group G (pair (pr1 G) μ) id)
 center-total-preserves-mul-id (pair (pair G is-set-G) (pair μ-G assoc-G)) =
   pair (pair μ-G assoc-G) (λ x y → refl)
 
 contraction-total-preserves-mul-id :
   { l1 : Level} (G : Semi-Group l1) →
   ( t : Σ ( has-associative-bin-op (pr1 G))
-          ( λ μ → preserves-mul G (pair (pr1 G) μ) id)) →
+          ( λ μ → preserves-mul-Semi-Group G (pair (pr1 G) μ) id)) →
   Id (center-total-preserves-mul-id G) t
 contraction-total-preserves-mul-id
   ( pair (pair G is-set-G) (pair μ-G assoc-G))
   ( pair (pair μ-G' assoc-G') μ-id) =
   eq-subtype
     ( λ μ →
-      is-prop-preserves-mul
+      is-prop-preserves-mul-Semi-Group
         ( pair (pair G is-set-G) (pair μ-G assoc-G))
         ( pair (pair G is-set-G) μ) id)
     ( eq-subtype
@@ -995,7 +1006,9 @@ contraction-total-preserves-mul-id
 
 is-contr-total-preserves-mul-id :
   { l1 : Level} (G : Semi-Group l1) →
-  is-contr (Σ (has-associative-bin-op (pr1 G)) (λ μ → preserves-mul G (pair (pr1 G) μ) id))
+  is-contr
+    ( Σ ( has-associative-bin-op (pr1 G))
+        ( λ μ → preserves-mul-Semi-Group G (pair (pr1 G) μ) id))
 is-contr-total-preserves-mul-id G =
   pair
     ( center-total-preserves-mul-id G)
@@ -1006,7 +1019,7 @@ is-contr-total-equiv-Semi-Group :
   is-contr (Σ (Semi-Group l1) (λ H → equiv-Semi-Group' G H))
 is-contr-total-equiv-Semi-Group {l1} G =
   is-contr-total-Eq-structure
-    ( preserves-mul' G)
+    ( preserves-mul-Semi-Group' G)
     ( is-contr-total-Eq-substructure
       ( is-contr-total-equiv (type-Semi-Group G))
       ( is-prop-is-set)
