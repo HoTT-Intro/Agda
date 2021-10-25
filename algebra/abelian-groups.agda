@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module extra.abelian-groups where
+module algebra.abelian-groups where
 
 open import book public
 

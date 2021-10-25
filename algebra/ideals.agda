@@ -1,11 +1,11 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module extra.ideals where
+module algebra.ideals where
 
-import extra.abelian-subgroups
-import extra.rings
-open extra.abelian-subgroups public
-open extra.rings public
+import algebra.abelian-subgroups
+import algebra.rings
+open algebra.abelian-subgroups public
+open algebra.rings public
 
 {- Subsets of rings -}
 

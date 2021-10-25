@@ -1,11 +1,11 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module extra.localizations-rings where
+module algebra.localizations-rings where
 
-import extra.ideals
-import extra.rings-with-properties
-open extra.rings-with-properties public
-open extra.ideals public
+import algebra.ideals
+import algebra.rings-with-properties
+open algebra.rings-with-properties public
+open algebra.ideals public
 
 is-prop-is-invertible-Ring :
   {l1 : Level} (R : Ring l1) (x : type-Ring R) →

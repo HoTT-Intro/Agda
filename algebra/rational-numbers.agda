@@ -1,8 +1,8 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module extra.rational-numbers where
+module algebra.rational-numbers where
 
-open import extra.integers public
+open import algebra.integers public
 
 --------------------------------------------------------------------------------
 

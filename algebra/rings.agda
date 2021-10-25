@@ -1,8 +1,8 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module extra.rings where
+module algebra.rings where
 
-open import extra.abelian-groups public
+open import algebra.abelian-groups public
 
 has-mul-Ab :
   { l1 : Level} (A : Ab l1) → UU l1

@@ -1,9 +1,8 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module extra.integers where
+module algebra.integers where
 
-import extra.rings-with-properties
-open extra.rings-with-properties public
+open import algebra.rings-with-properties public
 
 --------------------------------------------------------------------------------
 

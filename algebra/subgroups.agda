@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module extra.subgroups where
+module algebra.subgroups where
 
 open import book public
 

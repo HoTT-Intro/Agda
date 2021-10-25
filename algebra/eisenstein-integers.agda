@@ -1,8 +1,8 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module extra.Eisenstein-integers where
+module algebra.eisenstein-integers where
 
-open import extra.integers public
+open import algebra.integers public
 
 {-------------------------------------------------------------------------------
 

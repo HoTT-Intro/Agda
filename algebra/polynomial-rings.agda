@@ -1,8 +1,8 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module extra.polynomial-rings where
+module algebra.polynomial-rings where
 
-open import extra.rings public
+open import algebra.rings public
 
 {- We state the universal property of the polynomial ring R[x]. -}
 

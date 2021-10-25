@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module extra.quaternion-group where
+module algebra.quaternion-group where
 
 open import book public
 open import extra.isolated-points public

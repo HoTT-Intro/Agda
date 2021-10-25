@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module extra.categories where
+module algebra.categories where
 
 open import book public
 

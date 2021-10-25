@@ -1,9 +1,9 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module extra.quotient-groups where
+module algebra.quotient-groups where
 
-import extra.subgroups
-open extra.subgroups public
+import algebra.subgroups
+open algebra.subgroups public
 
 {- The left and right coset relation -}
 

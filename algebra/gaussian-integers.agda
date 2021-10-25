@@ -1,8 +1,8 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module extra.Gaussian-integers where
+module algebra.gaussian-integers where
 
-open import extra.integers public
+open import algebra.integers public
 
 {-------------------------------------------------------------------------------
 

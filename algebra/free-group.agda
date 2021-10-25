@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module extra.free-group where
+module algebra.free-group where
 
 open import book public
 
