@@ -102,7 +102,7 @@ is-prop-is-abelian-Group G =
 preserves-add :
   { l1 l2 : Level} (A : Ab l1) (B : Ab l2) →
   (type-Ab A → type-Ab B) → UU (l1 ⊔ l2)
-preserves-add A B = preserves-mul (semi-group-Ab A) (semi-group-Ab B)
+preserves-add A B = preserves-mul-Semi-Group (semi-group-Ab A) (semi-group-Ab B)
 
 hom-Ab :
   {l1 l2 : Level} → Ab l1 → Ab l2 → UU (l1 ⊔ l2)
