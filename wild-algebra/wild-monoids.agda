@@ -1,8 +1,8 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module extra.wild-monoids where
+module wild-algebra.wild-monoids where
 
-open import extra.wild-unital-magma public
+open import wild-algebra.wild-unital-magmas public
 
 unital-associator :
   {l : Level} (M : Wild-Unital-Magma l) → UU l

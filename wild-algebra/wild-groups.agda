@@ -1,8 +1,8 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module extra.wild-groups where
+module wild-algebra.wild-groups where
 
-open import extra.wild-monoids public
+open import wild-algebra.wild-monoids public
 
 is-wild-group-Wild-Monoid :
   {l : Level} (M : Wild-Monoid l) → UU l

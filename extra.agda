@@ -43,6 +43,3 @@ open import extra.syllepsis public
 open import extra.towers public
 open import extra.univalent-combinatorics public
 open import extra.weakly-constant-maps public
-open import extra.wild-groups public
-open import extra.wild-monoids public
-open import extra.wild-unital-magma public

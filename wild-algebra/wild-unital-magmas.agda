@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module extra.wild-unital-magma where
+module wild-algebra.wild-unital-magmas where
 
 open import extra.lists public
 open import extra.interchange public
