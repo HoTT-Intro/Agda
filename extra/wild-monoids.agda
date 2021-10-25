@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --exact-split #-}
+{-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
 module extra.wild-monoids where
 
@@ -322,8 +322,30 @@ module _
       ( map-elim-list-Wild-Monoid)
       ( preserves-unit-map-elim-list-Wild-Monoid)
       ( preserves-mul-map-elim-list-Wild-Monoid)
-  preserves-left-unit-law-map-elim-list-Wild-Monoid nil = {!!}
-  preserves-left-unit-law-map-elim-list-Wild-Monoid (cons a x) = {!!}
+  preserves-left-unit-law-map-elim-list-Wild-Monoid x =
+    inv
+      ( left-inv
+        ( left-unit-law-mul-Wild-Monoid M (map-elim-list-Wild-Monoid x)))
+
+  preserves-right-unit-law-map-elim-list-Wild-Monoid :
+    preserves-right-unit-law-mul
+      ( concat-list)
+      { nil}
+      ( right-unit-law-concat-list)
+      ( mul-Wild-Monoid M)
+      ( right-unit-law-mul-Wild-Monoid M)
+      ( map-elim-list-Wild-Monoid)
+      ( preserves-unit-map-elim-list-Wild-Monoid)
+      ( preserves-mul-map-elim-list-Wild-Monoid)
+  preserves-right-unit-law-map-elim-list-Wild-Monoid nil =
+    ( inv (left-inv (left-unit-law-mul-Wild-Monoid M (unit-Wild-Monoid M)))) ∙
+    ( ap
+      ( concat
+        ( inv (left-unit-law-mul-Wild-Monoid M (unit-Wild-Monoid M)))
+        ( unit-Wild-Monoid M))
+      ( coh-unit-laws-mul-Wild-Monoid M))
+  preserves-right-unit-law-map-elim-list-Wild-Monoid (cons a x) =
+    {!!}
 
 --   elim-list-Wild-Monoid :
 --     hom-Wild-Monoid (list-Wild-Monoid X) M

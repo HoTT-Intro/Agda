@@ -1081,7 +1081,7 @@ module dependent where
 
   ------------------------------------------------------------------------------
 
-  {- We introduce the condiction that the action on elements of a morphism of
+  {- We introduce the condition that the action on elements of a morphism of
      dependent type theories is an equivalence -}
   
   record is-equiv-on-elements-hom-system
