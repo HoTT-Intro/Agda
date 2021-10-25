@@ -109,6 +109,17 @@ associative-mul-Wild-Monoid :
      ( mul-Wild-Monoid M x (mul-Wild-Monoid M y z))
 associative-mul-Wild-Monoid M = pr1 (unital-associator-Wild-Monoid M)
 
+unit-law-110-assoc-Wild-Monoid :
+  {l : Level} (M : Wild-Monoid l)
+  (x y : type-Wild-Monoid M) →
+  Id ( ( associative-mul-Wild-Monoid M x y (unit-Wild-Monoid M)) ∙
+       ( ap
+         ( mul-Wild-Monoid M x)
+         ( right-unit-law-mul-Wild-Monoid M y)))
+     ( right-unit-law-mul-Wild-Monoid M
+       ( mul-Wild-Monoid M x y))
+unit-law-110-assoc-Wild-Monoid M = pr1 (pr2 (pr2 (pr2 (pr2 M))))
+
 -- In the definition of morphisms of wild monoids we only require the unit and
 -- multiplication to be preserved. This is because we would need further
 -- coherence in wild monoids if we want morphisms list X → M to preserve the
@@ -345,7 +356,101 @@ module _
         ( unit-Wild-Monoid M))
       ( coh-unit-laws-mul-Wild-Monoid M))
   preserves-right-unit-law-map-elim-list-Wild-Monoid (cons a x) =
-    {!!}
+    ( inv
+      ( ap-comp
+        ( map-elim-list-Wild-Monoid)
+        ( cons a)
+        ( right-unit-law-concat-list x))) ∙
+    ( ( ap-comp
+        ( mul-Wild-Monoid M (f a))
+        ( map-elim-list-Wild-Monoid)
+        ( right-unit-law-concat-list x)) ∙
+      ( ( ap
+          ( ap (mul-Wild-Monoid M (f a)))
+          ( preserves-right-unit-law-map-elim-list-Wild-Monoid x)) ∙
+        ( ( ap-concat
+            ( mul-Wild-Monoid M (f a))
+            ( preserves-mul-map-elim-list-Wild-Monoid x nil)
+            ( right-unit-law-mul-Wild-Monoid M
+              ( map-elim-list-Wild-Monoid x))) ∙
+          ( ( ap
+              ( concat
+                ( ap
+                  ( mul-Wild-Monoid M (f a))
+                  ( preserves-mul-map-elim-list-Wild-Monoid x nil))
+                ( map-elim-list-Wild-Monoid (cons a x)))
+              ( ( ap
+                  ( concat'
+                    ( mul-Wild-Monoid M
+                      ( f a)
+                      ( mul-Wild-Monoid M
+                        ( map-elim-list-Wild-Monoid x)
+                        ( unit-Wild-Monoid M)))
+                    ( ap
+                      ( mul-Wild-Monoid M (f a))
+                      ( right-unit-law-mul-Wild-Monoid M
+                        ( map-elim-list-Wild-Monoid x))))
+                  ( inv
+                    ( left-inv
+                      ( associative-mul-Wild-Monoid M
+                        ( f a)
+                        ( map-elim-list-Wild-Monoid x)
+                        ( unit-Wild-Monoid M))))) ∙
+                ( ( assoc
+                    ( inv
+                      ( associative-mul-Wild-Monoid M
+                        ( f a)
+                        ( map-elim-list-Wild-Monoid x)
+                        ( unit-Wild-Monoid M)))
+                    ( associative-mul-Wild-Monoid M
+                      ( f a)
+                      ( map-elim-list-Wild-Monoid x)
+                      ( unit-Wild-Monoid M))
+                    ( ap
+                      ( mul-Wild-Monoid M (f a))
+                      ( right-unit-law-mul-Wild-Monoid M
+                        ( map-elim-list-Wild-Monoid x)))) ∙
+                  ( ap
+                    ( concat
+                      ( inv
+                        ( associative-mul-Wild-Monoid M
+                          ( f a)
+                          ( map-elim-list-Wild-Monoid x)
+                          ( unit-Wild-Monoid M)))
+                      ( map-elim-list-Wild-Monoid (cons a x)))
+                    ( unit-law-110-assoc-Wild-Monoid M
+                      ( f a)
+                      ( map-elim-list-Wild-Monoid x)))))) ∙
+            ( inv
+              ( assoc
+                ( ap
+                  ( mul-Wild-Monoid M (f a))
+                  ( preserves-mul-map-elim-list-Wild-Monoid x nil))
+                ( inv
+                  ( associative-mul-Wild-Monoid M
+                    ( f a)
+                    ( map-elim-list-Wild-Monoid x)
+                    ( unit-Wild-Monoid M)))
+                ( right-unit-law-mul-Wild-Monoid M
+                  ( map-elim-list-Wild-Monoid (cons a x)))))))))
+
+{-
+
+ap (cons a) (right-unit-law-concat-list x)
+=
+( ( ap 
+    ( mul-Wild-Monoid M (f a))
+      ( preserves-mul-map-elim-list-Wild-Monoid x y)) ∙
+  ( inv
+    ( associative-mul-Wild-Monoid M
+      ( f a)
+      ( map-elim-list-Wild-Monoid x)
+      ( map-elim-list-Wild-Monoid y)))) ∙
+( right-unit-law-mul-Wild-Monoid M
+  ( mul-Wild-Monoid M (f a) (map-elim-list-Wild-Monoid x)))
+
+-- (x : A) → Id (ap f (rA x)) (μf x eA ∙ (ap (ν (f x)) p ∙ rB (f x)))
+-}
 
 --   elim-list-Wild-Monoid :
 --     hom-Wild-Monoid (list-Wild-Monoid X) M
