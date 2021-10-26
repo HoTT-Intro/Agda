@@ -434,32 +434,32 @@ module _
                 ( right-unit-law-mul-Wild-Monoid M
                   ( map-elim-list-Wild-Monoid (cons a x)))))))))
 
-{-
-
-ap (cons a) (right-unit-law-concat-list x)
-=
-( ( ap 
-    ( mul-Wild-Monoid M (f a))
-      ( preserves-mul-map-elim-list-Wild-Monoid x y)) ∙
-  ( inv
-    ( associative-mul-Wild-Monoid M
-      ( f a)
-      ( map-elim-list-Wild-Monoid x)
-      ( map-elim-list-Wild-Monoid y)))) ∙
-( right-unit-law-mul-Wild-Monoid M
-  ( mul-Wild-Monoid M (f a) (map-elim-list-Wild-Monoid x)))
-
--- (x : A) → Id (ap f (rA x)) (μf x eA ∙ (ap (ν (f x)) p ∙ rB (f x)))
--}
-
---   elim-list-Wild-Monoid :
---     hom-Wild-Monoid (list-Wild-Monoid X) M
---   elim-list-Wild-Monoid =
---     pair
---       ( pair
---         ( map-elim-list-Wild-Monoid)
---         ( preserves-mul-map-elim-list-Wild-Monoid))
---       ( preserves-unit-map-elim-list-Wild-Monoid)
+preserves-coh-unit-laws-map-elim-list-Wild-Monoid :
+  {l1 l2 : Level} {X : UU l1} (M : Wild-Monoid l2)
+  (f : X → type-Wild-Monoid M) → 
+  preserves-coh-unit-laws-mul
+    ( list-Wild-Unital-Magma X)
+    ( wild-unital-magma-Wild-Monoid M)
+    ( pair (map-elim-list-Wild-Monoid M f) refl)
+    ( preserves-mul-map-elim-list-Wild-Monoid M f)
+    ( preserves-left-unit-law-map-elim-list-Wild-Monoid M f)
+    ( preserves-right-unit-law-map-elim-list-Wild-Monoid M f)
+preserves-coh-unit-laws-map-elim-list-Wild-Monoid
+  {X = X} (pair (pair (pair M eM) (pair μ (pair lM (pair rM cM)))) αM) f = refl
+  
+elim-list-Wild-Monoid :
+  {l1 l2 : Level} {X : UU l1} (M : Wild-Monoid l2)
+  (f : X → type-Wild-Monoid M) →
+  hom-Wild-Monoid (list-Wild-Monoid X) M
+elim-list-Wild-Monoid M f =
+  pair
+    ( pair (map-elim-list-Wild-Monoid M f) refl)
+    ( pair
+      ( preserves-mul-map-elim-list-Wild-Monoid M f)
+      ( pair (preserves-left-unit-law-map-elim-list-Wild-Monoid M f)
+        ( pair
+          ( preserves-right-unit-law-map-elim-list-Wild-Monoid M f)
+          ( preserves-coh-unit-laws-map-elim-list-Wild-Monoid M f))))
 
 -- htpy-elim-list-Wild-Monoid :
 --   {l1 l2 : Level} {X : UU l1} (M : Wild-Monoid l2)
