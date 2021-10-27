@@ -82,6 +82,15 @@ list-Wild-Unital-Magma X =
         ( left-unit-law-concat-list)
         ( pair right-unit-law-concat-list refl)))
 
+Ω-Wild-Unital-Magma :
+  {l : Level} → UU-pt l → Wild-Unital-Magma l
+Ω-Wild-Unital-Magma X =
+  pair
+    ( Ω X)
+    ( pair
+      ( λ p q → p ∙ q)
+      ( pair (λ p → left-unit) (pair (λ p → right-unit) refl)))
+
 -- We describe morphisms that reserve unital multiplication
 
 preserves-left-unit-law-mul :
@@ -123,13 +132,114 @@ preserves-coh-unit-laws-mul :
     ( μf) →
   UU l2
 preserves-coh-unit-laws-mul M
-  (pair (pair B .(f (pr2 (pr1 M)))) (pair ν (pair lB (pair rB cB))))
-  (pair f refl) μf lf rf = 
-  Id (ap (ap f) cA ∙ rf eA) (lf eA ∙ ap (concat (μf eA eA) (f eA)) cB)
+  (pair (pair N ._) μ)
+  (pair f refl) μf lf rf =
+  Id (ap (ap f) cM ∙ rf eM) (lf eM ∙ ap (concat (μf eM eM) (f eM)) cN)
   where
-  cA = coh-unit-laws-mul-Wild-Unital-Magma M
-  eA = unit-Wild-Unital-Magma M
+  eM = unit-Wild-Unital-Magma M
+  cM = coh-unit-laws-mul-Wild-Unital-Magma M
+  cN = pr2 (pr2 (pr2 μ))
 
+-- We also present an alternative description of preservation of coherence,
+-- which is always an identity type.
+
+preserves-coh-unit-laws-mul' :
+  {l1 l2 : Level} (M : Wild-Unital-Magma l1) (N : Wild-Unital-Magma l2) →
+  ( f : pointed-type-Wild-Unital-Magma M →* pointed-type-Wild-Unital-Magma N) →
+  ( μf :
+    preserves-mul (mul-Wild-Unital-Magma M) (mul-Wild-Unital-Magma N) (pr1 f)) →
+  preserves-left-unit-law-mul
+    ( mul-Wild-Unital-Magma M)
+    ( left-unit-law-mul-Wild-Unital-Magma M)
+    ( mul-Wild-Unital-Magma N)
+    ( left-unit-law-mul-Wild-Unital-Magma N)
+    ( pr1 f)
+    ( pr2 f)
+    ( μf) →
+  preserves-right-unit-law-mul
+    ( mul-Wild-Unital-Magma M)
+    ( right-unit-law-mul-Wild-Unital-Magma M)
+    ( mul-Wild-Unital-Magma N)
+    ( right-unit-law-mul-Wild-Unital-Magma N)
+    ( pr1 f)
+    ( pr2 f)
+    ( μf) →
+  UU l2
+preserves-coh-unit-laws-mul' M N f μf lf rf =     
+  Id { A =
+       Id (ap (pr1 f) (lM eM) ∙ ef) ((μf eM eM ∙ ap-binary μN ef ef) ∙ rN eN)}
+     ( ( horizontal-concat-Id² (lf eM) (inv (ap-id ef))) ∙
+       ( ( ap
+           ( λ t → t ∙ (ap id ef))
+           ( inv
+             ( assoc
+               ( μf eM eM)
+               ( ap (mul-Wild-Unital-Magma' N (pr1 f eM)) ef)
+               ( lN (pr1 f eM))))) ∙
+         ( ( assoc
+             ( μf eM eM ∙ ap (mul-Wild-Unital-Magma' N (pr1 f eM)) ef)
+             ( lN (pr1 f eM))
+             ( ap id ef)) ∙
+           ( ( ap
+               ( λ t →
+                 ( μf eM eM ∙ ap (mul-Wild-Unital-Magma' N (pr1 f eM)) ef) ∙ t)
+               ( htpy-nat lN ef)) ∙
+             ( ( inv
+                 ( assoc
+                   ( μf eM eM ∙ ap (mul-Wild-Unital-Magma' N (pr1 f eM)) ef)
+                   ( ap (μN eN) ef)
+                   ( lN eN))) ∙
+               ( ( ap
+                   ( λ t → t ∙ lN eN)
+                   ( assoc
+                     ( μf eM eM)
+                     ( ap (mul-Wild-Unital-Magma' N (pr1 f eM)) ef)
+                     ( ap (μN eN) ef))) ∙
+                 ( horizontal-concat-Id²
+                   ( ap
+                     ( λ t → μf eM eM ∙ t)
+                     ( inv (triangle-ap-binary μN ef ef)))
+                   ( cN))))))))
+     ( ( ap (λ t → t ∙ ef) (ap (ap (pr1 f)) cM)) ∙
+       ( ( horizontal-concat-Id² (rf eM) (inv (ap-id ef))) ∙
+         ( ( ap
+             ( λ t → t ∙ ap id ef)
+             ( inv
+               ( assoc (μf eM eM) (ap (μN (pr1 f eM)) ef) (rN (pr1 f eM))))) ∙
+           ( ( assoc
+               ( μf eM eM ∙ ap (μN (pr1 f eM)) ef)
+               ( rN (pr1 f eM))
+               ( ap id ef)) ∙
+             ( ( ap
+                 ( λ t → (μf eM eM ∙ ap (μN (pr1 f eM)) ef) ∙ t)
+                 ( htpy-nat rN ef)) ∙
+               ( ( inv
+                   ( assoc
+                     ( μf eM eM ∙ ap (μN (pr1 f eM)) ef)
+                     ( ap (mul-Wild-Unital-Magma' N eN) ef)
+                     ( rN eN))) ∙
+                 ( ap
+                   ( λ t → t ∙ rN eN)
+                   ( ( assoc
+                       ( μf eM eM)
+                       ( ap (μN (pr1 f eM)) ef)
+                       ( ap (mul-Wild-Unital-Magma' N eN) ef)) ∙
+                     ( ap
+                       ( λ t → μf eM eM ∙ t)
+                       ( inv (triangle-ap-binary' μN ef ef)))))))))))
+  where
+  eM = unit-Wild-Unital-Magma M
+  μM = mul-Wild-Unital-Magma M
+  lM = left-unit-law-mul-Wild-Unital-Magma M
+  rM = right-unit-law-mul-Wild-Unital-Magma M
+  cM = coh-unit-laws-mul-Wild-Unital-Magma M
+  eN = unit-Wild-Unital-Magma N
+  μN = mul-Wild-Unital-Magma N
+  lN = left-unit-law-mul-Wild-Unital-Magma N
+  rN = right-unit-law-mul-Wild-Unital-Magma N
+  cN = coh-unit-laws-mul-Wild-Unital-Magma N
+  ef = pr2 f
+  
 preserves-unital-mul :
   {l1 l2 : Level} (M : Wild-Unital-Magma l1) (N : Wild-Unital-Magma l2) →
   (f : pointed-type-Wild-Unital-Magma M →* pointed-type-Wild-Unital-Magma N) →
