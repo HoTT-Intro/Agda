@@ -287,7 +287,7 @@ neg-ℤ (inr (inr x)) = inl x
 
 -- Exercise 4.1 (c)
 
--- Multiplication on ℤ
+-- We give two definitions of multiplication on ℤ
 
 mul-ℤ : ℤ → ℤ → ℤ
 mul-ℤ (inl zero-ℕ) l = neg-ℤ l
@@ -298,6 +298,22 @@ mul-ℤ (inr (inr (succ-ℕ x))) l = add-ℤ l (mul-ℤ (inr (inr x)) l)
 
 mul-ℤ' : ℤ → ℤ → ℤ
 mul-ℤ' x y = mul-ℤ y x
+
+explicit-mul-ℤ : ℤ → ℤ → ℤ
+explicit-mul-ℤ (inl x) (inl y) = int-ℕ (mul-ℕ (succ-ℕ x) (succ-ℕ y))
+explicit-mul-ℤ (inl x) (inr (inl star)) = zero-ℤ
+explicit-mul-ℤ (inl x) (inr (inr y)) =
+  neg-ℤ (int-ℕ (mul-ℕ (succ-ℕ x) (succ-ℕ y)))
+explicit-mul-ℤ (inr (inl star)) (inl y) = zero-ℤ
+explicit-mul-ℤ (inr (inr x)) (inl y) =
+  neg-ℤ (int-ℕ (mul-ℕ (succ-ℕ x) (succ-ℕ y)))
+explicit-mul-ℤ (inr (inl star)) (inr (inl star)) = zero-ℤ
+explicit-mul-ℤ (inr (inl star)) (inr (inr y)) = zero-ℤ
+explicit-mul-ℤ (inr (inr x)) (inr (inl star)) = zero-ℤ
+explicit-mul-ℤ (inr (inr x)) (inr (inr y)) = int-ℕ (mul-ℕ (succ-ℕ x) (succ-ℕ y))
+
+explicit-mul-ℤ' : ℤ → ℤ → ℤ
+explicit-mul-ℤ' x y = explicit-mul-ℤ y x
 
 -- Exercise 4.2
 

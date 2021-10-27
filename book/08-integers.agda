@@ -37,21 +37,6 @@ mul-int-ℕ (succ-ℕ x) y =
         ( add-int-ℕ y (mul-ℕ x y))) ∙
       ( ap int-ℕ (commutative-add-ℕ y (mul-ℕ x y)))))
 
--- We express mul-ℤ in terms of mul-ℕ
-
-explicit-mul-ℤ : ℤ → ℤ → ℤ
-explicit-mul-ℤ (inl x) (inl y) = int-ℕ (mul-ℕ (succ-ℕ x) (succ-ℕ y))
-explicit-mul-ℤ (inl x) (inr (inl star)) = zero-ℤ
-explicit-mul-ℤ (inl x) (inr (inr y)) =
-  neg-ℤ (int-ℕ (mul-ℕ (succ-ℕ x) (succ-ℕ y)))
-explicit-mul-ℤ (inr (inl star)) (inl y) = zero-ℤ
-explicit-mul-ℤ (inr (inr x)) (inl y) =
-  neg-ℤ (int-ℕ (mul-ℕ (succ-ℕ x) (succ-ℕ y)))
-explicit-mul-ℤ (inr (inl star)) (inr (inl star)) = zero-ℤ
-explicit-mul-ℤ (inr (inl star)) (inr (inr y)) = zero-ℤ
-explicit-mul-ℤ (inr (inr x)) (inr (inl star)) = zero-ℤ
-explicit-mul-ℤ (inr (inr x)) (inr (inr y)) = int-ℕ (mul-ℕ (succ-ℕ x) (succ-ℕ y))
-
 compute-mul-ℤ : (x y : ℤ) → Id (mul-ℤ x y) (explicit-mul-ℤ x y)
 compute-mul-ℤ (inl zero-ℕ) (inl y) =
   inv (ap int-ℕ (left-unit-law-mul-ℕ (succ-ℕ y)))
@@ -162,18 +147,18 @@ is-injective-mul-ℤ' x f {y} {z} p =
 
 -- Lemmas about positive integers
 
-is-positive-left-factor-ℤ :
+is-positive-left-factor-mul-ℤ :
   {x y : ℤ} → is-positive-ℤ (mul-ℤ x y) → is-positive-ℤ y → is-positive-ℤ x
-is-positive-left-factor-ℤ {inl x} {inr (inr y)} H K =
+is-positive-left-factor-mul-ℤ {inl x} {inr (inr y)} H K =
   is-positive-eq-ℤ (compute-mul-ℤ (inl x) (inr (inr y))) H
-is-positive-left-factor-ℤ {inr (inl star)} {inr (inr y)} H K =
+is-positive-left-factor-mul-ℤ {inr (inl star)} {inr (inr y)} H K =
   is-positive-eq-ℤ (compute-mul-ℤ zero-ℤ (inr (inr y))) H
-is-positive-left-factor-ℤ {inr (inr x)} {inr (inr y)} H K = star
+is-positive-left-factor-mul-ℤ {inr (inr x)} {inr (inr y)} H K = star
 
-is-positive-right-factor-ℤ :
+is-positive-right-factor-mul-ℤ :
   {x y : ℤ} → is-positive-ℤ (mul-ℤ x y) → is-positive-ℤ x → is-positive-ℤ y
-is-positive-right-factor-ℤ {x} {y} H =
-  is-positive-left-factor-ℤ (is-positive-eq-ℤ (commutative-mul-ℤ x y) H)
+is-positive-right-factor-mul-ℤ {x} {y} H =
+  is-positive-left-factor-mul-ℤ (is-positive-eq-ℤ (commutative-mul-ℤ x y) H)
 
 -- Lemmas about nonnegative integers
 
@@ -186,31 +171,41 @@ is-nonnegative-mul-ℤ {inr (inr x)} {inr (inl star)} H K =
 is-nonnegative-mul-ℤ {inr (inr x)} {inr (inr y)} H K =
   is-nonnegative-eq-ℤ (inv (compute-mul-ℤ (inr (inr x)) (inr (inr y)))) star
 
-is-nonnegative-left-factor-is-nonnegative-mul-ℤ :
+is-nonnegative-left-factor-mul-ℤ :
   {x y : ℤ} →
   is-nonnegative-ℤ (mul-ℤ x y) → is-positive-ℤ y → is-nonnegative-ℤ x
-is-nonnegative-left-factor-is-nonnegative-mul-ℤ {inl x} {inr (inr y)} H K =
+is-nonnegative-left-factor-mul-ℤ {inl x} {inr (inr y)} H K =
   ex-falso (is-nonnegative-eq-ℤ (compute-mul-ℤ (inl x) (inr (inr y))) H)
-is-nonnegative-left-factor-is-nonnegative-mul-ℤ {inr x} {inr y} H K = star
+is-nonnegative-left-factor-mul-ℤ {inr x} {inr y} H K = star
 
-is-nonnegative-right-factor-is-nonnegative-mul-ℤ :
+is-nonnegative-right-factor-mul-ℤ :
   {x y : ℤ} →
   is-nonnegative-ℤ (mul-ℤ x y) → is-positive-ℤ x → is-nonnegative-ℤ y
-is-nonnegative-right-factor-is-nonnegative-mul-ℤ {x} {y} H =
-  is-nonnegative-left-factor-is-nonnegative-mul-ℤ
+is-nonnegative-right-factor-mul-ℤ {x} {y} H =
+  is-nonnegative-left-factor-mul-ℤ
     ( is-nonnegative-eq-ℤ (commutative-mul-ℤ x y) H)
 
 -- We show that ℤ is an ordered ring
 
 preserves-order-add-ℤ' :
-  {x y z : ℤ} → leq-ℤ x y → leq-ℤ (add-ℤ x z) (add-ℤ y z)
-preserves-order-add-ℤ' {x} {y} {z} =
+  {x y : ℤ} (z : ℤ) → leq-ℤ x y → leq-ℤ (add-ℤ x z) (add-ℤ y z)
+preserves-order-add-ℤ' {x} {y} z =
   is-nonnegative-eq-ℤ (inv (right-translation-diff-ℤ {x} {y} {z}))
 
 preserves-order-add-ℤ :
-  {x y z : ℤ} → leq-ℤ x y → leq-ℤ (add-ℤ z x) (add-ℤ z y)
-preserves-order-add-ℤ {x} {y} {z} =
+  {x y : ℤ} (z : ℤ) → leq-ℤ x y → leq-ℤ (add-ℤ z x) (add-ℤ z y)
+preserves-order-add-ℤ {x} {y} z =
   is-nonnegative-eq-ℤ (inv (left-translation-diff-ℤ {x} {y} {z}))
+
+preserves-leq-add-ℤ :
+  {a b c d : ℤ} → leq-ℤ a b → leq-ℤ c d → leq-ℤ (add-ℤ a c) (add-ℤ b d)
+preserves-leq-add-ℤ {a} {b} {c} {d} H K =
+  trans-leq-ℤ
+    ( add-ℤ a c)
+    ( add-ℤ b c)
+    ( add-ℤ b d)
+    ( preserves-order-add-ℤ' {a} {b} c H)
+    ( preserves-order-add-ℤ b K)
 
 reflects-order-add-ℤ' :
   {x y z : ℤ} → leq-ℤ (add-ℤ x z) (add-ℤ y z) → leq-ℤ x y
@@ -222,16 +217,24 @@ reflects-order-add-ℤ :
 reflects-order-add-ℤ {x} {y} {z} =
   is-nonnegative-eq-ℤ (left-translation-diff-ℤ {x} {y} {z})
 
-{-
-preserves-order-mul-ℤ' :
+preserves-leq-mul-ℤ :
   (x y z : ℤ) → is-nonnegative-ℤ z → leq-ℤ x y → leq-ℤ (mul-ℤ z x) (mul-ℤ z y)
-preserves-order-mul-ℤ' x y (inr (inl star)) star K = star
-preserves-order-mul-ℤ' x y (inr (inr n)) star K = {!!}
+preserves-leq-mul-ℤ x y (inr (inl star)) star K = star
+preserves-leq-mul-ℤ x y (inr (inr zero-ℕ)) star K = K
+preserves-leq-mul-ℤ x y (inr (inr (succ-ℕ n))) star K =
+  preserves-leq-add-ℤ {x} {y}
+    { mul-ℤ (inr (inr n)) x}
+    { mul-ℤ (inr (inr n)) y}
+    ( K)
+    ( preserves-leq-mul-ℤ x y (inr (inr n)) star K)
 
-preserves-order-mul-ℤ :
+preserves-leq-mul-ℤ' :
   (x y z : ℤ) → is-nonnegative-ℤ z → leq-ℤ x y → leq-ℤ (mul-ℤ x z) (mul-ℤ y z)
-preserves-order-mul-ℤ x y z H K = {!!}
--}
+preserves-leq-mul-ℤ' x y z H K =
+  concatenate-eq-leq-eq-ℤ
+    ( commutative-mul-ℤ x z)
+    ( preserves-leq-mul-ℤ x y z H K)
+    ( commutative-mul-ℤ z y)
 
 -- We define the divisibility relation on ℤ
 
@@ -372,9 +375,9 @@ is-unit-mul-ℤ x y (pair d p) (pair e q) =
 mul-unit-ℤ : unit-ℤ → unit-ℤ → unit-ℤ
 mul-unit-ℤ (pair x H) (pair y K) = pair (mul-ℤ x y) (is-unit-mul-ℤ x y H K)
 
-is-unit-left-factor-ℤ :
+is-unit-left-factor-mul-ℤ :
   (x y : ℤ) → is-unit-ℤ (mul-ℤ x y) → is-unit-ℤ x
-is-unit-left-factor-ℤ x y (pair d p) =
+is-unit-left-factor-mul-ℤ x y (pair d p) =
   pair
     ( mul-ℤ d y)
     ( associative-mul-ℤ d y x ∙ (ap (mul-ℤ d) (commutative-mul-ℤ y x) ∙ p))
@@ -382,7 +385,8 @@ is-unit-left-factor-ℤ x y (pair d p) =
 is-unit-right-factor-ℤ :
   (x y : ℤ) → is-unit-ℤ (mul-ℤ x y) → is-unit-ℤ y
 is-unit-right-factor-ℤ x y (pair d p) =
-  is-unit-left-factor-ℤ y x (pair d (ap (mul-ℤ d) (commutative-mul-ℤ y x) ∙ p))
+  is-unit-left-factor-mul-ℤ y x
+    ( pair d (ap (mul-ℤ d) (commutative-mul-ℤ y x) ∙ p))
 
 -- We introduce the equivalence relation ux = y, where u is a unit
 
@@ -567,7 +571,7 @@ div-div-int-ℕ {succ-ℕ x} {y} (pair d p) =
             { int-abs-ℤ d}
             { d}
             ( int-abs-is-nonnegative-ℤ d
-              ( is-nonnegative-left-factor-is-nonnegative-mul-ℤ
+              ( is-nonnegative-left-factor-mul-ℤ
                 { d}
                 { inr (inr x)}
                 ( is-nonnegative-eq-ℤ (inv p) (is-nonnegative-int-ℕ y))
