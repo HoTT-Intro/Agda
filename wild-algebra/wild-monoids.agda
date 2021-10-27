@@ -445,7 +445,7 @@ preserves-coh-unit-laws-map-elim-list-Wild-Monoid :
     ( preserves-left-unit-law-map-elim-list-Wild-Monoid M f)
     ( preserves-right-unit-law-map-elim-list-Wild-Monoid M f)
 preserves-coh-unit-laws-map-elim-list-Wild-Monoid
-  {X = X} (pair (pair (pair M eM) (pair μ (pair lM (pair rM cM)))) αM) f = refl
+  (pair (pair (pair M eM) (pair μ (pair lM (pair rM cM)))) αM) f = refl
   
 elim-list-Wild-Monoid :
   {l1 l2 : Level} {X : UU l1} (M : Wild-Monoid l2)
