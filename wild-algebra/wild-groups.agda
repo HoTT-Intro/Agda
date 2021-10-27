@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --exact-split #-}
+{-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
 module wild-algebra.wild-groups where
 
@@ -15,4 +15,4 @@ Wild-Group l = Σ (Wild-Monoid l) is-wild-group-Wild-Monoid
 
 Ω-Wild-Group :
   {l : Level} → UU-pt l → Wild-Group l
-Ω-Wild-Group X = ?
+Ω-Wild-Group X = {!!}

@@ -1300,7 +1300,7 @@ eq-reduce-denominator-pre-ℚ x =
 is-positive-int-reduce-denominator-pre-ℚ :
   (x : pre-ℚ) → is-positive-ℤ (int-reduce-denominator-pre-ℚ x)
 is-positive-int-reduce-denominator-pre-ℚ x =
-  is-positive-left-factor-ℤ
+  is-positive-left-factor-mul-ℤ
     ( is-positive-eq-ℤ
       ( inv (eq-reduce-denominator-pre-ℚ x))
       ( is-positive-denominator-pre-ℚ x))
