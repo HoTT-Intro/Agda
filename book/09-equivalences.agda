@@ -25,8 +25,9 @@ neg-neg-𝟚 false = refl
 
 square :
   {l1 : Level} {A : UU l1} {x y1 y2 z : A}
-  (p1 : Id x y1) (q1 : Id y1 z) (p2 : Id x y2) (q2 : Id y2 z) → UU l1
-square p q p' q' = Id (p ∙ q) (p' ∙ q')
+  (p-left : Id x y1) (p-bottom : Id y1 z)
+  (p-top : Id x y2) (p-right : Id y2 z) → UU l1
+square p-left p-bottom p-top p-right = Id (p-left ∙ p-bottom) (p-top ∙ p-right)
 
 -- Definition 9.1.5
 

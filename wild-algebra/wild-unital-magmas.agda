@@ -265,3 +265,23 @@ hom-Wild-Unital-Magma :
 hom-Wild-Unital-Magma M N =
   Σ ( pointed-type-Wild-Unital-Magma M →* pointed-type-Wild-Unital-Magma N)
     ( preserves-unital-mul M N)
+
+-- Homotopies of morphisms of wild unital magmas
+
+preserves-mul-htpy :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (μA : A → A → A) (μB : B → B → B) →
+  {f g : A → B} (μf : preserves-mul μA μB f) (μg : preserves-mul μA μB g) →
+  (f ~ g) → UU (l1 ⊔ l2)
+preserves-mul-htpy {A = A} μA μB μf μg H =
+  (a b : A) → Id (μf a b ∙ ap-binary μB (H a) (H b)) (H (μA a b) ∙ μg a b)
+
+preserves-left-unit-law-mul-htpy :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2}
+  (μA : A → A → A) {eA : A} (lA : (a : A) → Id (μA eA a) a)
+  (μB : B → B → B) {eB : B} (lB : (b : B) → Id (μB eB b) b)
+  {f : A → B} {pf : Id (f eA) eB} (μf : preserves-mul μA μB f)
+  (lf : preserves-left-unit-law-mul μA lA μB lB f pf μf)
+  {g : A → B} {pg : Id (g eA) eB} (μg : preserves-mul μA μB g)
+  (lg : preserves-left-unit-law-mul μA lA μB lB g pg μg) →
+  {H : f ~ g} (μH : preserves-mul-htpy μA μB μf μg H) → UU (l1 ⊔ l2)
+preserves-left-unit-law-mul-htpy μA lA μB lB μf lf μg lg μH = ?
