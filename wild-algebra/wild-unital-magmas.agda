@@ -284,4 +284,4 @@ preserves-left-unit-law-mul-htpy :
   {g : A → B} {pg : Id (g eA) eB} (μg : preserves-mul μA μB g)
   (lg : preserves-left-unit-law-mul μA lA μB lB g pg μg) →
   {H : f ~ g} (μH : preserves-mul-htpy μA μB μf μg H) → UU (l1 ⊔ l2)
-preserves-left-unit-law-mul-htpy μA lA μB lB μf lf μg lg μH = ?
+preserves-left-unit-law-mul-htpy μA lA μB lB μf lf μg lg μH = {!!}
