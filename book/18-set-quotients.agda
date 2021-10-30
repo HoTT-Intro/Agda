@@ -739,6 +739,24 @@ module _
       ( Ug X)
       ( is-equiv-precomp-is-equiv h E (type-Set X))
 
+uniqueness-set-quotient :
+  {l1 l2 l3 l4 : Level} {A : UU l1} (R : Eq-Rel l2 A)
+  (B : UU-Set l3) (f : reflecting-map-Eq-Rel R (type-Set B)) → 
+  ({l : Level} → is-set-quotient l R B f) →
+  (C : UU-Set l4) (g : reflecting-map-Eq-Rel R (type-Set C)) →
+  ({l : Level} → is-set-quotient l R C g) →
+  is-contr (Σ (type-Set B ≃ type-Set C) (λ e → (map-equiv e ∘ pr1 f) ~ pr1 g))
+uniqueness-set-quotient R B f Uf C g Ug =
+  is-contr-total-Eq-substructure
+    ( universal-property-set-quotient R B f Uf C g)
+    ( is-subtype-is-equiv)
+    ( map-universal-property-set-quotient R B f Uf C g)
+    ( triangle-universal-property-set-quotient R B f Uf C g)
+    ( is-equiv-is-set-quotient-is-set-quotient R B f C g
+      ( triangle-universal-property-set-quotient R B f Uf C g)
+      ( Uf)
+      ( Ug))
+
 -- Remark 18.2.2
 
 -- Theorem 18.2.3
