@@ -510,45 +510,218 @@ is-effective-map-set-quotient R x y =
 
 -- Definition 18.2.1
 
-identifies-Eq-Rel :
+reflects-Eq-Rel :
   {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) →
   {B : UU l3} → (A → B) → UU (l1 ⊔ (l2 ⊔ l3))
-identifies-Eq-Rel {A = A} R f =
+reflects-Eq-Rel {A = A} R f =
   {x y : A} → type-Eq-Rel R x y → Id (f x) (f y)
 
-is-prop-identifies-Eq-Rel :
+reflecting-map-Eq-Rel :
+  {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU l3) →
+  UU (l1 ⊔ l2 ⊔ l3)
+reflecting-map-Eq-Rel {A = A} R B =
+  Σ (A → B) (reflects-Eq-Rel R)
+
+is-prop-reflects-Eq-Rel :
   {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
-  (f : A → type-Set B) → is-prop (identifies-Eq-Rel R f)
-is-prop-identifies-Eq-Rel R B f =
+  (f : A → type-Set B) → is-prop (reflects-Eq-Rel R f)
+is-prop-reflects-Eq-Rel R B f =
   is-prop-Π'
     ( λ x →
       is-prop-Π'
         ( λ y →
           is-prop-function-type (is-set-type-Set B (f x) (f y))))
 
+-- We characterize the identity type of reflecting-map-Eq-Rel
+
+module _
+  {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
+  (f : reflecting-map-Eq-Rel R (type-Set B))
+  where
+
+  htpy-reflecting-map-Eq-Rel :
+    (g : reflecting-map-Eq-Rel R (type-Set B)) → UU _
+  htpy-reflecting-map-Eq-Rel g =
+    pr1 f ~ pr1 g
+  
+  refl-htpy-reflecting-map-Eq-Rel :
+    htpy-reflecting-map-Eq-Rel f
+  refl-htpy-reflecting-map-Eq-Rel = refl-htpy
+  
+  htpy-eq-reflecting-map-Eq-Rel :
+    (g : reflecting-map-Eq-Rel R (type-Set B)) →
+    Id f g → htpy-reflecting-map-Eq-Rel g
+  htpy-eq-reflecting-map-Eq-Rel .f refl =
+    refl-htpy-reflecting-map-Eq-Rel
+  
+  is-contr-total-htpy-reflecting-map-Eq-Rel :
+    is-contr
+      ( Σ (reflecting-map-Eq-Rel R (type-Set B)) htpy-reflecting-map-Eq-Rel)
+  is-contr-total-htpy-reflecting-map-Eq-Rel =
+    is-contr-total-Eq-substructure
+      ( is-contr-total-htpy (pr1 f))
+      ( is-prop-reflects-Eq-Rel R B)
+      ( pr1 f)
+      ( refl-htpy)
+      ( pr2 f)
+
+  is-equiv-htpy-eq-reflecting-map-Eq-Rel :
+    (g : reflecting-map-Eq-Rel R (type-Set B)) →
+    is-equiv (htpy-eq-reflecting-map-Eq-Rel g)
+  is-equiv-htpy-eq-reflecting-map-Eq-Rel =
+    fundamental-theorem-id f
+      refl-htpy-reflecting-map-Eq-Rel
+      is-contr-total-htpy-reflecting-map-Eq-Rel
+      htpy-eq-reflecting-map-Eq-Rel
+
+  eq-htpy-reflecting-map-Eq-Rel :
+    (g : reflecting-map-Eq-Rel R (type-Set B)) →
+    htpy-reflecting-map-Eq-Rel g → Id f g
+  eq-htpy-reflecting-map-Eq-Rel g =
+    map-inv-is-equiv (is-equiv-htpy-eq-reflecting-map-Eq-Rel g)
+
 precomp-Set-Quotient :
   {l l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A)
-  (B : UU-Set l3) (f : A → type-Set B) (H : identifies-Eq-Rel R f) →
-  (X : UU-Set l) → (type-hom-Set B X) → Σ (A → type-Set X) (identifies-Eq-Rel R)
-precomp-Set-Quotient R B f H X g =
-  pair (g ∘ f) (λ r → ap g (H r))
+  (B : UU-Set l3) (f : reflecting-map-Eq-Rel R (type-Set B)) →
+  (X : UU-Set l) → (type-hom-Set B X) → reflecting-map-Eq-Rel R (type-Set X)
+precomp-Set-Quotient R B f X g =
+  pair (g ∘ (pr1 f)) (λ r → ap g (pr2 f r))
+
+precomp-id-Set-Quotient :
+  {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
+  (f : reflecting-map-Eq-Rel R (type-Set B)) →
+  Id (precomp-Set-Quotient R B f B id) f
+precomp-id-Set-Quotient R B f =
+  eq-htpy-reflecting-map-Eq-Rel R B
+    ( precomp-Set-Quotient R B f B id)
+    ( f)
+    ( refl-htpy)
+
+precomp-comp-Set-Quotient :
+  {l1 l2 l3 l4 l5 : Level} {A : UU l1} (R : Eq-Rel l2 A)
+  (B : UU-Set l3) (f : reflecting-map-Eq-Rel R (type-Set B))
+  (C : UU-Set l4) (g : type-hom-Set B C)
+  (D : UU-Set l5) (h : type-hom-Set C D) →
+  Id ( precomp-Set-Quotient R B f D (h ∘ g))
+     ( precomp-Set-Quotient R C (precomp-Set-Quotient R B f C g) D h)
+precomp-comp-Set-Quotient R B f C g D h =
+  eq-htpy-reflecting-map-Eq-Rel R D
+    ( precomp-Set-Quotient R B f D (h ∘ g))
+    ( precomp-Set-Quotient R C (precomp-Set-Quotient R B f C g) D h)
+    ( refl-htpy)
 
 is-set-quotient :
   (l : Level) {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A)
-  (B : UU-Set l3) (f : A → type-Set B) (H : identifies-Eq-Rel R f) → UU _
-is-set-quotient l R B f H =
+  (B : UU-Set l3) (f : reflecting-map-Eq-Rel R (type-Set B)) → UU _
+is-set-quotient l R B f =
   (X : UU-Set l) →
-  is-equiv (precomp-Set-Quotient R B f H X)
+  is-equiv (precomp-Set-Quotient R B f X)
 
 universal-property-set-quotient :
   {l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
-  (f : A → type-Set B) (H : identifies-Eq-Rel R f) →
-  ({l : Level} → is-set-quotient l R B f H) → {l : Level} (X : UU-Set l)
-  (g : A → type-Set X) (G : identifies-Eq-Rel R g) →
+  (f : reflecting-map-Eq-Rel R (type-Set B)) →
+  ({l : Level} → is-set-quotient l R B f) → {l : Level}
+  (X : UU-Set l) (g : reflecting-map-Eq-Rel R (type-Set X)) →
   is-contr
-    ( fib (precomp-Set-Quotient R B f H X) (pair g G))
-universal-property-set-quotient R B f H Q X g G =
-  is-contr-map-is-equiv (Q X) (pair g G)
+    ( fib (precomp-Set-Quotient R B f X) g)
+universal-property-set-quotient R B f Q X g =
+  is-contr-map-is-equiv (Q X) g
+
+map-universal-property-set-quotient :
+  {l1 l2 l3 l4 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
+  (f : reflecting-map-Eq-Rel R (type-Set B)) →
+  (Uf : {l : Level} → is-set-quotient l R B f) (C : UU-Set l4)
+  (g : reflecting-map-Eq-Rel R (type-Set C)) →
+  type-Set B → type-Set C
+map-universal-property-set-quotient R B f Uf C g =
+  pr1 (center (universal-property-set-quotient R B f Uf C g))
+
+triangle-universal-property-set-quotient :
+  {l1 l2 l3 l4 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
+  (f : reflecting-map-Eq-Rel R (type-Set B)) →
+  (Uf : {l : Level} → is-set-quotient l R B f) (C : UU-Set l4)
+  (g : reflecting-map-Eq-Rel R (type-Set C)) →
+  (map-universal-property-set-quotient R B f Uf C g ∘ pr1 f) ~ pr1 g
+triangle-universal-property-set-quotient R B f Uf C g =
+  htpy-eq
+    ( ap pr1
+      ( pr2 (center (universal-property-set-quotient R B f Uf C g))))
+
+-- uniqueness of set quotients :
+
+module _
+  {l1 l2 l3 l4 : Level} {A : UU l1} (R : Eq-Rel l2 A)
+  (B : UU-Set l3) (f : reflecting-map-Eq-Rel R (type-Set B))
+  (C : UU-Set l4) (g : reflecting-map-Eq-Rel R (type-Set C))
+  {h : type-Set B → type-Set C} (H : (h ∘ pr1 f) ~ pr1 g)
+  where
+
+  is-equiv-is-set-quotient-is-set-quotient :
+    ({l : Level} → is-set-quotient l R B f) →
+    ({l : Level} → is-set-quotient l R C g) →
+    is-equiv h
+  is-equiv-is-set-quotient-is-set-quotient Uf Ug =
+    is-equiv-has-inverse
+      ( pr1 (center K))
+      ( htpy-eq
+        ( is-injective-is-equiv
+          ( Ug C)
+          { h ∘ k}
+          { id}
+          ( ( precomp-comp-Set-Quotient R C g B k C h) ∙
+            ( ( ap (λ t → precomp-Set-Quotient R B t C h) (pr2 (center K))) ∙
+              ( ( eq-htpy-reflecting-map-Eq-Rel R C
+                  ( precomp-Set-Quotient R B f C h) g H) ∙
+                ( inv (precomp-id-Set-Quotient R C g)))))))
+      ( htpy-eq
+        ( is-injective-is-equiv
+          ( Uf B)
+          { k ∘ h}
+          { id}
+          ( ( precomp-comp-Set-Quotient R B f C h B k) ∙
+            ( ( ap
+                ( λ t → precomp-Set-Quotient R C t B k)
+                ( eq-htpy-reflecting-map-Eq-Rel R C
+                  ( precomp-Set-Quotient R B f C h) g H)) ∙
+              ( ( pr2 (center K)) ∙
+                ( inv (precomp-id-Set-Quotient R B f)))))))
+    where
+    K : is-contr (fib (precomp-Set-Quotient R C g B) f)
+    K = universal-property-set-quotient R C g Ug B f
+    k : type-Set C → type-Set B
+    k = pr1 (center K)
+
+  is-set-quotient-is-set-quotient-is-equiv :
+    is-equiv h → ({l : Level} → is-set-quotient l R B f) →
+    {l : Level} → is-set-quotient l R C g
+  is-set-quotient-is-set-quotient-is-equiv E Uf {l} X =
+    is-equiv-comp
+      ( precomp-Set-Quotient R C g X)
+      ( precomp-Set-Quotient R B f X)
+      ( precomp h (type-Set X))
+      ( λ k →
+        eq-htpy-reflecting-map-Eq-Rel R X
+          ( precomp-Set-Quotient R C g X k)
+          ( precomp-Set-Quotient R B f X (k ∘ h))
+          ( inv-htpy (k ·l H)))
+      ( is-equiv-precomp-is-equiv h E (type-Set X))
+      ( Uf X)
+
+  is-set-quotient-is-equiv-is-set-quotient :
+    ({l : Level} → is-set-quotient l R C g) → is-equiv h →
+    {l : Level} → is-set-quotient l R B f
+  is-set-quotient-is-equiv-is-set-quotient Ug E {l} X =
+    is-equiv-left-factor
+      ( precomp-Set-Quotient R C g X)
+      ( precomp-Set-Quotient R B f X)
+      ( precomp h (type-Set X))
+      ( λ k →
+        eq-htpy-reflecting-map-Eq-Rel R X
+          ( precomp-Set-Quotient R C g X k)
+          ( precomp-Set-Quotient R B f X (k ∘ h))
+          ( inv-htpy (k ·l H)))
+      ( Ug X)
+      ( is-equiv-precomp-is-equiv h E (type-Set X))
 
 -- Remark 18.2.2
 
@@ -723,21 +896,22 @@ module _
   -- Theorem 18.2.3 (i) implies (ii)
 
   is-surjective-is-set-quotient :
-    (H : identifies-Eq-Rel R q) → ({l : Level} → is-set-quotient l R B q H) →
+    (H : reflects-Eq-Rel R q) →
+    ({l : Level} → is-set-quotient l R B (pair q H)) →
     is-surjective q
   is-surjective-is-set-quotient H Q b =
     tr ( λ y → type-trunc-Prop (fib q y))
        ( htpy-eq
          ( ap pr1
            ( eq-is-contr
-             ( universal-property-set-quotient R B q H Q B q H)
+             ( universal-property-set-quotient R B (pair q H) Q B (pair q H))
              { pair ( inclusion-im q ∘ β)
-                    ( eq-subtype (is-prop-identifies-Eq-Rel R B) (eq-htpy δ))}
-             { pair id (eq-subtype (is-prop-identifies-Eq-Rel R B) refl)}))
+                    ( eq-subtype (is-prop-reflects-Eq-Rel R B) (eq-htpy δ))}
+             { pair id (eq-subtype (is-prop-reflects-Eq-Rel R B) refl)}))
          ( b))
        ( pr2 (β b))
     where
-    α : identifies-Eq-Rel R (map-im q)
+    α : reflects-Eq-Rel R (map-im q)
     α {x} {y} r =
       is-injective-is-emb
         ( is-emb-inclusion-im q)
@@ -756,12 +930,13 @@ module _
     δ = (inclusion-im q ·l γ) ∙h (triangle-im q)
 
   is-effective-is-set-quotient :
-    (H : identifies-Eq-Rel R q) → ({l : Level} → is-set-quotient l R B q H) →
+    (H : reflects-Eq-Rel R q) →
+    ({l : Level} → is-set-quotient l R B (pair q H)) →
     is-effective R q
   is-effective-is-set-quotient H Q x y =
     inv-equiv (compute-P y) ∘e δ (q y)
     where
-    α : Σ (A → UU-Prop l2) (identifies-Eq-Rel R)
+    α : Σ (A → UU-Prop l2) (reflects-Eq-Rel R)
     α = pair
           ( prop-Eq-Rel R x)
           ( λ r →
@@ -805,23 +980,24 @@ module _
     δ b = pair (β b) (γ b)
 
   is-surjective-and-effective-is-set-quotient :
-    (H : identifies-Eq-Rel R q) → ({l : Level} → is-set-quotient l R B q H) →
+    (H : reflects-Eq-Rel R q) →
+    ({l : Level} → is-set-quotient l R B (pair q H)) →
     is-surjective-and-effective R q
   is-surjective-and-effective-is-set-quotient H Q =
     pair (is-surjective-is-set-quotient H Q) (is-effective-is-set-quotient H Q)
 
   -- Theorem 18.2.3 (ii) implies (i)
 
-  identifies-Eq-Rel-is-surjective-and-effective :
-    is-surjective-and-effective R q → identifies-Eq-Rel R q
-  identifies-Eq-Rel-is-surjective-and-effective E {x} {y} =
+  reflects-Eq-Rel-is-surjective-and-effective :
+    is-surjective-and-effective R q → reflects-Eq-Rel R q
+  reflects-Eq-Rel-is-surjective-and-effective E {x} {y} =
     map-inv-equiv (pr2 E x y)
 
   universal-property-set-quotient-is-surjective-and-effective :
     {l : Level} (E : is-surjective-and-effective R q) (X : UU-Set l) →
     is-contr-map
-      ( precomp-Set-Quotient R B q
-        ( identifies-Eq-Rel-is-surjective-and-effective E)
+      ( precomp-Set-Quotient R B
+        ( pair q (reflects-Eq-Rel-is-surjective-and-effective E))
         ( X))
   universal-property-set-quotient-is-surjective-and-effective
     {l} E X (pair f H) =
@@ -829,12 +1005,12 @@ module _
       ( is-prop-equiv
         ( fib (precomp q (type-Set X)) f)
         ( equiv-tot
-          ( λ h → equiv-ap-pr1-is-subtype (is-prop-identifies-Eq-Rel R X)))
+          ( λ h → equiv-ap-pr1-is-subtype (is-prop-reflects-Eq-Rel R X)))
         ( is-prop-map-is-emb (is-emb-precomp-is-surjective (pr1 E) X) f))
       ( pair
         ( λ b → pr1 (α b))
         ( eq-subtype
-          ( is-prop-identifies-Eq-Rel R X)
+          ( is-prop-reflects-Eq-Rel R X)
           ( eq-htpy (λ a → ap pr1 (β a)))))
     where
     P-Prop : (b : type-Set B) (x : type-Set X) → UU-Prop (l1 ⊔ l3 ⊔ l)
@@ -878,7 +1054,8 @@ module _
 
   is-set-quotient-is-surjective-and-effective :
     {l : Level} (E : is-surjective-and-effective R q) →
-    is-set-quotient l R B q (identifies-Eq-Rel-is-surjective-and-effective E)
+    is-set-quotient l R B
+      ( pair q (reflects-Eq-Rel-is-surjective-and-effective E))
   is-set-quotient-is-surjective-and-effective E X =
     is-equiv-is-contr-map
       ( universal-property-set-quotient-is-surjective-and-effective E X)
@@ -997,47 +1174,52 @@ is-set-truncation-dependent-universal-property B f H X =
 
 -- Theorem 18.5.2 (iii) implies (i)
 
-identifies-mere-eq :
+reflects-mere-eq :
   {l1 l2 : Level} {A : UU l1} (X : UU-Set l2) (f : A → type-Set X) →
-  identifies-Eq-Rel (mere-eq-Eq-Rel A) f
-identifies-mere-eq X f {x} {y} r =
+  reflects-Eq-Rel (mere-eq-Eq-Rel A) f
+reflects-mere-eq X f {x} {y} r =
   apply-universal-property-trunc-Prop r
     ( Id-Prop X (f x) (f y))
     ( ap f)
 
+reflecting-map-mere-eq :
+  {l1 l2 : Level} {A : UU l1} (X : UU-Set l2) (f : A → type-Set X) →
+  reflecting-map-Eq-Rel (mere-eq-Eq-Rel A) (type-Set X)
+reflecting-map-mere-eq X f = pair f (reflects-mere-eq X f)
+
 is-set-truncation-is-set-quotient :
   {l1 l2 l3 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B) →
   ( {l : Level} →
-    is-set-quotient l (mere-eq-Eq-Rel A) B f (identifies-mere-eq B f)) →
+    is-set-quotient l (mere-eq-Eq-Rel A) B (reflecting-map-mere-eq B f)) →
   is-set-truncation l3 B f
 is-set-truncation-is-set-quotient {A = A} B f H X =
   is-equiv-comp
     ( precomp-Set f X)
     ( pr1)
-    ( precomp-Set-Quotient (mere-eq-Eq-Rel A) B f (identifies-mere-eq B f) X)
+    ( precomp-Set-Quotient (mere-eq-Eq-Rel A) B (reflecting-map-mere-eq B f) X)
     ( refl-htpy)
     ( H X)
     ( is-equiv-pr1-is-contr
       ( λ h →
         is-proof-irrelevant-is-prop
-          ( is-prop-identifies-Eq-Rel (mere-eq-Eq-Rel A) X h)
-          ( identifies-mere-eq X h)))
+          ( is-prop-reflects-Eq-Rel (mere-eq-Eq-Rel A) X h)
+          ( reflects-mere-eq X h)))
 
 is-set-quotient-is-set-truncation :
   {l1 l2 l3 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B) →
   ( {l : Level} → is-set-truncation l B f) →
-  is-set-quotient l3 (mere-eq-Eq-Rel A) B f (identifies-mere-eq B f)
+  is-set-quotient l3 (mere-eq-Eq-Rel A) B (reflecting-map-mere-eq B f)
 is-set-quotient-is-set-truncation {A = A} B f H X =
   is-equiv-right-factor
     ( precomp-Set f X)
     ( pr1)
-    ( precomp-Set-Quotient (mere-eq-Eq-Rel A) B f (identifies-mere-eq B f) X)
+    ( precomp-Set-Quotient (mere-eq-Eq-Rel A) B (reflecting-map-mere-eq B f) X)
     ( refl-htpy)
     ( is-equiv-pr1-is-contr
       ( λ h →
         is-proof-irrelevant-is-prop
-          ( is-prop-identifies-Eq-Rel (mere-eq-Eq-Rel A) X h)
-          ( identifies-mere-eq X h)))
+          ( is-prop-reflects-Eq-Rel (mere-eq-Eq-Rel A) X h)
+          ( reflects-mere-eq X h)))
     ( H X)
   
 -- Definition 18.5.3
@@ -1106,13 +1288,18 @@ equiv-dependent-universal-property-trunc-Set B =
 
 -- Corollary 18.5.4
 
+reflecting-map-mere-eq-unit-trunc-Set :
+  {l : Level} (A : UU l) →
+  reflecting-map-Eq-Rel (mere-eq-Eq-Rel A) (type-trunc-Set A)
+reflecting-map-mere-eq-unit-trunc-Set A =
+  pair unit-trunc-Set (reflects-mere-eq (trunc-Set A) unit-trunc-Set)
+
 is-set-quotient-trunc-Set :
   {l1 l2 : Level} (A : UU l1) →
   is-set-quotient l2
     ( mere-eq-Eq-Rel A)
     ( trunc-Set A)
-    ( unit-trunc-Set)
-    ( identifies-mere-eq (trunc-Set A) unit-trunc-Set)
+    ( reflecting-map-mere-eq-unit-trunc-Set A)
 is-set-quotient-trunc-Set A =
   is-set-quotient-is-set-truncation
     ( trunc-Set A)
@@ -1127,7 +1314,7 @@ is-surjective-and-effective-unit-trunc-Set A =
     ( mere-eq-Eq-Rel A)
     ( trunc-Set A)
     ( unit-trunc-Set)
-    ( identifies-mere-eq (trunc-Set A) unit-trunc-Set)
+    ( reflects-mere-eq (trunc-Set A) unit-trunc-Set)
     ( λ {l} → is-set-quotient-trunc-Set A)
 
 is-surjective-unit-trunc-Set :

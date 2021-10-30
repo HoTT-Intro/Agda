@@ -1,8 +1,8 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module combinatorics.homotopy-finiteness where
+module univalent-combinatorics.homotopy-finiteness where
 
-open import book public
+open import book.18-set-quotients public
 
 is-homotopy-finite-Prop : {l : Level} (k : ℕ) → UU l → UU-Prop l
 is-homotopy-finite-Prop zero-ℕ X = is-finite-Prop (type-trunc-Set X)

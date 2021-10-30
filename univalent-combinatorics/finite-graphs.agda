@@ -1,8 +1,8 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module combinatorics.finite-graphs where
+module univalent-combinatorics.finite-graphs where
 
-open import combinatorics.unordered-pairs public
+open import univalent-combinatorics.unordered-pairs public
 
 record Graph-Fin : UU (lsuc lzero)
   where

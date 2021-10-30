@@ -99,16 +99,6 @@ is-propositional-truncation-extension-property P f up-P {l} Q =
 
 -- Proposition 14.1.4
 
-abstract
-  is-equiv-is-equiv-precomp-Prop :
-    {l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2) (f : type-hom-Prop P Q) →
-    ({l : Level} → is-propositional-truncation l Q f) → is-equiv f
-  is-equiv-is-equiv-precomp-Prop P Q f H =
-    is-equiv-is-prop
-      ( is-prop-type-Prop P)
-      ( is-prop-type-Prop Q)
-      ( map-inv-is-equiv (H P) id)
-
 is-equiv-is-ptruncation-is-ptruncation :
   {l1 l2 l3 : Level} {A : UU l1} (P : UU-Prop l2) (P' : UU-Prop l3)
   (f : A → type-Prop P) (f' : A → type-Prop P')

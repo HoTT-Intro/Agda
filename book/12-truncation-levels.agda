@@ -663,13 +663,13 @@ UU-Truncated-Type : 𝕋 → (l : Level) → UU (lsuc l)
 UU-Truncated-Type k l = Σ (UU l) (is-trunc k)
 
 type-Truncated-Type :
-  (k : 𝕋) {l : Level} → UU-Truncated-Type k l → UU l
-type-Truncated-Type k = pr1
+  {k : 𝕋} {l : Level} → UU-Truncated-Type k l → UU l
+type-Truncated-Type = pr1
 
 is-trunc-type-Truncated-Type :
-  (k : 𝕋) {l : Level} (A : UU-Truncated-Type k l) →
-  is-trunc k (type-Truncated-Type k A)
-is-trunc-type-Truncated-Type k = pr2
+  {k : 𝕋} {l : Level} (A : UU-Truncated-Type k l) →
+  is-trunc k (type-Truncated-Type A)
+is-trunc-type-Truncated-Type = pr2
 
 {- Remark 12.4.2
 
@@ -700,8 +700,8 @@ truncated-type-succ-Truncated-Type :
   (k : 𝕋) {l : Level} → UU-Truncated-Type k l → UU-Truncated-Type (succ-𝕋 k) l
 truncated-type-succ-Truncated-Type k A =
   pair
-    ( type-Truncated-Type k A)
-    ( is-trunc-succ-is-trunc k (is-trunc-type-Truncated-Type k A))
+    ( type-Truncated-Type A)
+    ( is-trunc-succ-is-trunc k (is-trunc-type-Truncated-Type A))
 
 set-Prop :
   {l : Level} → UU-Prop l → UU-Set l
