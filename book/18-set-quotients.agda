@@ -580,6 +580,14 @@ module _
   eq-htpy-reflecting-map-Eq-Rel g =
     map-inv-is-equiv (is-equiv-htpy-eq-reflecting-map-Eq-Rel g)
 
+  equiv-htpy-eq-reflecting-map-Eq-Rel :
+    (g : reflecting-map-Eq-Rel R (type-Set B)) →
+    Id f g ≃ htpy-reflecting-map-Eq-Rel g
+  equiv-htpy-eq-reflecting-map-Eq-Rel g =
+    pair
+      ( htpy-eq-reflecting-map-Eq-Rel g)
+      ( is-equiv-htpy-eq-reflecting-map-Eq-Rel g)
+
 precomp-Set-Quotient :
   {l l1 l2 l3 : Level} {A : UU l1} (R : Eq-Rel l2 A)
   (B : UU-Set l3) (f : reflecting-map-Eq-Rel R (type-Set B)) →
@@ -622,10 +630,16 @@ universal-property-set-quotient :
   (f : reflecting-map-Eq-Rel R (type-Set B)) →
   ({l : Level} → is-set-quotient l R B f) → {l : Level}
   (X : UU-Set l) (g : reflecting-map-Eq-Rel R (type-Set X)) →
-  is-contr
-    ( fib (precomp-Set-Quotient R B f X) g)
+  is-contr (Σ (type-hom-Set B X) (λ h → (h ∘ pr1 f) ~ pr1 g))
 universal-property-set-quotient R B f Q X g =
-  is-contr-map-is-equiv (Q X) g
+   is-contr-equiv'
+     ( fib (precomp-Set-Quotient R B f X) g)
+     ( equiv-tot
+       ( λ h →
+         equiv-htpy-eq-reflecting-map-Eq-Rel R X
+           ( precomp-Set-Quotient R B f X h)
+           ( g)))
+     ( is-contr-map-is-equiv (Q X) g)
 
 map-universal-property-set-quotient :
   {l1 l2 l3 l4 : Level} {A : UU l1} (R : Eq-Rel l2 A) (B : UU-Set l3)
@@ -643,9 +657,7 @@ triangle-universal-property-set-quotient :
   (g : reflecting-map-Eq-Rel R (type-Set C)) →
   (map-universal-property-set-quotient R B f Uf C g ∘ pr1 f) ~ pr1 g
 triangle-universal-property-set-quotient R B f Uf C g =
-  htpy-eq
-    ( ap pr1
-      ( pr2 (center (universal-property-set-quotient R B f Uf C g))))
+  ( pr2 (center (universal-property-set-quotient R B f Uf C g)))
 
 -- uniqueness of set quotients :
 
@@ -669,7 +681,7 @@ module _
           { h ∘ k}
           { id}
           ( ( precomp-comp-Set-Quotient R C g B k C h) ∙
-            ( ( ap (λ t → precomp-Set-Quotient R B t C h) (pr2 (center K))) ∙
+            ( ( ap (λ t → precomp-Set-Quotient R B t C h) α) ∙
               ( ( eq-htpy-reflecting-map-Eq-Rel R C
                   ( precomp-Set-Quotient R B f C h) g H) ∙
                 ( inv (precomp-id-Set-Quotient R C g)))))))
@@ -683,13 +695,17 @@ module _
                 ( λ t → precomp-Set-Quotient R C t B k)
                 ( eq-htpy-reflecting-map-Eq-Rel R C
                   ( precomp-Set-Quotient R B f C h) g H)) ∙
-              ( ( pr2 (center K)) ∙
+              ( ( α) ∙
                 ( inv (precomp-id-Set-Quotient R B f)))))))
     where
-    K : is-contr (fib (precomp-Set-Quotient R C g B) f)
     K = universal-property-set-quotient R C g Ug B f
     k : type-Set C → type-Set B
     k = pr1 (center K)
+    α : Id (precomp-Set-Quotient R C g B k) f
+    α = eq-htpy-reflecting-map-Eq-Rel R B
+          ( precomp-Set-Quotient R C g B k)
+          ( f)
+          ( pr2 (center K))
 
   is-set-quotient-is-set-quotient-is-equiv :
     is-equiv h → ({l : Level} → is-set-quotient l R B f) →
@@ -905,9 +921,8 @@ module _
          ( ap pr1
            ( eq-is-contr
              ( universal-property-set-quotient R B (pair q H) Q B (pair q H))
-             { pair ( inclusion-im q ∘ β)
-                    ( eq-subtype (is-prop-reflects-Eq-Rel R B) (eq-htpy δ))}
-             { pair id (eq-subtype (is-prop-reflects-Eq-Rel R B) refl)}))
+             { pair (inclusion-im q ∘ β) δ}
+             { pair id refl-htpy}))
          ( b))
        ( pr2 (β b))
     where
