@@ -1616,7 +1616,6 @@ equiv-unit-trunc-ℤ-Set = equiv-unit-trunc-Set ℤ-Set
 
 equiv-unit-trunc-Fin-Set : (k : ℕ) → Fin k ≃ type-trunc-Set (Fin k)
 equiv-unit-trunc-Fin-Set k = equiv-unit-trunc-Set (Fin-Set k)
-  
 
 module _
   {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B)
@@ -1933,27 +1932,77 @@ module _
 
 -- trunc-Set distributes over Π indexed by Fin
 
-{-
-  distributive-trunc-Π-Fin-Set :
-    {l : Level} (k : ℕ) (A : Fin k → UU l) →
-    is-contr
-      ( Σ ( ( type-trunc-Set ((x : Fin k) → A x)) ≃
-            ( (x : Fin k) → type-trunc-Set (A x)))
-          ( λ e →
-            ( map-equiv e ∘ unit-trunc-Set) ~
-            ( map-Π (λ x → unit-trunc-Set))))
-  distributive-trunc-Π-Fin-Set zero-ℕ A = {!!}
-  distributive-trunc-Π-Fin-Set (succ-ℕ k) A =
-    uniqueness-trunc-Set
-      ( Π-Set (Fin-Set (succ-ℕ k)) (λ x → trunc-Set (A x)))
-      ( map-Π (λ x → unit-trunc-Set))
-      ( λ {l} B →
-        is-equiv-right-factor'
-          ( {!!} ∘ {!precomp (ev-Maybe) (type-Set B)!})
-          ( precomp-Set (map-Π (λ x → unit-trunc-Set)) B)
-          {!!}
-          {!!})
--}
+distributive-trunc-Π-Fin-Set :
+  {l : Level} (k : ℕ) (A : Fin k → UU l) →
+  is-contr
+    ( Σ ( ( type-trunc-Set ((x : Fin k) → A x)) ≃
+          ( (x : Fin k) → type-trunc-Set (A x)))
+        ( λ e →
+          ( map-equiv e ∘ unit-trunc-Set) ~
+          ( map-Π (λ x → unit-trunc-Set))))
+distributive-trunc-Π-Fin-Set zero-ℕ A =
+  uniqueness-trunc-Set
+    ( Π-Set empty-Set (λ x → trunc-Set (A x)))
+    ( map-Π (λ x → unit-trunc-Set))
+    ( λ {l} B →
+      is-equiv-precomp-is-equiv
+        ( map-Π (λ x → unit-trunc-Set))
+        ( is-equiv-is-contr
+          ( map-Π (λ x → unit-trunc-Set))
+          ( dependent-universal-property-empty' A)
+          ( dependent-universal-property-empty' (type-trunc-Set ∘ A)))
+        ( type-Set B))
+distributive-trunc-Π-Fin-Set (succ-ℕ k) A =
+  uniqueness-trunc-Set
+    ( Π-Set (Fin-Set (succ-ℕ k)) (λ x → trunc-Set (A x)))
+    ( map-Π (λ x → unit-trunc-Set))
+    ( λ {l} B →
+      is-equiv-left-factor'
+        ( precomp (map-Π (λ x → unit-trunc-Set)) (type-Set B))
+        ( precomp (ev-Maybe {B = type-trunc-Set ∘ A}) (type-Set B))
+        ( is-equiv-comp'
+          ( precomp ev-Maybe (type-Set B))
+          ( precomp
+            ( map-prod (map-Π (λ x → unit-trunc-Set)) unit-trunc-Set)
+            ( type-Set B))
+          ( is-equiv-right-factor'
+            ( ev-pair)
+            ( precomp
+              ( map-prod (map-Π (λ x → unit-trunc-Set)) unit-trunc-Set)
+              ( type-Set B))
+            ( is-equiv-ev-pair)
+            ( is-equiv-htpy-equiv
+              ( ( ( pair
+                    ( precomp
+                      ( (map-Π (λ x → unit-trunc-Set)))
+                      ( A (inr star) → type-Set B))
+                    ( is-set-truncation-is-equiv
+                      ( Π-Set (Fin-Set k) (λ x → trunc-Set (A (inl x))))
+                      ( map-Π (λ x → unit-trunc-Set))
+                      { map-equiv
+                        ( pr1
+                          ( center
+                            ( distributive-trunc-Π-Fin-Set k (A ∘ inl))))}
+                      ( pr2
+                        ( center (distributive-trunc-Π-Fin-Set k (A ∘ inl))))
+                      ( is-equiv-map-equiv
+                        ( pr1
+                          ( center
+                            ( distributive-trunc-Π-Fin-Set k (A ∘ inl)))))
+                      ( Π-Set' (A (inr star)) (λ a → B)))) ∘e
+                  ( equiv-postcomp
+                    ( (x : Fin k) → type-trunc-Set (A (inl x)))
+                    ( equiv-universal-property-trunc-Set (A (inr star)) B))) ∘e
+                ( equiv-ev-pair))
+              ( refl-htpy)))
+          ( is-equiv-precomp-is-equiv
+            ( ev-Maybe)
+            ( dependent-universal-property-Maybe)
+            ( type-Set B)))
+        ( is-equiv-precomp-is-equiv
+          ( ev-Maybe)
+          ( dependent-universal-property-Maybe)
+          ( type-Set B)))
 
 --------------------------------------------------------------------------------
 
