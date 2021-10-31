@@ -4,6 +4,14 @@ module univalent-combinatorics.homotopy-finiteness where
 
 open import book.18-set-quotients public
 
+is-strong-homotopy-finite-Prop : {l : Level} (k : ℕ) → UU l → UU-Prop l
+is-strong-homotopy-finite-Prop zero-ℕ X = is-finite-Prop X
+is-strong-homotopy-finite-Prop (succ-ℕ k) X =
+  prod-Prop
+    ( is-finite-Prop (type-trunc-Set X))
+    ( Π-Prop X
+      ( λ x → Π-Prop X (λ y → is-strong-homotopy-finite-Prop k (Id x y))))
+
 is-homotopy-finite-Prop : {l : Level} (k : ℕ) → UU l → UU-Prop l
 is-homotopy-finite-Prop zero-ℕ X = is-finite-Prop (type-trunc-Set X)
 is-homotopy-finite-Prop (succ-ℕ k) X =
@@ -32,10 +40,25 @@ is-homotopy-finite-equiv (succ-ℕ k) e H =
         ( equiv-ap e a b)
         ( pr2 H (map-equiv e a) (map-equiv e b)))
 
-{-
-is-homotopy-finite-Π-zero-ℕ :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → is-finite A →
-  ((x : A) → is-homotopy-finite zero-ℕ (B x)) →
-  is-homotopy-finite zero-ℕ ((x : A) → B x)
-is-homotopy-finite-Π-zero-ℕ HA HB = {!!}
--}
+is-homotopy-finite-coprod :
+  {l1 l2 : Level} (k : ℕ) {A : UU l1} {B : UU l2} →
+  is-homotopy-finite k A → is-homotopy-finite k B →
+  is-homotopy-finite k (coprod A B)
+is-homotopy-finite-coprod k H K = {!!}
+
+is-homotopy-finite-Π-Fin :
+  {l : Level} (k n : ℕ) (B : Fin n → UU l) →
+  ((x : Fin n) → is-homotopy-finite k (B x)) →
+  is-homotopy-finite k ((x : Fin n) → B x)
+is-homotopy-finite-Π-Fin k n b H = {!!}
+
+is-homotopy-finite-Π-is-finite :
+  {l1 l2 : Level} (k : ℕ) {A : UU l1} {B : A → UU l2} →
+  is-finite A → ((a : A) → is-homotopy-finite k (B a)) →
+  is-homotopy-finite k ((a : A) → B a)
+is-homotopy-finite-Π-is-finite zero-ℕ {A} {B} H K =
+  apply-universal-property-trunc-Prop H
+    ( is-homotopy-finite-Prop zero-ℕ ((a : A) → B a))
+    ( λ e → {!!})
+is-homotopy-finite-Π-is-finite (succ-ℕ k) H K = {!!}
+
