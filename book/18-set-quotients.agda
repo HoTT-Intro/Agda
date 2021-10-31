@@ -1791,6 +1791,51 @@ module _
       ( equiv-trunc-Σ-Set)
       ( htpy-map-equiv-trunc-Σ-Set)
 
+-- trunc-Set distributes over products
+
+module _
+  {l1 l2 : Level} (A : UU l1) (B : UU l2)
+  where
+
+  distributive-trunc-prod-Set :
+    is-contr
+      ( Σ ( type-trunc-Set (A × B) ≃ ( type-trunc-Set A × type-trunc-Set B))
+          ( λ e →
+            ( map-equiv e ∘ unit-trunc-Set) ~
+            ( map-prod unit-trunc-Set unit-trunc-Set)))
+  distributive-trunc-prod-Set =
+    uniqueness-trunc-Set
+      ( prod-Set (trunc-Set A) (trunc-Set B))
+      ( map-prod unit-trunc-Set unit-trunc-Set)
+      ( λ {l} C →
+        is-equiv-right-factor'
+          ( ev-pair)
+          ( precomp-Set (map-prod unit-trunc-Set unit-trunc-Set) C)
+          ( is-equiv-ev-pair)
+          ( is-equiv-htpy-equiv
+            ( ( equiv-universal-property-trunc-Set A (Π-Set' B (λ y → C))) ∘e
+              ( ( equiv-postcomp
+                  ( type-trunc-Set A)
+                  (equiv-universal-property-trunc-Set B C)) ∘e
+                ( equiv-ev-pair)))
+            ( refl-htpy)))
+
+  equiv-distributive-trunc-prod-Set :
+    type-trunc-Set (A × B) ≃ ( type-trunc-Set A × type-trunc-Set B)
+  equiv-distributive-trunc-prod-Set =
+    pr1 (center distributive-trunc-prod-Set)
+
+  map-equiv-distributive-trunc-prod-Set :
+    type-trunc-Set (A × B) → type-trunc-Set A × type-trunc-Set B
+  map-equiv-distributive-trunc-prod-Set =
+    map-equiv equiv-distributive-trunc-prod-Set
+
+  triangle-distributive-trunc-prod-Set :
+    ( map-equiv-distributive-trunc-prod-Set ∘ unit-trunc-Set) ~
+    ( map-prod unit-trunc-Set unit-trunc-Set)
+  triangle-distributive-trunc-prod-Set =
+    pr2 (center distributive-trunc-prod-Set)
+
 --------------------------------------------------------------------------------
 
 module _
