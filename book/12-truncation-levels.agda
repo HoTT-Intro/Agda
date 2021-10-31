@@ -689,6 +689,10 @@ abstract
   is-trunc-succ-is-trunc (succ-𝕋 k) H x y =
     is-trunc-succ-is-trunc k (H x y)
 
+is-set-is-prop :
+  {l : Level} {P : UU l} → is-prop P → is-set P
+is-set-is-prop = is-trunc-succ-is-trunc neg-one-𝕋
+
 abstract
   is-trunc-map-succ-is-trunc-map :
     {l1 l2 : Level} (k : 𝕋) {A : UU l1} {B : UU l2}

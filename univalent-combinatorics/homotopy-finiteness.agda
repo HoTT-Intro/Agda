@@ -19,13 +19,12 @@ is-prop-is-homotopy-finite :
 is-prop-is-homotopy-finite k X =
   is-prop-type-Prop (is-homotopy-finite-Prop k X)
 
-{-
 is-homotopy-finite-equiv :
   {l1 l2 : Level} (k : ℕ) {A : UU l1} {B : UU l2} (e : A ≃ B) →
   is-homotopy-finite k B → is-homotopy-finite k A
 is-homotopy-finite-equiv zero-ℕ e H = is-finite-equiv' {!!} {!!}
 is-homotopy-finite-equiv (succ-ℕ k) e H = {!!}
--}
+
 
 {-
 is-homotopy-finite-Π-zero-ℕ :

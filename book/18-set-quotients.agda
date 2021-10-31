@@ -1291,6 +1291,18 @@ map-universal-property-trunc-Set {A = A} B f =
     ( B)
     ( f)
 
+triangle-universal-property-trunc-Set :
+  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) →
+  (f : A → type-Set B) →
+  (map-universal-property-trunc-Set B f ∘ unit-trunc-Set) ~ f
+triangle-universal-property-trunc-Set {A = A} B f =
+  compute-map-is-set-truncation
+    ( trunc-Set A)
+    ( unit-trunc-Set)
+    ( is-set-truncation-trunc-Set A)
+    ( B)
+    ( f)
+
 apply-universal-property-trunc-Set :
   {l1 l2 : Level} {A : UU l1} (t : type-trunc-Set A) (B : UU-Set l2) →
   (A → type-Set B) → type-Set B
@@ -1400,8 +1412,79 @@ is-image-trunc-Set A =
 map-trunc-Set :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} → (A → B) →
   type-trunc-Set A → type-trunc-Set B
-map-trunc-Set {A = A} {B} f x =
-  apply-universal-property-trunc-Set x (trunc-Set B) (unit-trunc-Set ∘ f)
+map-trunc-Set {A = A} {B} f =
+  map-universal-property-trunc-Set (trunc-Set B) (unit-trunc-Set ∘ f)
+
+naturality-trunc-Set :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
+  (map-trunc-Set f ∘ unit-trunc-Set) ~ (unit-trunc-Set ∘ f)
+naturality-trunc-Set {B = B} f =
+  triangle-universal-property-trunc-Set (trunc-Set B) (unit-trunc-Set ∘ f)
+
+map-id-trunc-Set :
+  {l1 : Level} {A : UU l1} → map-trunc-Set (id {A = A}) ~ id
+map-id-trunc-Set {l1} {A} =
+  htpy-eq
+    ( ap pr1
+      ( eq-is-contr
+        ( universal-property-trunc-Set A (trunc-Set A) unit-trunc-Set)
+        { pair (map-trunc-Set id) (naturality-trunc-Set id)}
+        { pair id refl-htpy}))
+
+map-comp-trunc-Set :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3}
+  (g : B → C) (f : A → B) →
+  map-trunc-Set (g ∘ f) ~ (map-trunc-Set g ∘ map-trunc-Set f)
+map-comp-trunc-Set {A = A} {C = C} g f =
+  htpy-eq
+    ( ap pr1
+      ( eq-is-contr
+        ( universal-property-trunc-Set
+          A
+          (trunc-Set C)
+          (unit-trunc-Set ∘ (g ∘ f)))
+        { pair (map-trunc-Set (g ∘ f)) (naturality-trunc-Set (g ∘ f))}
+        { pair ( map-trunc-Set g ∘ map-trunc-Set f)
+               ( ( map-trunc-Set g ·l naturality-trunc-Set f) ∙h
+                 ( naturality-trunc-Set g ·r f))}))
+
+htpy-trunc-Set :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f g : A → B} →
+  (f ~ g) → (map-trunc-Set f ~ map-trunc-Set g)
+htpy-trunc-Set {B = B} {f = f} {g} H =
+  map-inv-is-equiv
+    ( dependent-universal-property-trunc-Set
+      ( λ x →
+        set-Prop
+          ( Id-Prop (trunc-Set B) (map-trunc-Set f x) (map-trunc-Set g x))))
+    ( λ a →
+      ( naturality-trunc-Set f a) ∙
+      ( ( ap unit-trunc-Set (H a)) ∙
+        ( inv (naturality-trunc-Set g a))))
+
+is-equiv-map-trunc-Set :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
+  is-equiv f → is-equiv (map-trunc-Set f)
+is-equiv-map-trunc-Set {f = f} H =
+  pair
+    ( pair
+      ( map-trunc-Set (pr1 (pr1 H)))
+      ( ( inv-htpy (map-comp-trunc-Set f (pr1 (pr1 H)))) ∙h
+        ( ( htpy-trunc-Set (pr2 (pr1 H))) ∙h
+          ( map-id-trunc-Set))))
+    ( pair
+      ( map-trunc-Set (pr1 (pr2 H)))
+      ( ( inv-htpy (map-comp-trunc-Set (pr1 (pr2 H)) f)) ∙h
+        ( ( htpy-trunc-Set (pr2 (pr2 H))) ∙h
+          ( map-id-trunc-Set))))
+
+equiv-trunc-Set :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  (A ≃ B) → (type-trunc-Set A ≃ type-trunc-Set B)
+equiv-trunc-Set e =
+  pair
+    ( map-trunc-Set (map-equiv e))
+    ( is-equiv-map-trunc-Set (is-equiv-map-equiv e))
 
 --------------------------------------------------------------------------------
 
