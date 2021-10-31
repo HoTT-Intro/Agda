@@ -1578,17 +1578,37 @@ module _
 
 -- Proposition 18.5.5
 
-map-trunc-Set :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} → (A → B) →
-  type-trunc-Set A → type-trunc-Set B
-map-trunc-Set {A = A} {B} f =
-  map-universal-property-trunc-Set (trunc-Set B) (unit-trunc-Set ∘ f)
+module _
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B)
+  where
 
-naturality-trunc-Set :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  (map-trunc-Set f ∘ unit-trunc-Set) ~ (unit-trunc-Set ∘ f)
-naturality-trunc-Set {B = B} f =
-  triangle-universal-property-trunc-Set (trunc-Set B) (unit-trunc-Set ∘ f)
+  unique-map-trunc-Set :
+    is-contr
+      ( Σ ( type-trunc-Set A → type-trunc-Set B)
+          ( λ h → (h ∘ unit-trunc-Set) ~ (unit-trunc-Set ∘ f)))
+  unique-map-trunc-Set =
+    universal-property-trunc-Set A (trunc-Set B) (unit-trunc-Set ∘ f)
+
+  map-trunc-Set :
+    type-trunc-Set A → type-trunc-Set B
+  map-trunc-Set =
+    pr1 (center unique-map-trunc-Set)
+
+  naturality-trunc-Set :
+    (map-trunc-Set ∘ unit-trunc-Set) ~ (unit-trunc-Set ∘ f)
+  naturality-trunc-Set =
+    pr2 (center unique-map-trunc-Set)
+
+  htpy-map-trunc-Set :
+    (h : type-trunc-Set A → type-trunc-Set B) →
+    (H : (h ∘ unit-trunc-Set) ~ (unit-trunc-Set ∘ f)) →
+    map-trunc-Set ~ h
+  htpy-map-trunc-Set h H =
+    htpy-eq
+      ( ap pr1
+        ( eq-is-contr unique-map-trunc-Set
+          { pair map-trunc-Set naturality-trunc-Set}
+          { pair h H}))
 
 map-id-trunc-Set :
   {l1 : Level} {A : UU l1} → map-trunc-Set (id {A = A}) ~ id
@@ -1709,8 +1729,67 @@ module _
     ( map-coprod unit-trunc-Set unit-trunc-Set)
   triangle-distributive-trunc-coprod-Set =
     pr2 (center distributive-trunc-coprod-Set)
-    
 
+-- Set truncations of Σ-types
+
+module _
+  {l1 l2 : Level} (A : UU l1) (B : A → UU l2)
+  where
+  
+  trunc-Σ-Set :
+    is-contr
+      ( Σ ( type-trunc-Set (Σ A B) ≃
+            type-trunc-Set (Σ A (λ x → type-trunc-Set (B x))))
+          ( λ e →
+            ( map-equiv e ∘ unit-trunc-Set) ~
+            ( unit-trunc-Set ∘ tot (λ x → unit-trunc-Set))))
+  trunc-Σ-Set =
+    uniqueness-trunc-Set
+      ( trunc-Set (Σ A (λ x → type-trunc-Set (B x))))
+      ( unit-trunc-Set ∘ tot (λ x → unit-trunc-Set))
+      ( λ {l} C →
+        is-equiv-right-factor'
+          ( ev-pair)
+          ( precomp-Set (unit-trunc-Set ∘ tot (λ x → unit-trunc-Set)) C)
+          ( is-equiv-ev-pair)
+          ( is-equiv-htpy-equiv
+            ( ( equiv-map-Π
+                ( λ x → equiv-universal-property-trunc-Set (B x) C)) ∘e
+              ( ( equiv-ev-pair) ∘e
+                ( equiv-universal-property-trunc-Set
+                  ( Σ A (type-trunc-Set ∘ B)) C)))
+            ( refl-htpy)))
+
+  equiv-trunc-Σ-Set :
+    type-trunc-Set (Σ A B) ≃ type-trunc-Set (Σ A (λ x → type-trunc-Set (B x)))
+  equiv-trunc-Σ-Set =
+    pr1 (center trunc-Σ-Set)
+
+  map-equiv-trunc-Σ-Set :
+    type-trunc-Set (Σ A B) → type-trunc-Set (Σ A (λ x → type-trunc-Set (B x)))
+  map-equiv-trunc-Σ-Set =
+    map-equiv equiv-trunc-Σ-Set
+
+  square-trunc-Σ-Set :
+    ( map-equiv-trunc-Σ-Set ∘ unit-trunc-Set) ~
+    ( unit-trunc-Set ∘ tot (λ x → unit-trunc-Set))
+  square-trunc-Σ-Set =
+    pr2 (center trunc-Σ-Set)
+
+  htpy-map-equiv-trunc-Σ-Set :
+    map-trunc-Set (tot (λ x → unit-trunc-Set)) ~ map-equiv-trunc-Σ-Set
+  htpy-map-equiv-trunc-Σ-Set =
+    htpy-map-trunc-Set
+      ( tot (λ x → unit-trunc-Set))
+      ( map-equiv-trunc-Σ-Set)
+      ( square-trunc-Σ-Set)
+
+  is-equiv-map-trunc-tot-unit-trunc-Set :
+    is-equiv (map-trunc-Set (tot (λ (x : A) → unit-trunc-Set {A = B x})))
+  is-equiv-map-trunc-tot-unit-trunc-Set =
+    is-equiv-htpy-equiv
+      ( equiv-trunc-Σ-Set)
+      ( htpy-map-equiv-trunc-Σ-Set)
 
 --------------------------------------------------------------------------------
 
