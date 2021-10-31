@@ -739,23 +739,38 @@ module _
       ( Ug X)
       ( is-equiv-precomp-is-equiv h E (type-Set X))
 
-uniqueness-set-quotient :
+module _
   {l1 l2 l3 l4 : Level} {A : UU l1} (R : Eq-Rel l2 A)
-  (B : UU-Set l3) (f : reflecting-map-Eq-Rel R (type-Set B)) → 
-  ({l : Level} → is-set-quotient l R B f) →
-  (C : UU-Set l4) (g : reflecting-map-Eq-Rel R (type-Set C)) →
-  ({l : Level} → is-set-quotient l R C g) →
-  is-contr (Σ (type-Set B ≃ type-Set C) (λ e → (map-equiv e ∘ pr1 f) ~ pr1 g))
-uniqueness-set-quotient R B f Uf C g Ug =
-  is-contr-total-Eq-substructure
-    ( universal-property-set-quotient R B f Uf C g)
-    ( is-subtype-is-equiv)
-    ( map-universal-property-set-quotient R B f Uf C g)
-    ( triangle-universal-property-set-quotient R B f Uf C g)
-    ( is-equiv-is-set-quotient-is-set-quotient R B f C g
+  (B : UU-Set l3) (f : reflecting-map-Eq-Rel R (type-Set B)) 
+  (Uf : {l : Level} → is-set-quotient l R B f)
+  (C : UU-Set l4) (g : reflecting-map-Eq-Rel R (type-Set C))
+  (Ug : {l : Level} → is-set-quotient l R C g)
+  where
+  
+  uniqueness-set-quotient :
+    is-contr (Σ (type-Set B ≃ type-Set C) (λ e → (map-equiv e ∘ pr1 f) ~ pr1 g))
+  uniqueness-set-quotient =
+    is-contr-total-Eq-substructure
+      ( universal-property-set-quotient R B f Uf C g)
+      ( is-subtype-is-equiv)
+      ( map-universal-property-set-quotient R B f Uf C g)
       ( triangle-universal-property-set-quotient R B f Uf C g)
-      ( Uf)
-      ( Ug))
+      ( is-equiv-is-set-quotient-is-set-quotient R B f C g
+        ( triangle-universal-property-set-quotient R B f Uf C g)
+        ( Uf)
+        ( Ug))
+
+  equiv-uniqueness-set-quotient : type-Set B ≃ type-Set C
+  equiv-uniqueness-set-quotient =
+    pr1 (center uniqueness-set-quotient)
+
+  map-equiv-uniqueness-set-quotient : type-Set B → type-Set C
+  map-equiv-uniqueness-set-quotient =  map-equiv equiv-uniqueness-set-quotient
+
+  triangle-uniqueness-set-quotient :
+    ( map-equiv-uniqueness-set-quotient ∘ pr1 f) ~ pr1 g
+  triangle-uniqueness-set-quotient =
+    pr2 (center uniqueness-set-quotient)
 
 -- Remark 18.2.2
 
@@ -1259,11 +1274,11 @@ is-set-quotient-is-set-truncation {A = A} B f H X =
           ( reflects-mere-eq X h)))
     ( H X)
 
--- Uniqueness of set quotients
+-- Uniqueness of set truncations
 
 module _
   {l1 l2 l3 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B)
-  (C : UU-Set l2) (g : A → type-Set C) {h : type-hom-Set B C}
+  (C : UU-Set l3) (g : A → type-Set C) {h : type-hom-Set B C}
   (H : (h ∘ f) ~ g)
   where
 
@@ -1312,21 +1327,37 @@ module _
         ( Eh)
         ( is-set-quotient-is-set-truncation B f Sf))
 
-uniqueness-set-truncation :
+module _
   {l1 l2 l3 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B)
-  (C : UU-Set l2) (g : A → type-Set C) →
-  ({l : Level} → is-set-truncation l B f) →
-  ({l : Level} → is-set-truncation l C g) →
-  is-contr (Σ (type-Set B ≃ type-Set C) (λ e → (map-equiv e ∘ f) ~ g))
-uniqueness-set-truncation {A = A} B f C g Uf Ug =
-  uniqueness-set-quotient
-    ( mere-eq-Eq-Rel A)
-    ( B)
-    ( reflecting-map-mere-eq B f)
-    ( is-set-quotient-is-set-truncation B f Uf)
-    ( C)
-    ( reflecting-map-mere-eq C g)
-    ( is-set-quotient-is-set-truncation C g Ug)
+  (C : UU-Set l3) (g : A → type-Set C)
+  (Sf : {l : Level} → is-set-truncation l B f)
+  (Sg : {l : Level} → is-set-truncation l C g)
+  where
+
+  uniqueness-set-truncation :
+    is-contr (Σ (type-Set B ≃ type-Set C) (λ e → (map-equiv e ∘ f) ~ g))
+  uniqueness-set-truncation =
+    uniqueness-set-quotient
+      ( mere-eq-Eq-Rel A)
+      ( B)
+      ( reflecting-map-mere-eq B f)
+      ( is-set-quotient-is-set-truncation B f Sf)
+      ( C)
+      ( reflecting-map-mere-eq C g)
+      ( is-set-quotient-is-set-truncation C g Sg)
+  
+  equiv-uniqueness-set-truncation : type-Set B ≃ type-Set C
+  equiv-uniqueness-set-truncation =
+    pr1 (center uniqueness-set-truncation)
+
+  map-equiv-uniqueness-set-truncation : type-Set B → type-Set C
+  map-equiv-uniqueness-set-truncation =
+    map-equiv equiv-uniqueness-set-truncation
+
+  triangle-uniqueness-set-truncation :
+    (map-equiv-uniqueness-set-truncation ∘ f) ~ g
+  triangle-uniqueness-set-truncation =
+    pr2 (center uniqueness-set-truncation)
   
 -- Definition 18.5.3
 
@@ -1334,14 +1365,26 @@ uniqueness-set-truncation {A = A} B f C g Uf Ug =
 
 postulate type-trunc-Set : {l : Level} → UU l → UU l
 
-postulate is-set-type-trunc-Set : {l : Level} {A : UU l} → is-set (type-trunc-Set A)
+postulate
+  is-set-type-trunc-Set : {l : Level} {A : UU l} → is-set (type-trunc-Set A)
 
 trunc-Set : {l : Level} → UU l → UU-Set l
 trunc-Set A = pair (type-trunc-Set A) is-set-type-trunc-Set
 
 postulate unit-trunc-Set : {l : Level} {A : UU l} → A → type-Set (trunc-Set A)
 
-postulate is-set-truncation-trunc-Set : {l1 l2 : Level} (A : UU l1) → is-set-truncation l2 (trunc-Set A) unit-trunc-Set
+postulate
+  is-set-truncation-trunc-Set :
+    {l1 l2 : Level} (A : UU l1) →
+    is-set-truncation l2 (trunc-Set A) unit-trunc-Set
+
+equiv-universal-property-trunc-Set :
+  {l1 l2 : Level} (A : UU l1) (B : UU-Set l2) →
+  (type-trunc-Set A → type-Set B) ≃ (A → type-Set B)
+equiv-universal-property-trunc-Set A B =
+  pair
+    ( precomp-Set unit-trunc-Set B)
+    ( is-set-truncation-trunc-Set A B)
 
 universal-property-trunc-Set : {l1 l2 : Level} (A : UU l1) →
   universal-property-set-truncation l2
@@ -1475,6 +1518,64 @@ is-image-trunc-Set A =
     ( unit-trunc-Set)
     ( is-surjective-and-effective-unit-trunc-Set A)
 
+-- Uniqueness of trunc-Set
+
+module _
+  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B)
+  {h : type-hom-Set (trunc-Set A) B} (H : (h ∘ unit-trunc-Set) ~ f)
+  where
+
+  is-equiv-is-set-truncation :
+    ({l : Level} → is-set-truncation l B f) → is-equiv h
+  is-equiv-is-set-truncation Sf =
+    is-equiv-is-set-truncation-is-set-truncation
+      ( trunc-Set A)
+      ( unit-trunc-Set)
+      ( B)
+      ( f)
+      ( H)
+      ( λ {l} → is-set-truncation-trunc-Set A)
+      ( Sf)
+
+  is-set-truncation-is-equiv :
+    is-equiv h → ({l : Level} → is-set-truncation l B f)
+  is-set-truncation-is-equiv Eh =
+    is-set-truncation-is-set-truncation-is-equiv
+      ( trunc-Set A)
+      ( unit-trunc-Set)
+      ( B)
+      ( f)
+      ( H)
+      ( Eh)
+      ( λ {l} → is-set-truncation-trunc-Set A)
+
+module _
+  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B)
+  (Sf : {l : Level} → is-set-truncation l B f)
+  where
+
+  uniqueness-trunc-Set :
+    is-contr
+      ( Σ (type-trunc-Set A ≃ type-Set B)
+      ( λ e → (map-equiv e ∘ unit-trunc-Set) ~ f))
+  uniqueness-trunc-Set =
+    uniqueness-set-truncation (trunc-Set A) unit-trunc-Set B f
+      ( λ {l} → is-set-truncation-trunc-Set A)
+      ( Sf)
+  
+  equiv-uniqueness-trunc-Set : type-trunc-Set A ≃ type-Set B
+  equiv-uniqueness-trunc-Set =
+    pr1 (center uniqueness-trunc-Set)
+
+  map-equiv-uniqueness-trunc-Set : type-trunc-Set A → type-Set B
+  map-equiv-uniqueness-trunc-Set =
+    map-equiv equiv-uniqueness-trunc-Set
+
+  triangle-uniqueness-trunc-Set :
+    (map-equiv-uniqueness-trunc-Set ∘ unit-trunc-Set) ~ f
+  triangle-uniqueness-trunc-Set =
+    pr2 (center uniqueness-trunc-Set)
+
 -- Proposition 18.5.5
 
 map-trunc-Set :
@@ -1556,10 +1657,60 @@ equiv-trunc-Set e =
 
 --------------------------------------------------------------------------------
 
-distributive-trunc-set-coprod :
-  {l1 l2 : Level} (A : UU l1) (B : UU l2) →
-  type-trunc-Set (coprod A B) ≃ coprod (type-trunc-Set A) (type-trunc-Set B)
-distributive-trunc-set-coprod A B = {!!}
+module _
+  {l1 l2 : Level} (A : UU l1) (B : UU l2)
+  where
+  
+  distributive-trunc-coprod-Set :
+    is-contr
+      ( Σ ( type-equiv-Set
+            ( trunc-Set (coprod A B))
+            ( coprod-Set (trunc-Set A) (trunc-Set B)))
+          ( λ e →
+            ( map-equiv e ∘ unit-trunc-Set) ~
+            ( map-coprod unit-trunc-Set unit-trunc-Set)))
+  distributive-trunc-coprod-Set =
+    uniqueness-trunc-Set
+      ( coprod-Set (trunc-Set A) (trunc-Set B))
+      ( map-coprod unit-trunc-Set unit-trunc-Set)
+      ( λ {l} C →
+        is-equiv-right-factor'
+          ( ev-inl-inr (λ x → type-Set C))
+          ( precomp-Set (map-coprod unit-trunc-Set unit-trunc-Set) C)
+          ( universal-property-coprod (type-Set C))
+          ( is-equiv-comp'
+            ( map-prod
+              ( precomp-Set unit-trunc-Set C)
+              ( precomp-Set unit-trunc-Set C))
+            ( ev-inl-inr (λ x → type-Set C))
+            ( universal-property-coprod (type-Set C))
+            ( is-equiv-map-prod
+              ( precomp-Set unit-trunc-Set C)
+              ( precomp-Set unit-trunc-Set C)
+              ( is-set-truncation-trunc-Set A C)
+              ( is-set-truncation-trunc-Set B C))))
+
+  equiv-distributive-trunc-coprod-Set :
+    type-equiv-Set
+      ( trunc-Set (coprod A B))
+      ( coprod-Set (trunc-Set A) (trunc-Set B))
+  equiv-distributive-trunc-coprod-Set =
+    pr1 (center distributive-trunc-coprod-Set)
+
+  map-equiv-distributive-trunc-coprod-Set :
+    type-hom-Set
+      ( trunc-Set (coprod A B))
+      ( coprod-Set (trunc-Set A) (trunc-Set B))
+  map-equiv-distributive-trunc-coprod-Set =
+    map-equiv equiv-distributive-trunc-coprod-Set
+
+  triangle-distributive-trunc-coprod-Set :
+    ( map-equiv-distributive-trunc-coprod-Set ∘ unit-trunc-Set) ~
+    ( map-coprod unit-trunc-Set unit-trunc-Set)
+  triangle-distributive-trunc-coprod-Set =
+    pr2 (center distributive-trunc-coprod-Set)
+    
+
 
 --------------------------------------------------------------------------------
 

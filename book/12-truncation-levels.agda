@@ -1059,30 +1059,30 @@ abstract
     is-set A → is-set B → is-set (coprod A B)
   is-set-coprod = is-trunc-coprod neg-two-𝕋
 
-set-coprod :
+coprod-Set :
   {l1 l2 : Level} (A : UU-Set l1) (B : UU-Set l2) → UU-Set (l1 ⊔ l2)
-set-coprod (pair A is-set-A) (pair B is-set-B) =
+coprod-Set (pair A is-set-A) (pair B is-set-B) =
   pair (coprod A B) (is-set-coprod is-set-A is-set-B)
 
 abstract
   is-set-unit : is-set unit
   is-set-unit = is-trunc-succ-is-trunc neg-one-𝕋 is-prop-unit
 
-set-unit : UU-Set lzero
-set-unit = pair unit is-set-unit
+unit-Set : UU-Set lzero
+unit-Set = pair unit is-set-unit
 
 abstract
   is-set-ℤ : is-set ℤ
   is-set-ℤ = is-set-coprod is-set-ℕ (is-set-coprod is-set-unit is-set-ℕ)
-
-set-ℤ : UU-Set lzero
-set-ℤ = pair ℤ is-set-ℤ
 
 ℤ-Set : UU-Set lzero
 ℤ-Set = pair ℤ is-set-ℤ
 
 is-set-empty : is-set empty
 is-set-empty ()
+
+empty-Set : UU-Set lzero
+empty-Set = pair empty is-set-empty
 
 abstract
   is-set-Fin :
@@ -1091,9 +1091,9 @@ abstract
   is-set-Fin (succ-ℕ n) =
     is-set-coprod (is-set-Fin n) is-set-unit
 
-set-Fin :
+Fin-Set :
   (n : ℕ) → UU-Set lzero
-set-Fin n = pair (Fin n) (is-set-Fin n)
+Fin-Set n = pair (Fin n) (is-set-Fin n)
 
 -- Exercise 12.4
 

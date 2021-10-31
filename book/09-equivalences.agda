@@ -1659,11 +1659,21 @@ abstract
       ( pair gs ((H ·r gs) ∙h issec))
       ( pair gr ((gr ·l H) ∙h isretr))
 
+is-equiv-htpy-equiv :
+  {i j : Level} {A : UU i} {B : UU j} {f : A → B} (e : A ≃ B) →
+  f ~ map-equiv e → is-equiv f
+is-equiv-htpy-equiv e H = is-equiv-htpy (map-equiv e) H (is-equiv-map-equiv e)
+
 abstract
   is-equiv-htpy' :
     {i j : Level} {A : UU i} {B : UU j} (f : A → B) {g : A → B} →
     f ~ g → is-equiv f → is-equiv g
   is-equiv-htpy' f H = is-equiv-htpy f (inv-htpy H)
+
+is-equiv-htpy-equiv' :
+  {i j : Level} {A : UU i} {B : UU j} (e : A ≃ B) {g : A → B} →
+  map-equiv e ~ g → is-equiv g
+is-equiv-htpy-equiv' e H = is-equiv-htpy' (map-equiv e) H (is-equiv-map-equiv e)
 
 -- Exercise 9.3(b)
 
