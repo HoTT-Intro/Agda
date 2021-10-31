@@ -1173,6 +1173,19 @@ triangle-is-set-truncation B f is-settr-f C g =
     ( center
       ( universal-property-is-set-truncation _ B f is-settr-f C g))
 
+-- If A is a set, then id : A → A is a set truncation
+
+is-set-truncation-id :
+  {l1 : Level} {A : UU l1} (H : is-set A) →
+  {l2 : Level} → is-set-truncation l2 (pair A H) id
+is-set-truncation-id H B = is-equiv-precomp-is-equiv id is-equiv-id (type-Set B)
+
+is-set-truncation-equiv :
+  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) (e : A ≃ type-Set B) →
+  {l : Level} → is-set-truncation l2 B (map-equiv e)
+is-set-truncation-equiv B e C =
+  is-equiv-precomp-is-equiv (map-equiv e) (is-equiv-map-equiv e) (type-Set C)
+
 -- Theorem 18.5.2
 
 -- Theorem 18.5.2 Condition (ii)
@@ -1358,7 +1371,7 @@ module _
     (map-equiv-uniqueness-set-truncation ∘ f) ~ g
   triangle-uniqueness-set-truncation =
     pr2 (center uniqueness-set-truncation)
-  
+
 -- Definition 18.5.3
 
 -- We postulate the existence of set truncations
@@ -1522,6 +1535,35 @@ is-image-trunc-Set A =
 
 module _
   {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B)
+  {h : type-hom-Set B (trunc-Set A)} (H : (h ∘ f) ~ unit-trunc-Set)
+  where
+
+  is-equiv-is-set-truncation' :
+    ({l : Level} → is-set-truncation l B f) → is-equiv h
+  is-equiv-is-set-truncation' Sf =
+    is-equiv-is-set-truncation-is-set-truncation
+      ( B)
+      ( f)
+      ( trunc-Set A)
+      ( unit-trunc-Set)
+      ( H)
+      ( Sf)
+      ( λ {h} → is-set-truncation-trunc-Set A)
+
+  is-set-truncation-is-equiv' :
+    is-equiv h → ({l : Level} → is-set-truncation l B f)
+  is-set-truncation-is-equiv' Eh =
+    is-set-truncation-is-equiv-is-set-truncation
+      ( B)
+      ( f)
+      ( trunc-Set A)
+      ( unit-trunc-Set)
+      ( H)
+      ( λ {l} → is-set-truncation-trunc-Set A)
+      ( Eh)
+
+module _
+  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B)
   {h : type-hom-Set (trunc-Set A) B} (H : (h ∘ unit-trunc-Set) ~ f)
   where
 
@@ -1562,7 +1604,7 @@ module _
     uniqueness-set-truncation (trunc-Set A) unit-trunc-Set B f
       ( λ {l} → is-set-truncation-trunc-Set A)
       ( Sf)
-  
+
   equiv-uniqueness-trunc-Set : type-trunc-Set A ≃ type-Set B
   equiv-uniqueness-trunc-Set =
     pr1 (center uniqueness-trunc-Set)
@@ -1575,6 +1617,32 @@ module _
     (map-equiv-uniqueness-trunc-Set ∘ unit-trunc-Set) ~ f
   triangle-uniqueness-trunc-Set =
     pr2 (center uniqueness-trunc-Set)
+
+module _
+  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B)
+  (Sf : {l : Level} → is-set-truncation l B f)
+  where
+
+  uniqueness-trunc-Set' :
+    is-contr
+      ( Σ ( type-Set B ≃ type-trunc-Set A)
+          ( λ e → (map-equiv e ∘ f) ~ unit-trunc-Set))
+  uniqueness-trunc-Set' =
+    uniqueness-set-truncation B f (trunc-Set A) unit-trunc-Set Sf
+      ( λ {l} → is-set-truncation-trunc-Set A)
+
+  equiv-uniqueness-trunc-Set' : type-Set B ≃ type-trunc-Set A
+  equiv-uniqueness-trunc-Set' =
+    pr1 (center uniqueness-trunc-Set')
+
+  map-equiv-uniqueness-trunc-Set' : type-Set B → type-trunc-Set A
+  map-equiv-uniqueness-trunc-Set' =
+    map-equiv equiv-uniqueness-trunc-Set'
+  
+  triangle-uniqueness-trunc-Set' :
+    (map-equiv-uniqueness-trunc-Set' ∘ f) ~ unit-trunc-Set
+  triangle-uniqueness-trunc-Set' =
+    pr2 (center uniqueness-trunc-Set')
 
 -- Proposition 18.5.5
 
@@ -1835,6 +1903,30 @@ module _
     ( map-prod unit-trunc-Set unit-trunc-Set)
   triangle-distributive-trunc-prod-Set =
     pr2 (center distributive-trunc-prod-Set)
+
+-- trunc-Set distributes over Π indexed by Fin
+
+{-
+  distributive-trunc-Π-Fin-Set :
+    {l : Level} (k : ℕ) (A : Fin k → UU l) →
+    is-contr
+      ( Σ ( ( type-trunc-Set ((x : Fin k) → A x)) ≃
+            ( (x : Fin k) → type-trunc-Set (A x)))
+          ( λ e →
+            ( map-equiv e ∘ unit-trunc-Set) ~
+            ( map-Π (λ x → unit-trunc-Set))))
+  distributive-trunc-Π-Fin-Set zero-ℕ A = {!!}
+  distributive-trunc-Π-Fin-Set (succ-ℕ k) A =
+    uniqueness-trunc-Set
+      ( Π-Set (Fin-Set (succ-ℕ k)) (λ x → trunc-Set (A x)))
+      ( map-Π (λ x → unit-trunc-Set))
+      ( λ {l} B →
+        is-equiv-right-factor'
+          ( {!!} ∘ {!precomp (ev-Maybe) (type-Set B)!})
+          ( precomp-Set (map-Π (λ x → unit-trunc-Set)) B)
+          {!!}
+          {!!})
+-}
 
 --------------------------------------------------------------------------------
 
