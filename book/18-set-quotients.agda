@@ -1591,6 +1591,33 @@ module _
       ( Eh)
       ( λ {l} → is-set-truncation-trunc-Set A)
 
+is-equiv-unit-trunc-Set :
+  {l : Level} (A : UU-Set l) → is-equiv (unit-trunc-Set {A = type-Set A})
+is-equiv-unit-trunc-Set A =
+  is-equiv-is-set-truncation' A id refl-htpy
+    ( is-set-truncation-id (is-set-type-Set A))
+
+equiv-unit-trunc-Set :
+  {l : Level} (A : UU-Set l) → type-Set A ≃ type-trunc-Set (type-Set A)
+equiv-unit-trunc-Set A =
+  pair unit-trunc-Set (is-equiv-unit-trunc-Set A)
+
+equiv-unit-trunc-empty-Set : empty ≃ type-trunc-Set empty
+equiv-unit-trunc-empty-Set = equiv-unit-trunc-Set empty-Set
+
+equiv-unit-trunc-unit-Set : unit ≃ type-trunc-Set unit
+equiv-unit-trunc-unit-Set = equiv-unit-trunc-Set unit-Set
+
+equiv-unit-trunc-ℕ-Set : ℕ ≃ type-trunc-Set ℕ
+equiv-unit-trunc-ℕ-Set = equiv-unit-trunc-Set ℕ-Set
+
+equiv-unit-trunc-ℤ-Set : ℤ ≃ type-trunc-Set ℤ
+equiv-unit-trunc-ℤ-Set = equiv-unit-trunc-Set ℤ-Set
+
+equiv-unit-trunc-Fin-Set : (k : ℕ) → Fin k ≃ type-trunc-Set (Fin k)
+equiv-unit-trunc-Fin-Set k = equiv-unit-trunc-Set (Fin-Set k)
+  
+
 module _
   {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B)
   (Sf : {l : Level} → is-set-truncation l B f)
