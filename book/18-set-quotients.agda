@@ -2356,11 +2356,11 @@ has-finite-presentation-has-cardinality-components :
   has-finite-presentation k A
 has-finite-presentation-has-cardinality-components {l} {k} {A} H =
   apply-universal-property-trunc-Prop H
-    ( ∃-Prop (λ f → is-equiv (unit-trunc-Set ∘ f)))
+    ( has-finite-presentation-Prop k A)
     ( λ e →
       apply-universal-property-trunc-Prop
         ( P2 e)
-        ( ∃-Prop (λ f → is-equiv (unit-trunc-Set ∘ f)))
+        ( has-finite-presentation-Prop k A)
         ( λ g →
           unit-trunc-Prop
             ( pair
@@ -2373,3 +2373,11 @@ has-finite-presentation-has-cardinality-components {l} {k} {A} H =
   P2 : (e : Fin k ≃ type-trunc-Set A) →
        type-trunc-Prop ((x : Fin k) → fib unit-trunc-Set (map-equiv e x))
   P2 e = finite-choice-Fin (P1 e)
+
+has-cardinality-components-has-finite-presentation :
+  {l : Level} {k : ℕ} {A : UU l} → has-finite-presentation k A →
+  has-cardinality-components k A
+has-cardinality-components-has-finite-presentation {l} {k} {A} H =
+  apply-universal-property-trunc-Prop H
+    ( has-cardinality-components-Prop k A)
+    ( λ { (pair f E) → unit-trunc-Prop (pair (unit-trunc-Set ∘ f) E)})

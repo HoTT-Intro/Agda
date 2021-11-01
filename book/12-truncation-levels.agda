@@ -979,7 +979,7 @@ is-not-contractible-coprod-is-contr :
   ¬ (is-contr (coprod A B))
 is-not-contractible-coprod-is-contr {l1} {l2} {A} {B} HA HB HAB =
   map-inv-raise
-    ( Eq-coprod-eq A B (inl (center HA)) (inr (center HB)) (eq-is-contr HAB))
+    ( Eq-eq-coprod A B (inl (center HA)) (inr (center HB)) (eq-is-contr HAB))
 
 -- Exercise 12.3 (b)
 
@@ -1018,37 +1018,33 @@ abstract
     is-trunc (succ-𝕋 (succ-𝕋 k)) A → is-trunc (succ-𝕋 (succ-𝕋 k)) B →
     is-trunc (succ-𝕋 (succ-𝕋 k)) (coprod A B)
   is-trunc-coprod k {A} {B} is-trunc-A is-trunc-B (inl x) (inl y) =
-    is-trunc-is-equiv (succ-𝕋 k)
+    is-trunc-equiv (succ-𝕋 k)
       ( Eq-coprod A B (inl x) (inl y))
-      ( Eq-coprod-eq A B (inl x) (inl y))
-      ( is-equiv-Eq-coprod-eq A B (inl x) (inl y))
+      ( equiv-Eq-eq-coprod A B (inl x) (inl y))
       ( is-trunc-equiv' (succ-𝕋 k)
         ( Id x y)
         ( equiv-raise _ (Id x y))
         ( is-trunc-A x y))
   is-trunc-coprod k {A} {B} is-trunc-A is-trunc-B (inl x) (inr y) =
-    is-trunc-is-equiv (succ-𝕋 k)
+    is-trunc-equiv (succ-𝕋 k)
       ( Eq-coprod A B (inl x) (inr y))
-      ( Eq-coprod-eq A B (inl x) (inr y))
-      ( is-equiv-Eq-coprod-eq A B (inl x) (inr y))
+      ( equiv-Eq-eq-coprod A B (inl x) (inr y))
       ( is-trunc-equiv' (succ-𝕋 k)
         ( empty)
         ( equiv-raise _ empty)
         ( is-trunc-succ-empty k))
   is-trunc-coprod k {A} {B} is-trunc-A is-trunc-B (inr x) (inl y) =
-    is-trunc-is-equiv (succ-𝕋 k)
+    is-trunc-equiv (succ-𝕋 k)
       ( Eq-coprod A B (inr x) (inl y))
-      ( Eq-coprod-eq A B (inr x) (inl y))
-      ( is-equiv-Eq-coprod-eq A B (inr x) (inl y))
+      ( equiv-Eq-eq-coprod A B (inr x) (inl y))
       ( is-trunc-equiv' (succ-𝕋 k)
         ( empty)
         ( equiv-raise _ empty)
         ( is-trunc-succ-empty k))
   is-trunc-coprod k {A} {B} is-trunc-A is-trunc-B (inr x) (inr y) =
-    is-trunc-is-equiv (succ-𝕋 k)
+    is-trunc-equiv (succ-𝕋 k)
       ( Eq-coprod A B (inr x) (inr y))
-      ( Eq-coprod-eq A B (inr x) (inr y))
-      ( is-equiv-Eq-coprod-eq A B (inr x) (inr y))
+      ( equiv-Eq-eq-coprod A B (inr x) (inr y))
       ( is-trunc-equiv' (succ-𝕋 k)
         ( Id x y)
         ( equiv-raise _ (Id x y))

@@ -1081,10 +1081,10 @@ reflexive-Eq-coprod :
 reflexive-Eq-coprod {l1} {l2} A B (inl x) = map-raise refl
 reflexive-Eq-coprod {l1} {l2} A B (inr x) = map-raise refl
 
-Eq-coprod-eq :
+Eq-eq-coprod :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) →
   (s t : coprod A B) → Id s t → Eq-coprod A B s t
-Eq-coprod-eq A B s .s refl = reflexive-Eq-coprod A B s
+Eq-eq-coprod A B s .s refl = reflexive-Eq-coprod A B s
 
 eq-Eq-coprod :
   {l1 l2 : Level} (A : UU l1) (B : UU l2) (s t : coprod A B) →
@@ -1097,18 +1097,18 @@ eq-Eq-coprod A B (inr y) (inr y') = ap inr ∘ map-inv-raise
 is-injective-inl :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → is-injective (inl {A = X} {B = Y})
 is-injective-inl {l1} {l2} {X} {Y} {x} {y} p =
-  map-inv-raise (Eq-coprod-eq X Y (inl x) (inl y) p)
+  map-inv-raise (Eq-eq-coprod X Y (inl x) (inl y) p)
 
 is-injective-inr :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} → is-injective (inr {A = X} {B = Y})
 is-injective-inr {l1} {l2} {X} {Y} {x} {y} p =
-  map-inv-raise (Eq-coprod-eq X Y (inr x) (inr y) p)
+  map-inv-raise (Eq-eq-coprod X Y (inr x) (inr y) p)
 
 neq-inl-inr :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (x : A) (y : B) →
   ¬ (Id (inl x) (inr y))
 neq-inl-inr {l1} {l2} {A} {B} x y =
-  map-inv-raise ∘ Eq-coprod-eq A B (inl x) (inr y)
+  map-inv-raise ∘ Eq-eq-coprod A B (inl x) (inr y)
 
 -- Exercise 8.7 (b)
 
@@ -1119,16 +1119,16 @@ has-decidable-equality-coprod :
 has-decidable-equality-coprod {l1} {l2} {A} {B} d e (inl x) (inl x') =
   is-decidable-iff
     ( eq-Eq-coprod A B (inl x) (inl x') ∘ map-raise)
-    ( map-inv-raise ∘ Eq-coprod-eq A B (inl x) (inl x'))
+    ( map-inv-raise ∘ Eq-eq-coprod A B (inl x) (inl x'))
     ( d x x')
 has-decidable-equality-coprod {l1} {l2} {A} {B} d e (inl x) (inr y') =
-  inr (map-inv-raise ∘ (Eq-coprod-eq A B (inl x) (inr y')))
+  inr (map-inv-raise ∘ (Eq-eq-coprod A B (inl x) (inr y')))
 has-decidable-equality-coprod {l1} {l2} {A} {B} d e (inr y) (inl x') =
-  inr (map-inv-raise ∘ (Eq-coprod-eq A B (inr y) (inl x')))
+  inr (map-inv-raise ∘ (Eq-eq-coprod A B (inr y) (inl x')))
 has-decidable-equality-coprod {l1} {l2} {A} {B} d e (inr y) (inr y') =
   is-decidable-iff
     ( eq-Eq-coprod A B (inr y) (inr y') ∘ map-raise)
-    ( map-inv-raise ∘ Eq-coprod-eq A B (inr y) (inr y'))
+    ( map-inv-raise ∘ Eq-eq-coprod A B (inr y) (inr y'))
     ( e y y')
 
 has-decidable-equality-left-summand :
@@ -1136,7 +1136,7 @@ has-decidable-equality-left-summand :
   has-decidable-equality (coprod A B) → has-decidable-equality A
 has-decidable-equality-left-summand {l1} {l2} {A} {B} d x y =
   is-decidable-iff
-    ( map-inv-raise ∘ Eq-coprod-eq A B (inl x) (inl y))
+    ( map-inv-raise ∘ Eq-eq-coprod A B (inl x) (inl y))
     ( eq-Eq-coprod A B (inl x) (inl y) ∘ map-raise)
     ( d (inl x) (inl y))
 
@@ -1145,7 +1145,7 @@ has-decidable-equality-right-summand :
   has-decidable-equality (coprod A B) → has-decidable-equality B
 has-decidable-equality-right-summand {l1} {l2} {A} {B} d x y =
   is-decidable-iff
-    ( map-inv-raise ∘ Eq-coprod-eq A B (inr x) (inr y))
+    ( map-inv-raise ∘ Eq-eq-coprod A B (inr x) (inr y))
     ( eq-Eq-coprod A B (inr x) (inr y) ∘ map-raise)
     ( d (inr x) (inr y))
 

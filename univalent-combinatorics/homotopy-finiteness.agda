@@ -40,25 +40,58 @@ is-homotopy-finite-equiv (succ-ℕ k) e H =
         ( equiv-ap e a b)
         ( pr2 H (map-equiv e a) (map-equiv e b)))
 
+is-homotopy-finite-equiv' :
+  {l1 l2 : Level} (k : ℕ) {A : UU l1} {B : UU l2} (e : A ≃ B) →
+  is-homotopy-finite k A → is-homotopy-finite k B
+is-homotopy-finite-equiv' k e = is-homotopy-finite-equiv k (inv-equiv e)
+
+is-homotopy-finite-empty : (k : ℕ) → is-homotopy-finite k empty
+is-homotopy-finite-empty zero-ℕ =
+  is-finite-equiv equiv-unit-trunc-empty-Set is-finite-empty
+is-homotopy-finite-empty (succ-ℕ k) =
+  pair (is-homotopy-finite-empty zero-ℕ) ind-empty
+
 is-homotopy-finite-coprod :
   {l1 l2 : Level} (k : ℕ) {A : UU l1} {B : UU l2} →
   is-homotopy-finite k A → is-homotopy-finite k B →
   is-homotopy-finite k (coprod A B)
-is-homotopy-finite-coprod k H K = {!!}
-
-is-homotopy-finite-Π-Fin :
-  {l : Level} (k n : ℕ) (B : Fin n → UU l) →
-  ((x : Fin n) → is-homotopy-finite k (B x)) →
-  is-homotopy-finite k ((x : Fin n) → B x)
-is-homotopy-finite-Π-Fin k n b H = {!!}
+is-homotopy-finite-coprod zero-ℕ H K =
+  is-finite-equiv'
+    ( equiv-distributive-trunc-coprod-Set _ _)
+    ( is-finite-coprod H K)
+is-homotopy-finite-coprod (succ-ℕ k) H K =
+  pair
+    ( is-homotopy-finite-coprod zero-ℕ (pr1 H) (pr1 K))
+    ( λ { (inl x) (inl y) →
+          is-homotopy-finite-equiv k
+            ( compute-eq-coprod-inl-inl x y)
+            ( pr2 H x y) ;
+          (inl x) (inr y) →
+          is-homotopy-finite-equiv k
+            ( compute-eq-coprod-inl-inr x y)
+            ( is-homotopy-finite-empty k) ;
+          (inr x) (inl y) →
+          is-homotopy-finite-equiv k
+            ( compute-eq-coprod-inr-inl x y)
+            ( is-homotopy-finite-empty k) ;
+          (inr x) (inr y) →
+          is-homotopy-finite-equiv k
+            ( compute-eq-coprod-inr-inr x y)
+            ( pr2 K x y)})
 
 is-homotopy-finite-Π-is-finite :
   {l1 l2 : Level} (k : ℕ) {A : UU l1} {B : A → UU l2} →
   is-finite A → ((a : A) → is-homotopy-finite k (B a)) →
   is-homotopy-finite k ((a : A) → B a)
 is-homotopy-finite-Π-is-finite zero-ℕ {A} {B} H K =
-  apply-universal-property-trunc-Prop H
-    ( is-homotopy-finite-Prop zero-ℕ ((a : A) → B a))
-    ( λ e → {!!})
-is-homotopy-finite-Π-is-finite (succ-ℕ k) H K = {!!}
+  is-finite-equiv'
+    ( equiv-distributive-trunc-Π-is-finite-Set B H)
+    ( is-finite-Π H K)
+is-homotopy-finite-Π-is-finite (succ-ℕ k) H K =
+  pair
+    ( is-homotopy-finite-Π-is-finite zero-ℕ H (λ a → pr1 (K a)))
+    ( λ f g →
+      is-homotopy-finite-equiv k
+        ( equiv-funext)
+        ( is-homotopy-finite-Π-is-finite k H (λ a → pr2 (K a) (f a) (g a))))
 
