@@ -2316,3 +2316,60 @@ reduce-pre-ℚ x =
 is-reduced-reduce-pre-ℚ :
   (x : pre-ℚ) → is-reduced-pre-ℚ (reduce-pre-ℚ x)
 is-reduced-reduce-pre-ℚ x = {!!}
+
+--------------------------------------------------------------------------------
+
+-- Exercises
+
+-- Exercise 18.17
+
+has-finite-components-Prop : {l : Level} → UU l → UU-Prop l
+has-finite-components-Prop A = is-finite-Prop (type-trunc-Set A)
+
+has-finite-components : {l : Level} → UU l → UU l
+has-finite-components A = type-Prop (has-finite-components-Prop A)
+
+has-cardinality-components-Prop : {l : Level} (k : ℕ) → UU l → UU-Prop l
+has-cardinality-components-Prop k A =
+  has-cardinality-Prop (type-trunc-Set A) k
+
+has-cardinality-components : {l : Level} (k : ℕ) → UU l → UU l
+has-cardinality-components k A =
+  type-Prop (has-cardinality-components-Prop k A)
+
+has-set-presentation-Prop :
+  {l1 l2 : Level} (A : UU-Set l1) (B : UU l2) → UU-Prop (l1 ⊔ l2)
+has-set-presentation-Prop A B =
+  ∃-Prop (λ (f : type-Set A → B) → is-equiv (unit-trunc-Set ∘ f))
+
+has-finite-presentation-Prop :
+  {l1 : Level} (k : ℕ) (A : UU l1) → UU-Prop l1
+has-finite-presentation-Prop k A =
+  has-set-presentation-Prop (Fin-Set k) A
+
+has-finite-presentation :
+  {l1 : Level} (k : ℕ) (A : UU l1) → UU l1
+has-finite-presentation k A = type-Prop (has-finite-presentation-Prop k A)
+  
+has-finite-presentation-has-cardinality-components :
+  {l : Level} {k : ℕ} {A : UU l} → has-cardinality-components k A →
+  has-finite-presentation k A
+has-finite-presentation-has-cardinality-components {l} {k} {A} H =
+  apply-universal-property-trunc-Prop H
+    ( ∃-Prop (λ f → is-equiv (unit-trunc-Set ∘ f)))
+    ( λ e →
+      apply-universal-property-trunc-Prop
+        ( P2 e)
+        ( ∃-Prop (λ f → is-equiv (unit-trunc-Set ∘ f)))
+        ( λ g →
+          unit-trunc-Prop
+            ( pair
+              ( λ x → pr1 (g x))
+              ( is-equiv-htpy-equiv e (λ x → pr2 (g x))))))
+  where
+  P1 : (e : Fin k ≃ type-trunc-Set A) (x : Fin k) →
+       type-trunc-Prop (fib unit-trunc-Set (map-equiv e x))
+  P1 e x = is-surjective-unit-trunc-Set A (map-equiv e x)
+  P2 : (e : Fin k ≃ type-trunc-Set A) →
+       type-trunc-Prop ((x : Fin k) → fib unit-trunc-Set (map-equiv e x))
+  P2 e = finite-choice-Fin (P1 e)
