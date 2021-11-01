@@ -1769,6 +1769,11 @@ equiv-trunc-Set e =
     ( map-trunc-Set (map-equiv e))
     ( is-equiv-map-trunc-Set (is-equiv-map-equiv e))
 
+map-equiv-trunc-Set :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  (A ≃ B) → type-trunc-Set A → type-trunc-Set B
+map-equiv-trunc-Set e = map-equiv (equiv-trunc-Set e)
+
 --------------------------------------------------------------------------------
 
 module _
@@ -2003,6 +2008,176 @@ distributive-trunc-Π-Fin-Set (succ-ℕ k) A =
           ( ev-Maybe)
           ( dependent-universal-property-Maybe)
           ( type-Set B)))
+
+module _
+  {l : Level} (k : ℕ) (A : Fin k → UU l)
+  where
+
+  equiv-distributive-trunc-Π-Fin-Set :
+    type-trunc-Set ((x : Fin k) → A x) ≃ ((x : Fin k) → type-trunc-Set (A x))
+  equiv-distributive-trunc-Π-Fin-Set =
+    pr1 (center (distributive-trunc-Π-Fin-Set k A))
+
+  map-equiv-distributive-trunc-Π-Fin-Set :
+    type-trunc-Set ((x : Fin k) → A x) → ((x : Fin k) → type-trunc-Set (A x))
+  map-equiv-distributive-trunc-Π-Fin-Set =
+    map-equiv equiv-distributive-trunc-Π-Fin-Set
+
+  triangle-distributive-trunc-Π-Fin-Set :
+    ( map-equiv-distributive-trunc-Π-Fin-Set ∘ unit-trunc-Set) ~
+    ( map-Π (λ x → unit-trunc-Set))
+  triangle-distributive-trunc-Π-Fin-Set =
+    pr2 (center (distributive-trunc-Π-Fin-Set k A))
+
+module _
+  {l1 l2 : Level} {A : UU l1} (B : A → UU l2) (c : count A)
+  where
+  
+  distributive-trunc-Π-count-Set :
+    is-contr
+      ( Σ ( ( type-trunc-Set ((x : A) → B x)) ≃
+            ( (x : A) → type-trunc-Set (B x)))
+          ( λ e →
+            ( map-equiv e ∘ unit-trunc-Set) ~
+            ( map-Π (λ x → unit-trunc-Set))))
+  distributive-trunc-Π-count-Set =
+    is-contr-equiv
+      ( Σ ( ( type-trunc-Set ((x : A) → B x)) ≃
+            ( (x : Fin k) → type-trunc-Set (B (map-equiv e x))))
+          ( λ f →
+            ( map-equiv f ∘ unit-trunc-Set) ~
+            ( map-Π (λ x → unit-trunc-Set) ∘ precomp-Π (map-equiv e) B)))
+      ( equiv-Σ
+        ( λ f →
+          ( map-equiv f ∘ unit-trunc-Set) ~
+          ( map-Π (λ x → unit-trunc-Set) ∘ precomp-Π (map-equiv e) B))
+        ( equiv-postcomp-equiv
+          ( equiv-precomp-Π e (type-trunc-Set ∘ B))
+          ( type-trunc-Set ((x : A) → B x)))
+        ( λ f →
+          equiv-map-Π
+            ( λ h →
+              ( ( inv-equiv equiv-funext) ∘e
+                ( equiv-precomp-Π e
+                  ( λ x → Id ((map-equiv f ∘ unit-trunc-Set) h x)
+                  ( map-Π (λ y → unit-trunc-Set) h x)))) ∘e
+              ( equiv-funext))))
+      ( is-contr-equiv'
+        ( Σ ( ( type-trunc-Set ((x : Fin k) → B (map-equiv e x))) ≃
+              ( (x : Fin k) → type-trunc-Set (B (map-equiv e x))))
+            ( λ f →
+              ( map-equiv f ∘ unit-trunc-Set) ~
+              ( map-Π (λ x → unit-trunc-Set))))
+        ( equiv-Σ
+          ( λ f →
+            ( map-equiv f ∘ unit-trunc-Set) ~
+            ( map-Π (λ x → unit-trunc-Set) ∘ precomp-Π (map-equiv e) B))
+          ( equiv-precomp-equiv
+            ( equiv-trunc-Set (equiv-precomp-Π e B))
+            ( (x : Fin k) → type-trunc-Set (B (map-equiv e x))))
+          ( λ f →
+            equiv-Π
+              ( λ h →
+                Id ( map-equiv f
+                     ( map-equiv
+                       ( equiv-trunc-Set (equiv-precomp-Π e B))
+                       ( unit-trunc-Set h)))
+                   ( map-Π (λ x → unit-trunc-Set) (λ x → h (map-equiv e x))))
+              ( equiv-Π B e (λ x → equiv-id))
+              ( λ h →
+                ( ( inv-equiv equiv-funext) ∘e
+                  ( equiv-Π
+                    ( λ x →
+                      Id ( map-equiv f
+                           ( map-equiv-trunc-Set
+                             ( equiv-precomp-Π e B)
+                             ( unit-trunc-Set
+                               ( map-equiv-Π B e (λ x → equiv-id) h)))
+                           ( x))
+                         ( unit-trunc-Set
+                           ( map-equiv-Π B e
+                             ( λ z → equiv-id)
+                             ( h)
+                             ( map-equiv e x))))
+                    ( equiv-id)
+                    ( λ x →
+                      ( equiv-concat
+                        ( ap
+                          ( λ t → map-equiv f t x)
+                          ( ( naturality-trunc-Set (precomp-Π (map-equiv e) B)
+                              ( map-equiv-Π B e (λ _ → equiv-id) h)) ∙
+                            ( ap
+                              ( unit-trunc-Set)
+                              ( eq-htpy
+                                ( compute-map-equiv-Π B e
+                                  ( λ _ → equiv-id)
+                                  ( h))))))
+                        ( unit-trunc-Set
+                          ( map-equiv-Π B e
+                            ( λ _ → equiv-id)
+                            ( h)
+                            ( map-equiv e x)))) ∘e
+                      ( equiv-concat'
+                        ( map-equiv f (unit-trunc-Set h) x)
+                        ( ap unit-trunc-Set
+                          ( inv
+                            ( compute-map-equiv-Π B e
+                              ( λ _ → equiv-id)
+                              ( h)
+                              ( x)))))))) ∘e
+                ( equiv-funext))))
+        ( distributive-trunc-Π-Fin-Set k (B ∘ map-equiv e)))
+    where
+    k = pr1 c
+    e = pr2 c
+
+  equiv-distributive-trunc-Π-count-Set :
+    ( type-trunc-Set ((x : A) → B x)) ≃ ((x : A) → type-trunc-Set (B x))
+  equiv-distributive-trunc-Π-count-Set =
+    pr1 (center distributive-trunc-Π-count-Set)
+
+  map-equiv-distributive-trunc-Π-count-Set :
+    ( type-trunc-Set ((x : A) → B x)) → ((x : A) → type-trunc-Set (B x))
+  map-equiv-distributive-trunc-Π-count-Set =
+    map-equiv equiv-distributive-trunc-Π-count-Set
+
+  triangle-distributive-trunc-Π-count-Set :
+    ( map-equiv-distributive-trunc-Π-count-Set ∘ unit-trunc-Set) ~
+    ( map-Π (λ x → unit-trunc-Set))
+  triangle-distributive-trunc-Π-count-Set =
+    pr2 (center distributive-trunc-Π-count-Set)
+
+module _
+  {l1 l2 : Level} {A : UU l1} (B : A → UU l2) (H : is-finite A)
+  where
+  
+  distributive-trunc-Π-is-finite-Set :
+    is-contr
+      ( Σ ( ( type-trunc-Set ((x : A) → B x)) ≃
+            ( (x : A) → type-trunc-Set (B x)))
+          ( λ e →
+            ( map-equiv e ∘ unit-trunc-Set) ~
+            ( map-Π (λ x → unit-trunc-Set))))
+  distributive-trunc-Π-is-finite-Set =
+    apply-universal-property-trunc-Prop H
+      ( is-contr-Prop _)
+      ( distributive-trunc-Π-count-Set B)
+
+  equiv-distributive-trunc-Π-is-finite-Set :
+    ( type-trunc-Set ((x : A) → B x)) ≃ ((x : A) → type-trunc-Set (B x))
+  equiv-distributive-trunc-Π-is-finite-Set =
+    pr1 (center distributive-trunc-Π-is-finite-Set)
+
+  map-equiv-distributive-trunc-Π-is-finite-Set :
+    ( type-trunc-Set ((x : A) → B x)) → ((x : A) → type-trunc-Set (B x))
+  map-equiv-distributive-trunc-Π-is-finite-Set =
+    map-equiv equiv-distributive-trunc-Π-is-finite-Set
+
+  triangle-distributive-trunc-Π-is-finite-Set :
+    ( map-equiv-distributive-trunc-Π-is-finite-Set ∘ unit-trunc-Set) ~
+    ( map-Π (λ x → unit-trunc-Set))
+  triangle-distributive-trunc-Π-is-finite-Set =
+    pr2 (center distributive-trunc-Π-is-finite-Set)
 
 --------------------------------------------------------------------------------
 

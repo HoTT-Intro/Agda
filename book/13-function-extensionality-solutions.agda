@@ -1378,51 +1378,72 @@ equiv-map-Π e =
     ( map-Π (λ i → map-equiv (e i)))
     ( is-equiv-map-Π _ (λ i → is-equiv-map-equiv (e i)))
 
-map-equiv-Π :
+module _
   { l1 l2 l3 l4 : Level}
   { A' : UU l1} {B' : A' → UU l2} {A : UU l3} (B : A → UU l4)
-  ( e : A' ≃ A) (f : (a' : A') → B' a' ≃ B (map-equiv e a')) →
-  ( (a' : A') → B' a') → ( (a : A) → B a)
-map-equiv-Π {B' = B'} B e f =
-  ( map-Π (λ a →
-    ( tr B (issec-map-inv-is-equiv (is-equiv-map-equiv e) a)) ∘
-    ( map-equiv (f (map-inv-is-equiv (is-equiv-map-equiv e) a))))) ∘
-  ( precomp-Π (map-inv-is-equiv (is-equiv-map-equiv e)) B')
+  ( e : A' ≃ A) (f : (a' : A') → B' a' ≃ B (map-equiv e a'))
+  where
+  
+  map-equiv-Π : ((a' : A') → B' a') → ((a : A) → B a)
+  map-equiv-Π =
+    ( map-Π
+      ( λ a →
+        ( tr B (issec-map-inv-equiv e a)) ∘
+        ( map-equiv (f (map-inv-equiv e a))))) ∘
+    ( precomp-Π (map-inv-equiv e) B')
+
+  compute-map-equiv-Π :
+    (h : (a' : A') → B' a') (a' : A') →
+    Id ( map-equiv-Π h (map-equiv e a')) (map-equiv (f a') (h a'))
+  compute-map-equiv-Π h a' =
+    ( ap
+      ( λ t →
+        tr B t ( map-equiv
+                 ( f (map-inv-equiv e (map-equiv e a')))
+                 ( h (map-inv-equiv e (map-equiv e a')))))
+      ( coherence-map-inv-equiv e a')) ∙
+    ( ( tr-ap
+        ( map-equiv e)
+        ( λ _ → id)
+        ( isretr-map-inv-equiv e a')
+        ( map-equiv
+          ( f (map-inv-equiv e (map-equiv e a')))
+          ( h (map-inv-equiv e (map-equiv e a'))))) ∙
+      ( α ( map-inv-equiv e (map-equiv e a'))
+          ( isretr-map-inv-equiv e a')))
+    where
+    α : (x : A') (p : Id x a') →
+        Id ( tr (B ∘ map-equiv e) p (map-equiv (f x) (h x)))
+           ( map-equiv (f a') (h a'))
+    α x refl = refl
+
+  abstract
+    is-equiv-map-equiv-Π : is-equiv map-equiv-Π
+    is-equiv-map-equiv-Π =
+      is-equiv-comp'
+        ( map-Π (λ a →
+          ( tr B (issec-map-inv-is-equiv (is-equiv-map-equiv e) a)) ∘
+          ( map-equiv (f (map-inv-is-equiv (is-equiv-map-equiv e) a)))))
+        ( precomp-Π (map-inv-is-equiv (is-equiv-map-equiv e)) B')
+        ( is-equiv-precomp-Π-is-equiv
+          ( map-inv-is-equiv (is-equiv-map-equiv e))
+          ( is-equiv-map-inv-is-equiv (is-equiv-map-equiv e))
+          ( B'))
+        ( is-equiv-map-Π _
+          ( λ a → is-equiv-comp'
+            ( tr B (issec-map-inv-is-equiv (is-equiv-map-equiv e) a))
+            ( map-equiv (f (map-inv-is-equiv (is-equiv-map-equiv e) a)))
+            ( is-equiv-map-equiv
+              ( f (map-inv-is-equiv (is-equiv-map-equiv e) a)))
+            ( is-equiv-tr B (issec-map-inv-is-equiv (is-equiv-map-equiv e) a))))
+
+  equiv-Π : ((a' : A') → B' a') ≃ ((a : A) → B a)
+  equiv-Π = pair map-equiv-Π is-equiv-map-equiv-Π
 
 id-map-equiv-Π :
   { l1 l2 : Level} {A : UU l1} (B : A → UU l2) →
   ( map-equiv-Π B (equiv-id {A = A}) (λ a → equiv-id {A = B a})) ~ id
 id-map-equiv-Π B = refl-htpy
-
-abstract
-  is-equiv-map-equiv-Π :
-    { l1 l2 l3 l4 : Level}
-    { A' : UU l1} {B' : A' → UU l2} {A : UU l3} (B : A → UU l4)
-    ( e : A' ≃ A) (f : (a' : A') → B' a' ≃ B (map-equiv e a')) →
-    is-equiv (map-equiv-Π B e f)
-  is-equiv-map-equiv-Π {B' = B'} B e f =
-    is-equiv-comp'
-      ( map-Π (λ a →
-        ( tr B (issec-map-inv-is-equiv (is-equiv-map-equiv e) a)) ∘
-        ( map-equiv (f (map-inv-is-equiv (is-equiv-map-equiv e) a)))))
-      ( precomp-Π (map-inv-is-equiv (is-equiv-map-equiv e)) B')
-      ( is-equiv-precomp-Π-is-equiv
-        ( map-inv-is-equiv (is-equiv-map-equiv e))
-        ( is-equiv-map-inv-is-equiv (is-equiv-map-equiv e))
-        ( B'))
-      ( is-equiv-map-Π _
-        ( λ a → is-equiv-comp'
-          ( tr B (issec-map-inv-is-equiv (is-equiv-map-equiv e) a))
-          ( map-equiv (f (map-inv-is-equiv (is-equiv-map-equiv e) a)))
-          ( is-equiv-map-equiv (f (map-inv-is-equiv (is-equiv-map-equiv e) a)))
-          ( is-equiv-tr B (issec-map-inv-is-equiv (is-equiv-map-equiv e) a))))
-
-equiv-Π :
-  { l1 l2 l3 l4 : Level}
-  { A' : UU l1} {B' : A' → UU l2} {A : UU l3} (B : A → UU l4)
-  ( e : A' ≃ A) (f : (a' : A') → B' a' ≃ B (map-equiv e a')) →
-  ( (a' : A') → B' a') ≃ ( (a : A) → B a)
-equiv-Π B e f = pair (map-equiv-Π B e f) (is-equiv-map-equiv-Π B e f)
 
 -- Exercise 13.9 (b)
 
