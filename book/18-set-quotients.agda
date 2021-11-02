@@ -504,6 +504,18 @@ is-effective-map-set-quotient R x y =
   ( equiv-symm-Eq-Rel R y x) ∘e
   ( effective-quotient' R x (map-set-quotient R y))
 
+apply-effectiveness-map-set-quotient :
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) {x y : A} →
+  Id (map-set-quotient R x) (map-set-quotient R y) → type-Eq-Rel R x y
+apply-effectiveness-map-set-quotient R {x} {y} =
+  map-equiv (is-effective-map-set-quotient R x y)
+
+apply-effectiveness-map-set-quotient' :
+  {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) {x y : A} →
+  type-Eq-Rel R x y → Id (map-set-quotient R x) (map-set-quotient R y)
+apply-effectiveness-map-set-quotient' R {x} {y} =
+  map-inv-equiv (is-effective-map-set-quotient R x y)
+
 --------------------------------------------------------------------------------
 
 {- Section 18.2 The universal property of set quotients -}
@@ -1505,6 +1517,18 @@ is-effective-unit-trunc-Set :
 is-effective-unit-trunc-Set A =
   pr2 (is-surjective-and-effective-unit-trunc-Set A)
 
+apply-effectiveness-unit-trunc-Set :
+  {l1 : Level} {A : UU l1} {x y : A} →
+  Id (unit-trunc-Set x) (unit-trunc-Set y) → mere-eq x y
+apply-effectiveness-unit-trunc-Set {A = A} {x} {y} =
+  map-equiv (is-effective-unit-trunc-Set A x y)
+
+apply-effectiveness-unit-trunc-Set' :
+  {l1 : Level} {A : UU l1} {x y : A} →
+  mere-eq x y → Id (unit-trunc-Set x) (unit-trunc-Set y)
+apply-effectiveness-unit-trunc-Set' {A = A} {x} {y} =
+  map-inv-equiv (is-effective-unit-trunc-Set A x y)
+
 emb-trunc-Set :
   {l1 : Level} (A : UU l1) → type-trunc-Set A ↪ (A → UU-Prop l1)
 emb-trunc-Set A =
@@ -2217,8 +2241,7 @@ module _
             unit-trunc-Prop
               ( pair
                 ( pair (pr1 (center (H a))) (pr1 (pr2 (center (H a)))))
-                ( ( map-inv-equiv
-                    ( is-effective-map-set-quotient R (pr1 (center (H a))) a)
+                ( ( apply-effectiveness-map-set-quotient' R
                     ( symm-Eq-Rel R (pr2 (pr2 (center (H a)))))) ∙
                   ( ap
                     ( pair (prop-Eq-Rel R a))
@@ -2409,9 +2432,7 @@ is-inhabited-is-set-connected {l} {A} C =
 mere-eq-is-set-connected :
   {l : Level} {A : UU l} → is-set-connected A → (x y : A) → mere-eq x y
 mere-eq-is-set-connected {A = A} H x y =
-  map-equiv
-    ( is-effective-unit-trunc-Set A x y)
-    ( eq-is-contr H)
+  apply-effectiveness-unit-trunc-Set (eq-is-contr H)
 
 is-set-connected-mere-eq :
   {l : Level} {A : UU l} (a : A) → ((x : A) → mere-eq a x) → is-set-connected A
@@ -2420,7 +2441,7 @@ is-set-connected-mere-eq {l} {A} a e =
     ( unit-trunc-Set a)
     ( apply-dependent-universal-property-trunc-Set
         ( λ x → set-Prop (Id-Prop (trunc-Set A) (unit-trunc-Set a) x))
-        ( λ x → map-inv-equiv (is-effective-unit-trunc-Set A a x) (e x)))
+        ( λ x → apply-effectiveness-unit-trunc-Set' (e x)))
 
 is-surjective-fiber-inclusion :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
@@ -2473,8 +2494,7 @@ module _
               ( Id-Prop (trunc-Set A) (unit-trunc-Set a) v)))
         ( λ b p →
           apply-universal-property-trunc-Prop
-            ( map-equiv
-              ( is-effective-unit-trunc-Set B (f a) (f b))
+            ( apply-effectiveness-unit-trunc-Set
               ( ( inv (naturality-trunc-Set f a)) ∙
                 ( p ∙ (naturality-trunc-Set f b))))
             ( Id-Prop (trunc-Set A) (unit-trunc-Set a) (unit-trunc-Set b))
@@ -2511,8 +2531,7 @@ module _
               ( trunc-Prop (fib f b))
               ( λ { (pair a refl) →
                     apply-universal-property-trunc-Prop
-                      ( map-equiv
-                        ( is-effective-unit-trunc-Set B (f a) b)
+                      ( apply-effectiveness-unit-trunc-Set
                         ( inv (naturality-trunc-Set f a) ∙ p))
                       ( trunc-Prop (fib f b))
                       ( λ q → unit-trunc-Prop (pair a q))})})
