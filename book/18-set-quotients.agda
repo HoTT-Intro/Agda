@@ -1455,6 +1455,14 @@ equiv-dependent-universal-property-trunc-Set B =
   pair ( precomp-Π-Set unit-trunc-Set B)
        ( dependent-universal-property-trunc-Set B)
 
+apply-dependent-universal-property-trunc-Set :
+  {l1 l2 : Level} {A : UU l1}
+  (B : type-trunc-Set A → UU-Set l2) →
+  ((x : A) → type-Set (B (unit-trunc-Set x))) →
+  (x : type-trunc-Set A) → type-Set (B x)
+apply-dependent-universal-property-trunc-Set B =
+  map-inv-equiv (equiv-dependent-universal-property-trunc-Set B)
+
 -- Corollary 18.5.4
 
 reflecting-map-mere-eq-unit-trunc-Set :
@@ -2381,3 +2389,95 @@ has-cardinality-components-has-finite-presentation {l} {k} {A} H =
   apply-universal-property-trunc-Prop H
     ( has-cardinality-components-Prop k A)
     ( λ { (pair f E) → unit-trunc-Prop (pair (unit-trunc-Set ∘ f) E)})
+
+-- Exercise 18.18
+
+is-set-connected-Prop : {l : Level} → UU l → UU-Prop l
+is-set-connected-Prop A = is-contr-Prop (type-trunc-Set A)
+
+is-set-connected : {l : Level} → UU l → UU l
+is-set-connected A = type-Prop (is-set-connected-Prop A)
+
+is-inhabited-is-set-connected :
+  {l : Level} {A : UU l} → is-set-connected A → type-trunc-Prop A
+is-inhabited-is-set-connected {l} {A} C =
+  apply-universal-property-trunc-Set
+    ( center C)
+    ( set-Prop (trunc-Prop A))
+    ( unit-trunc-Prop)
+
+mere-eq-is-set-connected :
+  {l : Level} {A : UU l} → is-set-connected A → (x y : A) → mere-eq x y
+mere-eq-is-set-connected {A = A} H x y =
+  map-equiv
+    ( is-effective-unit-trunc-Set A x y)
+    ( eq-is-contr H)
+
+is-set-connected-mere-eq :
+  {l : Level} {A : UU l} (a : A) → ((x : A) → mere-eq a x) → is-set-connected A
+is-set-connected-mere-eq {l} {A} a e =
+  pair
+    ( unit-trunc-Set a)
+    ( apply-dependent-universal-property-trunc-Set
+        ( λ x → set-Prop (Id-Prop (trunc-Set A) (unit-trunc-Set a) x))
+        ( λ x → map-inv-equiv (is-effective-unit-trunc-Set A a x) (e x)))
+
+is-surjective-fiber-inclusion :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  is-set-connected A → (a : A) → is-surjective (fiber-inclusion B a)
+is-surjective-fiber-inclusion {B = B} C a (pair x b) =
+  apply-universal-property-trunc-Prop
+    ( mere-eq-is-set-connected C a x)
+    ( trunc-Prop (fib (fiber-inclusion B a) (pair x b)))
+    ( λ { refl → unit-trunc-Prop (pair b refl)})
+
+mere-eq-is-surjective-fiber-inclusion :
+  {l1 : Level} {A : UU l1} (a : A) →
+  ({l : Level} (B : A → UU l) → is-surjective (fiber-inclusion B a)) →
+  (x : A) → mere-eq a x
+mere-eq-is-surjective-fiber-inclusion a H x =
+  apply-universal-property-trunc-Prop
+    ( H (λ x → unit) (pair x star))
+    ( mere-eq-Prop a x)
+    ( λ u → unit-trunc-Prop (ap pr1 (pr2 u)))
+
+is-set-connected-is-surjective-fiber-inclusion :
+  {l1 : Level} {A : UU l1} (a : A) →
+  ({l : Level} (B : A → UU l) → is-surjective (fiber-inclusion B a)) →
+  is-set-connected A
+is-set-connected-is-surjective-fiber-inclusion a H =
+  is-set-connected-mere-eq a (mere-eq-is-surjective-fiber-inclusion a H)
+
+-- Exercise 18.19
+
+module _
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B)
+  where
+  
+  is-injective-map-trunc-Set :
+    is-injective f → is-injective (map-trunc-Set f)
+  is-injective-map-trunc-Set H {x} {y} =
+    apply-dependent-universal-property-trunc-Set
+      ( λ u →
+        set-Prop
+          ( function-Prop (Id (map-trunc-Set f u) (map-trunc-Set f y))
+          ( Id-Prop (trunc-Set A) u y) ))
+      ( λ a →
+        apply-dependent-universal-property-trunc-Set
+        ( λ v →
+          set-Prop
+            ( function-Prop
+              ( Id (map-trunc-Set f (unit-trunc-Set a)) (map-trunc-Set f v))
+              ( Id-Prop (trunc-Set A) (unit-trunc-Set a) v)))
+        ( λ b p →
+          apply-universal-property-trunc-Prop
+            ( map-equiv
+              ( is-effective-unit-trunc-Set B (f a) (f b))
+              ( ( inv (naturality-trunc-Set f a)) ∙
+                ( p ∙ (naturality-trunc-Set f b))))
+            ( Id-Prop (trunc-Set A) (unit-trunc-Set a) (unit-trunc-Set b))
+            ( λ q → ap unit-trunc-Set (H q)))
+        ( y))
+      ( x)
+
+-- 

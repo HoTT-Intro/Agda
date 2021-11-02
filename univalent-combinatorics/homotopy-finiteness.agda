@@ -229,27 +229,6 @@ is-locally-finite-Σ {B = B} H K (pair x y) (pair x' y') =
 
 -- Proposition 1.7
 
-is-set-connected-Prop : {l : Level} → UU l → UU-Prop l
-is-set-connected-Prop A = is-contr-Prop (type-trunc-Set A)
-
-is-set-connected : {l : Level} → UU l → UU l
-is-set-connected A = type-Prop (is-set-connected-Prop A)
-
-is-inhabited-is-set-connected :
-  {l : Level} {A : UU l} → is-set-connected A → type-trunc-Prop A
-is-inhabited-is-set-connected {l} {A} C =
-  apply-universal-property-trunc-Set
-    ( center C)
-    ( set-Prop (trunc-Prop A))
-    ( unit-trunc-Prop)
-
-mere-eq-is-set-connected :
-  {l : Level} {A : UU l} → is-set-connected A → (x y : A) → mere-eq x y
-mere-eq-is-set-connected {A = A} H x y =
-  map-equiv
-    ( is-effective-unit-trunc-Set A x y)
-    ( eq-is-contr H)
-
 is-homotopy-finite-Σ-is-set-connected :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
   is-set-connected A → is-homotopy-finite one-ℕ A →
