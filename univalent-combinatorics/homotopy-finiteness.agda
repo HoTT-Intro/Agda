@@ -234,4 +234,125 @@ is-homotopy-finite-Σ-is-set-connected :
   is-set-connected A → is-homotopy-finite one-ℕ A →
   ((x : A) → is-homotopy-finite zero-ℕ (B x)) →
   is-homotopy-finite zero-ℕ (Σ A B)
-is-homotopy-finite-Σ-is-set-connected C H K = {!!}
+is-homotopy-finite-Σ-is-set-connected {A = A} {B} C H K =
+  apply-universal-property-trunc-Prop
+    ( is-inhabited-is-set-connected C)
+    ( is-homotopy-finite-Prop zero-ℕ (Σ A B))
+    ( α)
+    
+  where
+  α : A → is-homotopy-finite zero-ℕ (Σ A B)
+  α a =
+    is-finite-codomain-has-decidable-equality
+      ( K a)
+      ( is-surjective-map-trunc-Set
+        ( fiber-inclusion B a)
+        ( is-surjective-fiber-inclusion C a))
+      ( apply-dependent-universal-property-trunc-Set
+        ( λ x →
+          set-Prop
+            ( Π-Prop
+              ( type-trunc-Set (Σ A B))
+              ( λ y → is-decidable-Prop (Id-Prop (trunc-Set (Σ A B)) x y))))
+        ( β))
+        
+    where
+    β : (x : Σ A B) (v : type-trunc-Set (Σ A B)) →
+        is-decidable (Id (unit-trunc-Set x) v)
+    β (pair x y) =
+      apply-dependent-universal-property-trunc-Set
+        ( λ u →
+          set-Prop
+            ( is-decidable-Prop
+              ( Id-Prop (trunc-Set (Σ A B)) (unit-trunc-Set (pair x y)) u)))
+        ( γ)
+        
+      where
+      γ : (v : Σ A B) →
+          is-decidable (Id (unit-trunc-Set (pair x y)) (unit-trunc-Set v))
+      γ (pair x' y') =
+        is-decidable-equiv
+          ( is-effective-unit-trunc-Set
+            ( Σ A B)
+            ( pair x y)
+            ( pair x' y'))
+          ( apply-universal-property-trunc-Prop
+            ( mere-eq-is-set-connected C a x)
+            ( is-decidable-Prop
+              ( mere-eq-Prop (pair x y) (pair x' y')))
+              ( δ))
+              
+        where
+        δ : Id a x → is-decidable (mere-eq (pair x y) (pair x' y'))
+        δ refl =
+          apply-universal-property-trunc-Prop
+            ( mere-eq-is-set-connected C a x')
+            ( is-decidable-Prop
+              ( mere-eq-Prop (pair a y) (pair x' y')))
+            ( ε)
+            
+          where
+          ε : Id a x' → is-decidable (mere-eq (pair x y) (pair x' y'))
+          ε refl =
+            is-decidable-equiv e
+              ( is-decidable-type-trunc-Prop-is-finite
+                ( is-finite-Σ
+                  ( pr2 H a a)
+                  {! is-finite-is-decidable-subtype!}))
+            
+            where
+            ℙ : is-contr
+                ( Σ ( type-hom-Set (trunc-Set (Id a a)) (UU-Prop-Set _))
+                    ( λ h →
+                      ( λ a₁ → h (unit-trunc-Set a₁)) ~
+                      ( λ ω₁ → trunc-Prop (Id (tr B ω₁ y) y'))))
+            ℙ = universal-property-trunc-Set
+                ( Id a a)
+                ( UU-Prop-Set _)
+                ( λ ω → trunc-Prop (Id (tr B ω y) y'))
+            P : type-trunc-Set (Id a a) → UU-Prop _
+            P = pr1 (center ℙ)
+            compute-P :
+              ( ω₁ : Id a a) →
+              type-trunc-Prop (Id (tr B ω₁ y) y') ≃
+              type-Prop (P (unit-trunc-Set ω₁))
+            compute-P ω = inv-equiv (equiv-eq (ap pr1 (pr2 (center ℙ) ω)))
+            d : (t : type-trunc-Set (Id a a)) → is-decidable (type-Prop (P t))
+            d = apply-dependent-universal-property-trunc-Set
+                ( λ t → set-Prop (is-decidable-Prop (P t)))
+                ( λ ω →
+                  is-decidable-equiv'
+                    ( compute-P ω)
+                    ( is-decidable-equiv'
+                      ( is-effective-unit-trunc-Set (B a) (tr B ω y) y')
+                      ( has-decidable-equality-is-finite
+                        ( K a)
+                        ( unit-trunc-Set (tr B ω y))
+                        ( unit-trunc-Set y'))))
+            f : type-hom-Prop
+                ( trunc-Prop (Σ (type-trunc-Set (Id a a)) (type-Prop ∘ P)))
+                ( mere-eq-Prop {A = Σ A B} (pair a y) (pair a y'))
+            f = {!!}
+            e : mere-eq {A = Σ A B} (pair a y) (pair a y') ≃
+                type-trunc-Prop (Σ (type-trunc-Set (Id a a)) (type-Prop ∘ P))
+            e = equiv-iff
+                  ( mere-eq-Prop (pair a y) (pair a y'))
+                  ( trunc-Prop (Σ (type-trunc-Set (Id a a)) (type-Prop ∘ P)))
+                  ( λ t →
+                    apply-universal-property-trunc-Prop t
+                      ( trunc-Prop _)
+                      ( ( λ { (pair ω r) →
+                            unit-trunc-Prop
+                              ( pair
+                                ( unit-trunc-Set ω)
+                                ( map-inv-equiv
+                                  ( equiv-eq
+                                    ( ap pr1
+                                      ( triangle-universal-property-trunc-Set
+                                        ( UU-Prop-Set _)
+                                        ( λ ω' →
+                                          trunc-Prop
+                                            ( Id (tr B ω' y) y')) ω)))
+                                            ( unit-trunc-Prop r)))}) ∘
+                        ( pair-eq-Σ)))
+                  ( f)
