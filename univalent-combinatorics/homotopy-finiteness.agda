@@ -4,6 +4,24 @@ module univalent-combinatorics.homotopy-finiteness where
 
 open import book.18-set-quotients public
 
+{-------------------------------------------------------------------------------
+
+  Univalent combinatorics
+
+-------------------------------------------------------------------------------}
+
+-- Section 1. Homotopy finiteness
+
+-- Definition 1.3
+
+is-locally-finite-Prop :
+  {l : Level} → UU l → UU-Prop l
+is-locally-finite-Prop A =
+  Π-Prop A (λ x → Π-Prop A (λ y → is-finite-Prop (Id x y)))
+
+is-locally-finite : {l : Level} → UU l → UU l
+is-locally-finite A = type-Prop (is-locally-finite-Prop A)
+
 is-strong-homotopy-finite-Prop : {l : Level} (k : ℕ) → UU l → UU-Prop l
 is-strong-homotopy-finite-Prop zero-ℕ X = is-finite-Prop X
 is-strong-homotopy-finite-Prop (succ-ℕ k) X =
@@ -26,6 +44,8 @@ is-prop-is-homotopy-finite :
   {l : Level} (k : ℕ) (X : UU l) → is-prop (is-homotopy-finite k X)
 is-prop-is-homotopy-finite k X =
   is-prop-type-Prop (is-homotopy-finite-Prop k X)
+
+-- Basic properties of homotopy finiteness
 
 is-homotopy-finite-equiv :
   {l1 l2 : Level} (k : ℕ) {A : UU l1} {B : UU l2} (e : A ≃ B) →
@@ -79,6 +99,8 @@ is-homotopy-finite-coprod (succ-ℕ k) H K =
             ( compute-eq-coprod-inr-inr x y)
             ( pr2 K x y)})
 
+-- Proposition 1.5
+
 is-homotopy-finite-Π-is-finite :
   {l1 l2 : Level} (k : ℕ) {A : UU l1} {B : A → UU l2} →
   is-finite A → ((a : A) → is-homotopy-finite k (B a)) →
@@ -95,3 +117,43 @@ is-homotopy-finite-Π-is-finite (succ-ℕ k) H K =
         ( equiv-funext)
         ( is-homotopy-finite-Π-is-finite k H (λ a → pr2 (K a) (f a) (g a))))
 
+-- Proposition 1.6
+
+is-locally-finite-Σ :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  is-locally-finite A → ((x : A) → is-locally-finite (B x)) →
+  is-locally-finite (Σ A B)
+is-locally-finite-Σ {B = B} H K (pair x y) (pair x' y') =
+  is-finite-equiv'
+    ( equiv-pair-eq-Σ (pair x y) (pair x' y'))
+    ( is-finite-Σ (H x x') (λ p → K x' (tr B p y) y'))
+
+-- Proposition 1.7
+
+is-set-connected-Prop : {l : Level} → UU l → UU-Prop l
+is-set-connected-Prop A = is-contr-Prop (type-trunc-Set A)
+
+is-set-connected : {l : Level} → UU l → UU l
+is-set-connected A = type-Prop (is-set-connected-Prop A)
+
+is-inhabited-is-set-connected :
+  {l : Level} {A : UU l} → is-set-connected A → type-trunc-Prop A
+is-inhabited-is-set-connected {l} {A} C =
+  apply-universal-property-trunc-Set
+    ( center C)
+    ( set-Prop (trunc-Prop A))
+    ( unit-trunc-Prop)
+
+mere-eq-is-set-connected :
+  {l : Level} {A : UU l} → is-set-connected A → (x y : A) → mere-eq x y
+mere-eq-is-set-connected {A = A} H x y =
+  map-equiv
+    ( is-effective-unit-trunc-Set A x y)
+    ( eq-is-contr H)
+
+is-homotopy-finite-Σ-is-set-connected :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
+  is-set-connected A → is-homotopy-finite one-ℕ A →
+  ((x : A) → is-homotopy-finite zero-ℕ (B x)) →
+  is-homotopy-finite zero-ℕ (Σ A B)
+is-homotopy-finite-Σ-is-set-connected C H K = {!!}
