@@ -2544,6 +2544,33 @@ stirling-number-second-kind (succ-ℕ m) (succ-ℕ n) =
     ( mul-ℕ (succ-ℕ n) (stirling-number-second-kind m (succ-ℕ n)))
     ( stirling-number-second-kind m n)
 
+-- Exercise 16.8
+
+module _
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B}
+  (K : is-finite A)
+  where
+
+  is-finite-codomain-has-decidable-equality :
+    is-surjective f → has-decidable-equality B → is-finite B
+  is-finite-codomain-has-decidable-equality H d =
+    is-finite-base-is-finite-Σ-merely-inhabited
+      ( is-set-has-decidable-equality d)
+      ( H)
+      ( is-finite-equiv' (equiv-total-fib f) K)
+      ( λ b → is-finite-Σ K (λ a → is-finite-eq d))
+
+is-finite-im-has-decidable-equality :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} (K : is-finite A) →
+  has-decidable-equality B → is-finite (im f)
+is-finite-im-has-decidable-equality {f = f} K d =
+  is-finite-codomain-has-decidable-equality K
+    ( is-surjective-map-im f)
+    ( λ x y →
+      is-decidable-equiv
+        ( equiv-Eq-total-subtype-eq (λ u → is-prop-type-trunc-Prop) x y)
+        ( d (pr1 x) (pr1 y)))
+
 -- Exercise 16.15
 
 is-inl-Fin : {k : ℕ} → Fin (succ-ℕ k) → UU lzero
