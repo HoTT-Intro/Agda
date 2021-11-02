@@ -346,7 +346,7 @@ abstract
 {- The group of integers. -}
 
 ℤ-Semi-Group : Semi-Group lzero
-ℤ-Semi-Group = pair set-ℤ (pair add-ℤ associative-add-ℤ)
+ℤ-Semi-Group = pair ℤ-Set (pair add-ℤ associative-add-ℤ)
 
 ℤ-Group : Group lzero
 ℤ-Group =

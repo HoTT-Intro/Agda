@@ -663,13 +663,13 @@ UU-Truncated-Type : 𝕋 → (l : Level) → UU (lsuc l)
 UU-Truncated-Type k l = Σ (UU l) (is-trunc k)
 
 type-Truncated-Type :
-  (k : 𝕋) {l : Level} → UU-Truncated-Type k l → UU l
-type-Truncated-Type k = pr1
+  {k : 𝕋} {l : Level} → UU-Truncated-Type k l → UU l
+type-Truncated-Type = pr1
 
 is-trunc-type-Truncated-Type :
-  (k : 𝕋) {l : Level} (A : UU-Truncated-Type k l) →
-  is-trunc k (type-Truncated-Type k A)
-is-trunc-type-Truncated-Type k = pr2
+  {k : 𝕋} {l : Level} (A : UU-Truncated-Type k l) →
+  is-trunc k (type-Truncated-Type A)
+is-trunc-type-Truncated-Type = pr2
 
 {- Remark 12.4.2
 
@@ -689,6 +689,10 @@ abstract
   is-trunc-succ-is-trunc (succ-𝕋 k) H x y =
     is-trunc-succ-is-trunc k (H x y)
 
+is-set-is-prop :
+  {l : Level} {P : UU l} → is-prop P → is-set P
+is-set-is-prop = is-trunc-succ-is-trunc neg-one-𝕋
+
 abstract
   is-trunc-map-succ-is-trunc-map :
     {l1 l2 : Level} (k : 𝕋) {A : UU l1} {B : UU l2}
@@ -700,8 +704,8 @@ truncated-type-succ-Truncated-Type :
   (k : 𝕋) {l : Level} → UU-Truncated-Type k l → UU-Truncated-Type (succ-𝕋 k) l
 truncated-type-succ-Truncated-Type k A =
   pair
-    ( type-Truncated-Type k A)
-    ( is-trunc-succ-is-trunc k (is-trunc-type-Truncated-Type k A))
+    ( type-Truncated-Type A)
+    ( is-trunc-succ-is-trunc k (is-trunc-type-Truncated-Type A))
 
 set-Prop :
   {l : Level} → UU-Prop l → UU-Set l
@@ -975,7 +979,7 @@ is-not-contractible-coprod-is-contr :
   ¬ (is-contr (coprod A B))
 is-not-contractible-coprod-is-contr {l1} {l2} {A} {B} HA HB HAB =
   map-inv-raise
-    ( Eq-coprod-eq A B (inl (center HA)) (inr (center HB)) (eq-is-contr HAB))
+    ( Eq-eq-coprod A B (inl (center HA)) (inr (center HB)) (eq-is-contr HAB))
 
 -- Exercise 12.3 (b)
 
@@ -1014,37 +1018,33 @@ abstract
     is-trunc (succ-𝕋 (succ-𝕋 k)) A → is-trunc (succ-𝕋 (succ-𝕋 k)) B →
     is-trunc (succ-𝕋 (succ-𝕋 k)) (coprod A B)
   is-trunc-coprod k {A} {B} is-trunc-A is-trunc-B (inl x) (inl y) =
-    is-trunc-is-equiv (succ-𝕋 k)
+    is-trunc-equiv (succ-𝕋 k)
       ( Eq-coprod A B (inl x) (inl y))
-      ( Eq-coprod-eq A B (inl x) (inl y))
-      ( is-equiv-Eq-coprod-eq A B (inl x) (inl y))
+      ( equiv-Eq-eq-coprod A B (inl x) (inl y))
       ( is-trunc-equiv' (succ-𝕋 k)
         ( Id x y)
         ( equiv-raise _ (Id x y))
         ( is-trunc-A x y))
   is-trunc-coprod k {A} {B} is-trunc-A is-trunc-B (inl x) (inr y) =
-    is-trunc-is-equiv (succ-𝕋 k)
+    is-trunc-equiv (succ-𝕋 k)
       ( Eq-coprod A B (inl x) (inr y))
-      ( Eq-coprod-eq A B (inl x) (inr y))
-      ( is-equiv-Eq-coprod-eq A B (inl x) (inr y))
+      ( equiv-Eq-eq-coprod A B (inl x) (inr y))
       ( is-trunc-equiv' (succ-𝕋 k)
         ( empty)
         ( equiv-raise _ empty)
         ( is-trunc-succ-empty k))
   is-trunc-coprod k {A} {B} is-trunc-A is-trunc-B (inr x) (inl y) =
-    is-trunc-is-equiv (succ-𝕋 k)
+    is-trunc-equiv (succ-𝕋 k)
       ( Eq-coprod A B (inr x) (inl y))
-      ( Eq-coprod-eq A B (inr x) (inl y))
-      ( is-equiv-Eq-coprod-eq A B (inr x) (inl y))
+      ( equiv-Eq-eq-coprod A B (inr x) (inl y))
       ( is-trunc-equiv' (succ-𝕋 k)
         ( empty)
         ( equiv-raise _ empty)
         ( is-trunc-succ-empty k))
   is-trunc-coprod k {A} {B} is-trunc-A is-trunc-B (inr x) (inr y) =
-    is-trunc-is-equiv (succ-𝕋 k)
+    is-trunc-equiv (succ-𝕋 k)
       ( Eq-coprod A B (inr x) (inr y))
-      ( Eq-coprod-eq A B (inr x) (inr y))
-      ( is-equiv-Eq-coprod-eq A B (inr x) (inr y))
+      ( equiv-Eq-eq-coprod A B (inr x) (inr y))
       ( is-trunc-equiv' (succ-𝕋 k)
         ( Id x y)
         ( equiv-raise _ (Id x y))
@@ -1055,30 +1055,30 @@ abstract
     is-set A → is-set B → is-set (coprod A B)
   is-set-coprod = is-trunc-coprod neg-two-𝕋
 
-set-coprod :
+coprod-Set :
   {l1 l2 : Level} (A : UU-Set l1) (B : UU-Set l2) → UU-Set (l1 ⊔ l2)
-set-coprod (pair A is-set-A) (pair B is-set-B) =
+coprod-Set (pair A is-set-A) (pair B is-set-B) =
   pair (coprod A B) (is-set-coprod is-set-A is-set-B)
 
 abstract
   is-set-unit : is-set unit
   is-set-unit = is-trunc-succ-is-trunc neg-one-𝕋 is-prop-unit
 
-set-unit : UU-Set lzero
-set-unit = pair unit is-set-unit
+unit-Set : UU-Set lzero
+unit-Set = pair unit is-set-unit
 
 abstract
   is-set-ℤ : is-set ℤ
   is-set-ℤ = is-set-coprod is-set-ℕ (is-set-coprod is-set-unit is-set-ℕ)
-
-set-ℤ : UU-Set lzero
-set-ℤ = pair ℤ is-set-ℤ
 
 ℤ-Set : UU-Set lzero
 ℤ-Set = pair ℤ is-set-ℤ
 
 is-set-empty : is-set empty
 is-set-empty ()
+
+empty-Set : UU-Set lzero
+empty-Set = pair empty is-set-empty
 
 abstract
   is-set-Fin :
@@ -1087,9 +1087,9 @@ abstract
   is-set-Fin (succ-ℕ n) =
     is-set-coprod (is-set-Fin n) is-set-unit
 
-set-Fin :
+Fin-Set :
   (n : ℕ) → UU-Set lzero
-set-Fin n = pair (Fin n) (is-set-Fin n)
+Fin-Set n = pair (Fin n) (is-set-Fin n)
 
 -- Exercise 12.4
 

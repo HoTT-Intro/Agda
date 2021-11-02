@@ -543,40 +543,46 @@ abstract
             ( is-contr-total-path x))))
 
 abstract
-  is-equiv-Eq-coprod-eq-inl :
+  is-equiv-Eq-eq-coprod-inl :
     {l1 l2 : Level} (A : UU l1) (B : UU l2) (x : A) →
-    is-fiberwise-equiv (Eq-coprod-eq A B (inl x))
-  is-equiv-Eq-coprod-eq-inl A B x =
+    is-fiberwise-equiv (Eq-eq-coprod A B (inl x))
+  is-equiv-Eq-eq-coprod-inl A B x =
     fundamental-theorem-id
       ( inl x)
       ( reflexive-Eq-coprod A B (inl x))
       ( is-contr-total-Eq-coprod-inl A B x)
-      ( Eq-coprod-eq A B (inl x))
+      ( Eq-eq-coprod A B (inl x))
 
 abstract
-  is-equiv-Eq-coprod-eq-inr :
+  is-equiv-Eq-eq-coprod-inr :
     {l1 l2 : Level} (A : UU l1) (B : UU l2) (x : B) →
-    is-fiberwise-equiv (Eq-coprod-eq A B (inr x))
-  is-equiv-Eq-coprod-eq-inr A B x =
+    is-fiberwise-equiv (Eq-eq-coprod A B (inr x))
+  is-equiv-Eq-eq-coprod-inr A B x =
     fundamental-theorem-id
       ( inr x)
       ( reflexive-Eq-coprod A B (inr x))
       ( is-contr-total-Eq-coprod-inr A B x)
-      ( Eq-coprod-eq A B (inr x))
+      ( Eq-eq-coprod A B (inr x))
 
 abstract
-  is-equiv-Eq-coprod-eq :
+  is-equiv-Eq-eq-coprod :
     {l1 l2 : Level} (A : UU l1) (B : UU l2)
-    (s : coprod A B) → is-fiberwise-equiv (Eq-coprod-eq A B s)
-  is-equiv-Eq-coprod-eq A B (inl x) = is-equiv-Eq-coprod-eq-inl A B x
-  is-equiv-Eq-coprod-eq A B (inr x) = is-equiv-Eq-coprod-eq-inr A B x
+    (s : coprod A B) → is-fiberwise-equiv (Eq-eq-coprod A B s)
+  is-equiv-Eq-eq-coprod A B (inl x) = is-equiv-Eq-eq-coprod-inl A B x
+  is-equiv-Eq-eq-coprod A B (inr x) = is-equiv-Eq-eq-coprod-inr A B x
+
+equiv-Eq-eq-coprod :
+  {l1 l2 : Level} (A : UU l1) (B : UU l2) (x y : coprod A B) →
+  Id x y ≃ Eq-coprod A B x y
+equiv-Eq-eq-coprod A B x y =
+  pair (Eq-eq-coprod A B x y) (is-equiv-Eq-eq-coprod A B x y)
 
 map-compute-eq-coprod-inl-inl :
   {l1 l2 : Level} {A : UU l1} {B : UU l2}
   (x x' : A) → Id (inl {B = B} x) (inl {B = B} x') → Id x x'
 map-compute-eq-coprod-inl-inl x x' =
   ( map-inv-is-equiv (is-equiv-map-raise _ (Id x x'))) ∘
-    ( Eq-coprod-eq _ _ (inl x) (inl x')) 
+    ( Eq-eq-coprod _ _ (inl x) (inl x')) 
 
 abstract
   is-equiv-map-compute-eq-coprod-inl-inl :
@@ -586,9 +592,9 @@ abstract
     is-equiv-comp
       ( map-compute-eq-coprod-inl-inl x x')
       ( map-inv-is-equiv (is-equiv-map-raise _ (Id x x')))
-      ( Eq-coprod-eq _ _ (inl x) (inl x'))
+      ( Eq-eq-coprod _ _ (inl x) (inl x'))
       ( refl-htpy)
-      ( is-equiv-Eq-coprod-eq _ _ (inl x) (inl x'))
+      ( is-equiv-Eq-eq-coprod _ _ (inl x) (inl x'))
       ( is-equiv-map-inv-is-equiv (is-equiv-map-raise _ (Id x x')))
 
 compute-eq-coprod-inl-inl :
@@ -604,7 +610,7 @@ map-compute-eq-coprod-inl-inr :
   (x : A) (y' : B) → Id (inl x) (inr y') → empty
 map-compute-eq-coprod-inl-inr x y' =
   ( map-inv-is-equiv (is-equiv-map-raise _ empty)) ∘
-    ( Eq-coprod-eq _ _ (inl x) (inr y'))
+    ( Eq-eq-coprod _ _ (inl x) (inr y'))
 
 abstract
   is-equiv-map-compute-eq-coprod-inl-inr :
@@ -614,9 +620,9 @@ abstract
     is-equiv-comp
       ( map-compute-eq-coprod-inl-inr x y')
       ( map-inv-is-equiv (is-equiv-map-raise _ empty))
-      ( Eq-coprod-eq _ _ (inl x) (inr y'))
+      ( Eq-eq-coprod _ _ (inl x) (inr y'))
       ( refl-htpy)
-      ( is-equiv-Eq-coprod-eq _ _ (inl x) (inr y'))
+      ( is-equiv-Eq-eq-coprod _ _ (inl x) (inr y'))
       ( is-equiv-map-inv-is-equiv (is-equiv-map-raise _ empty))
   
 compute-eq-coprod-inl-inr :
@@ -632,7 +638,7 @@ map-compute-eq-coprod-inr-inl :
   (y : B) (x' : A) → (Id (inr {A = A} y) (inl x')) → empty
 map-compute-eq-coprod-inr-inl y x' =
    ( map-inv-is-equiv (is-equiv-map-raise _ empty)) ∘
-     ( Eq-coprod-eq _ _ (inr y) (inl x'))
+     ( Eq-eq-coprod _ _ (inr y) (inl x'))
 
 abstract
   is-equiv-map-compute-eq-coprod-inr-inl :
@@ -642,9 +648,9 @@ abstract
     is-equiv-comp
       ( map-compute-eq-coprod-inr-inl y x')
       ( map-inv-is-equiv (is-equiv-map-raise _ empty))
-      ( Eq-coprod-eq _ _ (inr y) (inl x'))
+      ( Eq-eq-coprod _ _ (inr y) (inl x'))
       ( refl-htpy)
-      ( is-equiv-Eq-coprod-eq _ _ (inr y) (inl x'))
+      ( is-equiv-Eq-eq-coprod _ _ (inr y) (inl x'))
       ( is-equiv-map-inv-is-equiv (is-equiv-map-raise _ empty))
 
 compute-eq-coprod-inr-inl :
@@ -660,7 +666,7 @@ map-compute-eq-coprod-inr-inr :
   (y y' : B) → (Id (inr {A = A} y) (inr y')) → Id y y'
 map-compute-eq-coprod-inr-inr y y' =
   ( map-inv-is-equiv (is-equiv-map-raise _ (Id y y'))) ∘
-    ( Eq-coprod-eq _ _ (inr y) (inr y'))
+    ( Eq-eq-coprod _ _ (inr y) (inr y'))
 
 abstract
   is-equiv-map-compute-eq-coprod-inr-inr :
@@ -670,9 +676,9 @@ abstract
     is-equiv-comp
       ( map-compute-eq-coprod-inr-inr y y')
       ( map-inv-is-equiv (is-equiv-map-raise _ (Id y y')))
-      ( Eq-coprod-eq _ _ (inr y) (inr y'))
+      ( Eq-eq-coprod _ _ (inr y) (inr y'))
       ( refl-htpy)
-      ( is-equiv-Eq-coprod-eq _ _ (inr y) (inr y'))
+      ( is-equiv-Eq-eq-coprod _ _ (inr y) (inr y'))
       ( is-equiv-map-inv-is-equiv (is-equiv-map-raise _ (Id y y')))
 
 compute-eq-coprod-inr-inr :
@@ -856,9 +862,9 @@ abstract
     fundamental-theorem-id x refl
       ( is-contr-is-equiv
         ( Σ A (λ y → Eq-coprod A B (inl x) (inl y)))
-        ( tot (λ y → Eq-coprod-eq A B (inl x) (inl y)))
+        ( tot (λ y → Eq-eq-coprod A B (inl x) (inl y)))
         ( is-equiv-tot-is-fiberwise-equiv
-          ( λ y → is-equiv-Eq-coprod-eq A B (inl x) (inl y)))
+          ( λ y → is-equiv-Eq-eq-coprod A B (inl x) (inl y)))
         ( is-contr-equiv'
           ( Σ A (Id x))
           ( equiv-tot (λ y → equiv-raise _ (Id x y)))
@@ -876,9 +882,9 @@ abstract
     fundamental-theorem-id x refl
       ( is-contr-is-equiv
         ( Σ B (λ y → Eq-coprod A B (inr x) (inr y)))
-        ( tot (λ y → Eq-coprod-eq A B (inr x) (inr y)))
+        ( tot (λ y → Eq-eq-coprod A B (inr x) (inr y)))
         ( is-equiv-tot-is-fiberwise-equiv
-          ( λ y → is-equiv-Eq-coprod-eq A B (inr x) (inr y)))
+          ( λ y → is-equiv-Eq-eq-coprod A B (inr x) (inr y)))
         ( is-contr-equiv'
           ( Σ B (Id x))
           ( equiv-tot (λ y → equiv-raise _ (Id x y)))
@@ -894,7 +900,7 @@ is-empty-right-summand-is-equiv :
   is-empty B
 is-empty-right-summand-is-equiv {A = A} {B} H b =
   map-inv-raise
-    ( Eq-coprod-eq A B
+    ( Eq-eq-coprod A B
       ( inl (pr1 (center (is-contr-map-is-equiv H (inr b)))))
       ( inr b)
       ( pr2 (center (is-contr-map-is-equiv H (inr b)))))
@@ -904,7 +910,7 @@ is-empty-left-summand-is-equiv :
   is-empty A
 is-empty-left-summand-is-equiv {A = A} {B} H a =
   map-inv-raise
-    ( Eq-coprod-eq A B
+    ( Eq-eq-coprod A B
       ( inr (pr1 (center (is-contr-map-is-equiv H (inl a)))))
       ( inl a)
       ( pr2 (center (is-contr-map-is-equiv H (inl a)))))

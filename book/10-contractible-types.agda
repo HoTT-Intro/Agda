@@ -359,51 +359,83 @@ htpy-red {_} {A} {f} H x =
 
 {- Lemma 10.4.5 -}
 
-inv-has-inverse :
-  {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
-  has-inverse f → B → A
-inv-has-inverse inv-f = pr1 inv-f
+module _
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} (H : has-inverse f)
+  where
+  
+  inv-has-inverse : B → A
+  inv-has-inverse = pr1 H
+  
+  issec-inv-has-inverse : (f ∘ inv-has-inverse) ~ id
+  issec-inv-has-inverse y =
+    ( inv (pr1 (pr2 H) (f (inv-has-inverse y)))) ∙
+    ( ap f (pr2 (pr2 H) (inv-has-inverse y)) ∙ (pr1 (pr2 H) y))
+  
+  isretr-inv-has-inverse : (inv-has-inverse ∘ f) ~ id
+  isretr-inv-has-inverse = pr2 (pr2 H)
+  
+  coherence-inv-has-inverse :
+    (issec-inv-has-inverse ·r f) ~ (f ·l isretr-inv-has-inverse)
+  coherence-inv-has-inverse x =
+    inv
+      ( inv-con
+        ( pr1 (pr2 H) (f (inv-has-inverse (f x))))
+        ( ap f (pr2 (pr2 H) x))
+        ( (ap f (pr2 (pr2 H) (inv-has-inverse (f x)))) ∙ (pr1 (pr2 H) (f x)))
+        ( sq-top-whisk
+          ( pr1 (pr2 H) (f (inv-has-inverse (f x))))
+          ( ap f (pr2 (pr2 H) x))
+          ( (ap (f ∘ (inv-has-inverse ∘ f)) (pr2 (pr2 H) x)))
+          ( ( ap-comp f (inv-has-inverse ∘ f) (pr2 (pr2 H) x)) ∙
+            ( inv (ap (ap f) (htpy-red (pr2 (pr2 H)) x))))
+          ( pr1 (pr2 H) (f x))
+          ( htpy-nat (htpy-right-whisk (pr1 (pr2 H)) f) (pr2 (pr2 H) x))))
 
-issec-inv-has-inverse :
-  {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
-  (inv-f : has-inverse f) → (f ∘ (inv-has-inverse inv-f)) ~ id
-issec-inv-has-inverse {f = f} (pair g (pair G H)) y =
-  (inv (G (f (g y)))) ∙ (ap f (H (g y)) ∙ (G y))
-
-isretr-inv-has-inverse :
-  {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
-  (inv-f : has-inverse f) → ((inv-has-inverse inv-f) ∘ f) ~ id
-isretr-inv-has-inverse inv-f = pr2 (pr2 inv-f)
-
-coherence-inv-has-inverse :
-  {i j : Level} {A : UU i} {B : UU j} {f : A → B} →
-  (inv-f : has-inverse f) →
-  ((issec-inv-has-inverse inv-f) ·r f) ~ (f ·l (isretr-inv-has-inverse inv-f))
-coherence-inv-has-inverse {f = f} (pair g (pair G H)) x =
-  inv
-    ( inv-con
-      ( G (f (g (f x))))
-      ( ap f (H x))
-      ( (ap f (H (g (f x)))) ∙ (G (f x)))
-      ( sq-top-whisk
-        ( G (f (g (f x))))
-        ( ap f (H x))
-        ( (ap (f ∘ (g ∘ f)) (H x)))
-        ( (ap-comp f (g ∘ f) (H x)) ∙ (inv (ap (ap f) (htpy-red H x))))
-        ( G (f x))
-        ( htpy-nat (htpy-right-whisk G f) (H x))))
-
-is-coherently-invertible-has-inverse :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} →
-  has-inverse f → is-coherently-invertible f
-is-coherently-invertible-has-inverse H =
-  pair
-    ( inv-has-inverse H)
-    ( pair
-      ( issec-inv-has-inverse H)
+  is-coherently-invertible-has-inverse : is-coherently-invertible f
+  is-coherently-invertible-has-inverse =
+    pair
+      ( inv-has-inverse)
       ( pair
-        ( isretr-inv-has-inverse H)
-        ( coherence-inv-has-inverse H)))
+        ( issec-inv-has-inverse)
+        ( pair
+          ( isretr-inv-has-inverse)
+          ( coherence-inv-has-inverse)))
+
+module _
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} (H : is-equiv f)
+  where
+
+  issec-map-inv-is-equiv : (f ∘ map-inv-is-equiv H) ~ id
+  issec-map-inv-is-equiv = issec-inv-has-inverse (has-inverse-is-equiv H)
+
+  isretr-map-inv-is-equiv : (map-inv-is-equiv H ∘ f) ~ id
+  isretr-map-inv-is-equiv =
+    isretr-inv-has-inverse (has-inverse-is-equiv H)
+  
+  coherence-map-inv-is-equiv :
+    ( issec-map-inv-is-equiv ·r f) ~ (f ·l isretr-map-inv-is-equiv)
+  coherence-map-inv-is-equiv =
+    coherence-inv-has-inverse (has-inverse-is-equiv H)
+
+module _
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (e : A ≃ B)
+  where
+
+  map-inv-equiv : B → A
+  map-inv-equiv = map-inv-is-equiv (is-equiv-map-equiv e)
+
+  issec-map-inv-equiv : ((map-equiv e) ∘ map-inv-equiv) ~ id
+  issec-map-inv-equiv = issec-map-inv-is-equiv (is-equiv-map-equiv e)
+
+  isretr-map-inv-equiv : (map-inv-equiv ∘ (map-equiv e)) ~ id
+  isretr-map-inv-equiv =
+    isretr-map-inv-is-equiv (is-equiv-map-equiv e)
+  
+  coherence-map-inv-equiv :
+    ( issec-map-inv-equiv ·r (map-equiv e)) ~
+    ( (map-equiv e) ·l isretr-map-inv-equiv)
+  coherence-map-inv-equiv =
+    coherence-map-inv-is-equiv (is-equiv-map-equiv e)
 
 {- Theorem 10.4.6 -}
 

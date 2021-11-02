@@ -1,6 +1,6 @@
 {-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
 
-module combinatorics.unordered-pairs where
+module univalent-combinatorics.unordered-pairs where
 
 import book
 open book public

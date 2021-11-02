@@ -468,13 +468,13 @@ hom-1-Type A B =
 type-Π-Truncated-Type' :
   (k : 𝕋) {l1 l2 : Level} (A : UU l1) (B : A → UU-Truncated-Type k l2) →
   UU (l1 ⊔ l2)
-type-Π-Truncated-Type' k A B = (x : A) → type-Truncated-Type k (B x)
+type-Π-Truncated-Type' k A B = (x : A) → type-Truncated-Type (B x)
 
 is-trunc-type-Π-Truncated-Type' :
   (k : 𝕋) {l1 l2 : Level} (A : UU l1) (B : A → UU-Truncated-Type k l2) →
   is-trunc k (type-Π-Truncated-Type' k A B)
 is-trunc-type-Π-Truncated-Type' k A B =
-  is-trunc-Π k (λ x → is-trunc-type-Truncated-Type k (B x))
+  is-trunc-Π k (λ x → is-trunc-type-Truncated-Type (B x))
 
 Π-Truncated-Type' :
   (k : 𝕋) {l1 l2 : Level} (A : UU l1) (B : A → UU-Truncated-Type k l2) →
@@ -486,24 +486,24 @@ is-trunc-type-Π-Truncated-Type' k A B =
 
 type-Π-Truncated-Type :
   (k : 𝕋) {l1 l2 : Level} (A : UU-Truncated-Type k l1)
-  (B : type-Truncated-Type k A → UU-Truncated-Type k l2) →
+  (B : type-Truncated-Type A → UU-Truncated-Type k l2) →
   UU (l1 ⊔ l2)
 type-Π-Truncated-Type k A B =
-  type-Π-Truncated-Type' k (type-Truncated-Type k A) B
+  type-Π-Truncated-Type' k (type-Truncated-Type A) B
 
 is-trunc-type-Π-Truncated-Type :
   (k : 𝕋) {l1 l2 : Level} (A : UU-Truncated-Type k l1)
-  (B : type-Truncated-Type k A → UU-Truncated-Type k l2) →
+  (B : type-Truncated-Type A → UU-Truncated-Type k l2) →
   is-trunc k (type-Π-Truncated-Type k A B)
 is-trunc-type-Π-Truncated-Type k A B =
-  is-trunc-type-Π-Truncated-Type' k (type-Truncated-Type k A) B
+  is-trunc-type-Π-Truncated-Type' k (type-Truncated-Type A) B
 
 Π-Truncated-Type :
   (k : 𝕋) {l1 l2 : Level} (A : UU-Truncated-Type k l1)
-  (B : type-Truncated-Type k A → UU-Truncated-Type k l2) →
+  (B : type-Truncated-Type A → UU-Truncated-Type k l2) →
   UU-Truncated-Type k (l1 ⊔ l2)
 Π-Truncated-Type k A B =
-  Π-Truncated-Type' k (type-Truncated-Type k A) B
+  Π-Truncated-Type' k (type-Truncated-Type A) B
 
 -- We define the type of morphisms between truncated types
 
@@ -511,14 +511,14 @@ type-hom-Truncated-Type :
   (k : 𝕋) {l1 l2 : Level} (A : UU-Truncated-Type k l1)
   (B : UU-Truncated-Type k l2) → UU (l1 ⊔ l2)
 type-hom-Truncated-Type k A B =
-  type-Truncated-Type k A → type-Truncated-Type k B
+  type-Truncated-Type A → type-Truncated-Type B
 
 is-trunc-type-hom-Truncated-Type :
   (k : 𝕋) {l1 l2 : Level} (A : UU-Truncated-Type k l1)
   (B : UU-Truncated-Type k l2) →
   is-trunc k (type-hom-Truncated-Type k A B)
 is-trunc-type-hom-Truncated-Type k A B =
-  is-trunc-function-type k (is-trunc-type-Truncated-Type k B)
+  is-trunc-function-type k (is-trunc-type-Truncated-Type B)
 
 hom-Truncated-Type :
   (k : 𝕋) {l1 l2 : Level} (A : UU-Truncated-Type k l1)
@@ -931,6 +931,32 @@ abstract
       ( pair B star)
       ( f)
       ( λ l C → is-equiv-precomp-f l (pr1 C))
+
+is-equiv-is-equiv-precomp-Prop :
+  {l1 l2 : Level} (P : UU-Prop l1) (Q : UU-Prop l2)
+  (f : type-Prop P → type-Prop Q) →
+  ({l : Level} (R : UU-Prop l) → is-equiv (precomp f (type-Prop R))) →
+  is-equiv f
+is-equiv-is-equiv-precomp-Prop P Q f H =
+  is-equiv-is-equiv-precomp-subuniverse id (λ l → is-prop) P Q f (λ l → H {l})
+
+is-equiv-is-equiv-precomp-Set :
+  {l1 l2 : Level} (A : UU-Set l1) (B : UU-Set l2)
+  (f : type-Set A → type-Set B) →
+  ({l : Level} (C : UU-Set l) → is-equiv (precomp f (type-Set C))) →
+  is-equiv f
+is-equiv-is-equiv-precomp-Set A B f H =
+  is-equiv-is-equiv-precomp-subuniverse id (λ l → is-set) A B f (λ l → H {l})
+
+is-equiv-is-equiv-precomp-Truncated-Type :
+  {l1 l2 : Level} (k : 𝕋)
+  (A : UU-Truncated-Type k l1) (B : UU-Truncated-Type k l2)
+  (f : type-Truncated-Type A → type-Truncated-Type B) →
+  ({l : Level} (C : UU-Truncated-Type k l) → is-equiv (precomp f (pr1 C))) →
+  is-equiv f
+is-equiv-is-equiv-precomp-Truncated-Type k A B f H =
+    is-equiv-is-equiv-precomp-subuniverse id (λ l → is-trunc k) A B f
+      ( λ l → H {l})
 
 --------------------------------------------------------------------------------
 
