@@ -1,8 +1,8 @@
 {-# OPTIONS --without-K --exact-split #-}
 
-module combinatorics where
+module univalent-combinatorics where
 
-open import combinatorics.finite-graphs public
-open import combinatorics.homotopy-finiteness public
-open import combinatorics.ramsey-theory public
-open import combinatorics.unordered-pairs public
+open import univalent-combinatorics.finite-graphs public
+open import univalent-combinatorics.homotopy-finiteness public
+open import univalent-combinatorics.ramsey-theory public
+open import univalent-combinatorics.unordered-pairs public
