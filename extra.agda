@@ -24,5 +24,5 @@ open import extra.seven-trees-in-one public
 open import extra.subuniverses public
 open import extra.syllepsis public
 open import extra.towers public
-open import extra.univalent-combinatorics public
+open import extra.universes public
 open import extra.weakly-constant-maps public
