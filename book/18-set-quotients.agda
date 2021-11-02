@@ -2450,6 +2450,8 @@ is-set-connected-is-surjective-fiber-inclusion a H =
 
 -- Exercise 18.19
 
+-- Exercise 18.19 (a)
+
 module _
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B)
   where
@@ -2480,4 +2482,14 @@ module _
         ( y))
       ( x)
 
--- 
+-- Exercise 18.19 (b)
+
+  is-surjective-map-trunc-Set :
+    is-surjective f → is-surjective (map-trunc-Set f)
+  is-surjective-map-trunc-Set H =
+    apply-dependent-universal-property-trunc-Set
+      ( λ x → set-Prop (trunc-Prop (fib (map-trunc-Set f) x)))
+      ( λ b →
+        {!!})
+
+-- (Σ (x : ∥A∥₀), f x = η b)
