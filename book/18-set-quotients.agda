@@ -2490,6 +2490,29 @@ module _
     apply-dependent-universal-property-trunc-Set
       ( λ x → set-Prop (trunc-Prop (fib (map-trunc-Set f) x)))
       ( λ b →
-        {!!})
+        apply-universal-property-trunc-Prop
+          ( H b)
+          ( trunc-Prop (fib (map-trunc-Set f) (unit-trunc-Set b)))
+          ( λ { (pair a p) →
+                unit-trunc-Prop
+                  ( pair
+                    ( unit-trunc-Set a)
+                    ( naturality-trunc-Set f a ∙ ap unit-trunc-Set p))}))
 
--- (Σ (x : ∥A∥₀), f x = η b)
+  is-surjective-is-surjective-map-trunc-Set :
+    is-surjective (map-trunc-Set f) → is-surjective f
+  is-surjective-is-surjective-map-trunc-Set H b =
+    apply-universal-property-trunc-Prop
+      ( H (unit-trunc-Set b))
+      ( trunc-Prop (fib f b))
+      ( λ { (pair x p) →
+            apply-universal-property-trunc-Prop
+              ( is-surjective-unit-trunc-Set A x)
+              ( trunc-Prop (fib f b))
+              ( λ { (pair a refl) →
+                    apply-universal-property-trunc-Prop
+                      ( map-equiv
+                        ( is-effective-unit-trunc-Set B (f a) b)
+                        ( inv (naturality-trunc-Set f a) ∙ p))
+                      ( trunc-Prop (fib f b))
+                      ( λ q → unit-trunc-Prop (pair a q))})})
