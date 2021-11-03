@@ -723,6 +723,10 @@ is-trunc-is-contr neg-two-𝕋 is-contr-A = is-contr-A
 is-trunc-is-contr (succ-𝕋 k) is-contr-A =
   is-trunc-succ-is-trunc k (is-trunc-is-contr k is-contr-A)
 
+is-set-is-contr :
+  {l : Level} {A : UU l} → is-contr A → is-set A
+is-set-is-contr = is-trunc-is-contr zero-𝕋
+
 -- We also conclude that a proposition is (k+1)-truncated for any k
 
 is-trunc-is-prop :

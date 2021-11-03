@@ -1637,6 +1637,14 @@ equiv-unit-trunc-Set A =
 equiv-unit-trunc-empty-Set : empty ≃ type-trunc-Set empty
 equiv-unit-trunc-empty-Set = equiv-unit-trunc-Set empty-Set
 
+is-empty-trunc-Set :
+  {l : Level} {A : UU l} → is-empty A → is-empty (type-trunc-Set A)
+is-empty-trunc-Set f x = apply-universal-property-trunc-Set x empty-Set f
+
+is-empty-is-empty-trunc-Set :
+  {l : Level} {A : UU l} → is-empty (type-trunc-Set A) → is-empty A
+is-empty-is-empty-trunc-Set f = f ∘ unit-trunc-Set
+
 equiv-unit-trunc-unit-Set : unit ≃ type-trunc-Set unit
 equiv-unit-trunc-unit-Set = equiv-unit-trunc-Set unit-Set
 
@@ -1648,6 +1656,14 @@ equiv-unit-trunc-ℤ-Set = equiv-unit-trunc-Set ℤ-Set
 
 equiv-unit-trunc-Fin-Set : (k : ℕ) → Fin k ≃ type-trunc-Set (Fin k)
 equiv-unit-trunc-Fin-Set k = equiv-unit-trunc-Set (Fin-Set k)
+
+is-contr-trunc-Set :
+  {l : Level} {A : UU l} → is-contr A → is-contr (type-trunc-Set A)
+is-contr-trunc-Set {l} {A} H =
+  is-contr-equiv'
+    ( A)
+    ( equiv-unit-trunc-Set (pair A (is-set-is-contr H)))
+    ( H)
 
 module _
   {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) (f : A → type-Set B)

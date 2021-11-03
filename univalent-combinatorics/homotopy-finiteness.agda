@@ -38,14 +38,26 @@ is-strong-homotopy-finite-Prop (succ-ℕ k) X =
     ( Π-Prop X
       ( λ x → Π-Prop X (λ y → is-strong-homotopy-finite-Prop k (Id x y))))
 
-is-homotopy-finite-Prop : {l : Level} (k : ℕ) → UU l → UU-Prop l
-is-homotopy-finite-Prop zero-ℕ X = is-finite-Prop (type-trunc-Set X)
-is-homotopy-finite-Prop (succ-ℕ k) X =
-  prod-Prop ( is-finite-Prop (type-trunc-Set X))
-            ( Π-Prop X
-              ( λ x → Π-Prop X (λ y → is-homotopy-finite-Prop k (Id x y))))
+is-strong-homotopy-finite : {l : Level} (k : ℕ) → UU l → UU l
+is-strong-homotopy-finite k A =
+  type-Prop (is-strong-homotopy-finite-Prop k A)
 
 -- We introduce homotopy finite types
+
+has-finite-connected-components-Prop : {l : Level} → UU l → UU-Prop l
+has-finite-connected-components-Prop A =
+  is-finite-Prop (type-trunc-Set A)
+
+has-finite-connected-components : {l : Level} → UU l → UU l
+has-finite-connected-components A =
+  type-Prop (has-finite-connected-components-Prop A)
+
+is-homotopy-finite-Prop : {l : Level} (k : ℕ) → UU l → UU-Prop l
+is-homotopy-finite-Prop zero-ℕ X = has-finite-connected-components-Prop X
+is-homotopy-finite-Prop (succ-ℕ k) X =
+  prod-Prop ( is-homotopy-finite-Prop zero-ℕ X)
+            ( Π-Prop X
+              ( λ x → Π-Prop X (λ y → is-homotopy-finite-Prop k (Id x y))))
 
 is-homotopy-finite : {l : Level} (k : ℕ) → UU l → UU l
 is-homotopy-finite k X = type-Prop (is-homotopy-finite-Prop k X)
@@ -127,6 +139,29 @@ is-homotopy-finite-empty zero-ℕ =
 is-homotopy-finite-empty (succ-ℕ k) =
   pair (is-homotopy-finite-empty zero-ℕ) ind-empty
 
+is-homotopy-finite-is-empty :
+  {l : Level} (k : ℕ) {A : UU l} → is-empty A → is-homotopy-finite k A
+is-homotopy-finite-is-empty zero-ℕ f =
+  is-finite-is-empty (is-empty-trunc-Set f)
+is-homotopy-finite-is-empty (succ-ℕ k) f =
+  pair
+    ( is-homotopy-finite-is-empty zero-ℕ f)
+    ( λ a → ex-falso (f a))
+
+is-homotopy-finite-is-contr :
+  {l : Level} (k : ℕ) {A : UU l} → is-contr A → is-homotopy-finite k A
+is-homotopy-finite-is-contr zero-ℕ H =
+  is-finite-is-contr (is-contr-trunc-Set H)
+is-homotopy-finite-is-contr (succ-ℕ k) H =
+  pair
+    ( is-homotopy-finite-is-contr zero-ℕ H)
+    ( λ x y →
+      is-homotopy-finite-is-contr k ( is-prop-is-contr H x y))
+
+is-homotopy-finite-unit :
+  (k : ℕ) → is-homotopy-finite k unit
+is-homotopy-finite-unit k = is-homotopy-finite-is-contr k is-contr-unit
+
 is-homotopy-finite-coprod :
   {l1 l2 : Level} (k : ℕ) {A : UU l1} {B : UU l2} →
   is-homotopy-finite k A → is-homotopy-finite k B →
@@ -154,6 +189,92 @@ is-homotopy-finite-coprod (succ-ℕ k) H K =
           is-homotopy-finite-equiv k
             ( compute-eq-coprod-inr-inr x y)
             ( pr2 K x y)})
+
+is-homotopy-finite-Maybe :
+  {l : Level} (k : ℕ) {A : UU l} →
+  is-homotopy-finite k A → is-homotopy-finite k (Maybe A)
+is-homotopy-finite-Maybe k H =
+  is-homotopy-finite-coprod k H (is-homotopy-finite-unit k)
+
+is-homotopy-finite-Fin :
+  (k n : ℕ) → is-homotopy-finite k (Fin n)
+is-homotopy-finite-Fin k zero-ℕ =
+  is-homotopy-finite-empty k
+is-homotopy-finite-Fin k (succ-ℕ n) =
+  is-homotopy-finite-Maybe k (is-homotopy-finite-Fin k n)
+
+is-homotopy-finite-count :
+  {l : Level} (k : ℕ) {A : UU l} → count A → is-homotopy-finite k A
+is-homotopy-finite-count k (pair n e) =
+  is-homotopy-finite-equiv' k e (is-homotopy-finite-Fin k n)
+
+is-homotopy-finite-is-finite :
+  {l : Level} (k : ℕ) {A : UU l} → is-finite A → is-homotopy-finite k A
+is-homotopy-finite-is-finite k {A} H =
+  apply-universal-property-trunc-Prop H
+    ( is-homotopy-finite-Prop k A)
+    ( is-homotopy-finite-count k)
+
+is-finite-has-finite-connected-components :
+  {l : Level} {A : UU l} →
+  is-set A → has-finite-connected-components A → is-finite A
+is-finite-has-finite-connected-components H =
+  is-finite-equiv' (equiv-unit-trunc-Set (pair _ H))
+
+has-finite-connected-components-is-homotopy-finite :
+  {l : Level} (k : ℕ) {A : UU l} →
+  is-homotopy-finite k A → has-finite-connected-components A
+has-finite-connected-components-is-homotopy-finite zero-ℕ H = H
+has-finite-connected-components-is-homotopy-finite (succ-ℕ k) H = pr1 H
+
+is-homotopy-finite-is-homotopy-finite-succ-ℕ :
+  {l : Level} (k : ℕ) {A : UU l} →
+  is-homotopy-finite (succ-ℕ k) A → is-homotopy-finite k A
+is-homotopy-finite-is-homotopy-finite-succ-ℕ zero-ℕ H =
+  has-finite-connected-components-is-homotopy-finite one-ℕ H
+is-homotopy-finite-is-homotopy-finite-succ-ℕ (succ-ℕ k) H =
+  pair
+    ( has-finite-connected-components-is-homotopy-finite (succ-ℕ (succ-ℕ k)) H)
+    ( λ x y → is-homotopy-finite-is-homotopy-finite-succ-ℕ k (pr2 H x y))
+
+is-homotopy-finite-one-is-homotopy-finite-succ-ℕ :
+  {l : Level} (k : ℕ) {A : UU l} →
+  is-homotopy-finite (succ-ℕ k) A → is-homotopy-finite one-ℕ A
+is-homotopy-finite-one-is-homotopy-finite-succ-ℕ zero-ℕ H = H
+is-homotopy-finite-one-is-homotopy-finite-succ-ℕ (succ-ℕ k) H =
+  is-homotopy-finite-one-is-homotopy-finite-succ-ℕ k
+    ( is-homotopy-finite-is-homotopy-finite-succ-ℕ (succ-ℕ k) H)
+
+is-finite-is-homotopy-finite :
+  {l : Level} (k : ℕ) {A : UU l} → is-set A →
+  is-homotopy-finite k A → is-finite A
+is-finite-is-homotopy-finite k H K =
+  is-finite-equiv'
+    ( equiv-unit-trunc-Set (pair _ H))
+    ( has-finite-connected-components-is-homotopy-finite k K)
+
+is-strong-homotopy-finite-is-homotopy-finite :
+  {l : Level} (k : ℕ) {A : UU l} → is-trunc (truncation-level-ℕ k) A →
+  is-homotopy-finite k A → is-strong-homotopy-finite k A
+is-strong-homotopy-finite-is-homotopy-finite zero-ℕ H K =
+  is-finite-is-homotopy-finite zero-ℕ H K
+is-strong-homotopy-finite-is-homotopy-finite (succ-ℕ k) H K =
+  pair
+    ( pr1 K)
+    ( λ x y →
+      is-strong-homotopy-finite-is-homotopy-finite k (H x y) (pr2 K x y))
+
+is-homotopy-finite-is-strong-homotopy-finite :
+  {l : Level} (k : ℕ) {A : UU l} →
+  is-strong-homotopy-finite k A → is-homotopy-finite k A
+is-homotopy-finite-is-strong-homotopy-finite zero-ℕ H =
+  is-finite-equiv
+    ( equiv-unit-trunc-Set (pair _ (is-set-is-finite H)))
+    ( H)
+is-homotopy-finite-is-strong-homotopy-finite (succ-ℕ k) H =
+  pair
+    ( pr1 H)
+    ( λ x y → is-homotopy-finite-is-strong-homotopy-finite k (pr2 H x y))
 
 -- Proposition 1.5
 
@@ -229,12 +350,12 @@ is-locally-finite-Σ {B = B} H K (pair x y) (pair x' y') =
 
 -- Proposition 1.7
 
-is-homotopy-finite-Σ-is-set-connected :
+has-finite-connected-components-Σ-is-set-connected :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
   is-set-connected A → is-homotopy-finite one-ℕ A →
-  ((x : A) → is-homotopy-finite zero-ℕ (B x)) →
-  is-homotopy-finite zero-ℕ (Σ A B)
-is-homotopy-finite-Σ-is-set-connected {A = A} {B} C H K =
+  ((x : A) → has-finite-connected-components (B x)) →
+  has-finite-connected-components (Σ A B)
+has-finite-connected-components-Σ-is-set-connected {A = A} {B} C H K =
   apply-universal-property-trunc-Prop
     ( is-inhabited-is-set-connected C)
     ( is-homotopy-finite-Prop zero-ℕ (Σ A B))
@@ -361,14 +482,47 @@ is-homotopy-finite-Σ-is-set-connected {A = A} {B} C H K =
                               ( pair
                                 ( unit-trunc-Set ω)
                                 ( map-inv-equiv
-                                  ( equiv-eq
-                                    ( ap pr1
-                                      ( triangle-universal-property-trunc-Set
-                                        ( UU-Prop-Set _)
-                                        ( λ ω' →
-                                          trunc-Prop
-                                            ( Id (tr B ω' y) y')) ω)))
-                                            ( unit-trunc-Prop r)))}) ∘
+                                  ( compute-P ω)
+                                  ( unit-trunc-Prop r)))}) ∘
                         ( pair-eq-Σ)))
                   ( f)
 
+-- Proposition 1.8
+
+has-finite-connected-components-Σ :
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → is-homotopy-finite one-ℕ A →
+  ((x : A) → has-finite-connected-components (B x)) →
+  has-finite-connected-components (Σ A B)
+has-finite-connected-components-Σ {l1} {l2} {A} {B} H K =
+  apply-universal-property-trunc-Prop
+    ( pr1 H)
+    ( has-finite-connected-components-Prop (Σ A B))
+    ( α)
+  where
+  α : count (type-trunc-Set A) → has-finite-connected-components (Σ A B)
+  α (pair k e) =
+    {!!}
+
+{-
+is-homotopy-finite-Σ :
+  {l1 l2 : Level} (k : ℕ) {A : UU l1} {B : A → UU l2} →
+  is-homotopy-finite (succ-ℕ k) A → ((x : A) → is-homotopy-finite k (B x)) →
+  is-homotopy-finite k (Σ A B)
+is-homotopy-finite-Σ zero-ℕ {A} {B} H K =
+  apply-universal-property-trunc-Prop
+    ( pr1 H)
+    ( is-homotopy-finite-Prop zero-ℕ (Σ A B))
+    ( α)
+  where
+  α : count (type-trunc-Set A) → is-homotopy-finite zero-ℕ (Σ A B)
+  α (pair zero-ℕ e) =
+    is-homotopy-finite-is-empty zero-ℕ
+      ( is-empty-is-empty-trunc-Set (map-inv-equiv e) ∘ pr1)
+  α (pair (succ-ℕ n) e) =
+    is-homotopy-finite-equiv' zero-ℕ
+      ( ( equiv-Σ B
+          ( equiv-total-fib (unit-trunc-Set {A = A}))
+          ( λ x → equiv-id)))
+      {!!}
+is-homotopy-finite-Σ (succ-ℕ k) H K = {!!}
+-}
