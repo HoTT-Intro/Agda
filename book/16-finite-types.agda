@@ -1273,6 +1273,14 @@ is-finite-is-contr :
   {l1 : Level} {X : UU l1} → is-contr X → is-finite X
 is-finite-is-contr H = is-finite-count (count-is-contr H)
 
+is-finite-is-decidable-Prop :
+  {l : Level} (P : UU-Prop l) →
+  is-decidable (type-Prop P) → is-finite (type-Prop P)
+is-finite-is-decidable-Prop P (inl x) =
+  is-finite-is-contr (is-proof-irrelevant-is-prop (is-prop-type-Prop P) x)
+is-finite-is-decidable-Prop P (inr x) =
+  is-finite-is-empty x
+
 is-finite-Fin : {k : ℕ} → is-finite (Fin k)
 is-finite-Fin {k} = is-finite-count (count-Fin k)
 

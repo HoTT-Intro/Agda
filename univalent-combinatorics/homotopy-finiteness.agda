@@ -298,7 +298,7 @@ is-homotopy-finite-Σ-is-set-connected {A = A} {B} C H K =
               ( is-decidable-type-trunc-Prop-is-finite
                 ( is-finite-Σ
                   ( pr2 H a a)
-                  {! is-finite-is-decidable-subtype!}))
+                  ( λ ω → is-finite-is-decidable-Prop (P ω) (d ω))))
             
             where
             ℙ : is-contr
@@ -313,16 +313,16 @@ is-homotopy-finite-Σ-is-set-connected {A = A} {B} C H K =
             P : type-trunc-Set (Id a a) → UU-Prop _
             P = pr1 (center ℙ)
             compute-P :
-              ( ω₁ : Id a a) →
-              type-trunc-Prop (Id (tr B ω₁ y) y') ≃
-              type-Prop (P (unit-trunc-Set ω₁))
-            compute-P ω = inv-equiv (equiv-eq (ap pr1 (pr2 (center ℙ) ω)))
+              ( ω : Id a a) →
+              type-Prop (P (unit-trunc-Set ω)) ≃
+              type-trunc-Prop (Id (tr B ω y) y') 
+            compute-P ω = equiv-eq (ap pr1 (pr2 (center ℙ) ω))
             d : (t : type-trunc-Set (Id a a)) → is-decidable (type-Prop (P t))
             d = apply-dependent-universal-property-trunc-Set
                 ( λ t → set-Prop (is-decidable-Prop (P t)))
                 ( λ ω →
                   is-decidable-equiv'
-                    ( compute-P ω)
+                    ( inv-equiv (compute-P ω))
                     ( is-decidable-equiv'
                       ( is-effective-unit-trunc-Set (B a) (tr B ω y) y')
                       ( has-decidable-equality-is-finite
@@ -332,7 +332,22 @@ is-homotopy-finite-Σ-is-set-connected {A = A} {B} C H K =
             f : type-hom-Prop
                 ( trunc-Prop (Σ (type-trunc-Set (Id a a)) (type-Prop ∘ P)))
                 ( mere-eq-Prop {A = Σ A B} (pair a y) (pair a y'))
-            f = {!!}
+            f t = apply-universal-property-trunc-Prop t
+                    ( mere-eq-Prop (pair a y) (pair a y'))
+                     λ { (pair u v) →
+                         apply-dependent-universal-property-trunc-Set
+                           ( λ u' →
+                             hom-Set
+                               ( set-Prop (P u'))
+                               ( set-Prop
+                                 ( mere-eq-Prop (pair a y) (pair a y'))))
+                           ( λ ω v' →
+                             apply-universal-property-trunc-Prop
+                               ( map-equiv (compute-P ω) v')
+                               ( mere-eq-Prop (pair a y) (pair a y'))
+                               ( λ p → unit-trunc-Prop (eq-pair-Σ ω p)))
+                           ( u)
+                           ( v)}
             e : mere-eq {A = Σ A B} (pair a y) (pair a y') ≃
                 type-trunc-Prop (Σ (type-trunc-Set (Id a a)) (type-Prop ∘ P))
             e = equiv-iff
@@ -356,3 +371,4 @@ is-homotopy-finite-Σ-is-set-connected {A = A} {B} C H K =
                                             ( unit-trunc-Prop r)))}) ∘
                         ( pair-eq-Σ)))
                   ( f)
+
