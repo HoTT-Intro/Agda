@@ -350,14 +350,14 @@ is-locally-finite-Σ {B = B} H K (pair x y) (pair x' y') =
 
 -- Proposition 1.7
 
-has-finite-connected-components-Σ-is-set-connected :
+has-finite-connected-components-Σ-is-path-connected :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  is-set-connected A → is-homotopy-finite one-ℕ A →
+  is-path-connected A → is-homotopy-finite one-ℕ A →
   ((x : A) → has-finite-connected-components (B x)) →
   has-finite-connected-components (Σ A B)
-has-finite-connected-components-Σ-is-set-connected {A = A} {B} C H K =
+has-finite-connected-components-Σ-is-path-connected {A = A} {B} C H K =
   apply-universal-property-trunc-Prop
-    ( is-inhabited-is-set-connected C)
+    ( is-inhabited-is-path-connected C)
     ( is-homotopy-finite-Prop zero-ℕ (Σ A B))
     ( α)
     
@@ -398,7 +398,7 @@ has-finite-connected-components-Σ-is-set-connected {A = A} {B} C H K =
             ( pair x y)
             ( pair x' y'))
           ( apply-universal-property-trunc-Prop
-            ( mere-eq-is-set-connected C a x)
+            ( mere-eq-is-path-connected C a x)
             ( is-decidable-Prop
               ( mere-eq-Prop (pair x y) (pair x' y')))
               ( δ))
@@ -407,7 +407,7 @@ has-finite-connected-components-Σ-is-set-connected {A = A} {B} C H K =
         δ : Id a x → is-decidable (mere-eq (pair x y) (pair x' y'))
         δ refl =
           apply-universal-property-trunc-Prop
-            ( mere-eq-is-set-connected C a x')
+            ( mere-eq-is-path-connected C a x')
             ( is-decidable-Prop
               ( mere-eq-Prop (pair a y) (pair x' y')))
             ( ε)
@@ -489,6 +489,48 @@ has-finite-connected-components-Σ-is-set-connected {A = A} {B} C H K =
 
 -- Proposition 1.8
 
+is-coprod-codomain :
+  {l1 l2 l3 : Level} {A1 : UU l1} {A2 : UU l2} {B : UU l3}
+  (f : coprod A1 A2 → B) (e : coprod A1 A2 ≃ type-trunc-Set B)
+  (H : (unit-trunc-Set ∘ f) ~ map-equiv e) →
+  B ≃ coprod (im (f ∘ inl)) (im (f ∘ inr))
+is-coprod-codomain {B = B} f e H = {!universal-property-coprod!}
+  where
+  α' : (b : B) → fib (map-equiv e) (unit-trunc-Set b) →
+       coprod (im (f ∘ inl)) (im (f ∘ inr))
+  α' b (pair (inl a1) p) =
+    inl ( pair b
+          ( apply-universal-property-trunc-Prop
+            ( apply-effectiveness-unit-trunc-Set (H (inl a1) ∙ p))
+            ( trunc-Prop (fib (f ∘ inl) b))
+            ( λ q → unit-trunc-Prop (pair a1 q))))
+  α' b (pair (inr a2) p) =
+    inr ( pair b
+          ( apply-universal-property-trunc-Prop
+            ( apply-effectiveness-unit-trunc-Set (H (inr a2) ∙ p))
+            ( trunc-Prop (fib (f ∘ inr) b))
+            ( λ q → unit-trunc-Prop (pair a2 q))))
+  α : B → coprod (im (f ∘ inl)) (im (f ∘ inr))
+  α b = α' b ( pair (map-inv-equiv e (unit-trunc-Set b))
+             ( issec-map-inv-equiv e (unit-trunc-Set b)))
+
+  β : coprod (im (f ∘ inl)) (im (f ∘ inr)) → B
+  β (inl x) = pr1 x
+  β (inr x) = pr1 x
+  is-emb-β : is-emb β
+  is-emb-β = {!!}
+  C : (b : B) (t : fib (map-equiv e) (unit-trunc-Set b)) →
+      is-contr
+        ( Σ (coprod (im (f ∘ inl)) (im (f ∘ inr)))
+            (λ t → Id (β t) b))
+  C b (pair (inl a1) p) =
+    apply-universal-property-trunc-Prop
+      ( apply-effectiveness-unit-trunc-Set (H (inl a1) ∙ p))
+      ( is-contr-Prop _)
+      ( λ { refl →
+          {!!}})
+  C b (pair (inr a2) p) = {!!}
+
 has-finite-connected-components-Σ :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → is-homotopy-finite one-ℕ A →
   ((x : A) → has-finite-connected-components (B x)) →
@@ -498,31 +540,33 @@ has-finite-connected-components-Σ {l1} {l2} {A} {B} H K =
     ( pr1 H)
     ( has-finite-connected-components-Prop (Σ A B))
     ( α)
+    
   where
   α : count (type-trunc-Set A) → has-finite-connected-components (Σ A B)
-  α (pair k e) =
-    {!!}
+  α (pair zero-ℕ e) =
+    is-homotopy-finite-is-empty zero-ℕ
+      ( is-empty-is-empty-trunc-Set (map-inv-equiv e) ∘ pr1)
+  α (pair (succ-ℕ k) e) =
+    apply-universal-property-trunc-Prop
+      ( has-finite-presentation-has-cardinality-components (unit-trunc-Prop e))
+      ( has-finite-connected-components-Prop (Σ A B))
+      ( β)
+      
+    where
+    β : Σ (Fin (succ-ℕ k) → A) (λ f → is-equiv (unit-trunc-Set ∘ f)) →
+        has-finite-connected-components (Σ A B)
+    β (pair f Eηf) =
+      {!!}
+      where
+      g : Σ A B ≃
+          coprod (Σ (im (f ∘ inl)) (B ∘ pr1)) (Σ (im (f ∘ inr)) (B ∘ pr1))
+      g = {!!}
 
 {-
 is-homotopy-finite-Σ :
   {l1 l2 : Level} (k : ℕ) {A : UU l1} {B : A → UU l2} →
   is-homotopy-finite (succ-ℕ k) A → ((x : A) → is-homotopy-finite k (B x)) →
   is-homotopy-finite k (Σ A B)
-is-homotopy-finite-Σ zero-ℕ {A} {B} H K =
-  apply-universal-property-trunc-Prop
-    ( pr1 H)
-    ( is-homotopy-finite-Prop zero-ℕ (Σ A B))
-    ( α)
-  where
-  α : count (type-trunc-Set A) → is-homotopy-finite zero-ℕ (Σ A B)
-  α (pair zero-ℕ e) =
-    is-homotopy-finite-is-empty zero-ℕ
-      ( is-empty-is-empty-trunc-Set (map-inv-equiv e) ∘ pr1)
-  α (pair (succ-ℕ n) e) =
-    is-homotopy-finite-equiv' zero-ℕ
-      ( ( equiv-Σ B
-          ( equiv-total-fib (unit-trunc-Set {A = A}))
-          ( λ x → equiv-id)))
-      {!!}
+is-homotopy-finite-Σ zero-ℕ {A} {B} H K = ?
 is-homotopy-finite-Σ (succ-ℕ k) H K = {!!}
 -}

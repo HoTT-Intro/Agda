@@ -2431,28 +2431,28 @@ has-cardinality-components-has-finite-presentation {l} {k} {A} H =
 
 -- Exercise 18.18
 
-is-set-connected-Prop : {l : Level} → UU l → UU-Prop l
-is-set-connected-Prop A = is-contr-Prop (type-trunc-Set A)
+is-path-connected-Prop : {l : Level} → UU l → UU-Prop l
+is-path-connected-Prop A = is-contr-Prop (type-trunc-Set A)
 
-is-set-connected : {l : Level} → UU l → UU l
-is-set-connected A = type-Prop (is-set-connected-Prop A)
+is-path-connected : {l : Level} → UU l → UU l
+is-path-connected A = type-Prop (is-path-connected-Prop A)
 
-is-inhabited-is-set-connected :
-  {l : Level} {A : UU l} → is-set-connected A → type-trunc-Prop A
-is-inhabited-is-set-connected {l} {A} C =
+is-inhabited-is-path-connected :
+  {l : Level} {A : UU l} → is-path-connected A → type-trunc-Prop A
+is-inhabited-is-path-connected {l} {A} C =
   apply-universal-property-trunc-Set
     ( center C)
     ( set-Prop (trunc-Prop A))
     ( unit-trunc-Prop)
 
-mere-eq-is-set-connected :
-  {l : Level} {A : UU l} → is-set-connected A → (x y : A) → mere-eq x y
-mere-eq-is-set-connected {A = A} H x y =
+mere-eq-is-path-connected :
+  {l : Level} {A : UU l} → is-path-connected A → (x y : A) → mere-eq x y
+mere-eq-is-path-connected {A = A} H x y =
   apply-effectiveness-unit-trunc-Set (eq-is-contr H)
 
-is-set-connected-mere-eq :
-  {l : Level} {A : UU l} (a : A) → ((x : A) → mere-eq a x) → is-set-connected A
-is-set-connected-mere-eq {l} {A} a e =
+is-path-connected-mere-eq :
+  {l : Level} {A : UU l} (a : A) → ((x : A) → mere-eq a x) → is-path-connected A
+is-path-connected-mere-eq {l} {A} a e =
   pair
     ( unit-trunc-Set a)
     ( apply-dependent-universal-property-trunc-Set
@@ -2461,10 +2461,10 @@ is-set-connected-mere-eq {l} {A} a e =
 
 is-surjective-fiber-inclusion :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  is-set-connected A → (a : A) → is-surjective (fiber-inclusion B a)
+  is-path-connected A → (a : A) → is-surjective (fiber-inclusion B a)
 is-surjective-fiber-inclusion {B = B} C a (pair x b) =
   apply-universal-property-trunc-Prop
-    ( mere-eq-is-set-connected C a x)
+    ( mere-eq-is-path-connected C a x)
     ( trunc-Prop (fib (fiber-inclusion B a) (pair x b)))
     ( λ { refl → unit-trunc-Prop (pair b refl)})
 
@@ -2478,12 +2478,12 @@ mere-eq-is-surjective-fiber-inclusion a H x =
     ( mere-eq-Prop a x)
     ( λ u → unit-trunc-Prop (ap pr1 (pr2 u)))
 
-is-set-connected-is-surjective-fiber-inclusion :
+is-path-connected-is-surjective-fiber-inclusion :
   {l1 : Level} {A : UU l1} (a : A) →
   ({l : Level} (B : A → UU l) → is-surjective (fiber-inclusion B a)) →
-  is-set-connected A
-is-set-connected-is-surjective-fiber-inclusion a H =
-  is-set-connected-mere-eq a (mere-eq-is-surjective-fiber-inclusion a H)
+  is-path-connected A
+is-path-connected-is-surjective-fiber-inclusion a H =
+  is-path-connected-mere-eq a (mere-eq-is-surjective-fiber-inclusion a H)
 
 -- Exercise 18.19
 
