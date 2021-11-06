@@ -1088,8 +1088,6 @@ abstract
 
 -- Exercise 11.6
 
--- Exercise 11.7
-
 is-emb-coprod :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3}
   {f : A → C} {g : B → C} → is-emb f → is-emb g → ((a : A) (b : B) →
@@ -1114,6 +1112,8 @@ is-emb-coprod {A = A} {B} {C} {f} {g} H K L (inr b) (inr b') =
     ( λ p → ap-comp (ind-coprod (λ x → C) f g) inr p)
     ( K b b')
     ( is-emb-inr A B b b')
+
+-- Exercise 11.7
 
 -- Exercise 11.8
 

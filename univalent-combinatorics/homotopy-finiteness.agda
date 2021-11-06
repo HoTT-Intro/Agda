@@ -493,43 +493,50 @@ is-coprod-codomain :
   {l1 l2 l3 : Level} {A1 : UU l1} {A2 : UU l2} {B : UU l3}
   (f : coprod A1 A2 → B) (e : coprod A1 A2 ≃ type-trunc-Set B)
   (H : (unit-trunc-Set ∘ f) ~ map-equiv e) →
-  B ≃ coprod (im (f ∘ inl)) (im (f ∘ inr))
-is-coprod-codomain {B = B} f e H = {!universal-property-coprod!}
+  coprod (im (f ∘ inl)) (im (f ∘ inr)) ≃ B
+is-coprod-codomain {B = B} f e H =
+  pair α (is-equiv-is-emb-is-surjective is-surj-α is-emb-α)
   where
-  α' : (b : B) → fib (map-equiv e) (unit-trunc-Set b) →
-       coprod (im (f ∘ inl)) (im (f ∘ inr))
-  α' b (pair (inl a1) p) =
-    inl ( pair b
-          ( apply-universal-property-trunc-Prop
-            ( apply-effectiveness-unit-trunc-Set (H (inl a1) ∙ p))
-            ( trunc-Prop (fib (f ∘ inl) b))
-            ( λ q → unit-trunc-Prop (pair a1 q))))
-  α' b (pair (inr a2) p) =
-    inr ( pair b
-          ( apply-universal-property-trunc-Prop
-            ( apply-effectiveness-unit-trunc-Set (H (inr a2) ∙ p))
-            ( trunc-Prop (fib (f ∘ inr) b))
-            ( λ q → unit-trunc-Prop (pair a2 q))))
-  α : B → coprod (im (f ∘ inl)) (im (f ∘ inr))
-  α b = α' b ( pair (map-inv-equiv e (unit-trunc-Set b))
-             ( issec-map-inv-equiv e (unit-trunc-Set b)))
-
-  β : coprod (im (f ∘ inl)) (im (f ∘ inr)) → B
-  β (inl x) = pr1 x
-  β (inr x) = pr1 x
-  is-emb-β : is-emb β
-  is-emb-β = {!!}
-  C : (b : B) (t : fib (map-equiv e) (unit-trunc-Set b)) →
-      is-contr
-        ( Σ (coprod (im (f ∘ inl)) (im (f ∘ inr)))
-            (λ t → Id (β t) b))
-  C b (pair (inl a1) p) =
+  α : coprod (im (f ∘ inl)) (im (f ∘ inr)) → B
+  α = ind-coprod (λ x → B) pr1 pr1
+  is-emb-α : is-emb α
+  is-emb-α =
+    is-emb-coprod
+      ( is-emb-pr1-is-subtype (λ b → is-prop-type-trunc-Prop))
+      ( is-emb-pr1-is-subtype (λ b → is-prop-type-trunc-Prop))
+      ( λ { (pair b1 u) (pair b2 v) →
+          apply-universal-property-trunc-Prop u
+            ( function-Prop _ empty-Prop)
+            ( λ
+              { (pair x refl) →
+                apply-universal-property-trunc-Prop v
+                  ( function-Prop _ empty-Prop)
+                  ( λ
+                    { (pair y refl) r →
+                      map-compute-eq-coprod-inl-inr x y
+                        ( is-injective-is-equiv
+                          ( is-equiv-map-equiv e)
+                          ( ( inv (H (inl x))) ∙
+                            ( ( ap unit-trunc-Set r) ∙
+                              ( H (inr y)))))})})})
+  htpy-α : (α ∘ map-coprod (map-im (f ∘ inl)) (map-im (f ∘ inr))) ~ f
+  htpy-α (inl a1) = refl
+  htpy-α (inr a2) = refl
+  is-surj-α : is-surjective α
+  is-surj-α b =
     apply-universal-property-trunc-Prop
-      ( apply-effectiveness-unit-trunc-Set (H (inl a1) ∙ p))
-      ( is-contr-Prop _)
-      ( λ { refl →
-          {!!}})
-  C b (pair (inr a2) p) = {!!}
+      ( apply-effectiveness-unit-trunc-Set
+        { x = b}
+        { y = f a}
+        ( inv (issec-map-inv-equiv e (unit-trunc-Set b)) ∙ inv (H a)))
+      ( trunc-Prop (fib α b))
+      ( λ p →
+        unit-trunc-Prop
+          ( pair
+            ( map-coprod (map-im (f ∘ inl)) (map-im (f ∘ inr)) a)
+            ( htpy-α a ∙ inv p)))
+    where
+    a = map-inv-equiv e (unit-trunc-Set b)
 
 has-finite-connected-components-Σ :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → is-homotopy-finite one-ℕ A →
