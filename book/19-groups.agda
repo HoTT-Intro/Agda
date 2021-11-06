@@ -1127,7 +1127,7 @@ abstract
     ( equiv-iso-eq-Semi-Group
       ( semi-group-Group G)
       ( semi-group-Group H)) ∘e
-    ( equiv-ap-pr1-is-subtype is-prop-is-group {s = G} {t = H})
+    ( equiv-ap-pr1 is-prop-is-group {s = G} {t = H})
 
 abstract
   is-contr-total-iso-Group :

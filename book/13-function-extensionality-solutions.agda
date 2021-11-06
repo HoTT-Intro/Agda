@@ -388,7 +388,7 @@ module _
   abstract
     is-emb-map-equiv :
       is-emb (map-equiv {A = A} {B = B})
-    is-emb-map-equiv = is-emb-pr1-is-subtype is-subtype-is-equiv
+    is-emb-map-equiv = is-emb-pr1 is-subtype-is-equiv
 
   -- Exercise 13.4 (d)
   

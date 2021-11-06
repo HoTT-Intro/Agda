@@ -1699,7 +1699,7 @@ is-trunc-UU-Trunc k l X Y =
   is-trunc-is-equiv k
     ( Id (pr1 X) (pr1 Y))
     ( ap pr1)
-    ( is-emb-pr1-is-subtype
+    ( is-emb-pr1
       ( is-prop-is-trunc k) X Y)
     ( is-trunc-is-equiv k
       ( (pr1 X) ≃ (pr1 Y))

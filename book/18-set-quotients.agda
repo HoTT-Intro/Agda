@@ -1065,7 +1065,7 @@ module _
       ( is-prop-equiv
         ( fib (precomp q (type-Set X)) f)
         ( equiv-tot
-          ( λ h → equiv-ap-pr1-is-subtype (is-prop-reflects-Eq-Rel R X)))
+          ( λ h → equiv-ap-pr1 (is-prop-reflects-Eq-Rel R X)))
         ( is-prop-map-is-emb (is-emb-precomp-is-surjective (pr1 E) X) f))
       ( pair
         ( λ b → pr1 (α b))
@@ -2360,9 +2360,11 @@ reduce-pre-ℚ x =
       ( int-reduce-denominator-pre-ℚ x)
       ( is-positive-int-reduce-denominator-pre-ℚ x))
 
+{-
 is-reduced-reduce-pre-ℚ :
   (x : pre-ℚ) → is-reduced-pre-ℚ (reduce-pre-ℚ x)
 is-reduced-reduce-pre-ℚ x = {!!}
+-}
 
 --------------------------------------------------------------------------------
 
@@ -2551,3 +2553,71 @@ module _
                         ( inv (naturality-trunc-Set f a) ∙ p))
                       ( trunc-Prop (fib f b))
                       ( λ q → unit-trunc-Prop (pair a q))})})
+
+  -- Exercise 18.19 (c)
+
+module _
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B)
+  where
+  
+  universal-property-image-map-trunc-map-im-Set :
+    {l : Level} →
+    universal-property-image l
+      ( map-trunc-Set f)
+      ( pair
+        ( map-trunc-Set (inclusion-im f))
+        ( is-emb-is-injective
+          ( is-set-type-trunc-Set)
+          ( is-injective-map-trunc-Set
+            ( inclusion-im f)
+            ( is-injective-is-emb (is-emb-inclusion-im f)))))
+      ( pair
+        ( map-trunc-Set (map-im f))
+        ( ( htpy-trunc-Set (triangle-im f)) ∙h
+          ( map-comp-trunc-Set (inclusion-im f) (map-im f))))
+  universal-property-image-map-trunc-map-im-Set =
+    universal-property-image-is-surjective
+      ( map-trunc-Set f)
+      ( pair
+        ( map-trunc-Set (inclusion-im f))
+        ( is-emb-is-injective
+          ( is-set-type-trunc-Set)
+          ( is-injective-map-trunc-Set
+            ( inclusion-im f)
+            ( is-injective-is-emb (is-emb-inclusion-im f)))))
+      ( pair
+        ( map-trunc-Set (map-im f))
+        ( ( htpy-trunc-Set (triangle-im f)) ∙h
+          ( map-comp-trunc-Set (inclusion-im f) (map-im f))))
+      ( is-surjective-map-trunc-Set
+        ( map-im f)
+        ( is-surjective-map-im f))
+
+  unit-im-map-trunc-Set :
+    im f → im (map-trunc-Set f)
+  unit-im-map-trunc-Set (pair b p) =
+    pair
+      ( unit-trunc-Set b)
+      ( apply-universal-property-trunc-Prop p
+        ( trunc-Prop (fib (map-trunc-Set f) (unit-trunc-Set b)))
+        ( λ u →
+          unit-trunc-Prop
+            ( pair
+              ( unit-trunc-Set (pr1 u))
+              ( naturality-trunc-Set f (pr1 u) ∙ ap unit-trunc-Set (pr2 u)))))
+
+  left-square-unit-im-map-trunc-Set :
+    ( map-im (map-trunc-Set f) ∘ unit-trunc-Set) ~
+    ( unit-im-map-trunc-Set ∘ map-im f)
+  left-square-unit-im-map-trunc-Set = {!!}
+  
+  is-set-truncation-im-map-trunc-Set :
+    {l : Level} →
+    is-set-truncation l
+      ( im-Set (trunc-Set A) (trunc-Set B) (map-trunc-Set f))
+      ( unit-im-map-trunc-Set)
+  is-set-truncation-im-map-trunc-Set {l} X = {!is-image-is-surjective!}
+  
+  trunc-im-Set :
+    type-trunc-Set (im f) ≃ im (map-trunc-Set f)
+  trunc-im-Set = {!!}

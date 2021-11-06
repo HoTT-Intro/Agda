@@ -26,7 +26,7 @@ has-decidable-equality-isolated-point :
   {l1 : Level} (A : UU l1) → has-decidable-equality (isolated-point A)
 has-decidable-equality-isolated-point A (pair x dx) (pair y dy) =
   is-decidable-equiv
-    ( equiv-ap-pr1-is-subtype is-prop-is-isolated)
+    ( equiv-ap-pr1 is-prop-is-isolated)
     ( dx y)
 
 is-set-isolated-point :

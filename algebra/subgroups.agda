@@ -84,7 +84,7 @@ subset-Subgroup G = pr1
 
 is-emb-subset-Subgroup :
   {l1 l2 : Level} (G : Group l1) → is-emb (subset-Subgroup {l2 = l2} G)
-is-emb-subset-Subgroup G = is-emb-pr1-is-subtype (is-prop-is-subgroup-Group G)
+is-emb-subset-Subgroup G = is-emb-pr1 (is-prop-is-subgroup-Group G)
 
 type-subset-Subgroup :
   {l1 l2 : Level} (G : Group l1) (P : Subgroup l2 G) →
@@ -133,7 +133,7 @@ is-emb-incl-group-Subgroup :
   {l1 l2 : Level} (G : Group l1) (P : Subgroup l2 G) →
   is-emb (incl-group-Subgroup G P)
 is-emb-incl-group-Subgroup G P =
-  is-emb-pr1-is-subtype (is-prop-type-subset-Subgroup G P)
+  is-emb-pr1 (is-prop-type-subset-Subgroup G P)
 
 eq-subgroup-eq-group :
   {l1 l2 : Level} (G : Group l1) (P : Subgroup l2 G) →

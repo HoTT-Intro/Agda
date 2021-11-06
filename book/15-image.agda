@@ -131,7 +131,7 @@ is-emb-inclusion-im :
   {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
   is-emb (inclusion-im f)
 is-emb-inclusion-im f =
-  is-emb-pr1-is-subtype (λ x → is-prop-type-trunc-Prop)
+  is-emb-pr1 (λ x → is-prop-type-trunc-Prop)
 
 emb-im :
   {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) → im f ↪ X
@@ -434,7 +434,7 @@ is-surjective-universal-property-image {A = A} {B} {X} f i q up-i b =
   is-emb-g : is-emb g
   is-emb-g = is-emb-comp' (map-emb i) pr1
     ( is-emb-map-emb i)
-    ( is-emb-pr1-is-subtype (λ x → is-prop-type-trunc-Prop))
+    ( is-emb-pr1 (λ x → is-prop-type-trunc-Prop))
   α : hom-slice (map-emb i) g
   α = map-inv-is-equiv
         ( up-i

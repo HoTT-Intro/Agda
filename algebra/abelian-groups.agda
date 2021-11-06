@@ -293,7 +293,7 @@ abstract
     {l1 : Level} (A B : Ab l1) → Id A B ≃ iso-Ab A B
   equiv-iso-eq-Ab' A B =
     ( equiv-iso-eq-Group' (group-Ab A) (group-Ab B)) ∘e
-    ( equiv-ap-pr1-is-subtype is-prop-is-abelian-Group {A} {B})
+    ( equiv-ap-pr1 is-prop-is-abelian-Group {A} {B})
 
 abstract
   is-contr-total-iso-Ab :

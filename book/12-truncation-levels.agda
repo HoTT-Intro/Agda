@@ -255,16 +255,16 @@ fib-emb-Prop f y =
        ( is-prop-map-is-emb (is-emb-map-emb f) y)
 
 abstract
-  is-emb-pr1-is-subtype :
+  is-emb-pr1 :
     {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
     is-subtype B → is-emb (pr1 {B = B})
-  is-emb-pr1-is-subtype {B = B} H =
+  is-emb-pr1 {B = B} H =
     is-emb-is-prop-map (λ x → is-prop-equiv (B x) (equiv-fib-pr1 x) (H x))
 
-equiv-ap-pr1-is-subtype : {i j : Level} {A : UU i} {B : A → UU j} →
+equiv-ap-pr1 : {i j : Level} {A : UU i} {B : A → UU j} →
   is-subtype B → {s t : Σ A B} → Id s t ≃ Id (pr1 s) (pr1 t)
-equiv-ap-pr1-is-subtype is-subtype-B {s} {t} =
-  pair (ap pr1) (is-emb-pr1-is-subtype is-subtype-B s t)
+equiv-ap-pr1 is-subtype-B {s} {t} =
+  pair (ap pr1) (is-emb-pr1 is-subtype-B s t)
 
 abstract
   is-subtype-is-emb-pr1 : {i j : Level} {A : UU i} {B : A → UU j} →
@@ -880,7 +880,7 @@ abstract
     ((x : A) → is-prop (P x)) →
     is-trunc (succ-𝕋 k) A → is-trunc (succ-𝕋 k) (Σ A P)
   is-trunc-succ-subtype k H is-trunc-A =
-    is-trunc-is-emb k pr1 (is-emb-pr1-is-subtype H) is-trunc-A
+    is-trunc-is-emb k pr1 (is-emb-pr1 H) is-trunc-A
 
 abstract
   is-prop-subtype :
