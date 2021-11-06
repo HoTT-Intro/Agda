@@ -1090,6 +1090,33 @@ abstract
 
 -- Exercise 11.7
 
+is-emb-coprod :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3}
+  {f : A → C} {g : B → C} → is-emb f → is-emb g → ((a : A) (b : B) →
+  ¬ (Id (f a) (g b))) → is-emb (ind-coprod (λ x → C) f g)
+is-emb-coprod {A = A} {B} {C} {f} {g} H K L (inl a) (inl a') =
+  is-equiv-left-factor
+    ( ap f)
+    ( ap (ind-coprod (λ x → C) f g))
+    ( ap inl)
+    ( λ p → ap-comp (ind-coprod (λ x → C) f g) inl p)
+    ( H a a')
+    ( is-emb-inl A B a a')
+is-emb-coprod {A = A} {B} {C} {f} {g} H K L (inl a) (inr b') =
+  is-equiv-is-empty (ap (ind-coprod (λ x → C) f g)) (L a b')
+is-emb-coprod {A = A} {B} {C} {f} {g} H K L (inr b) (inl a') =
+  is-equiv-is-empty (ap (ind-coprod (λ x → C) f g)) (L a' b ∘ inv)
+is-emb-coprod {A = A} {B} {C} {f} {g} H K L (inr b) (inr b') =
+  is-equiv-left-factor
+    ( ap g)
+    ( ap (ind-coprod (λ x → C) f g))
+    ( ap inr)
+    ( λ p → ap-comp (ind-coprod (λ x → C) f g) inr p)
+    ( K b b')
+    ( is-emb-inr A B b b')
+
+-- Exercise 11.8
+
 tot-htpy :
   {i j k : Level} {A : UU i} {B : A → UU j} {C : A → UU k}
   {f g : (x : A) → B x → C x} → (H : (x : A) → f x ~ g x) → tot f ~ tot g
@@ -1107,7 +1134,7 @@ tot-comp :
   tot (λ x → (g x) ∘ (f x)) ~ ((tot g) ∘ (tot f))
 tot-comp f g (pair x y) = refl
 
--- Exercise 11.8
+-- Exercise 11.9
 
 abstract
   fundamental-theorem-id-retr :
@@ -1152,7 +1179,7 @@ abstract
         is-fiberwise-equiv-i = fundamental-theorem-id-retr a i retr-i
     in is-equiv-sec-is-equiv (f x) (sec-f x) (is-fiberwise-equiv-i x)
 
--- Exercise 11.9
+-- Exercise 11.10
 
 abstract
   is-emb-sec-ap :
@@ -1161,7 +1188,7 @@ abstract
   is-emb-sec-ap f sec-ap-f x y =
     fundamental-theorem-id-sec x (λ y → ap f {y = y}) (sec-ap-f x) y
 
--- Exercise 11.10
+-- Exercise 11.11
 
 is-path-split :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} → (A → B) → UU (l1 ⊔ l2)
@@ -1215,7 +1242,7 @@ abstract
   is-coherently-invertible-is-equiv f =
     ( is-coherently-invertible-is-path-split f) ∘ (is-path-split-is-equiv f)
 
--- Exercise 11.11
+-- Exercise 11.12
 
 abstract
   is-equiv-top-is-equiv-bottom-square :
@@ -1309,33 +1336,4 @@ abstract
       ( is-equiv-map-equiv-total-fib f)
       ( is-equiv-map-equiv-total-fib g)
       ( is-equiv-tot-is-fiberwise-equiv E)
-
---------------------------------------------------------------------------------
-
--- Extra material
-
--- Equivalent finite sets have the same cardinality
-
-swap-top-two-Fin :
-  {n : ℕ} → Fin (succ-ℕ (succ-ℕ n)) → Fin (succ-ℕ (succ-ℕ n))
-swap-top-two-Fin (inl (inl x)) = inl (inl x)
-swap-top-two-Fin (inl (inr star)) = inr star
-swap-top-two-Fin (inr star) = inl (inr star)
-
-idempotent-top-two-Fin :
-  {n : ℕ} (x : Fin (succ-ℕ (succ-ℕ n))) →
-  Id (swap-top-two-Fin (swap-top-two-Fin x)) x
-idempotent-top-two-Fin (inl (inl x)) = refl
-idempotent-top-two-Fin (inl (inr star)) = refl
-idempotent-top-two-Fin (inr star) = refl
-
-is-equiv-swap-top-two-Fin :
-  {n : ℕ} → is-equiv (swap-top-two-Fin {n})
-is-equiv-swap-top-two-Fin =
-  is-equiv-has-inverse
-    swap-top-two-Fin
-    idempotent-top-two-Fin
-    idempotent-top-two-Fin
-
---------------------------------------------------------------------------------
 
