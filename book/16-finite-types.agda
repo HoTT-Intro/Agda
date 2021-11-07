@@ -2573,7 +2573,7 @@ is-finite-im-has-decidable-equality :
   has-decidable-equality B → is-finite (im f)
 is-finite-im-has-decidable-equality {f = f} K d =
   is-finite-codomain-has-decidable-equality K
-    ( is-surjective-map-im f)
+    ( is-surjective-map-unit-im f)
     ( λ x y →
       is-decidable-equiv
         ( equiv-Eq-total-subtype-eq (λ u → is-prop-type-trunc-Prop) x y)

@@ -389,7 +389,7 @@ set-quotient R = im (prop-Eq-Rel R)
 map-set-quotient :
   {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) →
   A → set-quotient R
-map-set-quotient R = map-im (prop-Eq-Rel R)
+map-set-quotient R = map-unit-im (prop-Eq-Rel R)
 
 class-set-quotient :
   {l1 l2 : Level} {A : UU l1} (R : Eq-Rel l2 A) →
@@ -971,23 +971,23 @@ module _
          ( b))
        ( pr2 (β b))
     where
-    α : reflects-Eq-Rel R (map-im q)
+    α : reflects-Eq-Rel R (map-unit-im q)
     α {x} {y} r =
       is-injective-is-emb
         ( is-emb-inclusion-im q)
-        ( map-equiv (convert-eq-values-htpy (triangle-im q) x y) (H r))
+        ( map-equiv (convert-eq-values-htpy (triangle-unit-im q) x y) (H r))
     β : type-Set B → im q
     β = map-inv-is-equiv
           ( Q ( pair (im q) (is-set-im q (is-set-type-Set B))))
-          ( pair (map-im q) α)
-    γ : (β ∘ q) ~ map-im q
+          ( pair (map-unit-im q) α)
+    γ : (β ∘ q) ~ map-unit-im q
     γ = htpy-eq
           ( ap pr1
             ( issec-map-inv-is-equiv
               ( Q (pair (im q) (is-set-im q (is-set-type-Set B))))
-              ( pair (map-im q) α)))
+              ( pair (map-unit-im q) α)))
     δ : ((inclusion-im q ∘ β) ∘ q) ~ q
-    δ = (inclusion-im q ·l γ) ∙h (triangle-im q)
+    δ = (inclusion-im q ·l γ) ∙h (triangle-unit-im q)
 
   is-effective-is-set-quotient :
     (H : reflects-Eq-Rel R q) →
@@ -2560,7 +2560,7 @@ module _
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B)
   where
   
-  universal-property-image-map-trunc-map-im-Set :
+  universal-property-image-map-trunc-map-unit-im-Set :
     {l : Level} →
     universal-property-image l
       ( map-trunc-Set f)
@@ -2572,10 +2572,10 @@ module _
             ( inclusion-im f)
             ( is-injective-is-emb (is-emb-inclusion-im f)))))
       ( pair
-        ( map-trunc-Set (map-im f))
-        ( ( htpy-trunc-Set (triangle-im f)) ∙h
-          ( map-comp-trunc-Set (inclusion-im f) (map-im f))))
-  universal-property-image-map-trunc-map-im-Set =
+        ( map-trunc-Set (map-unit-im f))
+        ( ( htpy-trunc-Set (triangle-unit-im f)) ∙h
+          ( map-comp-trunc-Set (inclusion-im f) (map-unit-im f))))
+  universal-property-image-map-trunc-map-unit-im-Set =
     universal-property-image-is-surjective
       ( map-trunc-Set f)
       ( pair
@@ -2586,20 +2586,20 @@ module _
             ( inclusion-im f)
             ( is-injective-is-emb (is-emb-inclusion-im f)))))
       ( pair
-        ( map-trunc-Set (map-im f))
-        ( ( htpy-trunc-Set (triangle-im f)) ∙h
-          ( map-comp-trunc-Set (inclusion-im f) (map-im f))))
+        ( map-trunc-Set (map-unit-im f))
+        ( ( htpy-trunc-Set (triangle-unit-im f)) ∙h
+          ( map-comp-trunc-Set (inclusion-im f) (map-unit-im f))))
       ( is-surjective-map-trunc-Set
-        ( map-im f)
-        ( is-surjective-map-im f))
+        ( map-unit-im f)
+        ( is-surjective-map-unit-im f))
 
   unit-im-map-trunc-Set :
     im f → im (map-trunc-Set f)
-  unit-im-map-trunc-Set (pair b p) =
+  unit-im-map-trunc-Set x =
     pair
-      ( unit-trunc-Set b)
-      ( apply-universal-property-trunc-Prop p
-        ( trunc-Prop (fib (map-trunc-Set f) (unit-trunc-Set b)))
+      ( unit-trunc-Set (pr1 x))
+      ( apply-universal-property-trunc-Prop (pr2 x)
+        ( trunc-Prop (fib (map-trunc-Set f) (unit-trunc-Set (pr1 x))))
         ( λ u →
           unit-trunc-Prop
             ( pair
@@ -2607,9 +2607,19 @@ module _
               ( naturality-trunc-Set f (pr1 u) ∙ ap unit-trunc-Set (pr2 u)))))
 
   left-square-unit-im-map-trunc-Set :
-    ( map-im (map-trunc-Set f) ∘ unit-trunc-Set) ~
-    ( unit-im-map-trunc-Set ∘ map-im f)
-  left-square-unit-im-map-trunc-Set = {!!}
+    ( map-unit-im (map-trunc-Set f) ∘ unit-trunc-Set) ~
+    ( unit-im-map-trunc-Set ∘ map-unit-im f)
+  left-square-unit-im-map-trunc-Set a =
+    eq-Eq-im
+      ( map-trunc-Set f)
+      ( map-unit-im (map-trunc-Set f) (unit-trunc-Set a))
+      ( unit-im-map-trunc-Set (map-unit-im f a))
+      ( naturality-trunc-Set f a)
+
+  right-square-unit-im-map-trunc-Set :
+    ( inclusion-im (map-trunc-Set f) ∘ unit-im-map-trunc-Set) ~
+    ( unit-trunc-Set ∘ inclusion-im f)
+  right-square-unit-im-map-trunc-Set x = refl
   
   is-set-truncation-im-map-trunc-Set :
     {l : Level} →

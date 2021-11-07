@@ -103,27 +103,61 @@ universal-property-image-universal-property-image' l f i q up' C j =
 
 -- Definition 15.1.5
 
-im :
-  {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) → UU (l1 ⊔ l2)
-im {X = X} {A} f = Σ X (λ x → type-trunc-Prop (fib f x))
+module _
+  {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X)
+  where
+    
+  im : UU (l1 ⊔ l2)
+  im = Σ X (λ x → type-trunc-Prop (fib f x))
 
-inclusion-im :
-  {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) → im f → X
-inclusion-im f = pr1
+  inclusion-im : im → X
+  inclusion-im = pr1
 
-map-im :
-  {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) → A → im f
-map-im f a = pair (f a) (unit-trunc-Prop (pair a refl))
+  map-unit-im : A → im
+  map-unit-im a = pair (f a) (unit-trunc-Prop (pair a refl))
 
-triangle-im :
-  {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
-  f ~ (inclusion-im f ∘ map-im f)
-triangle-im f a = refl
+  triangle-unit-im : f ~ (inclusion-im ∘ map-unit-im)
+  triangle-unit-im a = refl
 
-hom-slice-im :
-  {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
-  hom-slice f (inclusion-im f)
-hom-slice-im f = pair (map-im f) (triangle-im f)
+  unit-im : hom-slice f inclusion-im
+  unit-im = pair map-unit-im triangle-unit-im
+
+  hom-slice-im : hom-slice f inclusion-im
+  hom-slice-im = pair map-unit-im triangle-unit-im
+
+  -- We characterize the identity type of im f
+
+  Eq-im : im → im → UU l1
+  Eq-im x y = Id (pr1 x) (pr1 y)
+
+  refl-Eq-im : (x : im) → Eq-im x x
+  refl-Eq-im x = refl
+
+  Eq-eq-im : (x y : im) → Id x y → Eq-im x y
+  Eq-eq-im x .x refl = refl-Eq-im x
+
+  is-contr-total-Eq-im :
+    (x : im) → is-contr (Σ im (Eq-im x))
+  is-contr-total-Eq-im x =
+    is-contr-total-Eq-substructure
+      ( is-contr-total-path (pr1 x))
+      ( λ x → is-prop-type-trunc-Prop)
+      ( pr1 x)
+      ( refl)
+      ( pr2 x)
+
+  is-equiv-Eq-eq-im : (x y : im) → is-equiv (Eq-eq-im x y)
+  is-equiv-Eq-eq-im x =
+    fundamental-theorem-id x
+      ( refl-Eq-im x)
+      ( is-contr-total-Eq-im x)
+      ( Eq-eq-im x)
+
+  equiv-Eq-eq-im : (x y : im) → Id x y ≃ Eq-im x y
+  equiv-Eq-eq-im x y = pair (Eq-eq-im x y) (is-equiv-Eq-eq-im x y)
+
+  eq-Eq-im : (x y : im) → Eq-im x y → Id x y
+  eq-Eq-im x y = map-inv-is-equiv (is-equiv-Eq-eq-im x y)
 
 -- Proposition 15.1.6
 
@@ -450,15 +484,15 @@ is-surjective-universal-property-image {A = A} {B} {X} f i q up-i b =
     unit-trunc-Prop
       ( pair a (p ∙ inv (is-injective-is-emb (is-emb-map-emb i) (pr2 α b))))
 
-is-surjective-map-im :
+is-surjective-map-unit-im :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  is-surjective (map-im f)
-is-surjective-map-im f (pair y z) =
+  is-surjective (map-unit-im f)
+is-surjective-map-unit-im f (pair y z) =
   apply-universal-property-trunc-Prop z
-    ( trunc-Prop (fib (map-im f) (pair y z)))
+    ( trunc-Prop (fib (map-unit-im f) (pair y z)))
     ( α)
   where
-  α : fib f y → type-Prop (trunc-Prop (fib (map-im f) (pair y z)))
+  α : fib f y → type-Prop (trunc-Prop (fib (map-unit-im f) (pair y z)))
   α (pair x p) =
     unit-trunc-Prop (pair x (eq-subtype (λ z → is-prop-type-trunc-Prop) p))
 

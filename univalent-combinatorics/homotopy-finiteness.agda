@@ -499,7 +499,7 @@ is-coprod-codomain {B = B} f e H =
   where
   α : coprod (im (f ∘ inl)) (im (f ∘ inr)) → B
   α = ind-coprod (λ x → B) pr1 pr1
-  triangle-α : (α ∘ map-coprod (map-im (f ∘ inl)) (map-im (f ∘ inr))) ~ f
+  triangle-α : (α ∘ map-coprod (map-unit-im (f ∘ inl)) (map-unit-im (f ∘ inr))) ~ f
   triangle-α (inl a1) = refl
   triangle-α (inr a2) = refl
   is-emb-α : is-emb α
@@ -531,7 +531,7 @@ is-coprod-codomain {B = B} f e H =
       ( λ p →
         unit-trunc-Prop
           ( pair
-            ( map-coprod (map-im (f ∘ inl)) (map-im (f ∘ inr)) a)
+            ( map-coprod (map-unit-im (f ∘ inl)) (map-unit-im (f ∘ inr)) a)
             ( triangle-α a ∙ inv p)))
     where
     a = map-inv-equiv e (unit-trunc-Set b)
