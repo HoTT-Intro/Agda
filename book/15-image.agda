@@ -97,25 +97,77 @@ is-image-is-image' l f i q up' C j =
     ( is-prop-hom-slice f j)
     ( up' C j)
 
-universal-property-image :
-  {l1 l2 l3 l4 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
-  { B : UU l3} (i : B ↪ X) (q : hom-slice f (map-emb i)) →
-  ( {l : Level} → is-image l f i q) → 
-  { C : UU l4} (j : C ↪ X) (r : hom-slice f (map-emb j)) →
-  is-contr
-    ( Σ ( hom-slice (map-emb i) (map-emb j))
+module _
+  {l1 l2 l3 l4 : Level} {X : UU l1} {A : UU l2} (f : A → X)
+  {B : UU l3} (i : B ↪ X) (q : hom-slice f (map-emb i))
+  (H : {l : Level} → is-image l f i q)
+  {C : UU l4} (j : C ↪ X) (r : hom-slice f (map-emb j))
+  where
+  
+  universal-property-image :
+    is-contr
+      ( Σ ( hom-slice (map-emb i) (map-emb j))
+          ( λ h →
+            htpy-hom-slice f
+              ( map-emb j)
+              ( comp-hom-slice f (map-emb i) (map-emb j) h q)
+              ( r)))
+  universal-property-image =
+    is-contr-equiv'
+      ( fib (precomp-emb f i q j) r)
+      ( equiv-tot
         ( λ h →
-          htpy-hom-slice f
-            ( map-emb j)
-            ( comp-hom-slice f (map-emb i) (map-emb j) h q)
-            ( r)))
-universal-property-image f i q H {C} j r =
-  is-contr-equiv
-    ( fib (precomp-emb f i q j) r)
-    ( equiv-tot
-      ( λ h →
-        {!!}))
-    ( is-contr-map-is-equiv (H C j) r)
+          equiv-htpy-eq-hom-slice f (map-emb j) (precomp-emb f i q j h) r))
+      ( is-contr-map-is-equiv (H C j) r)
+
+  hom-slice-universal-property-image : hom-slice (map-emb i) (map-emb j)
+  hom-slice-universal-property-image =
+    pr1 (center universal-property-image)
+
+  map-hom-slice-universal-property-image : B → C
+  map-hom-slice-universal-property-image =
+    map-hom-slice (map-emb i) (map-emb j) hom-slice-universal-property-image
+
+  triangle-hom-slice-universal-property-image :
+    (map-emb i) ~ (map-emb j ∘ map-hom-slice-universal-property-image)
+  triangle-hom-slice-universal-property-image =
+    triangle-hom-slice
+      ( map-emb i)
+      ( map-emb j)
+      ( hom-slice-universal-property-image)
+
+  htpy-hom-slice-universal-property-image :
+    htpy-hom-slice f
+      ( map-emb j)
+      ( comp-hom-slice f
+        ( map-emb i)
+        ( map-emb j)
+        ( hom-slice-universal-property-image)
+        ( q))
+      ( r)
+  htpy-hom-slice-universal-property-image =
+    pr2 (center universal-property-image)
+
+  htpy-map-hom-slice-universal-property-image :
+    map-hom-slice f
+      ( map-emb j)
+      ( comp-hom-slice f
+        ( map-emb i)
+        ( map-emb j)
+        ( hom-slice-universal-property-image)
+        ( q)) ~
+    map-hom-slice f (map-emb j) r
+  htpy-map-hom-slice-universal-property-image =
+    pr1 htpy-hom-slice-universal-property-image
+
+  tetrahedron-hom-slice-universal-property-image :
+    ( ( ( triangle-hom-slice f (map-emb i) q) ∙h
+        ( ( triangle-hom-slice-universal-property-image) ·r
+          ( map-hom-slice f (map-emb i) q))) ∙h
+      ( map-emb j ·l htpy-map-hom-slice-universal-property-image)) ~
+    ( triangle-hom-slice f (map-emb j) r)
+  tetrahedron-hom-slice-universal-property-image =
+    pr2 htpy-hom-slice-universal-property-image
 
 --------------------------------------------------------------------------------
 
@@ -364,7 +416,9 @@ module _
 module _
   {l1 l2 l3 l4 : Level} {X : UU l1} {A : UU l2} (f : A → X)
   {B : UU l3} (i : B ↪ X) (q : hom-slice f (map-emb i))
+  (Hi : {l : Level} → is-image l f i q)
   {B' : UU l4} (i' : B' ↪ X) (q' : hom-slice f (map-emb i'))
+  (Hi' : {l : Level} → is-image l f i' q')
   where
 
   uniqueness-image :
@@ -380,7 +434,37 @@ module _
                 ( q))
               ( q')))
   uniqueness-image =
-    {!!}
+    is-contr-equiv
+      ( Σ ( Σ ( hom-slice (map-emb i) (map-emb i'))
+              ( λ h →
+                htpy-hom-slice f
+                  ( map-emb i')
+                  ( comp-hom-slice f (map-emb i) (map-emb i') h q)
+                  ( q')))
+          ( λ h → is-equiv (pr1 (pr1 h))))
+      ( ( equiv-right-swap-Σ) ∘e
+        ( equiv-Σ
+          ( λ h →
+            htpy-hom-slice f
+              ( map-emb i')
+              ( comp-hom-slice f (map-emb i) (map-emb i') (pr1 h) q)
+              ( q'))
+          ( equiv-right-swap-Σ)
+          ( λ { (pair (pair e E) H) → equiv-id})))
+      ( is-contr-equiv
+        ( is-equiv
+          ( map-hom-slice-universal-property-image f i q Hi i' q'))
+        ( left-unit-law-Σ-is-contr
+          ( universal-property-image f i q Hi i' q')
+          ( center (universal-property-image f i q Hi i' q')))
+        ( is-proof-irrelevant-is-prop
+          ( is-subtype-is-equiv
+            ( map-hom-slice-universal-property-image f i q Hi i' q'))
+          ( is-equiv-is-image-is-image f i q i' q'
+            ( hom-slice-universal-property-image f i q Hi i' q')
+            ( Hi)
+            ( Hi'))))
+    
 --------------------------------------------------------------------------------
 
 -- Section 15.2 Surjective maps
