@@ -245,11 +245,11 @@ emb-im f = pair (inclusion-im f) (is-emb-inclusion-im f)
 
 -- Theorem 15.1.7
 
-fiberwise-map-universal-property-im :
+fiberwise-map-is-image-im :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3} (f : A → X) →
   (m : B ↪ X) (h : hom-slice f (map-emb m)) →
   (x : X) → type-trunc-Prop (fib f x) → fib (map-emb m) x
-fiberwise-map-universal-property-im f m h x =
+fiberwise-map-is-image-im f m h x =
   map-universal-property-trunc-Prop
     { A = (fib f x)}
     ( fib-emb-Prop m x)
@@ -258,28 +258,28 @@ fiberwise-map-universal-property-im f m h x =
            ( ( inv (triangle-hom-slice f (map-emb m) h (pr1 t))) ∙
              ( pr2 t)))
 
-map-universal-property-im :
+map-is-image-im :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3} (f : A → X) →
   (m : B ↪ X) (h : hom-slice f (map-emb m)) → im f → B
-map-universal-property-im f m h (pair x t) =
-  pr1 (fiberwise-map-universal-property-im f m h x t)
+map-is-image-im f m h (pair x t) =
+  pr1 (fiberwise-map-is-image-im f m h x t)
 
-triangle-universal-property-im :
+triangle-is-image-im :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3} (f : A → X) →
   (m : B ↪ X) (h : hom-slice f (map-emb m)) →
-  inclusion-im f ~ ((map-emb m) ∘ (map-universal-property-im f m h))
-triangle-universal-property-im f m h (pair x t) =
-  inv (pr2 (fiberwise-map-universal-property-im f m h x t))
+  inclusion-im f ~ ((map-emb m) ∘ (map-is-image-im f m h))
+triangle-is-image-im f m h (pair x t) =
+  inv (pr2 (fiberwise-map-is-image-im f m h x t))
 
-universal-property-im :
-  (l : Level) {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
-  is-image l f (emb-im f) (hom-slice-im f)
-universal-property-im l f =
+is-image-im :
+  {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
+  {l : Level} → is-image l f (emb-im f) (hom-slice-im f)
+is-image-im f {l} =
   is-image-is-image'
     l f (emb-im f) (hom-slice-im f)
     ( λ B m h →
-      pair ( map-universal-property-im f m h)
-           ( triangle-universal-property-im f m h))
+      pair ( map-is-image-im f m h)
+           ( triangle-is-image-im f m h))
 
 {- We show some truncatedness results, so that we can use images as sets, and
    so on. -}
@@ -521,6 +521,85 @@ module _
     ( triangle-hom-slice f (map-emb i') q')
   tetrahedron-hom-equiv-slice-uniqueness-image =
     pr2 htpy-equiv-slice-uniqueness-image
+
+module _
+  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} (f : A → X)
+  {B : UU l3} (i : B ↪ X) (q : hom-slice f (map-emb i))
+  (H : {l : Level} → is-image l f i q)
+  where
+
+  uniqueness-im :
+    is-contr
+      ( Σ ( equiv-slice (inclusion-im f) (map-emb i))
+          ( λ e →
+            htpy-hom-slice f
+              ( map-emb i)
+              ( comp-hom-slice f
+                ( inclusion-im f)
+                ( map-emb i)
+                ( hom-equiv-slice (inclusion-im f) (map-emb i) e)
+                ( hom-slice-im f))
+              ( q)))
+  uniqueness-im =
+    uniqueness-image f (emb-im f) (hom-slice-im f) (is-image-im f) i q H
+
+  equiv-slice-uniqueness-im : equiv-slice (inclusion-im f) (map-emb i)
+  equiv-slice-uniqueness-im =
+    pr1 (center uniqueness-im)
+
+  hom-equiv-slice-uniqueness-im : hom-slice (inclusion-im f) (map-emb i)
+  hom-equiv-slice-uniqueness-im =
+    hom-equiv-slice (inclusion-im f) (map-emb i) equiv-slice-uniqueness-im
+
+  map-hom-equiv-slice-uniqueness-im : im f → B
+  map-hom-equiv-slice-uniqueness-im =
+    map-hom-slice (inclusion-im f) (map-emb i) hom-equiv-slice-uniqueness-im
+
+  is-equiv-map-hom-equiv-slice-uniqueness-im :
+    is-equiv map-hom-equiv-slice-uniqueness-im
+  is-equiv-map-hom-equiv-slice-uniqueness-im =
+    is-equiv-map-equiv (pr1 equiv-slice-uniqueness-im)
+
+  equiv-equiv-slice-uniqueness-im : im f ≃ B
+  equiv-equiv-slice-uniqueness-im =
+    pair map-hom-equiv-slice-uniqueness-im
+         is-equiv-map-hom-equiv-slice-uniqueness-im
+
+  triangle-hom-equiv-slice-uniqueness-im :
+    (inclusion-im f) ~ (map-emb i ∘ map-hom-equiv-slice-uniqueness-im)
+  triangle-hom-equiv-slice-uniqueness-im =
+    triangle-hom-slice
+      ( inclusion-im f)
+      ( map-emb i)
+      ( hom-equiv-slice-uniqueness-im)
+
+  htpy-equiv-slice-uniqueness-im :
+    htpy-hom-slice f
+      ( map-emb i)
+      ( comp-hom-slice f
+        ( inclusion-im f)
+        ( map-emb i)
+        ( hom-equiv-slice-uniqueness-im)
+        ( hom-slice-im f))
+      ( q)
+  htpy-equiv-slice-uniqueness-im =
+    pr2 (center uniqueness-im)
+
+  htpy-map-hom-equiv-slice-uniqueness-im :
+    ( ( map-hom-equiv-slice-uniqueness-im) ∘
+      ( map-hom-slice f (inclusion-im f) (hom-slice-im f))) ~
+    ( map-hom-slice f (map-emb i) q)
+  htpy-map-hom-equiv-slice-uniqueness-im =
+    pr1 htpy-equiv-slice-uniqueness-im
+
+  tetrahedron-hom-equiv-slice-uniqueness-im :
+    ( ( ( triangle-hom-slice f (inclusion-im f) (hom-slice-im f)) ∙h
+        ( ( triangle-hom-equiv-slice-uniqueness-im) ·r
+          ( map-hom-slice f (inclusion-im f) (hom-slice-im f)))) ∙h
+      ( map-emb i ·l htpy-map-hom-equiv-slice-uniqueness-im)) ~
+    ( triangle-hom-slice f (map-emb i) q)
+  tetrahedron-hom-equiv-slice-uniqueness-im =
+    pr2 htpy-equiv-slice-uniqueness-im
     
 --------------------------------------------------------------------------------
 
