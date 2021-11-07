@@ -1497,7 +1497,7 @@ fib-fiber-inclusion :
 fib-fiber-inclusion B a t =
   ( ( right-unit-law-Σ-is-contr
       ( λ p → is-contr-map-is-equiv (is-equiv-tr B p) (pr2 t))) ∘e
-    ( equiv-Σ-swap (B a) (Id a (pr1 t)) (λ b p → Id (tr B p b) (pr2 t)))) ∘e
+    ( equiv-left-swap-Σ)) ∘e
   ( equiv-tot (λ b → equiv-pair-eq-Σ (pair a b) t))
 
 is-trunc-is-trunc-map-fiber-inclusion :

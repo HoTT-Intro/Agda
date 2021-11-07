@@ -732,8 +732,26 @@ eq-Eq-Π-total-fam :
   (t t' : (a : A) → Σ (B a) (C a)) → Eq-Π-total-fam C t t' → Id t t'
 eq-Eq-Π-total-fam C t t' = map-inv-is-equiv (is-equiv-Eq-Π-total-fam-eq C t t')
 
--- Corollary 13.2.3
+-- Corollary 13.2.3. Dependent functions are sections of projection maps
 
+module _
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2}
+  where
+
+  equiv-Π-sec-pr1 : sec (pr1 {B = B}) ≃ ((x : A) → B x)
+  equiv-Π-sec-pr1 =
+    ( ( left-unit-law-Σ-is-contr
+        ( is-contr-equiv
+          ( Π-total-fam (λ x y → Id y x))
+          ( inv-equiv equiv-choice-∞)
+          ( is-contr-Π (λ x → is-contr-total-path' x)))
+        ( pair id refl-htpy)) ∘e
+      ( equiv-right-swap-Σ)) ∘e
+    ( equiv-Σ
+      ( λ s → pr1 s ~ id)
+      ( equiv-choice-∞)
+      ( λ s → equiv-id))
+      
 -- Theorem 13.2.4
 
 is-contr-total-Eq-Π :

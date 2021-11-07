@@ -706,7 +706,7 @@ module _
   where
 
   equiv-slice' : (f g : slice-UU l2 A) → UU (l1 ⊔ l2)
-  equiv-slice' f g = equiv-slice A (pr2 f) (pr2 g)
+  equiv-slice' f g = equiv-slice (pr2 f) (pr2 g)
   
   equiv-id-slice-UU : (f : slice-UU l2 A) → equiv-slice' f f
   equiv-id-slice-UU f = pair equiv-id refl-htpy
@@ -1136,7 +1136,7 @@ fib-comp :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} (g : B → C) (f : A → B)
   (c : C) → fib (g ∘ f) c ≃ Σ (fib g c) (λ t → fib f (pr1 t))
 fib-comp {A = A} {B} {C} g f c =
-  ( equiv-Σ-swap A (fib g c) (λ a u → Id (f a) (pr1 u))) ∘e
+  ( equiv-left-swap-Σ) ∘e
   ( equiv-tot
     ( λ a →
       ( inv-assoc-Σ B (λ b → Id (g b) c) (λ u → Id (f a) (pr1 u))) ∘e

@@ -129,7 +129,7 @@ equiv-UU-is-small :
   (l1 l2 : Level) → UU-is-small l1 l2 ≃ UU-is-small l2 l1
 equiv-UU-is-small l1 l2 =
   ( equiv-tot (λ X → equiv-tot (λ Y → equiv-inv-equiv))) ∘e
-  ( equiv-Σ-swap (UU l2) (UU l1) _≃_)
+  ( equiv-left-swap-Σ)
 
 -- Example 18.0.2 (vi)
 
@@ -806,7 +806,7 @@ module _
   is-effective-is-image :
     (i : type-Set B ↪ (A → UU-Prop l2)) →
     (T : (prop-Eq-Rel R) ~ ((map-emb i) ∘ q)) →
-    ({l : Level} → universal-property-image l (prop-Eq-Rel R) i (pair q T)) →
+    ({l : Level} → is-image l (prop-Eq-Rel R) i (pair q T)) →
     is-effective R q
   is-effective-is-image i T H x y =
     ( is-effective-map-set-quotient R x y) ∘e
@@ -817,11 +817,11 @@ module _
   is-surjective-and-effective-is-image :
     (i : type-Set B ↪ (A → UU-Prop l2)) → 
     (T : (prop-Eq-Rel R) ~ ((map-emb i) ∘ q)) →
-    ({l : Level} → universal-property-image l (prop-Eq-Rel R) i (pair q T)) →
+    ({l : Level} → is-image l (prop-Eq-Rel R) i (pair q T)) →
     is-surjective-and-effective R q
   is-surjective-and-effective-is-image i T H =
     pair
-      ( is-surjective-universal-property-image (prop-Eq-Rel R) i (pair q T) H)
+      ( is-surjective-is-image (prop-Eq-Rel R) i (pair q T) H)
       ( is-effective-is-image i T H)
 
   -- Theorem 18.2.3 (ii) implies (iii)
@@ -943,12 +943,12 @@ module _
   is-image-is-surjective-and-effective :
     (H : is-surjective-and-effective R q) →
     ( {l : Level} →
-      universal-property-image l
+      is-image l
         ( prop-Eq-Rel R)
         ( emb-is-surjective-and-effective H)
         ( pair q (triangle-emb-is-surjective-and-effective H)))
   is-image-is-surjective-and-effective H =
-    universal-property-image-is-surjective
+    is-image-is-surjective
       ( prop-Eq-Rel R)
       ( emb-is-surjective-and-effective H)
       ( pair q (triangle-emb-is-surjective-and-effective H))
@@ -1552,7 +1552,7 @@ hom-slice-trunc-Set A =
 
 is-image-trunc-Set :
   {l1 l2 : Level} (A : UU l1) →
-  universal-property-image l2
+  is-image l2
     ( mere-eq-Prop {A = A})
     ( emb-trunc-Set A)
     ( hom-slice-trunc-Set A)
@@ -2560,9 +2560,9 @@ module _
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B)
   where
   
-  universal-property-image-map-trunc-map-unit-im-Set :
+  is-image-map-trunc-map-unit-im-Set :
     {l : Level} →
-    universal-property-image l
+    is-image l
       ( map-trunc-Set f)
       ( pair
         ( map-trunc-Set (inclusion-im f))
@@ -2575,8 +2575,8 @@ module _
         ( map-trunc-Set (map-unit-im f))
         ( ( htpy-trunc-Set (triangle-unit-im f)) ∙h
           ( map-comp-trunc-Set (inclusion-im f) (map-unit-im f))))
-  universal-property-image-map-trunc-map-unit-im-Set =
-    universal-property-image-is-surjective
+  is-image-map-trunc-map-unit-im-Set =
+    is-image-is-surjective
       ( map-trunc-Set f)
       ( pair
         ( map-trunc-Set (inclusion-im f))

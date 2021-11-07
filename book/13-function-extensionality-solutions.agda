@@ -113,93 +113,90 @@ triangle-hom-slice f g h = pr2 h
 
 -- We characterize the identity type of hom-slice
 
-htpy-hom-slice :
+module _
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
-  (f : A → X) (g : B → X) (h h' : hom-slice f g) → UU (l1 ⊔ l2 ⊔ l3)
-htpy-hom-slice f g h h' =
-  Σ ( map-hom-slice f g h ~ map-hom-slice f g h')
-    ( λ K →
-      ( (triangle-hom-slice f g h) ∙h (g ·l K)) ~
-      ( triangle-hom-slice f g h'))
+  (f : A → X) (g : B → X)
+  where
 
-refl-htpy-hom-slice :
-  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
-  (f : A → X) (g : B → X) (h : hom-slice f g) →
-  htpy-hom-slice f g h h
-refl-htpy-hom-slice f g h = pair refl-htpy right-unit-htpy
+  htpy-hom-slice : (h h' : hom-slice f g) → UU (l1 ⊔ l2 ⊔ l3)
+  htpy-hom-slice h h' =
+    Σ ( map-hom-slice f g h ~ map-hom-slice f g h')
+      ( λ K →
+        ( (triangle-hom-slice f g h) ∙h (g ·l K)) ~
+        ( triangle-hom-slice f g h'))
 
-htpy-hom-slice-eq :
-  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
-  (f : A → X) (g : B → X) (h h' : hom-slice f g) →
-  Id h h' → htpy-hom-slice f g h h'
-htpy-hom-slice-eq f g h .h refl = refl-htpy-hom-slice f g h
+  refl-htpy-hom-slice : (h : hom-slice f g) → htpy-hom-slice h h
+  refl-htpy-hom-slice h = pair refl-htpy right-unit-htpy
+  
+  htpy-eq-hom-slice : (h h' : hom-slice f g) → Id h h' → htpy-hom-slice h h'
+  htpy-eq-hom-slice h .h refl = refl-htpy-hom-slice h
 
-is-contr-total-htpy-hom-slice :
-  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
-  (f : A → X) (g : B → X) (h : hom-slice f g) →
-  is-contr (Σ (hom-slice f g) (htpy-hom-slice f g h))
-is-contr-total-htpy-hom-slice f g h =
-  is-contr-total-Eq-structure
-    ( λ h' H' K → ((triangle-hom-slice f g h) ∙h (g ·l K)) ~ H')
-    ( is-contr-total-htpy (map-hom-slice f g h))
-    ( pair (map-hom-slice f g h) refl-htpy)
-    ( is-contr-equiv'
-      ( Σ ( f ~ (g ∘ (map-hom-slice f g h)))
-          ( λ H' → (triangle-hom-slice f g h) ~ H'))
-      ( equiv-tot (equiv-concat-htpy right-unit-htpy))
-      ( is-contr-total-htpy (triangle-hom-slice f g h)))
+  is-contr-total-htpy-hom-slice :
+    (h : hom-slice f g) → is-contr (Σ (hom-slice f g) (htpy-hom-slice h))
+  is-contr-total-htpy-hom-slice h =
+    is-contr-total-Eq-structure
+      ( λ h' H' K → ((triangle-hom-slice f g h) ∙h (g ·l K)) ~ H')
+      ( is-contr-total-htpy (map-hom-slice f g h))
+      ( pair (map-hom-slice f g h) refl-htpy)
+      ( is-contr-equiv'
+        ( Σ ( f ~ (g ∘ (map-hom-slice f g h)))
+            ( λ H' → (triangle-hom-slice f g h) ~ H'))
+        ( equiv-tot (equiv-concat-htpy right-unit-htpy))
+        ( is-contr-total-htpy (triangle-hom-slice f g h)))
 
-is-equiv-htpy-hom-slice-eq :
-  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
-  (f : A → X) (g : B → X) (h h' : hom-slice f g) →
-  is-equiv (htpy-hom-slice-eq f g h h')
-is-equiv-htpy-hom-slice-eq f g h =
-  fundamental-theorem-id h
-    ( refl-htpy-hom-slice f g h)
-    ( is-contr-total-htpy-hom-slice f g h)
-    ( htpy-hom-slice-eq f g h)
+  is-equiv-htpy-eq-hom-slice :
+    (h h' : hom-slice f g) → is-equiv (htpy-eq-hom-slice h h')
+  is-equiv-htpy-eq-hom-slice h =
+    fundamental-theorem-id h
+      ( refl-htpy-hom-slice h)
+      ( is-contr-total-htpy-hom-slice h)
+      ( htpy-eq-hom-slice h)
 
-eq-htpy-hom-slice :
-  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
-  (f : A → X) (g : B → X) (h h' : hom-slice f g) →
-  htpy-hom-slice f g h h' → Id h h'
-eq-htpy-hom-slice f g h h' = map-inv-is-equiv (is-equiv-htpy-hom-slice-eq f g h h')
+  equiv-htpy-eq-hom-slice :
+    (h h' : hom-slice f g) → Id h h' ≃ htpy-hom-slice h h'
+  equiv-htpy-eq-hom-slice h h' =
+    pair (htpy-eq-hom-slice h h') (is-equiv-htpy-eq-hom-slice h h')
+
+  eq-htpy-hom-slice :
+    (h h' : hom-slice f g) → htpy-hom-slice h h' → Id h h'
+  eq-htpy-hom-slice h h' = map-inv-is-equiv (is-equiv-htpy-eq-hom-slice h h')
 
 {- We characterize the identity type of the type of sections of a map -}
 
-htpy-sec :
+module _
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B)
-  (s t : sec f) → UU (l1 ⊔ l2)
-htpy-sec f s t = Σ (pr1 s ~ pr1 t) (λ H → pr2 s ~ ((f ·l H) ∙h pr2 t))
+  where
 
-refl-htpy-sec :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  (s : sec f) → htpy-sec f s s
-refl-htpy-sec f s = pair refl-htpy refl-htpy
+  htpy-sec : (s t : sec f) → UU (l1 ⊔ l2)
+  htpy-sec s t = Σ (pr1 s ~ pr1 t) (λ H → pr2 s ~ ((f ·l H) ∙h pr2 t))
 
-htpy-eq-sec :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  (s t : sec f) → Id s t → htpy-sec f s t
-htpy-eq-sec f s .s refl = refl-htpy-sec f s
+  refl-htpy-sec : (s : sec f) → htpy-sec s s
+  refl-htpy-sec s = pair refl-htpy refl-htpy
 
-is-contr-total-htpy-sec :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) (s : sec f) →
-  is-contr (Σ (sec f) (htpy-sec f s))
-is-contr-total-htpy-sec f s =
-  is-contr-total-Eq-structure
-    ( λ g G H → pr2 s ~ ((f ·l H) ∙h G))
-    ( is-contr-total-htpy (pr1 s))
-    ( pair (pr1 s) refl-htpy)
-    ( is-contr-total-htpy (pr2 s))
+  htpy-eq-sec : (s t : sec f) → Id s t → htpy-sec s t
+  htpy-eq-sec s .s refl = refl-htpy-sec s
 
-is-equiv-htpy-eq-sec :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  (s t : sec f) → is-equiv (htpy-eq-sec f s t)
-is-equiv-htpy-eq-sec f s =
-  fundamental-theorem-id s
-    ( refl-htpy-sec f s)
-    ( is-contr-total-htpy-sec f s)
-    ( htpy-eq-sec f s)
+  is-contr-total-htpy-sec :
+    (s : sec f) → is-contr (Σ (sec f) (htpy-sec s))
+  is-contr-total-htpy-sec s =
+    is-contr-total-Eq-structure
+      ( λ g G H → pr2 s ~ ((f ·l H) ∙h G))
+      ( is-contr-total-htpy (pr1 s))
+      ( pair (pr1 s) refl-htpy)
+      ( is-contr-total-htpy (pr2 s))
+
+  is-equiv-htpy-eq-sec :
+    (s t : sec f) → is-equiv (htpy-eq-sec s t)
+  is-equiv-htpy-eq-sec s =
+    fundamental-theorem-id s
+      ( refl-htpy-sec s)
+      ( is-contr-total-htpy-sec s)
+      ( htpy-eq-sec s)
+
+  equiv-htpy-eq-sec :
+    (s t : sec f) → Id s t ≃ htpy-sec s t
+  equiv-htpy-eq-sec s t =
+    pair (htpy-eq-sec s t) (is-equiv-htpy-eq-sec s t)
 
 eq-htpy-sec :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} (s t : sec f) →
@@ -207,16 +204,6 @@ eq-htpy-sec :
   Id s t
 eq-htpy-sec {f = f} s t H K =
   map-inv-is-equiv (is-equiv-htpy-eq-sec f s t) (pair H K)
-
-sec-pr1-Π :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  ((x : A) → B x) → sec (pr1 {B = B})
-sec-pr1-Π f = pair (λ x → pair x (f x)) refl-htpy
-
-map-inv-sec-pr1-Π :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  sec (pr1 {B = B}) → ((x : A) → B x)
-map-inv-sec-pr1-Π {B = B} s x = tr B (pr2 s x) (pr2 (pr1 s x))
 
 {- We introduce the type hom-coslice -}
 
@@ -1897,15 +1884,15 @@ equiv-hom-slice-fiberwise-hom f g =
   pair (hom-slice-fiberwise-hom f g) (is-equiv-hom-slice-fiberwise-hom f g)
 
 equiv-slice :
-  {l1 l2 l3 : Level} (X : UU l1) {A : UU l2} {B : UU l3}
+  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
   (f : A → X) (g : B → X) → UU (l1 ⊔ (l2 ⊔ l3))
-equiv-slice X {A} {B} f g = Σ (A ≃ B) (λ e → f ~ (g ∘ (map-equiv e)))
+equiv-slice {A = A} {B} f g = Σ (A ≃ B) (λ e → f ~ (g ∘ (map-equiv e)))
 
-hom-slice-equiv-slice :
+hom-equiv-slice :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
   (f : A → X) (g : B → X) →
-  equiv-slice X f g → hom-slice f g
-hom-slice-equiv-slice f g (pair (pair h is-equiv-h) H) = pair h H
+  equiv-slice f g → hom-slice f g
+hom-equiv-slice f g (pair (pair h is-equiv-h) H) = pair h H
 
 {- We first prove two closely related generic lemmas that establishes 
    equivalences of subtypes -}
@@ -1959,7 +1946,7 @@ left-factor-fiberwise-equiv-equiv-slice f g =
 swap-equiv-slice :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
   (f : A → X) (g : B → X) →
-  equiv-slice X f g →
+  equiv-slice f g →
   Σ (hom-slice f g) (λ hH → is-equiv (pr1 hH))
 swap-equiv-slice {A = A} {B} f g =
   map-equiv-double-structure is-equiv (λ h → f ~ (g ∘ h))
@@ -1976,7 +1963,7 @@ abstract
   fiberwise-equiv-equiv-slice :
     {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
     (f : A → X) (g : B → X) →
-    equiv-slice X f g → Σ ((x : X) → (fib f x) → (fib g x)) is-fiberwise-equiv
+    equiv-slice f g → Σ ((x : X) → (fib f x) → (fib g x)) is-fiberwise-equiv
   fiberwise-equiv-equiv-slice {X = X} {A} {B} f g =
     ( left-factor-fiberwise-equiv-equiv-slice f g) ∘
     ( swap-equiv-slice f g)
@@ -2016,7 +2003,7 @@ abstract
 equiv-fiberwise-equiv-equiv-slice :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
   (f : A → X) (g : B → X) →
-  equiv-slice X f g ≃ Σ ((x : X) → (fib f x) → (fib g x)) is-fiberwise-equiv
+  equiv-slice f g ≃ Σ ((x : X) → (fib f x) → (fib g x)) is-fiberwise-equiv
 equiv-fiberwise-equiv-equiv-slice f g =
   pair ( fiberwise-equiv-equiv-slice f g)
        ( is-equiv-fiberwise-equiv-equiv-slice f g)
@@ -2024,7 +2011,7 @@ equiv-fiberwise-equiv-equiv-slice f g =
 equiv-fam-equiv-equiv-slice :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
   (f : A → X) (g : B → X) →
-  equiv-slice X f g ≃ ((x : X) → (fib f x) ≃ (fib g x))
+  equiv-slice f g ≃ ((x : X) → (fib f x) ≃ (fib g x))
 equiv-fam-equiv-equiv-slice f g =
   ( equiv-inv-choice-∞ (λ x → is-equiv)) ∘e
   ( equiv-fiberwise-equiv-equiv-slice f g)

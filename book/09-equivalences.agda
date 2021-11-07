@@ -1333,36 +1333,63 @@ left-distributive-prod-coprod A B C =
 
 -- Exercise 7.10
 
-Σ-swap :
-  {i j k : Level} (A : UU i) (B : UU j) (C : A → B → UU k) →
-  Σ A (λ x → Σ B (C x)) → Σ B (λ y → Σ A (λ x → C x y))
-Σ-swap A B C t = pair (pr1 (pr2 t)) (pair (pr1 t) (pr2 (pr2 t)))
+-- We define swap on the left
 
-Σ-swap' :
-  {i j k : Level} (A : UU i) (B : UU j) (C : A → B → UU k) →
-  Σ B (λ y → Σ A (λ x → C x y)) → Σ A (λ x → Σ B (C x))
-Σ-swap' A B C = Σ-swap B A (λ y x → C x y)
+module _
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : A → B → UU l3}
+  where
 
-Σ-swap-swap :
-  {i j k : Level} (A : UU i) (B : UU j) (C : A → B → UU k) →
-  ((Σ-swap' A B C) ∘ (Σ-swap A B C)) ~ id
-Σ-swap-swap A B C (pair x (pair y z)) = refl
+  map-left-swap-Σ : Σ A (λ x → Σ B (C x)) → Σ B (λ y → Σ A (λ x → C x y))
+  map-left-swap-Σ t = pair (pr1 (pr2 t)) (pair (pr1 t) (pr2 (pr2 t)))
+  
+  map-inv-left-swap-Σ :
+    Σ B (λ y → Σ A (λ x → C x y)) → Σ A (λ x → Σ B (C x))
+  map-inv-left-swap-Σ t = pair (pr1 (pr2 t)) (pair (pr1 t) (pr2 (pr2 t)))
+  
+  isretr-map-inv-left-swap-Σ : (map-inv-left-swap-Σ ∘ map-left-swap-Σ) ~ id
+  isretr-map-inv-left-swap-Σ (pair x (pair y z)) = refl
 
-abstract
-  is-equiv-Σ-swap :
-    {i j k : Level} (A : UU i) (B : UU j) (C : A → B → UU k) →
-    is-equiv (Σ-swap A B C)
-  is-equiv-Σ-swap A B C =
+  issec-map-inv-left-swap-Σ : (map-left-swap-Σ ∘ map-inv-left-swap-Σ) ~ id
+  issec-map-inv-left-swap-Σ (pair x (pair y z)) = refl
+  
+  abstract
+    is-equiv-map-left-swap-Σ : is-equiv map-left-swap-Σ
+    is-equiv-map-left-swap-Σ =
+      is-equiv-has-inverse
+        ( map-inv-left-swap-Σ)
+        ( issec-map-inv-left-swap-Σ)
+        ( isretr-map-inv-left-swap-Σ)
+  
+  equiv-left-swap-Σ : Σ A (λ a → Σ B (C a)) ≃ Σ B (λ b → Σ A (λ a → C a b))
+  equiv-left-swap-Σ = pair map-left-swap-Σ is-equiv-map-left-swap-Σ
+
+-- We also define swap on the right
+
+module _
+  {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {C : A → UU l3}
+  where
+
+  map-right-swap-Σ : Σ (Σ A B) (C ∘ pr1) → Σ (Σ A C) (B ∘ pr1)
+  map-right-swap-Σ t = pair (pair (pr1 (pr1 t)) (pr2 t)) (pr2 (pr1 t))
+
+  map-inv-right-swap-Σ : Σ (Σ A C) (B ∘ pr1) → Σ (Σ A B) (C ∘ pr1)
+  map-inv-right-swap-Σ t = pair (pair (pr1 (pr1 t)) (pr2 t)) (pr2 (pr1 t))
+
+  issec-map-inv-right-swap-Σ : (map-right-swap-Σ ∘ map-inv-right-swap-Σ) ~ id
+  issec-map-inv-right-swap-Σ (pair (pair x y) z) = refl
+
+  isretr-map-inv-right-swap-Σ : (map-inv-right-swap-Σ ∘ map-right-swap-Σ) ~ id
+  isretr-map-inv-right-swap-Σ (pair (pair x z) y) = refl
+
+  is-equiv-map-right-swap-Σ : is-equiv map-right-swap-Σ
+  is-equiv-map-right-swap-Σ =
     is-equiv-has-inverse
-      ( Σ-swap' A B C)
-      ( Σ-swap-swap B A (λ y x → C x y))
-      ( Σ-swap-swap A B C)
+      map-inv-right-swap-Σ
+      issec-map-inv-right-swap-Σ
+      isretr-map-inv-right-swap-Σ
 
-equiv-Σ-swap :
-  {i j k : Level} (A : UU i) (B : UU j) (C : A → B → UU k) →
-  Σ A (λ a → Σ B (C a)) ≃ Σ B (λ b → Σ A (λ a → C a b))
-equiv-Σ-swap A B C =
-  pair (Σ-swap A B C) (is-equiv-Σ-swap A B C)
+  equiv-right-swap-Σ : Σ (Σ A B) (C ∘ pr1) ≃ Σ (Σ A C) (B ∘ pr1)
+  equiv-right-swap-Σ = pair map-right-swap-Σ is-equiv-map-right-swap-Σ
 
 --------------------------------------------------------------------------------
 

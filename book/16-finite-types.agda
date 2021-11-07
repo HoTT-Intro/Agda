@@ -1505,7 +1505,7 @@ compute-total-UU-Fin =
         ( is-prop-is-finite X)
         ( is-finite-has-finite-cardinality)
         ( has-finite-cardinality-is-finite))) ∘e
-  ( equiv-Σ-swap ℕ (UU lzero) (λ k X → has-cardinality X k))
+  ( equiv-left-swap-Σ)
 
 -- Proposition 16.3.5
 

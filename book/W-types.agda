@@ -705,14 +705,7 @@ abstract
                               ( map-𝕎 D f e
                                 ( α (map-inv-equiv (e a) d)))
                               ( γ (tr D p d))))))))) ∘e
-              ( equiv-Σ-swap
-                ( B a → 𝕎 A B)
-                ( Id (f a) c)
-                ( λ α p →
-                  ( x : D (f a)) →
-                  Eq-𝕎
-                    ( map-𝕎 D f e (α (map-inv-equiv (e a) x)))
-                    ( γ (tr D p x))))) ∘e
+              ( equiv-left-swap-Σ)) ∘e
             ( equiv-tot
               ( λ α →
                 equiv-Eq-𝕎-eq
@@ -917,10 +910,7 @@ module _
                             equiv-concat
                               ( ap f (isretr-map-inv-equiv e y))
                               ( g (map-equiv e y))))))) ∘e
-              ( ( equiv-Σ-swap
-                  ( B x → 𝕎 A B)
-                  ( B a ≃ B x)
-                  ( λ g e → f ~ (g ∘ map-equiv e))) ∘e 
+              ( ( equiv-left-swap-Σ) ∘e 
                 ( equiv-tot
                   ( λ g →
                     inv-equiv (equiv-fam-equiv-equiv-slice f g)))))) ∘e
