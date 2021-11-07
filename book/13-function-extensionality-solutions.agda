@@ -1892,7 +1892,7 @@ hom-equiv-slice :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
   (f : A → X) (g : B → X) →
   equiv-slice f g → hom-slice f g
-hom-equiv-slice f g (pair (pair h is-equiv-h) H) = pair h H
+hom-equiv-slice f g e = pair (pr1 (pr1 e)) (pr2 e)
 
 {- We first prove two closely related generic lemmas that establishes 
    equivalences of subtypes -}

@@ -464,6 +464,63 @@ module _
             ( hom-slice-universal-property-image f i q Hi i' q')
             ( Hi)
             ( Hi'))))
+
+  equiv-slice-uniqueness-image : equiv-slice (map-emb i) (map-emb i')
+  equiv-slice-uniqueness-image =
+    pr1 (center uniqueness-image)
+
+  hom-equiv-slice-uniqueness-image : hom-slice (map-emb i) (map-emb i')
+  hom-equiv-slice-uniqueness-image =
+    hom-equiv-slice (map-emb i) (map-emb i') (equiv-slice-uniqueness-image)
+
+  map-hom-equiv-slice-uniqueness-image : B → B'
+  map-hom-equiv-slice-uniqueness-image =
+    map-hom-slice (map-emb i) (map-emb i') (hom-equiv-slice-uniqueness-image)
+
+  is-equiv-map-hom-equiv-slice-uniqueness-image :
+    is-equiv map-hom-equiv-slice-uniqueness-image
+  is-equiv-map-hom-equiv-slice-uniqueness-image =
+    is-equiv-map-equiv (pr1 equiv-slice-uniqueness-image)
+
+  equiv-equiv-slice-uniqueness-image : B ≃ B'
+  equiv-equiv-slice-uniqueness-image =
+    pair map-hom-equiv-slice-uniqueness-image
+         is-equiv-map-hom-equiv-slice-uniqueness-image
+
+  triangle-hom-equiv-slice-uniqueness-image :
+    (map-emb i) ~ (map-emb i' ∘ map-hom-equiv-slice-uniqueness-image)
+  triangle-hom-equiv-slice-uniqueness-image =
+    triangle-hom-slice
+      ( map-emb i)
+      ( map-emb i')
+      ( hom-equiv-slice-uniqueness-image)
+
+  htpy-equiv-slice-uniqueness-image :
+    htpy-hom-slice f
+      ( map-emb i')
+      ( comp-hom-slice f
+        ( map-emb i)
+        ( map-emb i')
+        ( hom-equiv-slice-uniqueness-image)
+        ( q))
+      ( q')
+  htpy-equiv-slice-uniqueness-image =
+    pr2 (center uniqueness-image)
+
+  htpy-map-hom-equiv-slice-uniqueness-image :
+    ( map-hom-equiv-slice-uniqueness-image ∘ map-hom-slice f (map-emb i) q) ~
+    ( map-hom-slice f (map-emb i') q')
+  htpy-map-hom-equiv-slice-uniqueness-image =
+    pr1 htpy-equiv-slice-uniqueness-image
+
+  tetrahedron-hom-equiv-slice-uniqueness-image :
+    ( ( ( triangle-hom-slice f (map-emb i) q) ∙h
+        ( ( triangle-hom-equiv-slice-uniqueness-image) ·r
+          ( map-hom-slice f (map-emb i) q))) ∙h
+      ( map-emb i' ·l htpy-map-hom-equiv-slice-uniqueness-image)) ~
+    ( triangle-hom-slice f (map-emb i') q')
+  tetrahedron-hom-equiv-slice-uniqueness-image =
+    pr2 htpy-equiv-slice-uniqueness-image
     
 --------------------------------------------------------------------------------
 
