@@ -2574,6 +2574,10 @@ module _
   emb-trunc-im-Set : type-trunc-Set (im f) ↪ type-trunc-Set B
   emb-trunc-im-Set = pair inclusion-trunc-im-Set is-emb-inclusion-trunc-im-Set
 
+  is-injective-inclusion-trunc-im-Set : is-injective inclusion-trunc-im-Set
+  is-injective-inclusion-trunc-im-Set =
+    is-injective-is-emb is-emb-inclusion-trunc-im-Set
+
   map-hom-slice-trunc-im-Set : type-trunc-Set A → type-trunc-Set (im f)
   map-hom-slice-trunc-im-Set = map-trunc-Set (map-unit-im f)
 
@@ -2594,18 +2598,85 @@ module _
       ( map-unit-im f)
       ( is-surjective-map-unit-im f)
   
-  is-image-map-trunc-map-unit-im-Set :
+  is-image-trunc-im-Set :
     {l : Level} →
     is-image l
       ( map-trunc-Set f)
       ( emb-trunc-im-Set)
       ( hom-slice-trunc-im-Set)
-  is-image-map-trunc-map-unit-im-Set =
+  is-image-trunc-im-Set =
     is-image-is-surjective
       ( map-trunc-Set f)
       ( emb-trunc-im-Set)
       ( hom-slice-trunc-im-Set)
       ( is-surjective-map-hom-slice-trunc-im-Set)
+
+  unique-equiv-trunc-im-Set :
+    is-contr
+      ( Σ ( equiv-slice (inclusion-im (map-trunc-Set f)) inclusion-trunc-im-Set)
+          ( λ e →
+            htpy-hom-slice (map-trunc-Set f)
+              ( inclusion-trunc-im-Set)
+              ( comp-hom-slice (map-trunc-Set f)
+                ( inclusion-im (map-trunc-Set f))
+                ( inclusion-trunc-im-Set)
+                ( hom-equiv-slice
+                  ( inclusion-im (map-trunc-Set f))
+                  ( inclusion-trunc-im-Set)
+                  ( e))
+                ( hom-slice-im (map-trunc-Set f)))
+              ( hom-slice-trunc-im-Set)))
+  unique-equiv-trunc-im-Set =
+    uniqueness-im
+      ( map-trunc-Set f)
+      ( emb-trunc-im-Set)
+      ( hom-slice-trunc-im-Set)
+      ( is-image-trunc-im-Set)
+
+  equiv-slice-trunc-im-Set :
+    equiv-slice (inclusion-im (map-trunc-Set f)) inclusion-trunc-im-Set
+  equiv-slice-trunc-im-Set = pr1 (center unique-equiv-trunc-im-Set)
+
+  equiv-trunc-im-Set : im (map-trunc-Set f) ≃ type-trunc-Set (im f)
+  equiv-trunc-im-Set = pr1 equiv-slice-trunc-im-Set
+
+  map-equiv-trunc-im-Set : im (map-trunc-Set f) → type-trunc-Set (im f)
+  map-equiv-trunc-im-Set = map-equiv equiv-trunc-im-Set
+
+  triangle-trunc-im-Set :
+    ( inclusion-im (map-trunc-Set f)) ~
+    ( inclusion-trunc-im-Set ∘ map-equiv-trunc-im-Set)
+  triangle-trunc-im-Set = pr2 equiv-slice-trunc-im-Set
+
+  htpy-hom-slice-trunc-im-Set :
+    htpy-hom-slice
+      ( map-trunc-Set f)
+      ( inclusion-trunc-im-Set)
+      ( comp-hom-slice
+        ( map-trunc-Set f)
+        ( inclusion-im (map-trunc-Set f))
+        ( inclusion-trunc-im-Set)
+        ( hom-equiv-slice
+          ( inclusion-im (map-trunc-Set f))
+          ( inclusion-trunc-im-Set)
+          ( equiv-slice-trunc-im-Set))
+        ( hom-slice-im (map-trunc-Set f)))
+      ( hom-slice-trunc-im-Set)
+  htpy-hom-slice-trunc-im-Set =
+    pr2 (center unique-equiv-trunc-im-Set)
+
+  htpy-map-hom-slice-trunc-im-Set :
+    ( map-equiv-trunc-im-Set ∘ (map-unit-im (map-trunc-Set f))) ~
+    ( map-hom-slice-trunc-im-Set)
+  htpy-map-hom-slice-trunc-im-Set =
+    pr1 htpy-hom-slice-trunc-im-Set
+
+  tetrahedron-map-hom-slice-trunc-im-Set :
+    ( ( triangle-trunc-im-Set ·r map-unit-im (map-trunc-Set f)) ∙h
+      ( inclusion-trunc-im-Set ·l htpy-map-hom-slice-trunc-im-Set)) ~
+    ( triangle-hom-slice-trunc-im-Set)
+  tetrahedron-map-hom-slice-trunc-im-Set =
+    pr2 htpy-hom-slice-trunc-im-Set
 
   unit-im-map-trunc-Set :
     im f → im (map-trunc-Set f)
@@ -2640,8 +2711,16 @@ module _
     is-set-truncation l
       ( im-Set (trunc-Set A) (trunc-Set B) (map-trunc-Set f))
       ( unit-im-map-trunc-Set)
-  is-set-truncation-im-map-trunc-Set {l} X = {!is-image-is-surjective!}
-  
-  trunc-im-Set :
-    type-trunc-Set (im f) ≃ im (map-trunc-Set f)
-  trunc-im-Set = {! !}
+  is-set-truncation-im-map-trunc-Set =
+    is-set-truncation-is-equiv-is-set-truncation
+      ( im-Set (trunc-Set A) (trunc-Set B) (map-trunc-Set f))
+      ( unit-im-map-trunc-Set)
+      ( trunc-Set (im f))
+      ( unit-trunc-Set)
+      { h = map-equiv-trunc-im-Set}
+      ( λ b →
+        is-injective-inclusion-trunc-im-Set
+          ( ( inv (triangle-trunc-im-Set (unit-im-map-trunc-Set b))) ∙
+            ( inv (naturality-trunc-Set (inclusion-im f) b))))
+      ( is-set-truncation-trunc-Set (im f))
+      ( is-equiv-map-equiv equiv-trunc-im-Set)

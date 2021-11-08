@@ -243,6 +243,12 @@ emb-im :
   {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) → im f ↪ X
 emb-im f = pair (inclusion-im f) (is-emb-inclusion-im f)
 
+is-injective-inclusion-im :
+  {l1 l2 : Level} {X : UU l1} {A : UU l2} (f : A → X) →
+  is-injective (inclusion-im f)
+is-injective-inclusion-im f =
+  is-injective-is-emb (is-emb-inclusion-im f)
+
 -- Theorem 15.1.7
 
 fiberwise-map-is-image-im :
