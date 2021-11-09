@@ -2709,11 +2709,11 @@ module _
   is-set-truncation-im-map-trunc-Set :
     {l : Level} →
     is-set-truncation l
-      ( im-Set (trunc-Set A) (trunc-Set B) (map-trunc-Set f))
+      ( im-Set (trunc-Set B) (map-trunc-Set f))
       ( unit-im-map-trunc-Set)
   is-set-truncation-im-map-trunc-Set =
     is-set-truncation-is-equiv-is-set-truncation
-      ( im-Set (trunc-Set A) (trunc-Set B) (map-trunc-Set f))
+      ( im-Set (trunc-Set B) (map-trunc-Set f))
       ( unit-im-map-trunc-Set)
       ( trunc-Set (im f))
       ( unit-trunc-Set)

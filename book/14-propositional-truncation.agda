@@ -1086,8 +1086,8 @@ abstract
       ( id {A = type-Prop P})
 
 dependent-universal-property-trunc-Prop :
-  {l l1 : Level} {A : UU l1} →
-  dependent-universal-property-propositional-truncation l
+  {l1 : Level} {A : UU l1} {l : Level} →
+    dependent-universal-property-propositional-truncation l
     ( trunc-Prop A)
     ( unit-trunc-Prop)
 dependent-universal-property-trunc-Prop {A = A} =
@@ -1096,14 +1096,23 @@ dependent-universal-property-trunc-Prop {A = A} =
     ( unit-trunc-Prop)
     ( is-propositional-truncation-trunc-Prop A)
 
-equiv-dependent-universal-property-trunc-Prop :
-  {l1 l2 : Level} {A : UU l1} (P : type-trunc-Prop A → UU-Prop l2) →
-  (((y : type-trunc-Prop A) → type-Prop (P y)) ≃
-  ((x : A) → type-Prop (P (unit-trunc-Prop x))))
-equiv-dependent-universal-property-trunc-Prop P =
-  pair
-    ( precomp-Π unit-trunc-Prop (type-Prop ∘ P))
-    ( dependent-universal-property-trunc-Prop P)
+module _
+  {l1 l2 : Level} {A : UU l1} (P : type-trunc-Prop A → UU-Prop l2)
+  where
+  
+  equiv-dependent-universal-property-trunc-Prop :
+    ((y : type-trunc-Prop A) → type-Prop (P y)) ≃
+    ((x : A) → type-Prop (P (unit-trunc-Prop x)))
+  equiv-dependent-universal-property-trunc-Prop =
+    pair
+      ( precomp-Π unit-trunc-Prop (type-Prop ∘ P))
+      ( dependent-universal-property-trunc-Prop P)
+
+  apply-dependent-universal-property-trunc-Prop :
+    (y : type-trunc-Prop A) → ((x : A) → type-Prop (P (unit-trunc-Prop x))) →
+    type-Prop (P y)
+  apply-dependent-universal-property-trunc-Prop y f =
+    map-inv-equiv equiv-dependent-universal-property-trunc-Prop f y    
 
 abstract
   is-propositional-truncation-dependent-universal-property :
