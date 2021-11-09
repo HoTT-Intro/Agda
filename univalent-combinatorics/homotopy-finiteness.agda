@@ -540,10 +540,48 @@ is-path-connected-unit : is-path-connected unit
 is-path-connected-unit =
   is-contr-equiv' unit equiv-unit-trunc-unit-Set is-contr-unit
 
+is-contr-im :
+  {l1 l2 : Level} {A : UU l1} (B : UU-Set l2) {f : A → type-Set B}
+  (a : A) (H : f ~ const A (type-Set B) (f a)) → is-contr (im f)
+is-contr-im B {f} a H =
+  pair
+    ( map-unit-im f a)
+    ( λ { (pair x u) →
+      apply-dependent-universal-property-trunc-Prop
+        ( λ v → Id-Prop (im-Set B f) (map-unit-im f a) (pair x v))
+        ( u)
+        ( λ { (pair a' refl) →
+              eq-Eq-im f (map-unit-im f a) (map-unit-im f a') (inv (H a'))})})
+
 is-path-connected-im :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
   is-path-connected A → is-path-connected (im f)
-is-path-connected-im f C = {!!}
+is-path-connected-im {l1} {l2} {A} {B} f C =
+  apply-universal-property-trunc-Prop
+    ( is-inhabited-is-path-connected C)
+    ( is-contr-Prop _)
+    ( λ a →
+      is-contr-equiv'
+        ( im (map-trunc-Set f))
+        ( equiv-trunc-im-Set f)
+        ( is-contr-im
+          ( trunc-Set B)
+          ( unit-trunc-Set a)
+          ( apply-dependent-universal-property-trunc-Set
+            ( λ x →
+              set-Prop
+                ( Id-Prop
+                  ( trunc-Set B)
+                  ( map-trunc-Set f x)
+                  ( map-trunc-Set f (unit-trunc-Set a))))
+            ( λ a' →
+              apply-universal-property-trunc-Prop
+                ( mere-eq-is-path-connected C a' a)
+                ( Id-Prop
+                  ( trunc-Set B)
+                  ( map-trunc-Set f (unit-trunc-Set a'))
+                  ( map-trunc-Set f (unit-trunc-Set a)))
+                ( λ {refl → refl})))))
 
 is-path-connected-im-unit :
   {l1 : Level} {A : UU l1} (f : unit → A) → is-path-connected (im f)
@@ -587,7 +625,7 @@ has-finite-connected-components-Σ' {l1} {l2} {A} {B} (succ-ℕ k) e H K =
                 ( H (pr1 x) (pr1 y)))
             ( λ x → K (pr1 x)))
           ( has-finite-connected-components-Σ-is-path-connected
-            {!!}
+            ( is-path-connected-im (f ∘ inr) is-path-connected-unit)
             {!!}
             {!!})))
     where
@@ -606,9 +644,7 @@ has-finite-connected-components-Σ' {l1} {l2} {A} {B} (succ-ℕ k) e H K =
             ( ind-coprod (λ x → UU _) (B ∘ pr1) (B ∘ pr1))))
     h : Fin k ≃ type-trunc-Set (im (f ∘ inl))
     h = pair
-          ( λ x →
-            unit-trunc-Set
-              ( pair (f (inl x)) (unit-trunc-Prop (pair x refl))))
+          ( unit-trunc-Set ∘ map-unit-im (f ∘ inl))
           {!!}
 
 has-finite-connected-components-Σ :

@@ -310,25 +310,15 @@ is-1-type-im :
   is-1-type X → is-1-type (im f)
 is-1-type-im = is-trunc-im zero-𝕋
 
-im-Set' :
-  {l1 l2 : Level} (A : UU l2) (X : UU-Set l1) (f : A → type-Set X) →
-  UU-Set (l1 ⊔ l2)
-im-Set' A X f = pair (im f) (is-set-im f (is-set-type-Set X))
-
 im-Set :
-  {l1 l2 : Level} (A : UU-Set l2) (X : UU-Set l1) (f : type-hom-Set A X) →
+  {l1 l2 : Level} {A : UU l2} (X : UU-Set l1) (f : A → type-Set X) →
   UU-Set (l1 ⊔ l2)
-im-Set A = im-Set' (type-Set A)
-
-im-1-Type' :
-  {l1 l2 : Level} (A : UU l2) (X : UU-1-Type l1)
-  (f : A → type-1-Type X) → UU-1-Type (l1 ⊔ l2)
-im-1-Type' A X f = pair (im f) (is-1-type-im f (is-1-type-type-1-Type X))
+im-Set X f = pair (im f) (is-set-im f (is-set-type-Set X))
 
 im-1-Type :
-  {l1 l2 : Level} (A : UU-1-Type l2) (X : UU-1-Type l1)
-  (f : type-hom-1-Type A X) → UU-1-Type (l1 ⊔ l2)
-im-1-Type A = im-1-Type' (type-1-Type A)
+  {l1 l2 : Level} {A : UU l2} (X : UU-1-Type l1)
+  (f : A → type-1-Type X) → UU-1-Type (l1 ⊔ l2)
+im-1-Type X f = pair (im f) (is-1-type-im f (is-1-type-type-1-Type X))
 
 --------------------------------------------------------------------------------
 
@@ -734,7 +724,7 @@ is-surjective-is-image {A = A} {B} {X} f i q up-i b =
           ( Σ B ( λ b →
                   type-trunc-Prop (fib (map-hom-slice f (map-emb i) q) b)))
           ( pair g is-emb-g))
-        ( pair (λ a → pair (pr1 q a) (unit-trunc-Prop (pair a refl))) (pr2 q))
+        ( pair (map-unit-im (pr1 q)) (pr2 q))
   β : type-trunc-Prop (fib (map-hom-slice f (map-emb i) q) (pr1 (pr1 α b)))
   β = pr2 (pr1 α b)
   γ : fib (map-hom-slice f (map-emb i) q) (pr1 (pr1 α b)) →
