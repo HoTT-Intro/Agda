@@ -626,8 +626,14 @@ has-finite-connected-components-Σ' {l1} {l2} {A} {B} (succ-ℕ k) e H K =
             ( λ x → K (pr1 x)))
           ( has-finite-connected-components-Σ-is-path-connected
             ( is-path-connected-im (f ∘ inr) is-path-connected-unit)
-            {!!}
-            {!!})))
+            ( pair
+              ( is-finite-is-contr
+                ( is-path-connected-im (f ∘ inr) is-path-connected-unit))
+              ( λ x y →
+                is-homotopy-finite-equiv zero-ℕ
+                  ( equiv-Eq-eq-im (f ∘ inr) x y)
+                  ( H (pr1 x) (pr1 y))))
+            ( λ x → K (pr1 x)))))
     where
     g : coprod (Σ (im (f ∘ inl)) (B ∘ pr1)) (Σ (im (f ∘ inr)) (B ∘ pr1)) ≃
         Σ A B
@@ -643,9 +649,24 @@ has-finite-connected-components-Σ' {l1} {l2} {A} {B} (succ-ℕ k) e H K =
             ( im (f ∘ inr))
             ( ind-coprod (λ x → UU _) (B ∘ pr1) (B ∘ pr1))))
     h : Fin k ≃ type-trunc-Set (im (f ∘ inl))
-    h = pair
-          ( unit-trunc-Set ∘ map-unit-im (f ∘ inl))
-          {!!}
+    h = ( equiv-trunc-im-Set (f ∘ inl)) ∘e
+        ( pair
+          ( map-unit-im (map-trunc-Set (f ∘ inl)) ∘ unit-trunc-Set)
+          ( is-equiv-is-emb-is-surjective
+            ( λ { (pair x u) →
+                  apply-dependent-universal-property-trunc-Prop
+                    ( λ v →
+                      trunc-Prop
+                        ( fib
+                          ( ( map-unit-im (map-trunc-Set (f ∘ inl))) ∘
+                            ( unit-trunc-Set))
+                          ( pair x v)))
+                    ( u)
+                    ( λ { (pair y refl) →
+                           unit-trunc-Prop {!!}})})
+            {!!}))
+
+-- map-trunc-Set (λ a → f (inl a)) y 
 
 has-finite-connected-components-Σ :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → is-homotopy-finite one-ℕ A →
@@ -658,7 +679,7 @@ has-finite-connected-components-Σ {l1} {l2} {A} {B} H K =
     ( λ { (pair k e) →
           has-finite-connected-components-Σ' k e (λ x y → pr2 H x y) K})
 
-{-
+{- 
 is-homotopy-finite-Σ :
   {l1 l2 : Level} (k : ℕ) {A : UU l1} {B : A → UU l2} →
   is-homotopy-finite (succ-ℕ k) A → ((x : A) → is-homotopy-finite k (B x)) →
