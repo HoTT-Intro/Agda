@@ -2717,7 +2717,6 @@ module _
       ( unit-im-map-trunc-Set)
       ( trunc-Set (im f))
       ( unit-trunc-Set)
-      { h = map-equiv-trunc-im-Set}
       ( λ b →
         is-injective-inclusion-trunc-im-Set
           ( ( inv (triangle-trunc-im-Set (unit-im-map-trunc-Set b))) ∙
