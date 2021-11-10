@@ -648,25 +648,29 @@ has-finite-connected-components-Σ' {l1} {l2} {A} {B} (succ-ℕ k) e H K =
             ( im (f ∘ inl))
             ( im (f ∘ inr))
             ( ind-coprod (λ x → UU _) (B ∘ pr1) (B ∘ pr1))))
+    i : Fin k → type-trunc-Set (im (f ∘ inl))
+    i = unit-trunc-Set ∘ map-unit-im (f ∘ inl)
+    is-surjective-i : is-surjective i
+    is-surjective-i =
+      is-surjective-comp'
+        ( is-surjective-unit-trunc-Set _)
+        ( is-surjective-map-unit-im (f ∘ inl))
+    is-emb-i : is-emb i
+    is-emb-i =
+      is-emb-right-factor
+        ( (unit-trunc-Set ∘ f) ∘ inl)
+        ( inclusion-trunc-im-Set (f ∘ inl))
+        ( i)
+        ( ( inv-htpy (naturality-trunc-Set (inclusion-im (f ∘ inl)))) ·r
+          ( map-unit-im (f ∘ inl)))
+        ( is-emb-inclusion-trunc-im-Set (f ∘ inl))
+        ( is-emb-comp'
+          ( unit-trunc-Set ∘ f)
+          ( inl)
+          ( is-emb-is-equiv Eηf)
+          ( is-emb-inl (Fin k) unit))
     h : Fin k ≃ type-trunc-Set (im (f ∘ inl))
-    h = ( equiv-trunc-im-Set (f ∘ inl)) ∘e
-        ( pair
-          ( map-unit-im (map-trunc-Set (f ∘ inl)) ∘ unit-trunc-Set)
-          ( is-equiv-is-emb-is-surjective
-            ( λ { (pair x u) →
-                  apply-dependent-universal-property-trunc-Prop
-                    ( λ v →
-                      trunc-Prop
-                        ( fib
-                          ( ( map-unit-im (map-trunc-Set (f ∘ inl))) ∘
-                            ( unit-trunc-Set))
-                          ( pair x v)))
-                    ( u)
-                    ( λ { (pair y refl) →
-                           unit-trunc-Prop {!!}})})
-            {!!}))
-
--- map-trunc-Set (λ a → f (inl a)) y 
+    h = pair i (is-equiv-is-emb-is-surjective is-surjective-i is-emb-i)
 
 has-finite-connected-components-Σ :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → is-homotopy-finite one-ℕ A →
@@ -679,11 +683,21 @@ has-finite-connected-components-Σ {l1} {l2} {A} {B} H K =
     ( λ { (pair k e) →
           has-finite-connected-components-Σ' k e (λ x y → pr2 H x y) K})
 
-{- 
 is-homotopy-finite-Σ :
   {l1 l2 : Level} (k : ℕ) {A : UU l1} {B : A → UU l2} →
   is-homotopy-finite (succ-ℕ k) A → ((x : A) → is-homotopy-finite k (B x)) →
   is-homotopy-finite k (Σ A B)
-is-homotopy-finite-Σ zero-ℕ {A} {B} H K = ?
-is-homotopy-finite-Σ (succ-ℕ k) H K = {!!}
--}
+is-homotopy-finite-Σ zero-ℕ {A} {B} H K = has-finite-connected-components-Σ H K
+is-homotopy-finite-Σ (succ-ℕ k) H K =
+  pair
+    ( has-finite-connected-components-Σ
+      ( is-homotopy-finite-one-is-homotopy-finite-succ-ℕ (succ-ℕ k) H)
+      ( λ x →
+        has-finite-connected-components-is-homotopy-finite (succ-ℕ k) (K x)))
+    ( λ { (pair x u) (pair y v) →
+          is-homotopy-finite-equiv k
+            ( equiv-pair-eq-Σ (pair x u) (pair y v))
+            ( is-homotopy-finite-Σ k
+              ( pr2 H x y)
+              ( λ { refl → pr2 (K x) u v}))})
+

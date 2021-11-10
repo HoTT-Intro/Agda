@@ -14,6 +14,7 @@ open import extra.flat-modality public
 open import extra.globular public
 open import extra.interchange public
 open import extra.isolated-points public
+open import extra.kuratowsky-finite-types public
 open import extra.lists public
 open import extra.models public
 open import extra.pigeonhole-principle public

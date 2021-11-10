@@ -827,6 +827,50 @@ is-equiv-is-emb-is-surjective {f = f} H K =
           ( fib-emb-Prop (pair f K) y)
           ( id)))
 
+-- Exercise 15.4
+
+module _
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
+  (f : A → X) (g : B → X) (h : A → B) (H : f ~ (g ∘ h))
+  where
+
+  is-surjective-comp :
+    is-surjective g → is-surjective h → is-surjective f
+  is-surjective-comp Sg Sh x =
+    apply-universal-property-trunc-Prop
+      ( Sg x)
+      ( trunc-Prop (fib f x))
+      ( λ { (pair b refl) →
+            apply-universal-property-trunc-Prop
+              ( Sh b)
+              ( trunc-Prop (fib f (g b)))
+              ( λ { (pair a refl) →
+                unit-trunc-Prop (pair a (H a))})})
+
+  is-surjective-left-factor :
+    is-surjective f → is-surjective g
+  is-surjective-left-factor Sf x =
+    apply-universal-property-trunc-Prop
+      ( Sf x)
+      ( trunc-Prop (fib g x))
+      ( λ { (pair a refl) →
+            unit-trunc-Prop (pair (h a) (inv (H a)))})
+
+module _
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {X : UU l3}
+  {g : B → X}
+  where
+
+  is-surjective-comp' :
+    {h : A → B} → is-surjective g → is-surjective h → is-surjective (g ∘ h)
+  is-surjective-comp' {h} =
+    is-surjective-comp (g ∘ h) g h refl-htpy
+
+  is-surjective-left-factor' :
+    (h : A → B) → is-surjective (g ∘ h) → is-surjective g
+  is-surjective-left-factor' h =
+    is-surjective-left-factor (g ∘ h) g h refl-htpy
+            
 -- Exercise 15.5
 
 fixed-point-theorem-Lawvere :
