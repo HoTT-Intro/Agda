@@ -700,4 +700,3 @@ is-homotopy-finite-Σ (succ-ℕ k) H K =
             ( is-homotopy-finite-Σ k
               ( pr2 H x y)
               ( λ { refl → pr2 (K x) u v}))})
-
