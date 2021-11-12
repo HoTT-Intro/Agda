@@ -247,15 +247,10 @@ hom-group-Subgroup G P =
 
 {- We define another type of subgroups of G as the type of group inclusions -}
 
-emb-Group :
-  { l1 l2 : Level} (G : Group l1) (H : Group l2) → UU (l1 ⊔ l2)
-emb-Group G H = Σ (hom-Group G H) (λ f → is-emb (map-hom-Group G H f))
-
 emb-Group-Slice :
   (l : Level) {l1 : Level} (G : Group l1) → UU ((lsuc l) ⊔ l1)
 emb-Group-Slice l G =
-  Σ ( Group l)
-    ( λ H → emb-Group H G)
+  Σ ( Group l) (λ H → emb-Group H G)
 
 emb-group-slice-Subgroup :
   { l1 l2 : Level} (G : Group l1) →
