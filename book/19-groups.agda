@@ -1353,6 +1353,8 @@ preserves-all-hom-Group G H f =
 
 --------------------------------------------------------------------------------
 
+-- Cayley's Theorem
+
 module _
   {l1 : Level} (G : Group l1)
   where
