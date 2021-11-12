@@ -634,6 +634,9 @@ preserves-mul-hom-Group :
     ( map-hom-Group G H f)
 preserves-mul-hom-Group G H = pr2
 
+emb-Group : {l1 l2 : Level} → Group l1 → Group l2 → UU (l1 ⊔ l2)
+emb-Group G H = Σ (hom-Group G H) (λ h → is-emb (map-hom-Group G H h))
+
 --------------------------------------------------------------------------------
 
 {- We characterize the identity type of the group homomorphisms. -}
@@ -1372,3 +1375,12 @@ module _
     ( inv (right-unit-law-Group G x)) ∙
     ( ( htpy-eq-equiv p (unit-Group G)) ∙
       ( right-unit-law-Group G y))
+
+  is-emb-map-Cayleys-theorem : is-emb map-Cayleys-theorem
+  is-emb-map-Cayleys-theorem =
+    is-emb-is-injective
+      ( is-set-type-Group (symmetric-Group (set-Group G)))
+      ( is-injective-map-Cayleys-theorem)
+
+  Cayleys-theorem : emb-Group G (symmetric-Group (set-Group G))
+  Cayleys-theorem = pair hom-Cayleys-theorem is-emb-map-Cayleys-theorem
