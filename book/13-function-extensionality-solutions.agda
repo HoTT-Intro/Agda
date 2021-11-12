@@ -385,8 +385,8 @@ module _
   refl-htpy-equiv : (e : A ≃ B) → htpy-equiv e e
   refl-htpy-equiv e = refl-htpy
 
-  htpy-equiv-eq : {e e' : A ≃ B} (p : Id e e') → htpy-equiv e e'
-  htpy-equiv-eq {e = e} {.e} refl =
+  htpy-eq-equiv : {e e' : A ≃ B} (p : Id e e') → htpy-equiv e e'
+  htpy-eq-equiv {e = e} {.e} refl =
     refl-htpy-equiv e
 
   abstract
@@ -400,16 +400,21 @@ module _
         ( refl-htpy)
         ( is-equiv-f)
 
-  is-equiv-htpy-equiv-eq :
-    (e e' : A ≃ B) → is-equiv (htpy-equiv-eq {e = e} {e'})
-  is-equiv-htpy-equiv-eq e =
+  is-equiv-htpy-eq-equiv :
+    (e e' : A ≃ B) → is-equiv (htpy-eq-equiv {e = e} {e'})
+  is-equiv-htpy-eq-equiv e =
     fundamental-theorem-id e
       ( refl-htpy-equiv e)
       ( is-contr-total-htpy-equiv e)
-      ( λ e' → htpy-equiv-eq {e = e} {e'})
+      ( λ e' → htpy-eq-equiv {e = e} {e'})
+
+  equiv-htpy-eq-equiv :
+    (e e' : A ≃ B) → Id e e' ≃ (htpy-equiv e e')
+  equiv-htpy-eq-equiv e e' =
+    pair htpy-eq-equiv (is-equiv-htpy-eq-equiv e e')
 
   eq-htpy-equiv : {e e' : A ≃ B} → ( htpy-equiv e e') → Id e e'
-  eq-htpy-equiv {e = e} {e'} = map-inv-is-equiv (is-equiv-htpy-equiv-eq e e')
+  eq-htpy-equiv {e = e} {e'} = map-inv-is-equiv (is-equiv-htpy-eq-equiv e e')
 
   abstract
     Ind-htpy-equiv :

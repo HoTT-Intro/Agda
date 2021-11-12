@@ -6,7 +6,9 @@ open import book.18-set-quotients public
 
 --------------------------------------------------------------------------------
 
--- Section 12.3 Groups in univalent mathematics
+-- Section 19 Groups in univalent mathematics
+
+--------------------------------------------------------------------------------
 
 {- We first introduce semi-groups, and then groups. We do this because the
    category of groups is a full subcategory of the category of semi-groups.
@@ -403,8 +405,8 @@ has-associative-mul-aut-Set :
   {l : Level} (X : UU-Set l) → has-associative-bin-op (aut-Set X)
 has-associative-mul-aut-Set X =
   pair
-    ( λ e f → f ∘e e)
-    ( λ e f g → inv (associative-comp-equiv e f g))
+    ( λ f e → f ∘e e)
+    ( λ e f g → associative-comp-equiv g f e)
 
 symmetric-Semi-Group :
   {l : Level} (X : UU-Set l) → Semi-Group l
@@ -429,8 +431,8 @@ is-unital-symmetric-Semi-Group X =
   pair
     ( equiv-id)
     ( pair
-      ( right-unit-law-equiv)
-      ( left-unit-law-equiv))
+      ( left-unit-law-equiv)
+      ( right-unit-law-equiv))
 
 left-inverse-law-equiv :
   {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ≃ Y) →
@@ -450,7 +452,7 @@ is-group-symmetric-Semi-Group' :
 is-group-symmetric-Semi-Group' X =
   pair
     ( inv-equiv)
-    ( pair right-inverse-law-equiv left-inverse-law-equiv)
+    ( pair left-inverse-law-equiv right-inverse-law-equiv)
 
 symmetric-Group :
   {l : Level} → UU-Set l → Group l
@@ -1356,8 +1358,17 @@ module _
     type-Group G → type-Group (symmetric-Group (set-Group G))
   map-Cayleys-theorem x = equiv-mul-Group G x
   
-  preserves-unit-map-Cayleys-theorem :
+  preserves-mul-map-Cayleys-theorem :
     preserves-mul-Group G (symmetric-Group (set-Group G)) map-Cayleys-theorem
-  preserves-unit-map-Cayleys-theorem x y =
-    eq-htpy-equiv
-      ( λ z → is-associative-mul-Group G x y z ∙ {!!} )
+  preserves-mul-map-Cayleys-theorem x y =
+    eq-htpy-equiv (λ z → is-associative-mul-Group G x y z)
+
+  hom-Cayleys-theorem : hom-Group G (symmetric-Group (set-Group G))
+  hom-Cayleys-theorem =
+    pair map-Cayleys-theorem preserves-mul-map-Cayleys-theorem
+
+  is-injective-map-Cayleys-theorem : is-injective map-Cayleys-theorem
+  is-injective-map-Cayleys-theorem {x} {y} p =
+    ( inv (right-unit-law-Group G x)) ∙
+    ( ( htpy-eq-equiv p (unit-Group G)) ∙
+      ( right-unit-law-Group G y))
