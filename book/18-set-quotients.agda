@@ -2493,6 +2493,20 @@ mere-eq-mere-equiv :
   {l : Level} {A B : UU l} → mere-equiv A B → mere-eq A B
 mere-eq-mere-equiv {l} {A} {B} = functor-trunc-Prop (eq-equiv A B)
 
+is-path-connected-UU-Fin-Level :
+  {l : Level} (n : ℕ) → is-path-connected (UU-Fin-Level l n)
+is-path-connected-UU-Fin-Level {l} n =
+  is-path-connected-mere-eq
+    ( Fin-UU-Fin-Level l n)
+    ( λ A →
+      functor-trunc-Prop
+        ( ( eq-equiv-UU-Fin-Level (Fin-UU-Fin-Level l n) A) ∘
+          ( map-equiv
+            ( equiv-precomp-equiv
+              ( inv-equiv (equiv-raise l (Fin n)))
+              ( type-UU-Fin-Level A))))
+        ( pr2 A))
+
 is-path-connected-UU-Fin :
   (n : ℕ) → is-path-connected (UU-Fin n)
 is-path-connected-UU-Fin n =

@@ -1324,6 +1324,25 @@ is-finite-equiv' :
   is-finite B → is-finite A
 is-finite-equiv' e = is-finite-equiv (inv-equiv e)
 
+is-finite-mere-equiv :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} → mere-equiv A B →
+  is-finite A → is-finite B
+is-finite-mere-equiv e H =
+  apply-universal-property-trunc-Prop e
+    ( is-finite-Prop _)
+    ( λ e' → is-finite-equiv e' H)
+
+is-finite-type-UU-Fin-Level :
+  {l : Level} {k : ℕ} (X : UU-Fin-Level l k) → is-finite (type-UU-Fin-Level X)
+is-finite-type-UU-Fin-Level X =
+  is-finite-mere-equiv
+    ( mere-equiv-UU-Fin-Level X)
+    ( is-finite-Fin)
+
+is-finite-type-UU-Fin :
+  {k : ℕ} (X : UU-Fin k) → is-finite (type-UU-Fin X)
+is-finite-type-UU-Fin X = is-finite-type-UU-Fin-Level X
+
 is-set-is-finite :
   {l : Level} {X : UU l} → is-finite X → is-set X
 is-set-is-finite {l} {X} H =

@@ -17,16 +17,18 @@ open import book.18-set-quotients public
    equality of semi-groups. This will be useful in showing that group 
    isomorphisms are equivalent to identifications of groups. -}
 
-has-associative-bin-op :
+has-associative-mul : {l : Level} (X : UU l) → UU l
+has-associative-mul X =
+  Σ (X → X → X) (λ μ → (x y z : X) → Id (μ (μ x y) z) (μ x (μ y z)))
+
+has-associative-mul-Set :
   {l : Level} (X : UU-Set l) → UU l
-has-associative-bin-op X =
-  Σ ( ( type-Set X) →
-      ( ( type-Set X) → (type-Set X))) (λ μ →
-    ( x y z : type-Set X) → Id (μ (μ x y) z) (μ x (μ y z)))
+has-associative-mul-Set X =
+  has-associative-mul (type-Set X)
 
 Semi-Group :
   (l : Level) → UU (lsuc l)
-Semi-Group l = Σ (UU-Set l) has-associative-bin-op
+Semi-Group l = Σ (UU-Set l) has-associative-mul-Set
 
 --------------------------------------------------------------------------------
 
@@ -46,7 +48,7 @@ is-set-type-Semi-Group G = pr2 (set-Semi-Group G)
 
 associative-mul-Semi-Group :
   {l : Level} (G : Semi-Group l) →
-  has-associative-bin-op (set-Semi-Group G)
+  has-associative-mul (type-Semi-Group G)
 associative-mul-Semi-Group G = pr2 G
 
 mul-Semi-Group :
@@ -214,7 +216,7 @@ module _
   is-set-type-Group : is-set type-Group
   is-set-type-Group = pr2 set-Group
   
-  associative-mul-Group : has-associative-bin-op set-Group
+  associative-mul-Group : has-associative-mul type-Group
   associative-mul-Group = pr2 semi-group-Group
   
   mul-Group : type-Group → type-Group → type-Group
@@ -402,7 +404,7 @@ associative-comp-equiv :
 associative-comp-equiv e f g = eq-htpy-equiv refl-htpy
 
 has-associative-mul-aut-Set :
-  {l : Level} (X : UU-Set l) → has-associative-bin-op (aut-Set X)
+  {l : Level} (X : UU-Set l) → has-associative-mul-Set (aut-Set X)
 has-associative-mul-aut-Set X =
   pair
     ( λ f e → f ∘e e)
@@ -933,7 +935,7 @@ total-is-equiv-hom-Semi-Group G H =
 
 preserves-mul-Semi-Group' :
   { l1 l2 : Level} (G : Semi-Group l1) (H : UU-Set l2)
-  ( μ-H : has-associative-bin-op H) →
+  ( μ-H : has-associative-mul-Set H) →
   ( e : (type-Semi-Group G) ≃ (type-Set H)) →
   UU (l1 ⊔ l2)
 preserves-mul-Semi-Group' G H μ-H e =
@@ -971,14 +973,14 @@ abstract
 
 center-total-preserves-mul-id :
   { l1 : Level} (G : Semi-Group l1) →
-  Σ ( has-associative-bin-op (pr1 G))
+  Σ ( has-associative-mul (type-Semi-Group G))
     ( λ μ → preserves-mul-Semi-Group G (pair (pr1 G) μ) id)
 center-total-preserves-mul-id (pair (pair G is-set-G) (pair μ-G assoc-G)) =
   pair (pair μ-G assoc-G) (λ x y → refl)
 
 contraction-total-preserves-mul-id :
   { l1 : Level} (G : Semi-Group l1) →
-  ( t : Σ ( has-associative-bin-op (pr1 G))
+  ( t : Σ ( has-associative-mul (type-Semi-Group G))
           ( λ μ → preserves-mul-Semi-Group G (pair (pr1 G) μ) id)) →
   Id (center-total-preserves-mul-id G) t
 contraction-total-preserves-mul-id
@@ -1000,7 +1002,7 @@ contraction-total-preserves-mul-id
 is-contr-total-preserves-mul-id :
   { l1 : Level} (G : Semi-Group l1) →
   is-contr
-    ( Σ ( has-associative-bin-op (pr1 G))
+    ( Σ ( has-associative-mul (type-Semi-Group G))
         ( λ μ → preserves-mul-Semi-Group G (pair (pr1 G) μ) id))
 is-contr-total-preserves-mul-id G =
   pair

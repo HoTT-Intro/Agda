@@ -2,7 +2,7 @@
 
 module univalent-combinatorics.homotopy-finiteness where
 
-open import book.18-set-quotients public
+open import book.19-groups public
 
 {-------------------------------------------------------------------------------
 
@@ -51,6 +51,10 @@ has-finite-connected-components-Prop A =
 has-finite-connected-components : {l : Level} → UU l → UU l
 has-finite-connected-components A =
   type-Prop (has-finite-connected-components-Prop A)
+
+number-of-connected-components :
+  {l : Level} {X : UU l} → has-finite-connected-components X → ℕ
+number-of-connected-components H = number-of-elements-is-finite H
 
 is-homotopy-finite-Prop : {l : Level} (k : ℕ) → UU l → UU-Prop l
 is-homotopy-finite-Prop zero-ℕ X = has-finite-connected-components-Prop X
@@ -273,6 +277,22 @@ is-homotopy-finite-UU-Fin (succ-ℕ k) n =
     ( λ x y →
       is-homotopy-finite-equiv k
         ( equiv-equiv-eq-UU-Fin x y)
+        ( is-homotopy-finite-is-finite k
+          ( is-finite-≃
+            ( is-finite-has-finite-cardinality (pair n (pr2 x)))
+            ( is-finite-has-finite-cardinality (pair n (pr2 y))))))
+
+is-homotopy-finite-UU-Fin-Level :
+  {l : Level} (k n : ℕ) → is-homotopy-finite k (UU-Fin-Level l n)
+is-homotopy-finite-UU-Fin-Level {l} zero-ℕ n =
+  has-finite-connected-components-is-path-connected
+    ( is-path-connected-UU-Fin-Level n)
+is-homotopy-finite-UU-Fin-Level {l} (succ-ℕ k) n =
+  pair
+    ( is-homotopy-finite-UU-Fin-Level zero-ℕ n)
+    ( λ x y →
+      is-homotopy-finite-equiv k
+        ( equiv-equiv-eq-UU-Fin-Level x y)
         ( is-homotopy-finite-is-finite k
           ( is-finite-≃
             ( is-finite-has-finite-cardinality (pair n (pr2 x)))
@@ -785,3 +805,70 @@ Homotopy-Finite-Σ k A B =
     ( is-homotopy-finite-Σ k
       ( is-homotopy-finite-type-Homotopy-Finite (succ-ℕ k) A)
       ( λ x → is-homotopy-finite-type-Homotopy-Finite k (B x)))
+
+--------------------------------------------------------------------------------
+
+-- We show that there are finitely many semi-groups of order n
+
+Semi-Group-of-Order' : (l : Level) (n : ℕ) → UU (lsuc l)
+Semi-Group-of-Order' l n =
+  Σ (UU-Fin-Level l n) (λ X → has-associative-mul (type-UU-Fin-Level X))
+
+Semi-Group-of-Order : (l : Level) (n : ℕ) → UU (lsuc l)
+Semi-Group-of-Order l n =
+  Σ (Semi-Group l) (λ G → mere-equiv (Fin n) (type-Semi-Group G))
+
+is-finite-has-associative-mul :
+  {l : Level} {X : UU l} → is-finite X → is-finite (has-associative-mul X)
+is-finite-has-associative-mul H =
+  is-finite-Σ
+    ( is-finite-function-type H (is-finite-function-type H H))
+    ( λ μ →
+      is-finite-Π H
+        ( λ x →
+          is-finite-Π H
+            ( λ y →
+              is-finite-Π H
+                ( λ z →
+                  is-finite-eq (has-decidable-equality-is-finite H)))))
+
+is-homotopy-finite-Semi-Group-of-Order' :
+  {l : Level} (k n : ℕ) → is-homotopy-finite k (Semi-Group-of-Order' l n)
+is-homotopy-finite-Semi-Group-of-Order' k n =
+  is-homotopy-finite-Σ k
+    ( is-homotopy-finite-UU-Fin-Level (succ-ℕ k) n)
+    ( λ x →
+      is-homotopy-finite-is-finite k
+        ( is-finite-has-associative-mul
+          ( is-finite-type-UU-Fin-Level x)))
+
+is-homotopy-finite-Semi-Group-of-Order :
+  {l : Level} (k n : ℕ) → is-homotopy-finite k (Semi-Group-of-Order l n)
+is-homotopy-finite-Semi-Group-of-Order {l} k n =
+  is-homotopy-finite-equiv k e
+    ( is-homotopy-finite-Semi-Group-of-Order' k n)
+  where
+  e : Semi-Group-of-Order l n ≃ Semi-Group-of-Order' l n
+  e = ( equiv-Σ
+        ( has-associative-mul ∘ type-UU-Fin-Level)
+        ( ( right-unit-law-Σ-is-contr
+            ( λ X →
+              is-proof-irrelevant-is-prop
+                ( is-prop-is-set _)
+                ( is-set-is-finite
+                  ( is-finite-has-cardinality (pr2 X))))) ∘e
+          ( equiv-right-swap-Σ))
+        ( λ X → equiv-id)) ∘e
+      ( equiv-right-swap-Σ
+        {A = UU-Set l}
+        {B = has-associative-mul-Set}
+        {C = mere-equiv (Fin n) ∘ type-Set})
+
+number-of-semi-groups-of-order : ℕ → ℕ
+number-of-semi-groups-of-order n =
+  number-of-connected-components
+    ( is-homotopy-finite-Semi-Group-of-Order {lzero} zero-ℕ n)
+
+-- We show that there are finitely many monoids of order n
+
+-- We show that there are finitely many groups of order n
