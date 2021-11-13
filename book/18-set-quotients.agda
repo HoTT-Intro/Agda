@@ -2487,6 +2487,19 @@ is-path-connected-is-surjective-fiber-inclusion :
 is-path-connected-is-surjective-fiber-inclusion a H =
   is-path-connected-mere-eq a (mere-eq-is-surjective-fiber-inclusion a H)
 
+-- Bureaucracy
+
+mere-eq-mere-equiv :
+  {l : Level} {A B : UU l} → mere-equiv A B → mere-eq A B
+mere-eq-mere-equiv {l} {A} {B} = functor-trunc-Prop (eq-equiv A B)
+
+is-path-connected-UU-Fin :
+  (n : ℕ) → is-path-connected (UU-Fin n)
+is-path-connected-UU-Fin n =
+  is-path-connected-mere-eq
+    ( Fin-UU-Fin n)
+    ( λ A → functor-trunc-Prop (eq-equiv-UU-Fin (Fin-UU-Fin n) A) (pr2 A)) 
+
 -- Exercise 18.19
 
 -- Exercise 18.19 (a)

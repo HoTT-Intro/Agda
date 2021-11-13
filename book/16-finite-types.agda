@@ -2048,28 +2048,6 @@ A ≃-𝔽 B =
 Aut-𝔽 : 𝔽 → 𝔽
 Aut-𝔽 A = A ≃-𝔽 A
 
-is-injective-is-injective-comp :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} (f : A → C)
-  (g : B → C) (h : A → B) (H : f ~ (g ∘ h)) →
-  is-injective f → is-injective h
-is-injective-is-injective-comp f g h H is-inj-f {x} {x'} p =
-  is-inj-f {x} {x'} ((H x) ∙ ((ap g p) ∙ (inv (H x'))))
-
-is-injective-comp :
-  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} (f : A → C)
-  (g : B → C) (h : A → B) (H : f ~ (g ∘ h)) →
-  is-injective h → is-injective g → is-injective f
-is-injective-comp f g h H is-inj-h is-inj-g {x} {x'} p =
-  is-inj-h (is-inj-g ((inv (H x)) ∙ (p ∙ (H x'))))
-
-{-
-restrict-injective-map-Maybe' :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (f : Maybe X → Maybe Y) →
-  is-injective f → (x : X) (u : Maybe Y) (p : Id (f (inl x)) u) → Y
-restrict-injective-map-Maybe' f is-inj-f x (inl x₁) p = {!!}
-restrict-injective-map-Maybe' f is-inj-f x (inr x₁) p = {!!}
--}
-
 --------------------------------------------------------------------------------
 
 -- A combinatorial proof that finite sums are associative

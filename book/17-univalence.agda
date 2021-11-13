@@ -642,6 +642,17 @@ eq-equiv-UU-Fin :
   {k : ℕ} (X Y : UU-Fin k) → equiv-UU-Fin X Y → Id X Y
 eq-equiv-UU-Fin X Y = eq-equiv-component-UU X Y
 
+equiv-equiv-eq-UU-Fin-Level :
+  {l : Level} {k : ℕ} (X Y : UU-Fin-Level l k) →
+  Id X Y ≃ equiv-UU-Fin-Level X Y
+equiv-equiv-eq-UU-Fin-Level X Y =
+  pair equiv-eq-UU-Fin-Level (is-equiv-equiv-eq-UU-Fin-Level X Y)
+
+equiv-equiv-eq-UU-Fin :
+  {k : ℕ} (X Y : UU-Fin k) → Id X Y ≃ equiv-UU-Fin X Y
+equiv-equiv-eq-UU-Fin X Y =
+  pair equiv-eq-UU-Fin (is-equiv-equiv-eq-UU-Fin X Y)
+
 add-free-point-UU-Fin-Level :
   {l1 : Level} {k : ℕ} → UU-Fin-Level l1 k → UU-Fin-Level l1 (succ-ℕ k)
 add-free-point-UU-Fin-Level X = coprod-UU-Fin-Level X unit-UU-Fin

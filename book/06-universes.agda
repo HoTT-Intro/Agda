@@ -70,6 +70,20 @@ is-not-injective f = ¬ (is-injective f)
 is-injective-id : {l1 : Level} {A : UU l1} → is-injective (id {A = A})
 is-injective-id p = p
 
+is-injective-is-injective-comp :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} (f : A → C)
+  (g : B → C) (h : A → B) (H : (a : A) → Id (f a) (g (h a))) →
+  is-injective f → is-injective h
+is-injective-is-injective-comp f g h H is-inj-f {x} {x'} p =
+  is-inj-f {x} {x'} ((H x) ∙ ((ap g p) ∙ (inv (H x'))))
+
+is-injective-comp :
+  {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} (f : A → C)
+  (g : B → C) (h : A → B) (H : (a : A) → Id (f a) (g (h a))) →
+  is-injective h → is-injective g → is-injective f
+is-injective-comp f g h H is-inj-h is-inj-g {x} {x'} p =
+  is-inj-h (is-inj-g ((inv (H x)) ∙ (p ∙ (H x'))))
+
 is-injective-succ-ℕ : is-injective succ-ℕ
 is-injective-succ-ℕ {x} {y} e = eq-Eq-ℕ x y (Eq-eq-ℕ e)
 
