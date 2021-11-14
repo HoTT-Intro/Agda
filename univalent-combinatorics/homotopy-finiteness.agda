@@ -56,6 +56,14 @@ number-of-connected-components :
   {l : Level} {X : UU l} → has-finite-connected-components X → ℕ
 number-of-connected-components H = number-of-elements-is-finite H
 
+mere-equiv-number-of-connected-components :
+  {l : Level} {X : UU l} (H : has-finite-connected-components X) →
+  mere-equiv
+    ( Fin (number-of-connected-components H))
+    ( type-trunc-Set X)
+mere-equiv-number-of-connected-components H =
+  mere-equiv-is-finite H
+
 is-homotopy-finite-Prop : {l : Level} (k : ℕ) → UU l → UU-Prop l
 is-homotopy-finite-Prop zero-ℕ X = has-finite-connected-components-Prop X
 is-homotopy-finite-Prop (succ-ℕ k) X =
@@ -860,15 +868,164 @@ is-homotopy-finite-Semi-Group-of-Order {l} k n =
           ( equiv-right-swap-Σ))
         ( λ X → equiv-id)) ∘e
       ( equiv-right-swap-Σ
-        {A = UU-Set l}
-        {B = has-associative-mul-Set}
-        {C = mere-equiv (Fin n) ∘ type-Set})
+        { A = UU-Set l}
+        { B = has-associative-mul-Set}
+        { C = mere-equiv (Fin n) ∘ type-Set})
 
 number-of-semi-groups-of-order : ℕ → ℕ
 number-of-semi-groups-of-order n =
   number-of-connected-components
     ( is-homotopy-finite-Semi-Group-of-Order {lzero} zero-ℕ n)
 
+mere-equiv-number-of-semi-groups-of-order :
+  (n : ℕ) →
+  mere-equiv
+    ( Fin (number-of-semi-groups-of-order n))
+    ( type-trunc-Set (Semi-Group-of-Order lzero n))
+mere-equiv-number-of-semi-groups-of-order n =
+  mere-equiv-number-of-connected-components
+    ( is-homotopy-finite-Semi-Group-of-Order {lzero} zero-ℕ n)
+
 -- We show that there are finitely many monoids of order n
 
+Monoid-of-Order : (l : Level) (n : ℕ) → UU (lsuc l)
+Monoid-of-Order l n = Σ (Monoid l) (λ M → mere-equiv (Fin n) (type-Monoid M))
+
+is-finite-is-unital :
+  {l : Level} {n : ℕ} (X : Semi-Group-of-Order l n) →
+  is-finite (is-unital (pr1 X))
+is-finite-is-unital {l} {n} X =
+  apply-universal-property-trunc-Prop
+    ( pr2 X)
+    ( is-finite-Prop _)
+    ( λ e →
+      is-finite-is-decidable-Prop
+        ( is-unital-Prop (pr1 X))
+        ( is-decidable-Σ-count
+          ( pair n e)
+          ( λ u →
+            is-decidable-prod
+              ( is-decidable-Π-count
+                ( pair n e)
+                ( λ x →
+                  has-decidable-equality-count
+                    ( pair n e)
+                    ( mul-Semi-Group (pr1 X) u x)
+                    ( x)))
+              ( is-decidable-Π-count
+                ( pair n e)
+                ( λ x →
+                  has-decidable-equality-count
+                    ( pair n e)
+                    ( mul-Semi-Group (pr1 X) x u)
+                    ( x))))))
+
+is-homotopy-finite-Monoid-of-Order :
+  {l : Level} (k n : ℕ) → is-homotopy-finite k (Monoid-of-Order l n)
+is-homotopy-finite-Monoid-of-Order {l} k n =
+  is-homotopy-finite-equiv k e
+    ( is-homotopy-finite-Σ k
+      ( is-homotopy-finite-Semi-Group-of-Order (succ-ℕ k) n)
+      ( λ X →
+        is-homotopy-finite-is-finite k
+          ( is-finite-is-unital X)))
+  where
+  e : Monoid-of-Order l n ≃
+      Σ (Semi-Group-of-Order l n) (λ X → is-unital (pr1 X))
+  e = equiv-right-swap-Σ
+
+number-of-monoids-of-order : ℕ → ℕ
+number-of-monoids-of-order n =
+  number-of-connected-components
+    ( is-homotopy-finite-Monoid-of-Order {lzero} zero-ℕ n)
+
+mere-equiv-number-of-monoids-of-order :
+  (n : ℕ) →
+  mere-equiv
+    ( Fin (number-of-monoids-of-order n))
+    ( type-trunc-Set (Monoid-of-Order lzero n))
+mere-equiv-number-of-monoids-of-order n =
+  mere-equiv-number-of-connected-components
+    ( is-homotopy-finite-Monoid-of-Order {lzero} zero-ℕ n)
+
 -- We show that there are finitely many groups of order n
+
+Group-of-Order : (l : Level) (n : ℕ) → UU (lsuc l)
+Group-of-Order l n = Σ (Group l) (λ M → mere-equiv (Fin n) (type-Group M))
+
+is-finite-is-group :
+  {l : Level} {n : ℕ} (G : Semi-Group-of-Order l n) →
+  is-finite {l} (is-group (pr1 G))
+is-finite-is-group {l} {n} G =
+  apply-universal-property-trunc-Prop
+    ( pr2 G)
+    ( is-finite-Prop _)
+    ( λ e →
+      is-finite-is-decidable-Prop
+        ( is-group-Prop (pr1 G))
+        ( is-decidable-Σ-count
+          ( count-Σ
+            ( pair n e)
+            ( λ u →
+              count-prod
+                ( count-Π
+                  ( pair n e)
+                  ( λ x →
+                    count-eq
+                      ( has-decidable-equality-count (pair n e))
+                      ( mul-Semi-Group (pr1 G) u x)
+                      ( x)))
+                ( count-Π
+                  ( pair n e)
+                  ( λ x →
+                    count-eq
+                      ( has-decidable-equality-count (pair n e))
+                      ( mul-Semi-Group (pr1 G) x u)
+                      ( x)))))
+          ( λ u →
+            is-decidable-Σ-count
+              ( count-function-type (pair n e) (pair n e))
+              ( λ i →
+                is-decidable-prod
+                  ( is-decidable-Π-count
+                    ( pair n e)
+                    ( λ x →
+                      has-decidable-equality-count
+                        ( pair n e)
+                        ( mul-Semi-Group (pr1 G) (i x) x)
+                        ( pr1 u)))
+                  ( is-decidable-Π-count
+                    ( pair n e)
+                    ( λ x →
+                      has-decidable-equality-count
+                        ( pair n e)
+                        ( mul-Semi-Group (pr1 G) x (i x))
+                        ( pr1 u)))))))
+
+is-homotopy-finite-Group-of-Order :
+  {l : Level} (k n : ℕ) → is-homotopy-finite k (Group-of-Order l n)
+is-homotopy-finite-Group-of-Order {l} k n =
+  is-homotopy-finite-equiv k e
+    ( is-homotopy-finite-Σ k
+      ( is-homotopy-finite-Semi-Group-of-Order (succ-ℕ k) n)
+      ( λ X →
+        is-homotopy-finite-is-finite k
+          ( is-finite-is-group X)))
+  where
+  e : Group-of-Order l n ≃
+      Σ (Semi-Group-of-Order l n) (λ X → is-group (pr1 X))
+  e = equiv-right-swap-Σ
+
+number-of-groups-of-order : ℕ → ℕ
+number-of-groups-of-order n =
+  number-of-connected-components
+    ( is-homotopy-finite-Group-of-Order {lzero} zero-ℕ n)
+
+mere-equiv-number-of-groups-of-order :
+  (n : ℕ) →
+  mere-equiv
+    ( Fin (number-of-groups-of-order n))
+    ( type-trunc-Set (Group-of-Order lzero n))
+mere-equiv-number-of-groups-of-order n =
+  mere-equiv-number-of-connected-components
+    ( is-homotopy-finite-Group-of-Order {lzero} zero-ℕ n)

@@ -152,7 +152,7 @@ ev-pair f x y = f (pair x y)
 -- Definition 4.6.3
 
 pr1 : {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → Σ A B → A
-pr1 (pair a b) = a
+pr1 (pair a _) = a
 
 pr2 : {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → (t : Σ A B) → B (pr1 t)
 pr2 (pair a b) = b

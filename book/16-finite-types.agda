@@ -2013,6 +2013,12 @@ count-Π {l1} {l2} {A} {B} e f =
     ( equiv-precomp-Π (equiv-count e) B)
     ( count-Π-Fin (λ x → f (map-equiv-count e x)))
 
+count-function-type :
+  {l1 l2 : Level} {A : UU l1} {B : UU l2} →
+  count A → count B → count (A → B)
+count-function-type e f =
+  count-Π e (λ x → f)
+
 is-finite-Π :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
   is-finite A → ((x : A) → is-finite (B x)) → is-finite ((x : A) → B x)

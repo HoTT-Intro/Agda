@@ -138,6 +138,9 @@ abstract
   is-prop-is-unital G =
     is-prop-all-elements-equal (all-elements-equal-is-unital G)
 
+is-unital-Prop : {l : Level} (G : Semi-Group l) → UU-Prop l
+is-unital-Prop G = pair (is-unital G) (is-prop-is-unital G)
+
 --------------------------------------------------------------------------------
 
 {- We introduce invertible elements of a monoid -}
@@ -327,6 +330,9 @@ abstract
       ( is-prop-is-unital G)
       ( λ e →
         is-prop-all-elements-equal (all-elements-equal-is-group G e))
+
+is-group-Prop : {l : Level} (G : Semi-Group l) → UU-Prop l
+is-group-Prop G = pair (is-group G) (is-prop-is-group G)
 
 --------------------------------------------------------------------------------
 
