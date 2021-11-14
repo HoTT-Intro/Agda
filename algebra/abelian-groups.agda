@@ -29,7 +29,7 @@ is-set-type-Ab :
 is-set-type-Ab A = is-set-type-Group (group-Ab A)
 
 associative-add-Ab :
-  {l : Level} (A : Ab l) → has-associative-bin-op (set-Ab A)
+  {l : Level} (A : Ab l) → has-associative-mul-Set (set-Ab A)
 associative-add-Ab A = associative-mul-Group (group-Ab A)
 
 add-Ab :

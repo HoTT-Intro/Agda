@@ -7,7 +7,7 @@ open import algebra.abelian-groups public
 has-mul-Ab :
   { l1 : Level} (A : Ab l1) → UU l1
 has-mul-Ab A =
-  Σ ( has-associative-bin-op (set-Ab A))
+  Σ ( has-associative-mul-Set (set-Ab A))
     ( λ μ →
       ( is-unital (pair (set-Ab A) μ)) ×
       ( ( (a b c : type-Ab A) →
@@ -40,7 +40,7 @@ is-set-type-Ring :
 is-set-type-Ring R = is-set-type-Ab (ab-Ring R)
 
 associative-add-Ring :
-  {l : Level} (R : Ring l) → has-associative-bin-op (set-Ring R)
+  {l : Level} (R : Ring l) → has-associative-mul-Set (set-Ring R)
 associative-add-Ring R = associative-add-Ab (ab-Ring R)
 
 add-Ring :
@@ -103,7 +103,7 @@ is-commutative-add-Ring :
 is-commutative-add-Ring R = is-commutative-add-Ab (ab-Ring R)
 
 has-associative-mul-Ring :
-  {l : Level} (R : Ring l) → has-associative-bin-op (set-Ring R)
+  {l : Level} (R : Ring l) → has-associative-mul-Set (set-Ring R)
 has-associative-mul-Ring R = pr1 (pr2 R)
 
 mul-Ring :
