@@ -1305,7 +1305,8 @@ left-zero-law-mul-Fin {k} x =
       ( succ-ℕ k)
       { mul-ℕ (nat-Fin (zero-Fin {k})) (nat-Fin x)}
       { nat-Fin (zero-Fin {k})}
-      ( ap (mul-ℕ' (nat-Fin x)) (is-zero-nat-zero-Fin {k}) ∙ inv (is-zero-nat-zero-Fin {k})))) ∙
+      ( ( ap (mul-ℕ' (nat-Fin x)) (is-zero-nat-zero-Fin {k})) ∙
+        ( inv (is-zero-nat-zero-Fin {k}))))) ∙
   ( issec-nat-Fin (zero-Fin {k}))
 
 right-zero-law-mul-Fin :

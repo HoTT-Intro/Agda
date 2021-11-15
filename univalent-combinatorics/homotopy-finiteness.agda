@@ -951,7 +951,7 @@ mere-equiv-number-of-monoids-of-order n =
 -- We show that there are finitely many groups of order n
 
 Group-of-Order : (l : Level) (n : ℕ) → UU (lsuc l)
-Group-of-Order l n = Σ (Group l) (λ M → mere-equiv (Fin n) (type-Group M))
+Group-of-Order l n = Σ (Group l) (λ G → mere-equiv (Fin n) (type-Group G))
 
 is-finite-is-group :
   {l : Level} {n : ℕ} (G : Semi-Group-of-Order l n) →

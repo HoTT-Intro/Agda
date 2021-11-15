@@ -73,9 +73,7 @@ abstract
   is-prop-all-elements-equal {i} {A} H x y =
     pair
       ( (inv (H x x)) ∙ (H x y))
-      ( ind-Id x
-        ( λ z p → Id ((inv (H x x)) ∙ (H x z)) p)
-        ( left-inv (H x x)) y)
+      ( λ { refl → left-inv (H x x)})
 
 abstract
   eq-is-prop' :
