@@ -73,5 +73,5 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: cabal install Agda-${{ matrix.agda-version }}
       
-      - name: Build book
-        run: ~/.cabal/bin/agda book.agda
+      - name: Build all
+        run: ~/.cabal/bin/agda all.agda
