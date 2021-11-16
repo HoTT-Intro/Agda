@@ -816,58 +816,60 @@ abstract
     {l : Level} {A : UU l} (f : is-empty A) → is-equiv f
   is-equiv-is-empty' f = is-equiv-is-empty f id
 
-map-right-absorption-Σ :
-  {l : Level} (A : UU l) → Σ A (λ x → empty) → empty
-map-right-absorption-Σ A (pair x ())
+module _
+  {l : Level} (A : UU l)
+  where
+  
+  map-right-absorption-Σ : Σ A (λ x → empty) → empty
+  map-right-absorption-Σ (pair x ())
+  
+  map-right-absorption-prod : A × empty → empty
+  map-right-absorption-prod = map-right-absorption-Σ
 
-map-right-absorption-prod = map-right-absorption-Σ
+  is-equiv-map-right-absorption-Σ : is-equiv map-right-absorption-Σ
+  is-equiv-map-right-absorption-Σ = is-equiv-is-empty' map-right-absorption-Σ
 
-abstract
-  is-equiv-map-right-absorption-Σ :
-    {l : Level} (A : UU l) → is-equiv (map-right-absorption-Σ A)
-  is-equiv-map-right-absorption-Σ A =
-    is-equiv-is-empty' (map-right-absorption-Σ A)
-
+  is-equiv-map-right-absorption-prod : is-equiv map-right-absorption-prod
   is-equiv-map-right-absorption-prod = is-equiv-map-right-absorption-Σ
-
-right-absorption-Σ :
-  {l : Level} (A : UU l) → Σ A (λ x → empty) ≃ empty
-right-absorption-Σ A =
-  pair (map-right-absorption-Σ A) (is-equiv-map-right-absorption-Σ A)
-
-right-absorption-prod :
-  {l : Level} (A : UU l) → (A × empty) ≃ empty
-right-absorption-prod = right-absorption-Σ
+  
+  right-absorption-Σ : Σ A (λ x → empty) ≃ empty
+  right-absorption-Σ =
+    pair map-right-absorption-Σ is-equiv-map-right-absorption-Σ
+  
+  right-absorption-prod : (A × empty) ≃ empty
+  right-absorption-prod = right-absorption-Σ
 
 -- Left absorption law for Σ and cartesian products
 
-map-left-absorption-Σ :
-  {l : Level} (A : empty → UU l) → Σ empty A → empty
-map-left-absorption-Σ A = pr1
+module _
+  {l : Level} (A : empty → UU l)
+  where
 
-map-left-absorption-prod :
-  {l : Level} (A : UU l) → empty × A → empty
-map-left-absorption-prod A = map-left-absorption-Σ (λ x → A)
+  map-left-absorption-Σ : Σ empty A → empty
+  map-left-absorption-Σ = pr1
+  
+  is-equiv-map-left-absorption-Σ : is-equiv map-left-absorption-Σ
+  is-equiv-map-left-absorption-Σ =
+    is-equiv-is-empty' map-left-absorption-Σ
+  
+  left-absorption-Σ : Σ empty A ≃ empty
+  left-absorption-Σ =
+    pair map-left-absorption-Σ is-equiv-map-left-absorption-Σ
 
-is-equiv-map-left-absorption-Σ :
-  {l : Level} (A : empty → UU l) → is-equiv (map-left-absorption-Σ A)
-is-equiv-map-left-absorption-Σ A =
-  is-equiv-is-empty' (map-left-absorption-Σ A)
+module _
+  {l : Level} (A : UU l)
+  where
 
-is-equiv-map-left-absorption-prod :
-  {l : Level} (A : UU l) → is-equiv (map-left-absorption-prod A)
-is-equiv-map-left-absorption-prod A =
-  is-equiv-map-left-absorption-Σ (λ x → A)
-
-left-absorption-Σ :
-  {l : Level} (A : empty → UU l) → Σ empty A ≃ empty
-left-absorption-Σ A =
-  pair (map-left-absorption-Σ A) (is-equiv-map-left-absorption-Σ A)
-
-left-absorption-prod :
-  {l : Level} (A : UU l) → (empty × A) ≃ empty
-left-absorption-prod A = left-absorption-Σ (λ x → A)
-
+  map-left-absorption-prod : empty × A → empty
+  map-left-absorption-prod = map-left-absorption-Σ (λ x → A)
+  
+  is-equiv-map-left-absorption-prod : is-equiv map-left-absorption-prod
+  is-equiv-map-left-absorption-prod =
+    is-equiv-map-left-absorption-Σ (λ x → A)
+    
+  left-absorption-prod : (empty × A) ≃ empty
+  left-absorption-prod = left-absorption-Σ (λ x → A)
+  
 -- Unit laws for Σ-types and cartesian products
 
 map-left-unit-law-Σ :
