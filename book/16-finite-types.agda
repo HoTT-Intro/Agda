@@ -564,41 +564,37 @@ is-exception-Maybe {l} {X} x = Id x exception-Maybe
 
 -- The universal property of Maybe
 
-ev-Maybe :
-  {l1 l2 : Level} {A : UU l1} {B : Maybe A → UU l2} →
-  ((x : Maybe A) → B x) → ((x : A) → B (unit-Maybe x)) × B exception-Maybe
-ev-Maybe h = pair (λ x → h (unit-Maybe x)) (h exception-Maybe)
+module _
+  {l1 l2 : Level} {A : UU l1} {B : Maybe A → UU l2}
+  where
 
-ind-Maybe :
-  {l1 l2 : Level} {A : UU l1} {B : Maybe A → UU l2} →
-  ((x : A) → B (unit-Maybe x)) × (B exception-Maybe) → (x : Maybe A) → B x
-ind-Maybe (pair h b) (inl x) = h x
-ind-Maybe (pair h b) (inr star) = b
+  ev-Maybe :
+    ((x : Maybe A) → B x) → ((x : A) → B (unit-Maybe x)) × B exception-Maybe
+  ev-Maybe h = pair (λ x → h (unit-Maybe x)) (h exception-Maybe)
+  
+  ind-Maybe :
+    ((x : A) → B (unit-Maybe x)) × (B exception-Maybe) → (x : Maybe A) → B x
+  ind-Maybe (pair h b) (inl x) = h x
+  ind-Maybe (pair h b) (inr star) = b
 
-issec-ind-Maybe :
-  {l1 l2 : Level} {A : UU l1} {B : Maybe A → UU l2} →
-  (ev-Maybe {B = B} ∘ ind-Maybe {B = B}) ~ id
-issec-ind-Maybe (pair h b) = refl
+  issec-ind-Maybe : (ev-Maybe ∘ ind-Maybe) ~ id
+  issec-ind-Maybe (pair h b) = refl
 
-isretr-ind-Maybe' :
-  {l1 l2 : Level} {A : UU l1} {B : Maybe A → UU l2} (h : (x : Maybe A) → B x) →
-  (ind-Maybe (ev-Maybe h)) ~ h
-isretr-ind-Maybe' h (inl x) = refl
-isretr-ind-Maybe' h (inr star) = refl
+  isretr-ind-Maybe' :
+    (h : (x : Maybe A) → B x) → (ind-Maybe (ev-Maybe h)) ~ h
+  isretr-ind-Maybe' h (inl x) = refl
+  isretr-ind-Maybe' h (inr star) = refl
 
-isretr-ind-Maybe :
-  {l1 l2 : Level} {A : UU l1} {B : Maybe A → UU l2} →
-  (ind-Maybe {B = B} ∘ ev-Maybe {B = B}) ~ id
-isretr-ind-Maybe h = eq-htpy (isretr-ind-Maybe' h)
+  isretr-ind-Maybe : (ind-Maybe ∘ ev-Maybe) ~ id
+  isretr-ind-Maybe h = eq-htpy (isretr-ind-Maybe' h)
 
-dependent-universal-property-Maybe :
-  {l1 l2 : Level} {A : UU l1} {B : Maybe A → UU l2} →
-  is-equiv (ev-Maybe {B = B})
-dependent-universal-property-Maybe =
-  is-equiv-has-inverse
-    ind-Maybe
-    issec-ind-Maybe
-    isretr-ind-Maybe
+  dependent-universal-property-Maybe :
+    is-equiv ev-Maybe
+  dependent-universal-property-Maybe =
+    is-equiv-has-inverse
+      ind-Maybe
+      issec-ind-Maybe
+      isretr-ind-Maybe
 
 equiv-dependent-universal-property-Maybe :
   {l1 l2 : Level} {A : UU l1} (B : Maybe A → UU l2) →
@@ -1439,55 +1435,53 @@ has-finite-cardinality-Prop :
 has-finite-cardinality-Prop X =
   pair (has-finite-cardinality X) (is-prop-has-finite-cardinality)
 
-is-finite-has-finite-cardinality :
-  {l : Level} {X : UU l} → has-finite-cardinality X → is-finite X
-is-finite-has-finite-cardinality {l} {X} (pair k K) =
-  apply-universal-property-trunc-Prop K
-    ( is-finite-Prop X)
-    ( is-finite-count ∘ (pair k))
+module _
+  {l : Level} {X : UU l}
+  where
+  
+  is-finite-has-finite-cardinality : has-finite-cardinality X → is-finite X
+  is-finite-has-finite-cardinality (pair k K) =
+    apply-universal-property-trunc-Prop K
+      ( is-finite-Prop X)
+      ( is-finite-count ∘ (pair k))
 
-is-finite-has-cardinality :
-  {l : Level} {X : UU l} {k : ℕ} → has-cardinality X k → is-finite X
-is-finite-has-cardinality {k = k} H =
-  is-finite-has-finite-cardinality (pair k H)
+  is-finite-has-cardinality : {k : ℕ} → has-cardinality X k → is-finite X
+  is-finite-has-cardinality {k} H =
+    is-finite-has-finite-cardinality (pair k H)
 
-has-finite-cardinality-count :
-  {l1  : Level} {X : UU l1} → count X → has-finite-cardinality X
-has-finite-cardinality-count e =
-  pair (number-of-elements-count e) (unit-trunc-Prop (equiv-count e))
+  has-finite-cardinality-count : count X → has-finite-cardinality X
+  has-finite-cardinality-count e =
+    pair (number-of-elements-count e) (unit-trunc-Prop (equiv-count e))
 
-has-finite-cardinality-is-finite :
-  {l1 : Level} {X : UU l1} → is-finite X → has-finite-cardinality X
-has-finite-cardinality-is-finite =
-  map-universal-property-trunc-Prop
-    ( has-finite-cardinality-Prop _)
-    ( has-finite-cardinality-count)
+  has-finite-cardinality-is-finite : is-finite X → has-finite-cardinality X
+  has-finite-cardinality-is-finite =
+    map-universal-property-trunc-Prop
+      ( has-finite-cardinality-Prop X)
+      ( has-finite-cardinality-count)
 
-number-of-elements-is-finite :
-  {l1 : Level} {X : UU l1} → is-finite X → ℕ
-number-of-elements-is-finite =
-  number-of-elements-has-finite-cardinality ∘ has-finite-cardinality-is-finite
+  number-of-elements-is-finite : is-finite X → ℕ
+  number-of-elements-is-finite =
+    number-of-elements-has-finite-cardinality ∘ has-finite-cardinality-is-finite
 
-mere-equiv-is-finite :
-  {l1 : Level} {X : UU l1} (f : is-finite X) →
-  mere-equiv (Fin (number-of-elements-is-finite f)) X
-mere-equiv-is-finite f =
-  mere-equiv-has-finite-cardinality (has-finite-cardinality-is-finite f)
+  mere-equiv-is-finite :
+    (f : is-finite X) → mere-equiv (Fin (number-of-elements-is-finite f)) X
+  mere-equiv-is-finite f =
+    mere-equiv-has-finite-cardinality (has-finite-cardinality-is-finite f)
 
-compute-number-of-elements-is-finite :
-  {l1 : Level} {X : UU l1} (e : count X) (f : is-finite X) →
-  Id (number-of-elements-count e) (number-of-elements-is-finite f)
-compute-number-of-elements-is-finite e f =
-  ind-trunc-Prop
-    ( λ g → Id-Prop ℕ-Set ( number-of-elements-count e)
-                          ( number-of-elements-is-finite g))
-    ( λ g →
-      ( is-injective-Fin ((inv-equiv (equiv-count g)) ∘e (equiv-count e))) ∙
-      ( ap pr1
-        ( eq-is-prop' is-prop-has-finite-cardinality
-          ( has-finite-cardinality-count g)
-          ( has-finite-cardinality-is-finite (unit-trunc-Prop g)))))
-    ( f)
+  compute-number-of-elements-is-finite :
+    (e : count X) (f : is-finite X) →
+    Id (number-of-elements-count e) (number-of-elements-is-finite f)
+  compute-number-of-elements-is-finite e f =
+    ind-trunc-Prop
+      ( λ g → Id-Prop ℕ-Set ( number-of-elements-count e)
+                            ( number-of-elements-is-finite g))
+      ( λ g →
+        ( is-injective-Fin ((inv-equiv (equiv-count g)) ∘e (equiv-count e))) ∙
+        ( ap pr1
+          ( eq-is-prop' is-prop-has-finite-cardinality
+            ( has-finite-cardinality-count g)
+            ( has-finite-cardinality-is-finite (unit-trunc-Prop g)))))
+      ( f)
 
 -- Some immediate conclusions of Theorem 16.3.3
 

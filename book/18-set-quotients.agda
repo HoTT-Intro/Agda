@@ -846,31 +846,33 @@ module _
     is-surjective-and-effective R q → type-Set B → A → UU-Prop l3
   large-map-emb-is-surjective-and-effective H b a = Id-Prop B b (q a)
 
-  small-map-emb-is-surjective-and-effective :
-    is-surjective-and-effective R q → type-Set B → A →
-    Σ (UU-Prop l3) (λ P → is-small l2 (type-Prop P))
-  small-map-emb-is-surjective-and-effective H b a =
-    pair ( large-map-emb-is-surjective-and-effective H b a)
-         ( is-locally-small-is-surjective-and-effective H b (q a))
-
   abstract
+    small-map-emb-is-surjective-and-effective :
+      is-surjective-and-effective R q → type-Set B → A →
+      Σ (UU-Prop l3) (λ P → is-small l2 (type-Prop P))
+    small-map-emb-is-surjective-and-effective H b a =
+      pair 
+        ( large-map-emb-is-surjective-and-effective H b a)
+        ( is-locally-small-is-surjective-and-effective H b (q a))
+  
     map-emb-is-surjective-and-effective :
       is-surjective-and-effective R q → type-Set B → A → UU-Prop l2
     map-emb-is-surjective-and-effective H b a =
-      pair ( pr1 (pr2 (small-map-emb-is-surjective-and-effective H b a)))
-           ( is-prop-equiv'
-             ( type-Prop (large-map-emb-is-surjective-and-effective H b a))
-             ( pr2 (pr2 (small-map-emb-is-surjective-and-effective H b a)))
-             ( is-prop-type-Prop
-               ( large-map-emb-is-surjective-and-effective H b a)))
-  
+      pair
+        ( pr1 (pr2 (small-map-emb-is-surjective-and-effective H b a)))
+        ( is-prop-equiv'
+          ( type-Prop (large-map-emb-is-surjective-and-effective H b a))
+          ( pr2 (pr2 (small-map-emb-is-surjective-and-effective H b a)))
+          ( is-prop-type-Prop
+            ( large-map-emb-is-surjective-and-effective H b a)))
+
     compute-map-emb-is-surjective-and-effective :
       (H : is-surjective-and-effective R q) (b : type-Set B) (a : A) →
       type-Prop (large-map-emb-is-surjective-and-effective H b a) ≃
       type-Prop (map-emb-is-surjective-and-effective H b a) 
     compute-map-emb-is-surjective-and-effective H b a =
       pr2 (pr2 (small-map-emb-is-surjective-and-effective H b a))
-  
+
     triangle-emb-is-surjective-and-effective :
       (H : is-surjective-and-effective R q) →
       prop-Eq-Rel R ~ (map-emb-is-surjective-and-effective H ∘ q)

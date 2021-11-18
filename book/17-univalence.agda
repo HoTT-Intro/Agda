@@ -38,58 +38,66 @@ UNIVALENCE-is-contr-total-equiv A c =
 
 -- Theorem 17.1.1 Condition (iii)
 
-ev-id : {i j : Level} {A : UU i} (P : (B : UU i) → (A ≃ B) → UU j) →
-  ((B : UU i) (e : A ≃ B) → P B e) → P A equiv-id
-ev-id {A = A} P f = f A equiv-id
+module _
+  {l1 : Level} {A : UU l1}
+  where
 
-IND-EQUIV : {i j : Level} {A : UU i} → ((B : UU i) (e : A ≃ B) → UU j) → UU _
-IND-EQUIV P = sec (ev-id P)
+  ev-id :
+    { l : Level} (P : (B : UU l1) → (A ≃ B) → UU l) →
+    ( (B : UU l1) (e : A ≃ B) → P B e) → P A equiv-id
+  ev-id P f = f A equiv-id
+  
+  IND-EQUIV : {l : Level} (P : (B : UU l1) (e : A ≃ B) → UU l) → UU _
+  IND-EQUIV P = sec (ev-id P)
+  
+  triangle-ev-id :
+    { l : Level}
+    ( P : (Σ (UU l1) (λ X → A ≃ X)) → UU l) →
+    ( ev-pt (pair A equiv-id) P) ~
+    ( ( ev-id (λ X e → P (pair X e))) ∘
+      ( ev-pair {A = UU l1} {B = λ X → A ≃ X} {C = P}))
+  triangle-ev-id P f = refl
 
-triangle-ev-id : {i j : Level} {A : UU i}
-  (P : (Σ (UU i) (λ X → A ≃ X)) → UU j) →
-  (ev-pt (pair A equiv-id) P)
-  ~ ((ev-id (λ X e → P (pair X e))) ∘ (ev-pair {A = UU i} {B = λ X → A ≃ X} {C = P}))
-triangle-ev-id P f = refl
+  -- Theorem 17.1.1 (ii) implies (iii)
 
--- Theorem 17.1.1 (ii) implies (iii)
-
-abstract
-  IND-EQUIV-is-contr-total-equiv : {i j : Level} (A : UU i) →
-    is-contr (Σ (UU i) (λ X → A ≃ X)) →
-    (P : (Σ (UU i) (λ X → A ≃ X)) → UU j) → IND-EQUIV (λ B e → P (pair B e))
-  IND-EQUIV-is-contr-total-equiv {i} {j} A c P =
-    section-comp
-      ( ev-pt (pair A equiv-id) P)
-      ( ev-id (λ X e → P (pair X e)))
-      ( ev-pair)
-      ( triangle-ev-id P)
-      ( pair ind-Σ refl-htpy)
-      ( is-singleton-is-contr
-        ( pair A equiv-id)
-        ( pair
-          ( pair A equiv-id)
-          ( λ t →  ( inv (contraction c (pair A equiv-id))) ∙
-                   ( contraction c t)))
-        ( P))
-
--- Theorem 17.1.1 (iii) implies (ii)
-
-abstract
-  is-contr-total-equiv-IND-EQUIV : {i : Level} (A : UU i) →
-    ( {j : Level} (P : (Σ (UU i) (λ X → A ≃ X)) → UU j) →
-      IND-EQUIV (λ B e → P (pair B e))) →
-    is-contr (Σ (UU i) (λ X → A ≃ X))
-  is-contr-total-equiv-IND-EQUIV {i} A ind =
-    is-contr-is-singleton
-      ( Σ (UU i) (λ X → A ≃ X))
-      ( pair A equiv-id)
-      ( λ P → section-comp'
+  abstract
+    IND-EQUIV-is-contr-total-equiv :
+      is-contr (Σ (UU l1) (λ X → A ≃ X)) →
+      {l : Level} →
+      (P : (Σ (UU l1) (λ X → A ≃ X)) → UU l) → IND-EQUIV (λ B e → P (pair B e))
+    IND-EQUIV-is-contr-total-equiv c P =
+      section-comp
         ( ev-pt (pair A equiv-id) P)
         ( ev-id (λ X e → P (pair X e)))
-        ( ev-pair {A = UU i} {B = λ X → A ≃ X} {C = P})
+        ( ev-pair)
         ( triangle-ev-id P)
         ( pair ind-Σ refl-htpy)
-        ( ind P))
+        ( is-singleton-is-contr
+          ( pair A equiv-id)
+          ( pair
+            ( pair A equiv-id)
+            ( λ t →  ( inv (contraction c (pair A equiv-id))) ∙
+                     ( contraction c t)))
+          ( P))
+
+  -- Theorem 17.1.1 (iii) implies (ii)
+
+  abstract
+    is-contr-total-equiv-IND-EQUIV :
+      ( {l : Level} (P : (Σ (UU l1) (λ X → A ≃ X)) → UU l) →
+        IND-EQUIV (λ B e → P (pair B e))) →
+      is-contr (Σ (UU l1) (λ X → A ≃ X))
+    is-contr-total-equiv-IND-EQUIV ind =
+      is-contr-is-singleton
+        ( Σ (UU l1) (λ X → A ≃ X))
+        ( pair A equiv-id)
+        ( λ P → section-comp'
+          ( ev-pt (pair A equiv-id) P)
+          ( ev-id (λ X e → P (pair X e)))
+          ( ev-pair {A = UU l1} {B = λ X → A ≃ X} {C = P})
+          ( triangle-ev-id P)
+          ( pair ind-Σ refl-htpy)
+          ( ind P))
 
 -- The univalence axiom
 
@@ -119,7 +127,7 @@ abstract
   Ind-equiv : {i j : Level} (A : UU i) (P : (B : UU i) (e : A ≃ B) → UU j) →
     sec (ev-id P)
   Ind-equiv A P =
-    IND-EQUIV-is-contr-total-equiv A
+    IND-EQUIV-is-contr-total-equiv
     ( is-contr-total-equiv A)
     ( λ t → P (pr1 t) (pr2 t))
 

@@ -543,7 +543,8 @@ map-hom-𝕎-Alg :
   (X : algebra-polynomial-endofunctor-UU l3 A B) →
   𝕎 A B → type-algebra-polynomial-endofunctor X
 map-hom-𝕎-Alg X (tree-𝕎 x α) =
-  structure-algebra-polynomial-endofunctor X (pair x (map-hom-𝕎-Alg X ∘ α))
+  structure-algebra-polynomial-endofunctor X
+    ( pair x (λ y → map-hom-𝕎-Alg X (α y)))
 
 structure-hom-𝕎-Alg :
   {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2}
@@ -650,7 +651,7 @@ map-𝕎' :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
   (f : A → C) (g : (x : A) → D (f x) → B x) →
   𝕎 A B → 𝕎 C D
-map-𝕎' D f g (tree-𝕎 a α) = tree-𝕎 (f a) (map-𝕎' D f g ∘ (α ∘ g a))
+map-𝕎' D f g (tree-𝕎 a α) = tree-𝕎 (f a) (λ d → map-𝕎' D f g (α (g a d)))
 
 map-𝕎 :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : A → UU l2} {C : UU l3} (D : C → UU l4)
