@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
+{-# OPTIONS --without-K --exact-split --guardedness --allow-unsolved-metas #-}
 
 module type-theories.simple-type-theories where
 

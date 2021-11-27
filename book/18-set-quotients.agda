@@ -861,7 +861,6 @@ module _
       pair
         ( pr1 (pr2 (small-map-emb-is-surjective-and-effective H b a)))
         ( is-prop-equiv'
-          ( type-Prop (large-map-emb-is-surjective-and-effective H b a))
           ( pr2 (pr2 (small-map-emb-is-surjective-and-effective H b a)))
           ( is-prop-type-Prop
             ( large-map-emb-is-surjective-and-effective H b a)))
@@ -1065,7 +1064,6 @@ module _
     {l} E X (pair f H) =
     is-proof-irrelevant-is-prop
       ( is-prop-equiv
-        ( fib (precomp q (type-Set X)) f)
         ( equiv-tot
           ( λ h → equiv-ap-pr1 (is-prop-reflects-Eq-Rel R X)))
         ( is-prop-map-is-emb (is-emb-precomp-is-surjective (pr1 E) X) f))
@@ -2494,6 +2492,16 @@ is-path-connected-is-surjective-fiber-inclusion a H =
 mere-eq-mere-equiv :
   {l : Level} {A B : UU l} → mere-equiv A B → mere-eq A B
 mere-eq-mere-equiv {l} {A} {B} = functor-trunc-Prop (eq-equiv A B)
+
+is-path-connected-component-UU :
+  {l : Level} (X : UU l) → is-path-connected (component-UU X)
+is-path-connected-component-UU X =
+  is-path-connected-mere-eq
+    ( pair X (refl-mere-equiv X))
+    ( λ Y →
+      functor-trunc-Prop
+        ( eq-equiv-component-UU (pair X (refl-mere-equiv X)) Y)
+        ( mere-equiv-component-UU Y))
 
 is-path-connected-UU-Fin-Level :
   {l : Level} (n : ℕ) → is-path-connected (UU-Fin-Level l n)

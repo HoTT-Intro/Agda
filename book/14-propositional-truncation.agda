@@ -2,8 +2,7 @@
 
 module book.14-propositional-truncation where
 
-import book.13-function-extensionality-solutions
-open book.13-function-extensionality-solutions public
+open import book.13-function-extensionality-solutions public
 
 --------------------------------------------------------------------------------
 

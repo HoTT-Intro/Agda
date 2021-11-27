@@ -2,8 +2,7 @@
 
 module book.04-inductive-types where
 
-import book.03-natural-numbers
-open book.03-natural-numbers public
+open import book.03-natural-numbers public
 
 --------------------------------------------------------------------------------
 
@@ -134,8 +133,13 @@ map-left-unit-law-coprod-is-empty A B na (inr b) = b
 
 -- Definition 4.6.1
 
-data Σ {l1 l2 : Level} (A : UU l1) (B : A → UU l2) : UU (l1 ⊔ l2) where
-  pair : (x : A) → (B x → Σ A B)
+record Σ {l1 l2} (A : UU l1) (B : A → UU l2) : UU (l1 ⊔ l2) where
+  constructor pair
+  field
+    pr1 : A
+    pr2 : B pr1
+
+open Σ public
 
 ind-Σ :
   {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {C : Σ A B → UU l3} →
@@ -148,14 +152,6 @@ ev-pair :
   {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} {C : Σ A B → UU l3} →
   ((t : Σ A B) → C t) → (x : A) (y : B x) → C (pair x y)
 ev-pair f x y = f (pair x y)
-
--- Definition 4.6.3
-
-pr1 : {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → Σ A B → A
-pr1 (pair a _) = a
-
-pr2 : {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → (t : Σ A B) → B (pr1 t)
-pr2 (pair a b) = b
 
 -- Definition 4.6.4
 
@@ -172,7 +168,8 @@ A × B = prod A B
 map-prod :
   {l1 l2 l3 l4 : Level} {A : UU l1} {B : UU l2} {C : UU l3} {D : UU l4}
   (f : A → C) (g : B → D) → (A × B) → (C × D)
-map-prod f g (pair a b) = pair (f a) (g b)
+pr1 (map-prod f g (pair a b)) = f a
+pr2 (map-prod f g (pair a b)) = g b
 
 --------------------------------------------------------------------------------
 
@@ -250,7 +247,8 @@ A ↔ B = (A → B) × (B → A)
 _∘iff_ :
   {l1 l2 l3 : Level} {A : UU l1} {B : UU l2} {C : UU l3} →
   (B ↔ C) → (A ↔ B) → (A ↔ C)
-(pair g1 g2) ∘iff (pair f1 f2) = pair (g1 ∘ f1) (f2 ∘ g2)
+pr1 (pair g1 g2 ∘iff pair f1 f2) = g1 ∘ f1
+pr2 (pair g1 g2 ∘iff pair f1 f2) = f2 ∘ g2
 
 --------------------------------------------------------------------------------
 
@@ -411,10 +409,8 @@ dn-elim-exp {P = P} {Q = Q} f p =
 dn-elim-prod :
   {l1 l2 : Level} {P : UU l1} {Q : UU l2} →
   ¬¬ ((¬¬ P) × (¬¬ Q)) → (¬¬ P) × (¬¬ Q)
-dn-elim-prod {P = P} {Q = Q} f =
-  pair
-    ( dn-elim-neg (¬ P) (functor-dn pr1 f))
-    ( dn-elim-neg (¬ Q) (functor-dn pr2 f))
+pr1 (dn-elim-prod {P = P} {Q = Q} f) = dn-elim-neg (¬ P) (functor-dn pr1 f)
+pr2 (dn-elim-prod {P = P} {Q = Q} f) = dn-elim-neg (¬ Q) (functor-dn pr2 f)
 
 -- Exercise 4.3
 

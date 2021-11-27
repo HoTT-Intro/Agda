@@ -2,8 +2,7 @@
 
 module book.03-natural-numbers where
 
-import book.02-pi
-open book.02-pi public
+open import book.02-pi public
 
 --------------------------------------------------------------------------------
 

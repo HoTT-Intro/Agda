@@ -91,14 +91,16 @@ is-contr-fib-map-coprod {A = A} {B} {C} {D} f g =
         ( λ fg' → ((a : A) → Id (pr1 fg' a) (f a)) ×
                   ((c : C) → Id (pr2 fg' c) (g c))))
     ( equiv-tot
-        ( λ fg' →
-          ( equiv-prod
-            ( equiv-map-Π (λ a → inv-equiv (equiv-ap-emb emb-inl)))
-            ( equiv-map-Π (λ c → inv-equiv (equiv-ap-emb emb-inr)))) ∘e
-          ( ( equiv-dependent-universal-property-coprod
-              ( λ x →
-                Id (map-coprod (pr1 fg') (pr2 fg') x) (map-coprod f g x))) ∘e
-            ( equiv-funext))))
+      ( λ fg' →
+        ( ( equiv-prod
+            ( equiv-map-Π
+              ( λ a → compute-eq-coprod-inl-inl (pr1 fg' a) (f a)))
+            ( equiv-map-Π
+              ( λ c → compute-eq-coprod-inr-inr (pr2 fg' c) (g c)))) ∘e
+          ( equiv-dependent-universal-property-coprod
+            ( λ x →
+              Id (map-coprod (pr1 fg') (pr2 fg') x) (map-coprod f g x)))) ∘e
+        ( equiv-funext)))
     ( is-contr-total-Eq-structure
       ( λ f' g' (H : f' ~ f) → (c : C) → Id (g' c) (g c))
       ( is-contr-total-htpy' f)

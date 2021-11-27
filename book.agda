@@ -37,3 +37,5 @@ open import book.26-id-pushout public
 open import book.27-sequences public
 open import book.b-systems public
 open import book.W-types public
+open import book.pointed-maps public
+open import book.spaces public

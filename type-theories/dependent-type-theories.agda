@@ -1,4 +1,4 @@
-{-# OPTIONS --without-K --exact-split --allow-unsolved-metas #-}
+{-# OPTIONS --without-K --exact-split --allow-unsolved-metas --guardedness #-}
 
 module type-theories.dependent-type-theories where
 
@@ -1348,13 +1348,14 @@ module c-system where
       ( section-system.type (hom-dtt.sys f) X)
       ( context-hom (hom-slice-dtt f X) Γ)
 
+{-
   -- We define elements of contexts
   data element-context 
     {l1 l2 : Level} {A : type-theory l1 l2} : (Γ : context A) → UU {!substitution.type (type-theory.S A) !}
     where
     element-empty-context : element-context empty-ctx
     element-extension-ctx : {!(X : system.type (type-theory.sys A)) (Γ : context (slice-dtt A X)) (x : system.element (type-theory.sys A) X) (y : element-context (context-hom (substitution.type (type-theory.S A) x) Γ)) → element-context (extension-ctx X Γ)!}
-
+-}
   -- We interpret types in context in a dependent type theory
   type :
     {l1 l2 : Level} (A : type-theory l1 l2) →
@@ -1380,11 +1381,13 @@ module c-system where
     UU l1
   dependent-context A Γ = context (slice A Γ)
 
+{-
   weakening-by-type-context :
     {l1 l2 : Level} {A : type-theory l1 l2}
     (X : system.type (type-theory.sys A)) →
     context A → context (slice-dtt A X)
   weakening-by-type-context {A = A} X Δ = context-hom {!weakening.type (type-theory.W A) X!} Δ
+-}
 
   weakening-type-context :
     {l1 l2 : Level} (A : type-theory l1 l2) (Γ : context A) →
@@ -1396,6 +1399,7 @@ module c-system where
       ( section-system.type
         ( weakening.type (type-theory.W A) X) Y)
 
+{-
   weakening-context :
     {l1 l2 : Level} (A : type-theory l1 l2) (Γ : context A) →
     context A → context (slice A Γ)
@@ -1405,3 +1409,4 @@ module c-system where
     extension-ctx
       ( weakening-type-context A (extension-ctx X Γ) Y)
       ( weakening-context {!!} {!!} {!!})
+-}

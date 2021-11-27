@@ -2,7 +2,7 @@
 
 module book.21-circle where
 
-open import book.20-real-numbers public
+open import book.19-groups public
 
 {- Section 11.1 The induction principle of the circle -}
 

@@ -52,30 +52,32 @@ count-Fin k = pair k equiv-id
 
 -- Types equipped with countings are closed under equivalences
 
-abstract
-  equiv-count-equiv :
-    {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ≃ Y) (f : count X) →
-    Fin (number-of-elements-count f) ≃ Y
-  equiv-count-equiv e f = e ∘e (equiv-count f)
+module _
+  {l1 l2 : Level} {X : UU l1} {Y : UU l2}
+  where
+  
+  abstract
+    equiv-count-equiv :
+      (e : X ≃ Y) (f : count X) → Fin (number-of-elements-count f) ≃ Y
+    equiv-count-equiv e f = e ∘e (equiv-count f)
 
-count-equiv :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ≃ Y) → count X → count Y
-count-equiv e f =
-  pair (number-of-elements-count f) (equiv-count-equiv e f)
+  count-equiv : X ≃ Y → count X → count Y
+  count-equiv e f = pair (number-of-elements-count f) (equiv-count-equiv e f)
 
-count-equiv' :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} (e : X ≃ Y) → count Y → count X
-count-equiv' e = count-equiv (inv-equiv e)
-
-count-is-equiv :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : X → Y} →
-  is-equiv f → count X → count Y
-count-is-equiv is-equiv-f = count-equiv (pair _ is-equiv-f)
-
-count-is-equiv' :
-  {l1 l2 : Level} {X : UU l1} {Y : UU l2} {f : X → Y} →
-  is-equiv f → count Y → count X
-count-is-equiv' is-equiv-f = count-equiv' (pair _ is-equiv-f)
+  abstract
+    equiv-count-equiv' :
+      (e : X ≃ Y) (f : count Y) → Fin (number-of-elements-count f) ≃ X
+    equiv-count-equiv' e f = inv-equiv e ∘e (equiv-count f)
+  
+  count-equiv' : X ≃ Y → count Y → count X
+  count-equiv' e f = pair (number-of-elements-count f) (equiv-count-equiv' e f)
+  
+  count-is-equiv : {f : X → Y} → is-equiv f → count X → count Y
+  count-is-equiv H = count-equiv (pair _ H)
+  
+  count-is-equiv' :
+    {f : X → Y} → is-equiv f → count Y → count X
+  count-is-equiv' H = count-equiv' (pair _ H)
 
 -- Example 16.1.3
 
@@ -328,7 +330,7 @@ count-fiber-count-Σ :
   count A → count (Σ A B) → (x : A) → count (B x)
 count-fiber-count-Σ {B = B} e f x =
   count-equiv
-    ( equiv-fib-pr1 x)
+    ( equiv-fib-pr1 B x)
     ( count-Σ f
       ( λ z → count-eq (has-decidable-equality-count e) (pr1 z) x))
 
@@ -1972,7 +1974,7 @@ is-finite-base-is-finite-complement {l1} {l2} {A} {B} K f g h =
         ( is-set-subtype (λ x → is-prop-type-trunc-Prop) K)
         ( λ t → pr2 t)
         ( is-finite-equiv
-          ( equiv-double-structure B (λ x → type-trunc-Prop (B x)))
+          ( equiv-right-swap-Σ)
           ( is-finite-Σ
             ( f)
             ( λ x → is-finite-type-trunc-Prop (g (pr1 x)))))
@@ -2182,31 +2184,6 @@ is-weakly-constant-map-fold-count-μ-is-commutative-monoid-Magma :
   is-weakly-constant-map
     ( fold-count-μ-Magma' M (unit-is-commutative-monoid-Magma M H) {A} {k = k})
 is-weakly-constant-map-fold-count-μ-is-commutative-monoid-Magma M H {k} e f = {!!}
--}
-
---------------------------------------------------------------------------------
-
-{- Finiteness of the image of a map -}
-
-{- We characterize when im(f) is finite, given that the domain of f is finite -}
-
-{-
-is-prop-Π-is-decidable-Id :
-  {l : Level} {A : UU l} (x : A) → is-prop ((y : A) → is-decidable (Id x y))
-is-prop-Π-is-decidable-Id {l} {A} x =
-  is-prop-is-proof-irrelevant (λ H → is-contr-Π (λ y → is-proof-irrelevant-is-prop (is-prop-coprod intro-dn {!is-set-has-decidable-equality!} {!!}) (H y)))
-
-is-finite-im :
-  {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
-  (e : is-finite A) → (d : (x : A) (y : B) → is-decidable (Id (f x) y)) →
-  is-finite (im f)
-is-finite-im f e d =
-  is-finite-base-is-finite-Σ-merely-inhabited
-    ( is-set-has-decidable-equality
-      {!!})
-    {!!}
-    {!!}
-    {!!}
 -}
 
 --------------------------------------------------------------------------------
@@ -2556,24 +2533,24 @@ module _
   (K : is-finite A)
   where
 
-  is-finite-codomain-has-decidable-equality :
+  is-finite-codomain :
     is-surjective f → has-decidable-equality B → is-finite B
-  is-finite-codomain-has-decidable-equality H d =
+  is-finite-codomain H d =
     is-finite-base-is-finite-Σ-merely-inhabited
       ( is-set-has-decidable-equality d)
       ( H)
       ( is-finite-equiv' (equiv-total-fib f) K)
       ( λ b → is-finite-Σ K (λ a → is-finite-eq d))
 
-is-finite-im-has-decidable-equality :
+is-finite-im :
   {l1 l2 : Level} {A : UU l1} {B : UU l2} {f : A → B} (K : is-finite A) →
   has-decidable-equality B → is-finite (im f)
-is-finite-im-has-decidable-equality {f = f} K d =
-  is-finite-codomain-has-decidable-equality K
+is-finite-im {f = f} K d =
+  is-finite-codomain K
     ( is-surjective-map-unit-im f)
     ( λ x y →
       is-decidable-equiv
-        ( equiv-Eq-total-subtype-eq (λ u → is-prop-type-trunc-Prop) x y)
+        ( equiv-Eq-eq-total-subtype (λ u → is-prop-type-trunc-Prop) x y)
         ( d (pr1 x) (pr1 y)))
 
 -- Exercise 16.15

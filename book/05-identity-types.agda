@@ -2,8 +2,7 @@
 
 module book.05-identity-types where
 
-import book.04-inductive-types
-open book.04-inductive-types public
+open import book.04-inductive-types public
 
 --------------------------------------------------------------------------------
 

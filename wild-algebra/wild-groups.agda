@@ -14,5 +14,5 @@ Wild-Group : (l : Level) → UU (lsuc l)
 Wild-Group l = Σ (Wild-Monoid l) is-wild-group-Wild-Monoid
 
 Ω-Wild-Group :
-  {l : Level} → UU-pt l → Wild-Group l
+  {l : Level} → Pointed-Type l → Wild-Group l
 Ω-Wild-Group X = {!!}

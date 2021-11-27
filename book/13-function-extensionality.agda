@@ -2,8 +2,7 @@
 
 module book.13-function-extensionality where
 
-import book.12-truncation-levels
-open book.12-truncation-levels public
+open import book.12-truncation-levels public
 
 --------------------------------------------------------------------------------
 
@@ -53,7 +52,7 @@ abstract
     {l1 l2 l3 : Level} {A : UU l1} {B : A → UU l2} (f : (x : A) → B x) →
     FUNEXT f → IND-HTPY {l3 = l3} f
   IND-HTPY-FUNEXT {l3 = l3} {A = A} {B = B} f funext-f =
-    Ind-identity-system l3 f
+    Ind-identity-system f
       ( refl-htpy)
       ( is-contr-total-htpy-FUNEXT f funext-f)
 
@@ -62,7 +61,7 @@ abstract
 abstract
   FUNEXT-IND-HTPY :
     {l1 l2 : Level} {A : UU l1} {B : A → UU l2} (f : (x : A) → B x) →
-    IND-HTPY {l3 = l1 ⊔ l2} f → FUNEXT f
+    ({l : Level} → IND-HTPY {l3 = l} f) → FUNEXT f
   FUNEXT-IND-HTPY f ind-htpy-f =
     fundamental-theorem-id-IND-identity-system f
       ( refl-htpy)
@@ -220,7 +219,6 @@ abstract
     is-subtype B → is-prop ({x : A} → B x)
   is-prop-Π' {l1} {l2} {A} {B} H =
     is-prop-equiv
-      ( (x : A) → B x)
       ( pair
         ( λ f x → f {x})
         ( is-equiv-has-inverse

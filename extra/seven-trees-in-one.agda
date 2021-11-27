@@ -131,8 +131,6 @@ is-prop-Eq-binary-trees
 is-set-binary-trees : is-set binary-trees
 is-set-binary-trees X Y =
   is-prop-is-equiv
-    ( Eq-binary-trees X Y)
-    ( Eq-eq-binary-trees)
     ( is-equiv-Eq-eq-binary-trees X Y)
     ( is-prop-Eq-binary-trees X Y)
 

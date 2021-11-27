@@ -6,30 +6,30 @@ open import extra.lists public
 open import extra.interchange public
 
 unital-mul :
-  {l : Level} → UU-pt l → UU l
+  {l : Level} → Pointed-Type l → UU l
 unital-mul X =
-  Σ ( type-UU-pt X → type-UU-pt X → type-UU-pt X)
+  Σ ( type-Pointed-Type X → type-Pointed-Type X → type-Pointed-Type X)
     ( λ μ →
-      Σ ( (x : type-UU-pt X) → Id (μ (pt-UU-pt X) x) x)
+      Σ ( (x : type-Pointed-Type X) → Id (μ (pt-Pointed-Type X) x) x)
         ( λ α →
-          Σ ( (x : type-UU-pt X) → Id (μ x (pt-UU-pt X)) x)
-            ( λ β → Id (α (pt-UU-pt X)) (β (pt-UU-pt X)))))
+          Σ ( (x : type-Pointed-Type X) → Id (μ x (pt-Pointed-Type X)) x)
+            ( λ β → Id (α (pt-Pointed-Type X)) (β (pt-Pointed-Type X)))))
 
 Wild-Unital-Magma : (l : Level) → UU (lsuc l)
 Wild-Unital-Magma l =
-  Σ ( UU-pt l) unital-mul
+  Σ ( Pointed-Type l) unital-mul
 
 pointed-type-Wild-Unital-Magma :
-  {l : Level} (M : Wild-Unital-Magma l) → UU-pt l
+  {l : Level} (M : Wild-Unital-Magma l) → Pointed-Type l
 pointed-type-Wild-Unital-Magma = pr1
 
 type-Wild-Unital-Magma :
   {l : Level} (M : Wild-Unital-Magma l) → UU l
-type-Wild-Unital-Magma M = type-UU-pt (pointed-type-Wild-Unital-Magma M)
+type-Wild-Unital-Magma M = type-Pointed-Type (pointed-type-Wild-Unital-Magma M)
 
 unit-Wild-Unital-Magma :
   {l : Level} (M : Wild-Unital-Magma l) → type-Wild-Unital-Magma M
-unit-Wild-Unital-Magma M = pt-UU-pt (pointed-type-Wild-Unital-Magma M)
+unit-Wild-Unital-Magma M = pt-Pointed-Type (pointed-type-Wild-Unital-Magma M)
 
 unital-mul-Wild-Unital-Magma :
   {l : Level} (M : Wild-Unital-Magma l) →
@@ -83,7 +83,7 @@ list-Wild-Unital-Magma X =
         ( pair right-unit-law-concat-list refl)))
 
 Ω-Wild-Unital-Magma :
-  {l : Level} → UU-pt l → Wild-Unital-Magma l
+  {l : Level} → Pointed-Type l → Wild-Unital-Magma l
 Ω-Wild-Unital-Magma X =
   pair
     ( Ω X)

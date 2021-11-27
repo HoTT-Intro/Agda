@@ -828,7 +828,7 @@ abstract
     (b : B) → is-pullback f (const unit B b) (cone-fiber f b)
   is-pullback-cone-fiber f b =
     is-equiv-tot-is-fiberwise-equiv
-      (λ a → is-equiv-map-inv-left-unit-law-prod (Id (f a) b))
+      (λ a → is-equiv-map-inv-left-unit-law-prod)
 
 abstract
   universal-property-pullback-cone-fiber :
@@ -930,7 +930,7 @@ abstract
     (Q : B → UU l4) (f : A → B) (g : (x : A) → (P x) → (Q (f x))) →
     is-pullback f (pr1 {B = Q}) (cone-toto Q f g) → is-fiberwise-equiv g
   is-fiberwise-equiv-is-pullback Q f g is-pullback-cone-toto =
-    is-fiberwise-equiv-is-equiv-tot g
+    is-fiberwise-equiv-is-equiv-tot
       ( is-equiv-right-factor
         ( gap f pr1 (cone-toto Q f g))
         ( gap f pr1 (cone-subst f Q))
@@ -992,7 +992,6 @@ abstract
         H = pr2 (pr2 c)
     in
     is-fiberwise-equiv-is-equiv-tot
-      ( fib-square f g c)
       ( is-equiv-top-is-equiv-bottom-square
         ( map-equiv-total-fib p)
         ( tot (λ x → tot (λ y → inv)))
@@ -1300,8 +1299,7 @@ fib-fib-map-coprod-inl : {l1 l2 l1' l2' : Level}
 fib-fib-map-coprod-inl f g x (pair (inl a') p) =
   pair a' (map-compute-eq-coprod-inl-inl (f a') x p)
 fib-fib-map-coprod-inl f g x (pair (inr b') p) =
-  ind-empty {P = λ t → fib f x}
-    ( map-compute-eq-coprod-inr-inl (g b') x p)
+  ex-falso (is-empty-eq-coprod-inr-inl (g b') x p)
 
 issec-fib-fib-map-coprod-inl : {l1 l2 l1' l2' : Level}
   {A : UU l1} {B : UU l2} {A' : UU l1'} {B' : UU l2'}
@@ -1314,12 +1312,7 @@ issec-fib-fib-map-coprod-inl {l1} {l2} {l1'} {l2'}
     ( ap (ap inl)
       ( isretr-map-inv-raise {l = l1'} {A = Id (f a') (f a')} refl))
 issec-fib-fib-map-coprod-inl f g x (pair (inr b') p) =
-  ind-empty
-    { P = λ t → Id
-      ( fib-map-coprod-inl-fib f g x
-        ( fib-fib-map-coprod-inl f g x (pair (inr b') p)))
-      ( pair (inr b') p)}
-    ( map-compute-eq-coprod-inr-inl (g b') x p)
+  ex-falso (is-empty-eq-coprod-inr-inl (g b') x p)
 
 isretr-fib-fib-map-coprod-inl : {l1 l2 l1' l2' : Level}
   {A : UU l1} {B : UU l2} {A' : UU l1'} {B' : UU l2'}
@@ -1353,8 +1346,7 @@ fib-fib-map-coprod-inr : {l1 l2 l1' l2' : Level}
   (f : A' → A) (g : B' → B) (y : B) →
   fib (map-coprod f g) (inr y) → fib g y
 fib-fib-map-coprod-inr f g y (pair (inl a') p) =
-  ind-empty {P = λ t → fib g y}
-    ( map-compute-eq-coprod-inl-inr (f a') y p)
+  ex-falso (is-empty-eq-coprod-inl-inr (f a') y p)
 fib-fib-map-coprod-inr f g y (pair (inr b') p) =
   pair b' (map-compute-eq-coprod-inr-inr (g b') y p)
 
@@ -1368,12 +1360,7 @@ issec-fib-fib-map-coprod-inr {l1} {l2} {l1'} {l2'} f g .(g b') (pair (inr b') re
     ( ap (ap inr)
       ( isretr-map-inv-raise {l = l2'} {A = Id (g b') (g b')} refl))
 issec-fib-fib-map-coprod-inr f g y (pair (inl a') p) =
-  ind-empty
-    { P = λ t → Id
-      ( fib-map-coprod-inr-fib f g y
-        ( fib-fib-map-coprod-inr f g y (pair (inl a') p)))
-      ( pair (inl a') p)}
-    ( map-compute-eq-coprod-inl-inr (f a') y p)
+  ex-falso (is-empty-eq-coprod-inl-inr (f a') y p)
 
 isretr-fib-fib-map-coprod-inr : {l1 l2 l1' l2' : Level}
   {A : UU l1} {B : UU l2} {A' : UU l1'} {B' : UU l2'}
@@ -2304,16 +2291,13 @@ abstract
 cone-empty :
   {l1 l2 l3 : Level} {B : UU l1} {X : UU l2} {C : UU l3} →
   (g : B → X) (p : C → empty) (q : C → B) →
-  cone (ind-empty {P = λ t → X}) g C
-cone-empty g p q =
-  triple p q
-    ( λ c → ind-empty {P = λ t → Id (ind-empty (p c)) (g (q c))} (p c))
+  cone ex-falso g C
+cone-empty g p q = triple p q (λ c → ex-falso (p c))
 
 abstract
   descent-empty :
     {l1 l2 l3 : Level} {B : UU l1} {X : UU l2} {C : UU l3} →
-    let f = ind-empty {P = λ t → X} in
-    (g : B → X) (c : cone f g C) → is-pullback f g c
+    (g : B → X) (c : cone ex-falso g C) → is-pullback ex-falso g c
   descent-empty g c =
     is-pullback-is-fiberwise-equiv-fib-square _ g c ind-empty
 
@@ -2321,7 +2305,7 @@ abstract
   descent-empty' :
     {l1 l2 l3 : Level} {B : UU l1} {X : UU l2} {C : UU l3} →
     (g : B → X) (p : C → empty) (q : C → B) →
-    is-pullback (ind-empty {P = λ t → X}) g (cone-empty g p q)
+    is-pullback ex-falso g (cone-empty g p q)
   descent-empty' g p q = descent-empty g (cone-empty g p q)
 
 -- Exercise 10.5
@@ -2609,13 +2593,9 @@ map-cone-pair {A' = A'} {B'} f g f' g' =
       ( tot
         ( λ s →
           ( eq-pair' ∘ (map-cone-pair' f g f' g' t s)))) ∘
-      ( swap-total-Eq-structure
-        ( λ y → Id (f (pr1 t)) (g y))
-        ( λ y → B')
+      ( map-swap-total-Eq-structure
         ( λ y p y' → Id (f' (pr2 t)) (g' y'))))) ∘
-  ( swap-total-Eq-structure
-    ( λ x → Σ _ (λ y → Id (f x) (g y)))
-    ( λ x → A')
+  ( map-swap-total-Eq-structure
     ( λ x t x' → Σ _ (λ y' → Id (f' x') (g' y'))))
 
 triangle-map-cone-pair :
@@ -2644,28 +2624,24 @@ abstract
         ( tot
           ( λ s →
             ( eq-pair' ∘ (map-cone-pair' f g f' g' t s)))) ∘
-        ( swap-total-Eq-structure _ _ _)))
-      ( swap-total-Eq-structure _ _ _)
+        ( map-swap-total-Eq-structure _)))
+      ( map-swap-total-Eq-structure _)
       ( refl-htpy)
-      ( is-equiv-swap-total-Eq-structure _ _ _)
+      ( is-equiv-map-swap-total-Eq-structure _)
       ( is-equiv-tot-is-fiberwise-equiv
         ( λ t → is-equiv-comp
           ( ( tot
               ( λ s →
                 ( eq-pair' ∘ (map-cone-pair' f g f' g' t s)))) ∘
-            ( swap-total-Eq-structure
-              ( λ y → Id (f (pr1 t)) (g y))
-              ( λ y → _)
+            ( map-swap-total-Eq-structure
               ( λ y p y' → Id (f' (pr2 t)) (g' y'))))
           ( tot
             ( λ s →
               ( eq-pair' ∘ (map-cone-pair' f g f' g' t s))))
-          ( swap-total-Eq-structure
-            ( λ y → Id (f (pr1 t)) (g y))
-            ( λ y → _)
+          ( map-swap-total-Eq-structure
             ( λ y p y' → Id (f' (pr2 t)) (g' y')))
           ( refl-htpy)
-          ( is-equiv-swap-total-Eq-structure _ _ _)
+          ( is-equiv-map-swap-total-Eq-structure _)
           ( is-equiv-tot-is-fiberwise-equiv
             ( λ s → is-equiv-comp
               ( eq-pair' ∘ (map-cone-pair' f g f' g' t s))

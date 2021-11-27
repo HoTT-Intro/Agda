@@ -2,8 +2,7 @@
 
 module book.02-pi where
 
-import book.00-preamble
-open book.00-preamble public
+open import book.00-preamble public
 
 --------------------------------------------------------------------------------
 

@@ -53,7 +53,7 @@ is-prop-rel-pretype-polynomial-Ring :
   {l1 : Level} (R : Ring l1) (x y : pretype-polynomial-Ring R) →
   is-prop (rel-pretype-polynomial-Ring R x y)
 is-prop-rel-pretype-polynomial-Ring {l1} R nil nil =
-  is-prop-equiv' unit (equiv-raise l1 unit) is-prop-unit
+  is-prop-equiv' (equiv-raise l1 unit) is-prop-unit
 is-prop-rel-pretype-polynomial-Ring R nil (cons s y) =
   is-prop-prod
     ( is-set-type-Ring R s (zero-Ring R))

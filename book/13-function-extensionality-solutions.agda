@@ -2,8 +2,7 @@
 
 module book.13-function-extensionality-solutions where
 
-import book.13-function-extensionality
-open book.13-function-extensionality public
+open import book.13-function-extensionality public
 
 --------------------------------------------------------------------------------
 
@@ -205,7 +204,9 @@ eq-htpy-sec :
 eq-htpy-sec {f = f} s t H K =
   map-inv-is-equiv (is-equiv-htpy-eq-sec f s t) (pair H K)
 
-{- We introduce the type hom-coslice -}
+-- Exercise 13.2 (b)
+
+-- We introduce the type hom-coslice
 
 module _
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3} (f : X → A) (g : X → B)
@@ -282,10 +283,11 @@ abstract
     {l : Level} → is-subtype {lsuc l} {A = UU l} is-contr
   is-subtype-is-contr A =
     is-prop-is-proof-irrelevant
-      ( λ is-contr-A →
-        is-contr-Σ
-          ( is-contr-A)
-          ( λ x → is-contr-Π (is-prop-is-contr is-contr-A x)))
+      ( λ { (pair c C) →
+            is-contr-Σ
+              ( pair c C)
+              ( c)
+              ( is-contr-Π (is-prop-is-contr (pair c C) c))})
 
 is-contr-Prop : {l : Level} → UU l → UU-Prop l
 is-contr-Prop A = pair (is-contr A) (is-subtype-is-contr A)
@@ -422,8 +424,8 @@ module _
       (P : (e' : A ≃ B) (H : htpy-equiv e e') → UU l3) →
       sec ( λ (h : (e' : A ≃ B) (H : htpy-equiv e e') → P e' H) →
             h e (refl-htpy-equiv e))
-    Ind-htpy-equiv {l3 = l3} e =
-      Ind-identity-system l3 e
+    Ind-htpy-equiv e =
+      Ind-identity-system e
         ( refl-htpy-equiv e)
         ( is-contr-total-htpy-equiv e)
   
@@ -723,30 +725,40 @@ abstract
     {l1 l2 : Level} {A : UU l1} {B : UU l2} (f : A → B) →
     is-prop (is-coherently-invertible f)
   is-prop-is-coherently-invertible {l1} {l2} {A} {B} f =
-    is-prop-is-proof-irrelevant (λ is-hae-f →
-      let is-equiv-f = is-equiv-is-coherently-invertible f is-hae-f in
-      is-contr-equiv'
-        ( Σ (sec f)
-          ( λ sf → Σ (((pr1 sf) ∘ f) ~ id)
-            ( λ H → (htpy-right-whisk (pr2 sf) f) ~ (htpy-left-whisk f H))))
-        ( assoc-Σ (B → A)
-          ( λ g → ((f ∘ g) ~ id))
-          ( λ sf → Σ (((pr1 sf) ∘ f) ~ id)
-            ( λ H → (htpy-right-whisk (pr2 sf) f) ~ (htpy-left-whisk f H))))
-        ( is-contr-Σ
-          ( is-contr-sec-is-equiv is-equiv-f)
-          ( λ sf → is-contr-equiv'
-            ( (x : A) →
-              Σ (Id ((pr1 sf) (f x)) x) (λ p → Id ((pr2 sf) (f x)) (ap f p)))
-            ( equiv-choice-∞)
-            ( is-contr-Π (λ x →
-              is-contr-equiv'
-                ( fib (ap f) ((pr2 sf) (f x)))
-                ( equiv-tot
-                  ( λ p → equiv-inv (ap f p) ((pr2 sf) (f x))))
-                ( is-contr-map-is-equiv
-                  ( is-emb-is-equiv is-equiv-f (pr1 sf (f x)) x)
-                  ( (pr2 sf) (f x))))))))
+    is-prop-is-proof-irrelevant
+      ( λ H →
+        is-contr-equiv'
+          ( Σ (sec f)
+            ( λ sf → Σ (((pr1 sf) ∘ f) ~ id)
+              ( λ H → (htpy-right-whisk (pr2 sf) f) ~ (htpy-left-whisk f H))))
+          ( assoc-Σ (B → A)
+            ( λ g → ((f ∘ g) ~ id))
+            ( λ sf → Σ (((pr1 sf) ∘ f) ~ id)
+              ( λ H → (htpy-right-whisk (pr2 sf) f) ~ (htpy-left-whisk f H))))
+          ( is-contr-Σ
+            ( is-contr-sec-is-equiv (E H))
+            ( pair (g H) (G H))
+            ( is-contr-equiv'
+              ( (x : A) →
+                Σ ( Id (g H (f x)) x)
+                  ( λ p → Id (G H (f x)) (ap f p)))
+              ( equiv-choice-∞)
+              ( is-contr-Π
+                ( λ x →
+                  is-contr-equiv'
+                    ( fib (ap f) (G H (f x)))
+                    ( equiv-tot
+                      ( λ p → equiv-inv (ap f p) (G H (f x))))
+                    ( is-contr-map-is-equiv
+                      ( is-emb-is-equiv (E H) (g H (f x)) x)
+                      ( (G H) (f x))))))))
+    where
+    E : is-coherently-invertible f → is-equiv f
+    E H = is-equiv-is-coherently-invertible f H
+    g : is-coherently-invertible f → (B → A)
+    g H = pr1 H
+    G : (H : is-coherently-invertible f) → (f ∘ g H) ~ id
+    G H = pr1 (pr2 H)
 
 abstract
   is-equiv-is-coherently-invertible-is-equiv :
@@ -1937,42 +1949,6 @@ abstract
   is-fiberwise-equiv-fiberwise-equiv-equiv-slice f g (pair h H) =
     is-fiberwise-equiv-is-equiv-triangle f g h H
 
-left-factor-fiberwise-equiv-equiv-slice :
-  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
-  (f : A → X) (g : B → X) →
-  Σ (hom-slice f g) (λ hH → is-equiv (pr1 hH)) →
-  Σ ((x : X) → (fib f x) → (fib g x)) is-fiberwise-equiv
-left-factor-fiberwise-equiv-equiv-slice f g =
-  map-Σ
-    ( is-fiberwise-equiv)
-    ( fiberwise-hom-hom-slice f g)
-    ( is-fiberwise-equiv-fiberwise-equiv-equiv-slice f g)
-
-swap-equiv-slice :
-  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
-  (f : A → X) (g : B → X) →
-  equiv-slice f g →
-  Σ (hom-slice f g) (λ hH → is-equiv (pr1 hH))
-swap-equiv-slice {A = A} {B} f g =
-  map-equiv-double-structure is-equiv (λ h → f ~ (g ∘ h))
-
-abstract
-  is-equiv-swap-equiv-slice :
-    {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
-    (f : A → X) (g : B → X) →
-    is-equiv (swap-equiv-slice f g)
-  is-equiv-swap-equiv-slice f g =
-    is-equiv-map-equiv (equiv-double-structure is-equiv (λ h → f ~ (g ∘ h)))
-
-abstract
-  fiberwise-equiv-equiv-slice :
-    {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
-    (f : A → X) (g : B → X) →
-    equiv-slice f g → Σ ((x : X) → (fib f x) → (fib g x)) is-fiberwise-equiv
-  fiberwise-equiv-equiv-slice {X = X} {A} {B} f g =
-    ( left-factor-fiberwise-equiv-equiv-slice f g) ∘
-    ( swap-equiv-slice f g)
-
 abstract
   is-equiv-hom-slice-is-fiberwise-equiv-fiberwise-hom-hom-slice :
     {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
@@ -1984,35 +1960,31 @@ abstract
     f g (pair h H) =
     is-equiv-triangle-is-fiberwise-equiv f g h H
 
-abstract
-  is-equiv-fiberwise-equiv-equiv-slice :
-    {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
-    (f : A → X) (g : B → X) →
-    is-equiv (fiberwise-equiv-equiv-slice f g)
-  is-equiv-fiberwise-equiv-equiv-slice {X = X} {A} {B} f g =
-    is-equiv-comp
-      ( fiberwise-equiv-equiv-slice f g)
-      ( left-factor-fiberwise-equiv-equiv-slice f g)
-      ( swap-equiv-slice f g)
-      ( refl-htpy)
-      ( is-equiv-swap-equiv-slice f g)
-      ( is-equiv-subtype-is-equiv
-        ( λ t → is-subtype-is-equiv (pr1 t))
-        ( λ α → is-prop-Π (λ x → is-subtype-is-equiv (α x)))
-        ( fiberwise-hom-hom-slice f g)
-        ( is-fiberwise-equiv-fiberwise-equiv-equiv-slice f g)
-        ( is-equiv-fiberwise-hom-hom-slice f g)
-        ( is-equiv-hom-slice-is-fiberwise-equiv-fiberwise-hom-hom-slice
-          f g))
-
 equiv-fiberwise-equiv-equiv-slice :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
   (f : A → X) (g : B → X) →
   equiv-slice f g ≃ Σ ((x : X) → (fib f x) → (fib g x)) is-fiberwise-equiv
 equiv-fiberwise-equiv-equiv-slice f g =
-  pair ( fiberwise-equiv-equiv-slice f g)
-       ( is-equiv-fiberwise-equiv-equiv-slice f g)
+  equiv-Σ is-fiberwise-equiv (equiv-fiberwise-hom-hom-slice f g) α ∘e
+  equiv-right-swap-Σ
+  where
+  α   : ( h : hom-slice f g) →
+        is-equiv (pr1 h) ≃
+        is-fiberwise-equiv (map-equiv (equiv-fiberwise-hom-hom-slice f g) h)
+  α h = equiv-prop
+          ( is-subtype-is-equiv _)
+          ( is-prop-Π (λ x → is-subtype-is-equiv _))
+          ( is-fiberwise-equiv-fiberwise-equiv-equiv-slice f g h)
+          ( is-equiv-hom-slice-is-fiberwise-equiv-fiberwise-hom-hom-slice
+            f g h)
 
+fiberwise-equiv-equiv-slice :
+  {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
+  (f : A → X) (g : B → X) →
+  equiv-slice f g → Σ ((x : X) → (fib f x) → (fib g x)) is-fiberwise-equiv
+fiberwise-equiv-equiv-slice f g =
+  map-equiv (equiv-fiberwise-equiv-equiv-slice f g)
+    
 equiv-fam-equiv-equiv-slice :
   {l1 l2 l3 : Level} {X : UU l1} {A : UU l2} {B : UU l3}
   (f : A → X) (g : B → X) →

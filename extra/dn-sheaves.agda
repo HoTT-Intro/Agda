@@ -10,7 +10,7 @@ raise-UU-Prop :
   (l : Level) {l1 : Level} → UU-Prop l1 → UU-Prop (l ⊔ l1)
 raise-UU-Prop l (pair P is-prop-P) =
   pair ( raise l P)
-       ( is-prop-equiv' P (equiv-raise l P) (is-prop-P))
+       ( is-prop-equiv' (equiv-raise l P) (is-prop-P))
 
 postulate propositional-resizing : {l : Level} → is-equiv (raise-UU-Prop l {lzero})
 

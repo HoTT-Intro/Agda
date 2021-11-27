@@ -54,7 +54,7 @@ unit-Wild-Monoid :
 unit-Wild-Monoid M = unit-Wild-Unital-Magma (wild-unital-magma-Wild-Monoid M)
 
 pointed-type-Wild-Monoid :
-  {l : Level} → Wild-Monoid l → UU-pt l
+  {l : Level} → Wild-Monoid l → Pointed-Type l
 pointed-type-Wild-Monoid M =
   pointed-type-Wild-Unital-Magma (wild-unital-magma-Wild-Monoid M)
 

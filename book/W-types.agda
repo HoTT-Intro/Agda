@@ -2,7 +2,7 @@
 
 module book.W-types where
 
-open import book.b-systems public
+open import book.27-sequences public
 
 --------------------------------------------------------------------------------
 
@@ -974,51 +974,51 @@ module _
 
 -- Definition B.5.1
 
-𝕄 : (l : Level) → UU (lsuc l)
-𝕄 l = 𝕎 (UU l) (λ X → X)
+𝕍 : (l : Level) → UU (lsuc l)
+𝕍 l = 𝕎 (UU l) (λ X → X)
 
 -- Definition B.5.2
 
-is-small-𝕄 :
-  (l : Level) {l1 : Level} → 𝕄 l1 → UU (l1 ⊔ lsuc l)
-is-small-𝕄 l (tree-𝕎 A α) =
-  is-small l A × ((x : A) → is-small-𝕄 l (α x))
+is-small-𝕍 :
+  (l : Level) {l1 : Level} → 𝕍 l1 → UU (l1 ⊔ lsuc l)
+is-small-𝕍 l (tree-𝕎 A α) =
+  is-small l A × ((x : A) → is-small-𝕍 l (α x))
 
-is-prop-is-small-𝕄 :
-  {l l1 : Level} (X : 𝕄 l1) → is-prop (is-small-𝕄 l X)
-is-prop-is-small-𝕄 {l} (tree-𝕎 A α) =
+is-prop-is-small-𝕍 :
+  {l l1 : Level} (X : 𝕍 l1) → is-prop (is-small-𝕍 l X)
+is-prop-is-small-𝕍 {l} (tree-𝕎 A α) =
   is-prop-prod
     ( is-prop-is-small l A)
-    ( is-prop-Π (λ x → is-prop-is-small-𝕄 (α x)))
+    ( is-prop-Π (λ x → is-prop-is-small-𝕍 (α x)))
 
 -- Lemma B.5.3
 
-comprehension-𝕄 :
-  {l : Level} (X : 𝕄 l) (P : symbol-𝕎 X → UU l) → 𝕄 l
-comprehension-𝕄 X P =
+comprehension-𝕍 :
+  {l : Level} (X : 𝕍 l) (P : symbol-𝕎 X → UU l) → 𝕍 l
+comprehension-𝕍 X P =
   tree-𝕎 (Σ (symbol-𝕎 X) P) (component-𝕎 X ∘ pr1)
 
-is-small-comprehension-𝕄 :
-  (l : Level) {l1 : Level} {X : 𝕄 l1} {P : symbol-𝕎 X → UU l1} →
-  is-small-𝕄 l X → ((x : symbol-𝕎 X) → is-small l (P x)) →
-  is-small-𝕄 l (comprehension-𝕄 X P)
-is-small-comprehension-𝕄 l {l1} {tree-𝕎 A α} {P} (pair (pair X e) H) K =
+is-small-comprehension-𝕍 :
+  (l : Level) {l1 : Level} {X : 𝕍 l1} {P : symbol-𝕎 X → UU l1} →
+  is-small-𝕍 l X → ((x : symbol-𝕎 X) → is-small l (P x)) →
+  is-small-𝕍 l (comprehension-𝕍 X P)
+is-small-comprehension-𝕍 l {l1} {tree-𝕎 A α} {P} (pair (pair X e) H) K =
   pair
     ( is-small-Σ l (pair X e) K)
     ( λ t → H (pr1 t))
 
 -- Proposition B.5.4
 
-_∈-𝕄_ : {l : Level} → 𝕄 l → 𝕄 l → UU (lsuc l)
-X ∈-𝕄 Y = X ∈-𝕎 Y
+_∈-𝕍_ : {l : Level} → 𝕍 l → 𝕍 l → UU (lsuc l)
+X ∈-𝕍 Y = X ∈-𝕎 Y
 
-_∉-𝕄_ : {l : Level} → 𝕄 l → 𝕄 l → UU (lsuc l)
-X ∉-𝕄 Y = is-empty (X ∈-𝕄 Y)
+_∉-𝕍_ : {l : Level} → 𝕍 l → 𝕍 l → UU (lsuc l)
+X ∉-𝕍 Y = is-empty (X ∈-𝕍 Y)
 
-is-small-eq-𝕄 :
-  (l : Level) {l1 : Level} {X Y : 𝕄 l1} →
-  is-small-𝕄 l X → is-small-𝕄 l Y → is-small l (Id X Y)
-is-small-eq-𝕄 l {l1} {tree-𝕎 A α} {tree-𝕎 B β} (pair (pair X e) H) (pair (pair Y f) K) =
+is-small-eq-𝕍 :
+  (l : Level) {l1 : Level} {X Y : 𝕍 l1} →
+  is-small-𝕍 l X → is-small-𝕍 l Y → is-small l (Id X Y)
+is-small-eq-𝕍 l {l1} {tree-𝕎 A α} {tree-𝕎 B β} (pair (pair X e) H) (pair (pair Y f) K) =
   is-small-equiv l
     ( Eq-𝕎 (tree-𝕎 A α) (tree-𝕎 B β))
     ( equiv-Eq-𝕎-eq (tree-𝕎 A α) (tree-𝕎 B β))
@@ -1039,156 +1039,156 @@ is-small-eq-𝕄 l {l1} {tree-𝕎 A α} {tree-𝕎 B β} (pair (pair X e) H) (p
         is-small-equiv l
           ( Id (α x) (β x))
           ( inv-equiv (equiv-Eq-𝕎-eq (α x) (β x)))
-          ( is-small-eq-𝕄 l (H x) (K x)))
+          ( is-small-eq-𝕍 l (H x) (K x)))
   
-is-small-∈-𝕄 :
-  (l : Level) {l1 : Level} {X Y : 𝕄 l1} →
-  is-small-𝕄 l X → is-small-𝕄 l Y → is-small l (X ∈-𝕄 Y)
-is-small-∈-𝕄 l {l1} {tree-𝕎 A α} {tree-𝕎 B β} H (pair (pair Y f) K) =
+is-small-∈-𝕍 :
+  (l : Level) {l1 : Level} {X Y : 𝕍 l1} →
+  is-small-𝕍 l X → is-small-𝕍 l Y → is-small l (X ∈-𝕍 Y)
+is-small-∈-𝕍 l {l1} {tree-𝕎 A α} {tree-𝕎 B β} H (pair (pair Y f) K) =
   is-small-Σ l
     ( pair Y f)
-    ( λ b → is-small-eq-𝕄 l (K b) H)
+    ( λ b → is-small-eq-𝕍 l (K b) H)
 
-is-small-∉-𝕄 :
-  (l : Level) {l1 : Level} {X Y : 𝕄 l1} →
-  is-small-𝕄 l X → is-small-𝕄 l Y → is-small l (X ∉-𝕄 Y)
-is-small-∉-𝕄 l H K =
+is-small-∉-𝕍 :
+  (l : Level) {l1 : Level} {X Y : 𝕍 l1} →
+  is-small-𝕍 l X → is-small-𝕍 l Y → is-small l (X ∉-𝕍 Y)
+is-small-∉-𝕍 l H K =
   is-small-Π l
-    ( is-small-∈-𝕄 l H K)
+    ( is-small-∈-𝕍 l H K)
     ( λ x → pair (raise-empty l) (equiv-raise-empty l))
 
 -- Definition B.5.3
 
-resize-𝕄 :
-  {l1 l2 : Level} (X : 𝕄 l1) → is-small-𝕄 l2 X → 𝕄 l2
-resize-𝕄 (tree-𝕎 A α) (pair (pair A' e) H2) =
+resize-𝕍 :
+  {l1 l2 : Level} (X : 𝕍 l1) → is-small-𝕍 l2 X → 𝕍 l2
+resize-𝕍 (tree-𝕎 A α) (pair (pair A' e) H2) =
   tree-𝕎 A'
-    ( λ x' → resize-𝕄 (α (map-inv-equiv e x')) (H2 (map-inv-equiv e x')))
+    ( λ x' → resize-𝕍 (α (map-inv-equiv e x')) (H2 (map-inv-equiv e x')))
 
 -- Proposition B.5.6
 
 -- Proposition B.5.6 (i)
 
-is-small-resize-𝕄 :
-  {l1 l2 : Level} (X : 𝕄 l1) (H : is-small-𝕄 l2 X) →
-  is-small-𝕄 l1 (resize-𝕄 X H)
-is-small-resize-𝕄 (tree-𝕎 A α) (pair (pair A' e) H2) =
+is-small-resize-𝕍 :
+  {l1 l2 : Level} (X : 𝕍 l1) (H : is-small-𝕍 l2 X) →
+  is-small-𝕍 l1 (resize-𝕍 X H)
+is-small-resize-𝕍 (tree-𝕎 A α) (pair (pair A' e) H2) =
   pair
     ( pair A (inv-equiv e))
     ( λ a' →
-      is-small-resize-𝕄
+      is-small-resize-𝕍
         ( α (map-inv-equiv e a'))
         ( H2 (map-inv-equiv e a')))
 
 -- Proposition B.5.6 (ii)
 
-resize-𝕄' :
+resize-𝕍' :
   {l1 l2 : Level} →
-  Σ (𝕄 l1) (is-small-𝕄 l2) → Σ (𝕄 l2) (is-small-𝕄 l1)
-resize-𝕄' (pair X H) = pair (resize-𝕄 X H) (is-small-resize-𝕄 X H)
+  Σ (𝕍 l1) (is-small-𝕍 l2) → Σ (𝕍 l2) (is-small-𝕍 l1)
+resize-𝕍' (pair X H) = pair (resize-𝕍 X H) (is-small-resize-𝕍 X H)
 
 
 abstract
-  resize-resize-𝕄 :
-    {l1 l2 : Level} {x : 𝕄 l1} (H : is-small-𝕄 l2 x) → 
-    Id (resize-𝕄 (resize-𝕄 x H) (is-small-resize-𝕄 x H)) x
-  resize-resize-𝕄 {x = tree-𝕎 A α} (pair (pair A' e) H) =
+  resize-resize-𝕍 :
+    {l1 l2 : Level} {x : 𝕍 l1} (H : is-small-𝕍 l2 x) → 
+    Id (resize-𝕍 (resize-𝕍 x H) (is-small-resize-𝕍 x H)) x
+  resize-resize-𝕍 {x = tree-𝕎 A α} (pair (pair A' e) H) =
     eq-Eq-𝕎
-      ( resize-𝕄
-        ( resize-𝕄 (tree-𝕎 A α) (pair (pair A' e) H))
-        ( is-small-resize-𝕄 (tree-𝕎 A α) (pair (pair A' e) H)))
+      ( resize-𝕍
+        ( resize-𝕍 (tree-𝕎 A α) (pair (pair A' e) H))
+        ( is-small-resize-𝕍 (tree-𝕎 A α) (pair (pair A' e) H)))
       ( tree-𝕎 A α)
       ( pair
         ( refl)
         ( λ z →
           Eq-𝕎-eq
-            ( resize-𝕄
-              ( resize-𝕄
+            ( resize-𝕍
+              ( resize-𝕍
                 ( α (map-inv-equiv e (map-inv-equiv (inv-equiv e) z)))
                 ( H (map-inv-equiv e (map-inv-equiv (inv-equiv e) z))))
-              ( is-small-resize-𝕄
+              ( is-small-resize-𝕍
                 ( α (map-inv-equiv e (map-inv-equiv (inv-equiv e) z)))
                 ( H (map-inv-equiv e (map-inv-equiv (inv-equiv e) z)))))
             ( α z)
             ( ( ap
                 ( λ t →
-                  resize-𝕄
-                    ( resize-𝕄 (α t) (H t))
-                    ( is-small-resize-𝕄 (α t) (H t)))
+                  resize-𝕍
+                    ( resize-𝕍 (α t) (H t))
+                    ( is-small-resize-𝕍 (α t) (H t)))
                 ( isretr-map-inv-equiv e z)) ∙
-              ( resize-resize-𝕄 (H z)))))
+              ( resize-resize-𝕍 (H z)))))
 
 abstract
-  resize-resize-𝕄' :
-    {l1 l2 : Level} → (resize-𝕄' {l2} {l1} ∘ resize-𝕄' {l1} {l2}) ~ id
-  resize-resize-𝕄' (pair X H) =
+  resize-resize-𝕍' :
+    {l1 l2 : Level} → (resize-𝕍' {l2} {l1} ∘ resize-𝕍' {l1} {l2}) ~ id
+  resize-resize-𝕍' (pair X H) =
     eq-subtype
-      ( is-prop-is-small-𝕄)
-      ( resize-resize-𝕄 H)
+      ( is-prop-is-small-𝕍)
+      ( resize-resize-𝕍 H)
 
-is-equiv-resize-𝕄' :
-  {l1 l2 : Level} → is-equiv (resize-𝕄' {l1} {l2})
-is-equiv-resize-𝕄' {l1} {l2} =
+is-equiv-resize-𝕍' :
+  {l1 l2 : Level} → is-equiv (resize-𝕍' {l1} {l2})
+is-equiv-resize-𝕍' {l1} {l2} =
   is-equiv-has-inverse
-    ( resize-𝕄' {l2} {l1})
-    ( resize-resize-𝕄')
-    ( resize-resize-𝕄')
+    ( resize-𝕍' {l2} {l1})
+    ( resize-resize-𝕍')
+    ( resize-resize-𝕍')
 
-equiv-resize-𝕄' :
-  {l1 l2 : Level} → Σ (𝕄 l1) (is-small-𝕄 l2) ≃ Σ (𝕄 l2) (is-small-𝕄 l1)
-equiv-resize-𝕄' {l1} {l2} = pair resize-𝕄' is-equiv-resize-𝕄'
+equiv-resize-𝕍' :
+  {l1 l2 : Level} → Σ (𝕍 l1) (is-small-𝕍 l2) ≃ Σ (𝕍 l2) (is-small-𝕍 l1)
+equiv-resize-𝕍' {l1} {l2} = pair resize-𝕍' is-equiv-resize-𝕍'
 
-eq-resize-𝕄 :
-  {l1 l2 : Level} {x y : 𝕄 l1} (H : is-small-𝕄 l2 x) (K : is-small-𝕄 l2 y) →
-  Id x y ≃ Id (resize-𝕄 x H) (resize-𝕄 y K)
-eq-resize-𝕄 H K =
-  ( equiv-Eq-total-subtype-eq
-    ( is-prop-is-small-𝕄)
-    ( resize-𝕄' (pair _ H))
-    ( resize-𝕄' (pair _ K))) ∘e
-  ( ( equiv-ap (equiv-resize-𝕄') (pair _ H) (pair _ K)) ∘e
+eq-resize-𝕍 :
+  {l1 l2 : Level} {x y : 𝕍 l1} (H : is-small-𝕍 l2 x) (K : is-small-𝕍 l2 y) →
+  Id x y ≃ Id (resize-𝕍 x H) (resize-𝕍 y K)
+eq-resize-𝕍 H K =
+  ( equiv-Eq-eq-total-subtype
+    ( is-prop-is-small-𝕍)
+    ( resize-𝕍' (pair _ H))
+    ( resize-𝕍' (pair _ K))) ∘e
+  ( ( equiv-ap (equiv-resize-𝕍') (pair _ H) (pair _ K)) ∘e
     ( inv-equiv
-      ( equiv-Eq-total-subtype-eq
-        ( is-prop-is-small-𝕄)
+      ( equiv-Eq-eq-total-subtype
+        ( is-prop-is-small-𝕍)
         ( pair _ H)
         ( pair _ K))))
 
 -- Proposition B.5.7
 
 abstract
-  equiv-elementhood-resize-𝕄 :
-    {l1 l2 : Level} {x y : 𝕄 l1} (H : is-small-𝕄 l2 x) (K : is-small-𝕄 l2 y) →
-    (x ∈-𝕄 y) ≃ (resize-𝕄 x H ∈-𝕄 resize-𝕄 y K)
-  equiv-elementhood-resize-𝕄 {x = X} {tree-𝕎 B β} H (pair (pair B' e) K) =
+  equiv-elementhood-resize-𝕍 :
+    {l1 l2 : Level} {x y : 𝕍 l1} (H : is-small-𝕍 l2 x) (K : is-small-𝕍 l2 y) →
+    (x ∈-𝕍 y) ≃ (resize-𝕍 x H ∈-𝕍 resize-𝕍 y K)
+  equiv-elementhood-resize-𝕍 {x = X} {tree-𝕎 B β} H (pair (pair B' e) K) =
     equiv-Σ
       ( λ y' →
-        Id ( component-𝕎 (resize-𝕄 (tree-𝕎 B β) (pair (pair B' e) K)) y')
-           ( resize-𝕄 X H))
+        Id ( component-𝕎 (resize-𝕍 (tree-𝕎 B β) (pair (pair B' e) K)) y')
+           ( resize-𝕍 X H))
       ( e)
       ( λ b →
         ( equiv-concat
           ( ap
-            ( λ t → resize-𝕄 (β t) (K t))
+            ( λ t → resize-𝕍 (β t) (K t))
             ( isretr-map-inv-equiv e b))
-          ( resize-𝕄 X H)) ∘e
-        ( eq-resize-𝕄 (K b) H))
+          ( resize-𝕍 X H)) ∘e
+        ( eq-resize-𝕍 (K b) H))
 
 -- Definition B.5.8
 
-is-small-multiset-𝕄 :
+is-small-multiset-𝕍 :
   {l1 l2 : Level} →
-  ((A : UU l1) → is-small l2 A) → (X : 𝕄 l1) → is-small-𝕄 l2 X
-is-small-multiset-𝕄 {l1} {l2} H (tree-𝕎 A α) =
-  pair (H A) (λ x → is-small-multiset-𝕄 H (α x))
+  ((A : UU l1) → is-small l2 A) → (X : 𝕍 l1) → is-small-𝕍 l2 X
+is-small-multiset-𝕍 {l1} {l2} H (tree-𝕎 A α) =
+  pair (H A) (λ x → is-small-multiset-𝕍 H (α x))
 
 is-small-lsuc : {l : Level} (X : UU l) → is-small (lsuc l) X
 is-small-lsuc X = pair (raise _ X) (equiv-raise _ X)
 
-universal-tree-𝕄 : (l : Level) → 𝕄 (lsuc l)
-universal-tree-𝕄 l =
+universal-tree-𝕍 : (l : Level) → 𝕍 (lsuc l)
+universal-tree-𝕍 l =
   tree-𝕎
-    ( 𝕄 l)
-    ( λ X → resize-𝕄 X (is-small-multiset-𝕄 is-small-lsuc X))
+    ( 𝕍 l)
+    ( λ X → resize-𝕍 X (is-small-multiset-𝕍 is-small-lsuc X))
 
 -- Proposition B.5.9
 
@@ -1196,10 +1196,10 @@ is-small-universe :
   (l l1 : Level) → UU (lsuc l1 ⊔ lsuc l)
 is-small-universe l l1 = is-small l (UU l1) × ((X : UU l1) → is-small l X)
 
-is-small-universal-tree-𝕄 :
+is-small-universal-tree-𝕍 :
   (l : Level) {l1 : Level} →
-  is-small-universe l l1 → is-small-𝕄 l (universal-tree-𝕄 l1)
-is-small-universal-tree-𝕄 l {l1} (pair (pair U e) H) =
+  is-small-universe l l1 → is-small-𝕍 l (universal-tree-𝕍 l1)
+is-small-universal-tree-𝕍 l {l1} (pair (pair U e) H) =
   pair
     ( pair
       ( 𝕎 U (λ x → pr1 (H (map-inv-equiv e x))))
@@ -1212,9 +1212,9 @@ is-small-universal-tree-𝕄 l {l1} (pair (pair U e) H) =
              ( pr2 (H X)))))
     ( f)
     where
-    f : (X : 𝕄 l1) →
-        is-small-𝕄 l
-          ( resize-𝕄 X (is-small-multiset-𝕄 is-small-lsuc X))
+    f : (X : 𝕍 l1) →
+        is-small-𝕍 l
+          ( resize-𝕍 X (is-small-multiset-𝕍 is-small-lsuc X))
     f (tree-𝕎 A α) =
       pair
         ( pair
@@ -1224,42 +1224,42 @@ is-small-universal-tree-𝕄 l {l1} (pair (pair U e) H) =
 
 -- Theorem B.5.10
 
-Russell : (l : Level) → 𝕄 (lsuc l)
+Russell : (l : Level) → 𝕍 (lsuc l)
 Russell l =
-  comprehension-𝕄
-    ( universal-tree-𝕄 l)
-    ( λ X → X ∉-𝕄 X)
+  comprehension-𝕍
+    ( universal-tree-𝕍 l)
+    ( λ X → X ∉-𝕍 X)
 
 is-small-Russell :
-  {l1 l2 : Level} → is-small-universe l2 l1 → is-small-𝕄 l2 (Russell l1)
+  {l1 l2 : Level} → is-small-universe l2 l1 → is-small-𝕍 l2 (Russell l1)
 is-small-Russell {l1} {l2} H =
-  is-small-comprehension-𝕄 l2
-    ( is-small-universal-tree-𝕄 l2 H)
-    ( λ X → is-small-∉-𝕄 l2 (K X) (K X))
+  is-small-comprehension-𝕍 l2
+    ( is-small-universal-tree-𝕍 l2 H)
+    ( λ X → is-small-∉-𝕍 l2 (K X) (K X))
   where
-  K = is-small-multiset-𝕄 (λ A → pr2 H A)
+  K = is-small-multiset-𝕍 (λ A → pr2 H A)
 
 resize-Russell :
-  {l1 l2 : Level} → is-small-universe l2 l1 → 𝕄 l2
+  {l1 l2 : Level} → is-small-universe l2 l1 → 𝕍 l2
 resize-Russell {l1} {l2} H =
-  resize-𝕄 (Russell l1) (is-small-Russell H)
+  resize-𝕍 (Russell l1) (is-small-Russell H)
 
 is-small-resize-Russell :
   {l1 l2 : Level} (H : is-small-universe l2 l1) →
-  is-small-𝕄 (lsuc l1) (resize-Russell H)
+  is-small-𝕍 (lsuc l1) (resize-Russell H)
 is-small-resize-Russell {l1} {l2} H =
-  is-small-resize-𝕄 (Russell l1) (is-small-Russell H)
+  is-small-resize-𝕍 (Russell l1) (is-small-Russell H)
 
 equiv-Russell-in-Russell :
   {l1 l2 : Level} (H : is-small-universe l2 l1) →
-  (Russell l1 ∈-𝕄 Russell l1) ≃ (resize-Russell H ∈-𝕄 resize-Russell H)
+  (Russell l1 ∈-𝕍 Russell l1) ≃ (resize-Russell H ∈-𝕍 resize-Russell H)
 equiv-Russell-in-Russell H =
-  equiv-elementhood-resize-𝕄 (is-small-Russell H) (is-small-Russell H)
+  equiv-elementhood-resize-𝕍 (is-small-Russell H) (is-small-Russell H)
 
 paradox-Russell : {l : Level} → ¬ (is-small l (UU l))
 paradox-Russell {l} H =
   no-fixed-points-neg
-    ( R ∈-𝕄 R)
+    ( R ∈-𝕍 R)
     ( pair (map-equiv β) (map-inv-equiv β))
 
   where
@@ -1267,33 +1267,33 @@ paradox-Russell {l} H =
   K : is-small-universe l l
   K = pair H (λ X → pair X equiv-id)
 
-  R : 𝕄 (lsuc l)
+  R : 𝕍 (lsuc l)
   R = Russell l
   
-  is-small-R : is-small-𝕄 l R
+  is-small-R : is-small-𝕍 l R
   is-small-R = is-small-Russell K
 
-  R' : 𝕄 l
+  R' : 𝕍 l
   R' = resize-Russell K
 
-  is-small-R' : is-small-𝕄 (lsuc l) R'
+  is-small-R' : is-small-𝕍 (lsuc l) R'
   is-small-R' = is-small-resize-Russell K
 
   abstract
-    p : Id (resize-𝕄 R' is-small-R') R
-    p = resize-resize-𝕄 is-small-R
+    p : Id (resize-𝕍 R' is-small-R') R
+    p = resize-resize-𝕍 is-small-R
 
-  α : (R ∈-𝕄 R) ≃ (R' ∈-𝕄 R')
+  α : (R ∈-𝕍 R) ≃ (R' ∈-𝕍 R')
   α = equiv-Russell-in-Russell K
 
   abstract
-    β : (R ∈-𝕄 R) ≃ (R ∉-𝕄 R)
+    β : (R ∈-𝕍 R) ≃ (R ∉-𝕍 R)
     β = ( equiv-precomp α empty) ∘e
         ( ( left-unit-law-Σ-is-contr
-            { B = λ t → (pr1 t) ∉-𝕄 (pr1 t)}
+            { B = λ t → (pr1 t) ∉-𝕍 (pr1 t)}
             ( is-contr-total-path' R')
             ( pair R' refl)) ∘e
-          ( ( inv-assoc-Σ (𝕄 l) (λ t → Id t R') (λ t → (pr1 t) ∉-𝕄 (pr1 t))) ∘e
+          ( ( inv-assoc-Σ (𝕍 l) (λ t → Id t R') (λ t → (pr1 t) ∉-𝕍 (pr1 t))) ∘e
             ( ( equiv-tot
                 ( λ t →
                   ( commutative-prod) ∘e
@@ -1302,15 +1302,15 @@ paradox-Russell {l} H =
                     ( inv-equiv
                       ( ( equiv-concat'
                           _ ( p)) ∘e
-                        ( eq-resize-𝕄
-                          ( is-small-multiset-𝕄 is-small-lsuc t)
+                        ( eq-resize-𝕍
+                          ( is-small-multiset-𝕍 is-small-lsuc t)
                           ( is-small-R'))))))) ∘e
               ( assoc-Σ
-                ( 𝕄 l)
-                ( λ t → t ∉-𝕄 t)
-                ( λ t → Id ( resize-𝕄
+                ( 𝕍 l)
+                ( λ t → t ∉-𝕍 t)
+                ( λ t → Id ( resize-𝕍
                              ( pr1 t)
-                             ( is-small-multiset-𝕄 is-small-lsuc (pr1 t)))
+                             ( is-small-multiset-𝕍 is-small-lsuc (pr1 t)))
                            ( R))))))
 
 --------------------------------------------------------------------------------

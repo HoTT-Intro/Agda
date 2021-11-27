@@ -64,32 +64,32 @@ mere-equiv-number-of-connected-components :
 mere-equiv-number-of-connected-components H =
   mere-equiv-is-finite H
 
-is-homotopy-finite-Prop : {l : Level} (k : ℕ) → UU l → UU-Prop l
-is-homotopy-finite-Prop zero-ℕ X = has-finite-connected-components-Prop X
-is-homotopy-finite-Prop (succ-ℕ k) X =
-  prod-Prop ( is-homotopy-finite-Prop zero-ℕ X)
+is-π-finite-Prop : {l : Level} (k : ℕ) → UU l → UU-Prop l
+is-π-finite-Prop zero-ℕ X = has-finite-connected-components-Prop X
+is-π-finite-Prop (succ-ℕ k) X =
+  prod-Prop ( is-π-finite-Prop zero-ℕ X)
             ( Π-Prop X
-              ( λ x → Π-Prop X (λ y → is-homotopy-finite-Prop k (Id x y))))
+              ( λ x → Π-Prop X (λ y → is-π-finite-Prop k (Id x y))))
 
-is-homotopy-finite : {l : Level} (k : ℕ) → UU l → UU l
-is-homotopy-finite k X = type-Prop (is-homotopy-finite-Prop k X)
+is-π-finite : {l : Level} (k : ℕ) → UU l → UU l
+is-π-finite k X = type-Prop (is-π-finite-Prop k X)
 
-is-prop-is-homotopy-finite :
-  {l : Level} (k : ℕ) (X : UU l) → is-prop (is-homotopy-finite k X)
-is-prop-is-homotopy-finite k X =
-  is-prop-type-Prop (is-homotopy-finite-Prop k X)
+is-prop-is-π-finite :
+  {l : Level} (k : ℕ) (X : UU l) → is-prop (is-π-finite k X)
+is-prop-is-π-finite k X =
+  is-prop-type-Prop (is-π-finite-Prop k X)
 
 Homotopy-Finite : (l : Level) (k : ℕ) → UU (lsuc l)
-Homotopy-Finite l k = Σ (UU l) (is-homotopy-finite k)
+Homotopy-Finite l k = Σ (UU l) (is-π-finite k)
 
 type-Homotopy-Finite :
   {l : Level} (k : ℕ) → Homotopy-Finite l k → UU l
 type-Homotopy-Finite k = pr1
 
-is-homotopy-finite-type-Homotopy-Finite :
+is-π-finite-type-Homotopy-Finite :
   {l : Level} (k : ℕ) (A : Homotopy-Finite l k) →
-  is-homotopy-finite k (type-Homotopy-Finite {l} k A)
-is-homotopy-finite-type-Homotopy-Finite k = pr2
+  is-π-finite k (type-Homotopy-Finite {l} k A)
+is-π-finite-type-Homotopy-Finite k = pr2
 
 -- Basic properties of locally finite types
 
@@ -139,84 +139,84 @@ is-locally-finite-empty = is-locally-finite-is-empty id
 
 -- Basic properties of homotopy finiteness
 
-is-homotopy-finite-equiv :
+is-π-finite-equiv :
   {l1 l2 : Level} (k : ℕ) {A : UU l1} {B : UU l2} (e : A ≃ B) →
-  is-homotopy-finite k B → is-homotopy-finite k A
-is-homotopy-finite-equiv zero-ℕ e H =
+  is-π-finite k B → is-π-finite k A
+is-π-finite-equiv zero-ℕ e H =
   is-finite-equiv' (equiv-trunc-Set e) H
-is-homotopy-finite-equiv (succ-ℕ k) e H =
+is-π-finite-equiv (succ-ℕ k) e H =
   pair
-    ( is-homotopy-finite-equiv zero-ℕ e (pr1 H))
+    ( is-π-finite-equiv zero-ℕ e (pr1 H))
     ( λ a b →
-      is-homotopy-finite-equiv k
+      is-π-finite-equiv k
         ( equiv-ap e a b)
         ( pr2 H (map-equiv e a) (map-equiv e b)))
 
-is-homotopy-finite-equiv' :
+is-π-finite-equiv' :
   {l1 l2 : Level} (k : ℕ) {A : UU l1} {B : UU l2} (e : A ≃ B) →
-  is-homotopy-finite k A → is-homotopy-finite k B
-is-homotopy-finite-equiv' k e = is-homotopy-finite-equiv k (inv-equiv e)
+  is-π-finite k A → is-π-finite k B
+is-π-finite-equiv' k e = is-π-finite-equiv k (inv-equiv e)
 
-is-homotopy-finite-empty : (k : ℕ) → is-homotopy-finite k empty
-is-homotopy-finite-empty zero-ℕ =
+is-π-finite-empty : (k : ℕ) → is-π-finite k empty
+is-π-finite-empty zero-ℕ =
   is-finite-equiv equiv-unit-trunc-empty-Set is-finite-empty
-is-homotopy-finite-empty (succ-ℕ k) =
-  pair (is-homotopy-finite-empty zero-ℕ) ind-empty
+is-π-finite-empty (succ-ℕ k) =
+  pair (is-π-finite-empty zero-ℕ) ind-empty
 
 empty-Homotopy-Finite : (k : ℕ) → Homotopy-Finite lzero k
-empty-Homotopy-Finite k = pair empty (is-homotopy-finite-empty k)
+empty-Homotopy-Finite k = pair empty (is-π-finite-empty k)
 
-is-homotopy-finite-is-empty :
-  {l : Level} (k : ℕ) {A : UU l} → is-empty A → is-homotopy-finite k A
-is-homotopy-finite-is-empty zero-ℕ f =
+is-π-finite-is-empty :
+  {l : Level} (k : ℕ) {A : UU l} → is-empty A → is-π-finite k A
+is-π-finite-is-empty zero-ℕ f =
   is-finite-is-empty (is-empty-trunc-Set f)
-is-homotopy-finite-is-empty (succ-ℕ k) f =
+is-π-finite-is-empty (succ-ℕ k) f =
   pair
-    ( is-homotopy-finite-is-empty zero-ℕ f)
+    ( is-π-finite-is-empty zero-ℕ f)
     ( λ a → ex-falso (f a))
 
-is-homotopy-finite-is-contr :
-  {l : Level} (k : ℕ) {A : UU l} → is-contr A → is-homotopy-finite k A
-is-homotopy-finite-is-contr zero-ℕ H =
+is-π-finite-is-contr :
+  {l : Level} (k : ℕ) {A : UU l} → is-contr A → is-π-finite k A
+is-π-finite-is-contr zero-ℕ H =
   is-finite-is-contr (is-contr-trunc-Set H)
-is-homotopy-finite-is-contr (succ-ℕ k) H =
+is-π-finite-is-contr (succ-ℕ k) H =
   pair
-    ( is-homotopy-finite-is-contr zero-ℕ H)
+    ( is-π-finite-is-contr zero-ℕ H)
     ( λ x y →
-      is-homotopy-finite-is-contr k ( is-prop-is-contr H x y))
+      is-π-finite-is-contr k ( is-prop-is-contr H x y))
 
-is-homotopy-finite-unit :
-  (k : ℕ) → is-homotopy-finite k unit
-is-homotopy-finite-unit k = is-homotopy-finite-is-contr k is-contr-unit
+is-π-finite-unit :
+  (k : ℕ) → is-π-finite k unit
+is-π-finite-unit k = is-π-finite-is-contr k is-contr-unit
 
 unit-Homotopy-Finite : (k : ℕ) → Homotopy-Finite lzero k
-unit-Homotopy-Finite k = pair unit (is-homotopy-finite-unit k)
+unit-Homotopy-Finite k = pair unit (is-π-finite-unit k)
 
-is-homotopy-finite-coprod :
+is-π-finite-coprod :
   {l1 l2 : Level} (k : ℕ) {A : UU l1} {B : UU l2} →
-  is-homotopy-finite k A → is-homotopy-finite k B →
-  is-homotopy-finite k (coprod A B)
-is-homotopy-finite-coprod zero-ℕ H K =
+  is-π-finite k A → is-π-finite k B →
+  is-π-finite k (coprod A B)
+is-π-finite-coprod zero-ℕ H K =
   is-finite-equiv'
     ( equiv-distributive-trunc-coprod-Set _ _)
     ( is-finite-coprod H K)
-is-homotopy-finite-coprod (succ-ℕ k) H K =
+is-π-finite-coprod (succ-ℕ k) H K =
   pair
-    ( is-homotopy-finite-coprod zero-ℕ (pr1 H) (pr1 K))
+    ( is-π-finite-coprod zero-ℕ (pr1 H) (pr1 K))
     ( λ { (inl x) (inl y) →
-          is-homotopy-finite-equiv k
+          is-π-finite-equiv k
             ( compute-eq-coprod-inl-inl x y)
             ( pr2 H x y) ;
           (inl x) (inr y) →
-          is-homotopy-finite-equiv k
+          is-π-finite-equiv k
             ( compute-eq-coprod-inl-inr x y)
-            ( is-homotopy-finite-empty k) ;
+            ( is-π-finite-empty k) ;
           (inr x) (inl y) →
-          is-homotopy-finite-equiv k
+          is-π-finite-equiv k
             ( compute-eq-coprod-inr-inl x y)
-            ( is-homotopy-finite-empty k) ;
+            ( is-π-finite-empty k) ;
           (inr x) (inr y) →
-          is-homotopy-finite-equiv k
+          is-π-finite-equiv k
             ( compute-eq-coprod-inr-inr x y)
             ( pr2 K x y)})
 
@@ -226,47 +226,47 @@ coprod-Homotopy-Finite :
 coprod-Homotopy-Finite k A B =
   pair
     ( coprod (type-Homotopy-Finite k A) (type-Homotopy-Finite k B))
-    ( is-homotopy-finite-coprod k
-      ( is-homotopy-finite-type-Homotopy-Finite k A)
-      ( is-homotopy-finite-type-Homotopy-Finite k B))
+    ( is-π-finite-coprod k
+      ( is-π-finite-type-Homotopy-Finite k A)
+      ( is-π-finite-type-Homotopy-Finite k B))
 
 Maybe-Homotopy-Finite :
   {l : Level} (k : ℕ) → Homotopy-Finite  l k → Homotopy-Finite l k
 Maybe-Homotopy-Finite k A =
   coprod-Homotopy-Finite k A (unit-Homotopy-Finite k)
 
-is-homotopy-finite-Maybe :
+is-π-finite-Maybe :
   {l : Level} (k : ℕ) {A : UU l} →
-  is-homotopy-finite k A → is-homotopy-finite k (Maybe A)
-is-homotopy-finite-Maybe k H =
-  is-homotopy-finite-coprod k H (is-homotopy-finite-unit k)
+  is-π-finite k A → is-π-finite k (Maybe A)
+is-π-finite-Maybe k H =
+  is-π-finite-coprod k H (is-π-finite-unit k)
 
-is-homotopy-finite-Fin :
-  (k n : ℕ) → is-homotopy-finite k (Fin n)
-is-homotopy-finite-Fin k zero-ℕ =
-  is-homotopy-finite-empty k
-is-homotopy-finite-Fin k (succ-ℕ n) =
-  is-homotopy-finite-Maybe k (is-homotopy-finite-Fin k n)
+is-π-finite-Fin :
+  (k n : ℕ) → is-π-finite k (Fin n)
+is-π-finite-Fin k zero-ℕ =
+  is-π-finite-empty k
+is-π-finite-Fin k (succ-ℕ n) =
+  is-π-finite-Maybe k (is-π-finite-Fin k n)
 
 Fin-Homotopy-Finite : (k : ℕ) (n : ℕ) → Homotopy-Finite lzero k
 Fin-Homotopy-Finite k n =
-  pair (Fin n) (is-homotopy-finite-Fin k n)
+  pair (Fin n) (is-π-finite-Fin k n)
 
-is-homotopy-finite-count :
-  {l : Level} (k : ℕ) {A : UU l} → count A → is-homotopy-finite k A
-is-homotopy-finite-count k (pair n e) =
-  is-homotopy-finite-equiv' k e (is-homotopy-finite-Fin k n)
+is-π-finite-count :
+  {l : Level} (k : ℕ) {A : UU l} → count A → is-π-finite k A
+is-π-finite-count k (pair n e) =
+  is-π-finite-equiv' k e (is-π-finite-Fin k n)
 
-is-homotopy-finite-is-finite :
-  {l : Level} (k : ℕ) {A : UU l} → is-finite A → is-homotopy-finite k A
-is-homotopy-finite-is-finite k {A} H =
+is-π-finite-is-finite :
+  {l : Level} (k : ℕ) {A : UU l} → is-finite A → is-π-finite k A
+is-π-finite-is-finite k {A} H =
   apply-universal-property-trunc-Prop H
-    ( is-homotopy-finite-Prop k A)
-    ( is-homotopy-finite-count k)
+    ( is-π-finite-Prop k A)
+    ( is-π-finite-count k)
 
 homotopy-finite-𝔽 : (k : ℕ) → 𝔽 → Homotopy-Finite lzero k
 homotopy-finite-𝔽 k A =
-  pair (type-𝔽 A) (is-homotopy-finite-is-finite k (is-finite-type-𝔽 A))
+  pair (type-𝔽 A) (is-π-finite-is-finite k (is-finite-type-𝔽 A))
 
 has-finite-connected-components-is-path-connected :
   {l : Level} {A : UU l} →
@@ -274,34 +274,34 @@ has-finite-connected-components-is-path-connected :
 has-finite-connected-components-is-path-connected C =
   is-finite-is-contr C
 
-is-homotopy-finite-UU-Fin :
-  (k n : ℕ) → is-homotopy-finite k (UU-Fin n)
-is-homotopy-finite-UU-Fin zero-ℕ n =
+is-π-finite-UU-Fin :
+  (k n : ℕ) → is-π-finite k (UU-Fin n)
+is-π-finite-UU-Fin zero-ℕ n =
   has-finite-connected-components-is-path-connected
     ( is-path-connected-UU-Fin n)
-is-homotopy-finite-UU-Fin (succ-ℕ k) n =
+is-π-finite-UU-Fin (succ-ℕ k) n =
   pair
-    ( is-homotopy-finite-UU-Fin zero-ℕ n)
+    ( is-π-finite-UU-Fin zero-ℕ n)
     ( λ x y →
-      is-homotopy-finite-equiv k
+      is-π-finite-equiv k
         ( equiv-equiv-eq-UU-Fin x y)
-        ( is-homotopy-finite-is-finite k
+        ( is-π-finite-is-finite k
           ( is-finite-≃
             ( is-finite-has-finite-cardinality (pair n (pr2 x)))
             ( is-finite-has-finite-cardinality (pair n (pr2 y))))))
 
-is-homotopy-finite-UU-Fin-Level :
-  {l : Level} (k n : ℕ) → is-homotopy-finite k (UU-Fin-Level l n)
-is-homotopy-finite-UU-Fin-Level {l} zero-ℕ n =
+is-π-finite-UU-Fin-Level :
+  {l : Level} (k n : ℕ) → is-π-finite k (UU-Fin-Level l n)
+is-π-finite-UU-Fin-Level {l} zero-ℕ n =
   has-finite-connected-components-is-path-connected
     ( is-path-connected-UU-Fin-Level n)
-is-homotopy-finite-UU-Fin-Level {l} (succ-ℕ k) n =
+is-π-finite-UU-Fin-Level {l} (succ-ℕ k) n =
   pair
-    ( is-homotopy-finite-UU-Fin-Level zero-ℕ n)
+    ( is-π-finite-UU-Fin-Level zero-ℕ n)
     ( λ x y →
-      is-homotopy-finite-equiv k
+      is-π-finite-equiv k
         ( equiv-equiv-eq-UU-Fin-Level x y)
-        ( is-homotopy-finite-is-finite k
+        ( is-π-finite-is-finite k
           ( is-finite-≃
             ( is-finite-has-finite-cardinality (pair n (pr2 x)))
             ( is-finite-has-finite-cardinality (pair n (pr2 y))))))
@@ -312,60 +312,60 @@ is-finite-has-finite-connected-components :
 is-finite-has-finite-connected-components H =
   is-finite-equiv' (equiv-unit-trunc-Set (pair _ H))
 
-has-finite-connected-components-is-homotopy-finite :
+has-finite-connected-components-is-π-finite :
   {l : Level} (k : ℕ) {A : UU l} →
-  is-homotopy-finite k A → has-finite-connected-components A
-has-finite-connected-components-is-homotopy-finite zero-ℕ H = H
-has-finite-connected-components-is-homotopy-finite (succ-ℕ k) H = pr1 H
+  is-π-finite k A → has-finite-connected-components A
+has-finite-connected-components-is-π-finite zero-ℕ H = H
+has-finite-connected-components-is-π-finite (succ-ℕ k) H = pr1 H
 
-is-homotopy-finite-is-homotopy-finite-succ-ℕ :
+is-π-finite-is-π-finite-succ-ℕ :
   {l : Level} (k : ℕ) {A : UU l} →
-  is-homotopy-finite (succ-ℕ k) A → is-homotopy-finite k A
-is-homotopy-finite-is-homotopy-finite-succ-ℕ zero-ℕ H =
-  has-finite-connected-components-is-homotopy-finite one-ℕ H
-is-homotopy-finite-is-homotopy-finite-succ-ℕ (succ-ℕ k) H =
+  is-π-finite (succ-ℕ k) A → is-π-finite k A
+is-π-finite-is-π-finite-succ-ℕ zero-ℕ H =
+  has-finite-connected-components-is-π-finite one-ℕ H
+is-π-finite-is-π-finite-succ-ℕ (succ-ℕ k) H =
   pair
-    ( has-finite-connected-components-is-homotopy-finite (succ-ℕ (succ-ℕ k)) H)
-    ( λ x y → is-homotopy-finite-is-homotopy-finite-succ-ℕ k (pr2 H x y))
+    ( has-finite-connected-components-is-π-finite (succ-ℕ (succ-ℕ k)) H)
+    ( λ x y → is-π-finite-is-π-finite-succ-ℕ k (pr2 H x y))
 
-is-homotopy-finite-one-is-homotopy-finite-succ-ℕ :
+is-π-finite-one-is-π-finite-succ-ℕ :
   {l : Level} (k : ℕ) {A : UU l} →
-  is-homotopy-finite (succ-ℕ k) A → is-homotopy-finite one-ℕ A
-is-homotopy-finite-one-is-homotopy-finite-succ-ℕ zero-ℕ H = H
-is-homotopy-finite-one-is-homotopy-finite-succ-ℕ (succ-ℕ k) H =
-  is-homotopy-finite-one-is-homotopy-finite-succ-ℕ k
-    ( is-homotopy-finite-is-homotopy-finite-succ-ℕ (succ-ℕ k) H)
+  is-π-finite (succ-ℕ k) A → is-π-finite one-ℕ A
+is-π-finite-one-is-π-finite-succ-ℕ zero-ℕ H = H
+is-π-finite-one-is-π-finite-succ-ℕ (succ-ℕ k) H =
+  is-π-finite-one-is-π-finite-succ-ℕ k
+    ( is-π-finite-is-π-finite-succ-ℕ (succ-ℕ k) H)
 
-is-finite-is-homotopy-finite :
+is-finite-is-π-finite :
   {l : Level} (k : ℕ) {A : UU l} → is-set A →
-  is-homotopy-finite k A → is-finite A
-is-finite-is-homotopy-finite k H K =
+  is-π-finite k A → is-finite A
+is-finite-is-π-finite k H K =
   is-finite-equiv'
     ( equiv-unit-trunc-Set (pair _ H))
-    ( has-finite-connected-components-is-homotopy-finite k K)
+    ( has-finite-connected-components-is-π-finite k K)
 
-is-strong-homotopy-finite-is-homotopy-finite :
+is-strong-homotopy-finite-is-π-finite :
   {l : Level} (k : ℕ) {A : UU l} → is-trunc (truncation-level-ℕ k) A →
-  is-homotopy-finite k A → is-strong-homotopy-finite k A
-is-strong-homotopy-finite-is-homotopy-finite zero-ℕ H K =
-  is-finite-is-homotopy-finite zero-ℕ H K
-is-strong-homotopy-finite-is-homotopy-finite (succ-ℕ k) H K =
+  is-π-finite k A → is-strong-homotopy-finite k A
+is-strong-homotopy-finite-is-π-finite zero-ℕ H K =
+  is-finite-is-π-finite zero-ℕ H K
+is-strong-homotopy-finite-is-π-finite (succ-ℕ k) H K =
   pair
     ( pr1 K)
     ( λ x y →
-      is-strong-homotopy-finite-is-homotopy-finite k (H x y) (pr2 K x y))
+      is-strong-homotopy-finite-is-π-finite k (H x y) (pr2 K x y))
 
-is-homotopy-finite-is-strong-homotopy-finite :
+is-π-finite-is-strong-homotopy-finite :
   {l : Level} (k : ℕ) {A : UU l} →
-  is-strong-homotopy-finite k A → is-homotopy-finite k A
-is-homotopy-finite-is-strong-homotopy-finite zero-ℕ H =
+  is-strong-homotopy-finite k A → is-π-finite k A
+is-π-finite-is-strong-homotopy-finite zero-ℕ H =
   is-finite-equiv
     ( equiv-unit-trunc-Set (pair _ (is-set-is-finite H)))
     ( H)
-is-homotopy-finite-is-strong-homotopy-finite (succ-ℕ k) H =
+is-π-finite-is-strong-homotopy-finite (succ-ℕ k) H =
   pair
     ( pr1 H)
-    ( λ x y → is-homotopy-finite-is-strong-homotopy-finite k (pr2 H x y))
+    ( λ x y → is-π-finite-is-strong-homotopy-finite k (pr2 H x y))
 
 -- Proposition 1.5
 
@@ -412,21 +412,21 @@ is-locally-finite-Π {l1} {l2} {A} {B} f g =
 
 -- Finite products of homotopy finite types
 
-is-homotopy-finite-Π :
+is-π-finite-Π :
   {l1 l2 : Level} (k : ℕ) {A : UU l1} {B : A → UU l2} →
-  is-finite A → ((a : A) → is-homotopy-finite k (B a)) →
-  is-homotopy-finite k ((a : A) → B a)
-is-homotopy-finite-Π zero-ℕ {A} {B} H K =
+  is-finite A → ((a : A) → is-π-finite k (B a)) →
+  is-π-finite k ((a : A) → B a)
+is-π-finite-Π zero-ℕ {A} {B} H K =
   is-finite-equiv'
     ( equiv-distributive-trunc-Π-is-finite-Set B H)
     ( is-finite-Π H K)
-is-homotopy-finite-Π (succ-ℕ k) H K =
+is-π-finite-Π (succ-ℕ k) H K =
   pair
-    ( is-homotopy-finite-Π zero-ℕ H (λ a → pr1 (K a)))
+    ( is-π-finite-Π zero-ℕ H (λ a → pr1 (K a)))
     ( λ f g →
-      is-homotopy-finite-equiv k
+      is-π-finite-equiv k
         ( equiv-funext)
-        ( is-homotopy-finite-Π k H (λ a → pr2 (K a) (f a) (g a))))
+        ( is-π-finite-Π k H (λ a → pr2 (K a) (f a) (g a))))
 
 Homotopy-Finite-Π :
   {l : Level} (k : ℕ) (A : 𝔽) (B : type-𝔽 A → Homotopy-Finite l k) →
@@ -434,9 +434,9 @@ Homotopy-Finite-Π :
 Homotopy-Finite-Π k A B =
   pair
     ( (x : type-𝔽 A) → (type-Homotopy-Finite k (B x)))
-    ( is-homotopy-finite-Π k
+    ( is-π-finite-Π k
       ( is-finite-type-𝔽 A)
-      ( λ x → is-homotopy-finite-type-Homotopy-Finite k (B x)))
+      ( λ x → is-π-finite-type-Homotopy-Finite k (B x)))
 
 -- Proposition 1.6
 
@@ -453,19 +453,19 @@ is-locally-finite-Σ {B = B} H K (pair x y) (pair x' y') =
 
 has-finite-connected-components-Σ-is-path-connected :
   {l1 l2 : Level} {A : UU l1} {B : A → UU l2} →
-  is-path-connected A → is-homotopy-finite one-ℕ A →
+  is-path-connected A → is-π-finite one-ℕ A →
   ((x : A) → has-finite-connected-components (B x)) →
   has-finite-connected-components (Σ A B)
 has-finite-connected-components-Σ-is-path-connected {A = A} {B} C H K =
   apply-universal-property-trunc-Prop
     ( is-inhabited-is-path-connected C)
-    ( is-homotopy-finite-Prop zero-ℕ (Σ A B))
+    ( is-π-finite-Prop zero-ℕ (Σ A B))
     ( α)
     
   where
-  α : A → is-homotopy-finite zero-ℕ (Σ A B)
+  α : A → is-π-finite zero-ℕ (Σ A B)
   α a =
-    is-finite-codomain-has-decidable-equality
+    is-finite-codomain
       ( K a)
       ( is-surjective-map-trunc-Set
         ( fiber-inclusion B a)
@@ -617,7 +617,7 @@ is-coprod-codomain {B = B} f e H =
                   ( function-Prop _ empty-Prop)
                   ( λ
                     { (pair y refl) r →
-                      map-compute-eq-coprod-inl-inr x y
+                      is-empty-eq-coprod-inl-inr x y
                         ( is-injective-is-equiv
                           ( is-equiv-map-equiv e)
                           ( ( inv (H (inl x))) ∙
@@ -696,7 +696,7 @@ has-finite-connected-components-Σ' :
   ((x : A) → has-finite-connected-components (B x)) →
   has-finite-connected-components (Σ A B)
 has-finite-connected-components-Σ' zero-ℕ e H K =
-  is-homotopy-finite-is-empty zero-ℕ
+  is-π-finite-is-empty zero-ℕ
     ( is-empty-is-empty-trunc-Set (map-inv-equiv e) ∘ pr1)
 has-finite-connected-components-Σ' {l1} {l2} {A} {B} (succ-ℕ k) e H K =
   apply-universal-property-trunc-Prop
@@ -731,7 +731,7 @@ has-finite-connected-components-Σ' {l1} {l2} {A} {B} (succ-ℕ k) e H K =
               ( is-finite-is-contr
                 ( is-path-connected-im (f ∘ inr) is-path-connected-unit))
               ( λ x y →
-                is-homotopy-finite-equiv zero-ℕ
+                is-π-finite-equiv zero-ℕ
                   ( equiv-Eq-eq-im (f ∘ inr) x y)
                   ( H (pr1 x) (pr1 y))))
             ( λ x → K (pr1 x)))))
@@ -774,7 +774,7 @@ has-finite-connected-components-Σ' {l1} {l2} {A} {B} (succ-ℕ k) e H K =
     h = pair i (is-equiv-is-emb-is-surjective is-surjective-i is-emb-i)
 
 has-finite-connected-components-Σ :
-  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → is-homotopy-finite one-ℕ A →
+  {l1 l2 : Level} {A : UU l1} {B : A → UU l2} → is-π-finite one-ℕ A →
   ((x : A) → has-finite-connected-components (B x)) →
   has-finite-connected-components (Σ A B)
 has-finite-connected-components-Σ {l1} {l2} {A} {B} H K =
@@ -784,21 +784,21 @@ has-finite-connected-components-Σ {l1} {l2} {A} {B} H K =
     ( λ { (pair k e) →
           has-finite-connected-components-Σ' k e (λ x y → pr2 H x y) K})
 
-is-homotopy-finite-Σ :
+is-π-finite-Σ :
   {l1 l2 : Level} (k : ℕ) {A : UU l1} {B : A → UU l2} →
-  is-homotopy-finite (succ-ℕ k) A → ((x : A) → is-homotopy-finite k (B x)) →
-  is-homotopy-finite k (Σ A B)
-is-homotopy-finite-Σ zero-ℕ {A} {B} H K = has-finite-connected-components-Σ H K
-is-homotopy-finite-Σ (succ-ℕ k) H K =
+  is-π-finite (succ-ℕ k) A → ((x : A) → is-π-finite k (B x)) →
+  is-π-finite k (Σ A B)
+is-π-finite-Σ zero-ℕ {A} {B} H K = has-finite-connected-components-Σ H K
+is-π-finite-Σ (succ-ℕ k) H K =
   pair
     ( has-finite-connected-components-Σ
-      ( is-homotopy-finite-one-is-homotopy-finite-succ-ℕ (succ-ℕ k) H)
+      ( is-π-finite-one-is-π-finite-succ-ℕ (succ-ℕ k) H)
       ( λ x →
-        has-finite-connected-components-is-homotopy-finite (succ-ℕ k) (K x)))
+        has-finite-connected-components-is-π-finite (succ-ℕ k) (K x)))
     ( λ { (pair x u) (pair y v) →
-          is-homotopy-finite-equiv k
+          is-π-finite-equiv k
             ( equiv-pair-eq-Σ (pair x u) (pair y v))
-            ( is-homotopy-finite-Σ k
+            ( is-π-finite-Σ k
               ( pr2 H x y)
               ( λ { refl → pr2 (K x) u v}))})
 
@@ -810,9 +810,9 @@ Homotopy-Finite-Σ k A B =
   pair
     ( Σ ( type-Homotopy-Finite (succ-ℕ k) A)
         ( λ x → type-Homotopy-Finite k (B x)))
-    ( is-homotopy-finite-Σ k
-      ( is-homotopy-finite-type-Homotopy-Finite (succ-ℕ k) A)
-      ( λ x → is-homotopy-finite-type-Homotopy-Finite k (B x)))
+    ( is-π-finite-Σ k
+      ( is-π-finite-type-Homotopy-Finite (succ-ℕ k) A)
+      ( λ x → is-π-finite-type-Homotopy-Finite k (B x)))
 
 --------------------------------------------------------------------------------
 
@@ -840,21 +840,21 @@ is-finite-has-associative-mul H =
                 ( λ z →
                   is-finite-eq (has-decidable-equality-is-finite H)))))
 
-is-homotopy-finite-Semi-Group-of-Order' :
-  {l : Level} (k n : ℕ) → is-homotopy-finite k (Semi-Group-of-Order' l n)
-is-homotopy-finite-Semi-Group-of-Order' k n =
-  is-homotopy-finite-Σ k
-    ( is-homotopy-finite-UU-Fin-Level (succ-ℕ k) n)
+is-π-finite-Semi-Group-of-Order' :
+  {l : Level} (k n : ℕ) → is-π-finite k (Semi-Group-of-Order' l n)
+is-π-finite-Semi-Group-of-Order' k n =
+  is-π-finite-Σ k
+    ( is-π-finite-UU-Fin-Level (succ-ℕ k) n)
     ( λ x →
-      is-homotopy-finite-is-finite k
+      is-π-finite-is-finite k
         ( is-finite-has-associative-mul
           ( is-finite-type-UU-Fin-Level x)))
 
-is-homotopy-finite-Semi-Group-of-Order :
-  {l : Level} (k n : ℕ) → is-homotopy-finite k (Semi-Group-of-Order l n)
-is-homotopy-finite-Semi-Group-of-Order {l} k n =
-  is-homotopy-finite-equiv k e
-    ( is-homotopy-finite-Semi-Group-of-Order' k n)
+is-π-finite-Semi-Group-of-Order :
+  {l : Level} (k n : ℕ) → is-π-finite k (Semi-Group-of-Order l n)
+is-π-finite-Semi-Group-of-Order {l} k n =
+  is-π-finite-equiv k e
+    ( is-π-finite-Semi-Group-of-Order' k n)
   where
   e : Semi-Group-of-Order l n ≃ Semi-Group-of-Order' l n
   e = ( equiv-Σ
@@ -875,7 +875,7 @@ is-homotopy-finite-Semi-Group-of-Order {l} k n =
 number-of-semi-groups-of-order : ℕ → ℕ
 number-of-semi-groups-of-order n =
   number-of-connected-components
-    ( is-homotopy-finite-Semi-Group-of-Order {lzero} zero-ℕ n)
+    ( is-π-finite-Semi-Group-of-Order {lzero} zero-ℕ n)
 
 mere-equiv-number-of-semi-groups-of-order :
   (n : ℕ) →
@@ -884,7 +884,7 @@ mere-equiv-number-of-semi-groups-of-order :
     ( type-trunc-Set (Semi-Group-of-Order lzero n))
 mere-equiv-number-of-semi-groups-of-order n =
   mere-equiv-number-of-connected-components
-    ( is-homotopy-finite-Semi-Group-of-Order {lzero} zero-ℕ n)
+    ( is-π-finite-Semi-Group-of-Order {lzero} zero-ℕ n)
 
 -- We show that there are finitely many monoids of order n
 
@@ -920,14 +920,14 @@ is-finite-is-unital {l} {n} X =
                     ( mul-Semi-Group (pr1 X) x u)
                     ( x))))))
 
-is-homotopy-finite-Monoid-of-Order :
-  {l : Level} (k n : ℕ) → is-homotopy-finite k (Monoid-of-Order l n)
-is-homotopy-finite-Monoid-of-Order {l} k n =
-  is-homotopy-finite-equiv k e
-    ( is-homotopy-finite-Σ k
-      ( is-homotopy-finite-Semi-Group-of-Order (succ-ℕ k) n)
+is-π-finite-Monoid-of-Order :
+  {l : Level} (k n : ℕ) → is-π-finite k (Monoid-of-Order l n)
+is-π-finite-Monoid-of-Order {l} k n =
+  is-π-finite-equiv k e
+    ( is-π-finite-Σ k
+      ( is-π-finite-Semi-Group-of-Order (succ-ℕ k) n)
       ( λ X →
-        is-homotopy-finite-is-finite k
+        is-π-finite-is-finite k
           ( is-finite-is-unital X)))
   where
   e : Monoid-of-Order l n ≃
@@ -937,7 +937,7 @@ is-homotopy-finite-Monoid-of-Order {l} k n =
 number-of-monoids-of-order : ℕ → ℕ
 number-of-monoids-of-order n =
   number-of-connected-components
-    ( is-homotopy-finite-Monoid-of-Order {lzero} zero-ℕ n)
+    ( is-π-finite-Monoid-of-Order {lzero} zero-ℕ n)
 
 mere-equiv-number-of-monoids-of-order :
   (n : ℕ) →
@@ -946,7 +946,7 @@ mere-equiv-number-of-monoids-of-order :
     ( type-trunc-Set (Monoid-of-Order lzero n))
 mere-equiv-number-of-monoids-of-order n =
   mere-equiv-number-of-connected-components
-    ( is-homotopy-finite-Monoid-of-Order {lzero} zero-ℕ n)
+    ( is-π-finite-Monoid-of-Order {lzero} zero-ℕ n)
 
 -- We show that there are finitely many groups of order n
 
@@ -1002,14 +1002,14 @@ is-finite-is-group {l} {n} G =
                         ( mul-Semi-Group (pr1 G) x (i x))
                         ( pr1 u)))))))
 
-is-homotopy-finite-Group-of-Order :
-  {l : Level} (k n : ℕ) → is-homotopy-finite k (Group-of-Order l n)
-is-homotopy-finite-Group-of-Order {l} k n =
-  is-homotopy-finite-equiv k e
-    ( is-homotopy-finite-Σ k
-      ( is-homotopy-finite-Semi-Group-of-Order (succ-ℕ k) n)
+is-π-finite-Group-of-Order :
+  {l : Level} (k n : ℕ) → is-π-finite k (Group-of-Order l n)
+is-π-finite-Group-of-Order {l} k n =
+  is-π-finite-equiv k e
+    ( is-π-finite-Σ k
+      ( is-π-finite-Semi-Group-of-Order (succ-ℕ k) n)
       ( λ X →
-        is-homotopy-finite-is-finite k
+        is-π-finite-is-finite k
           ( is-finite-is-group X)))
   where
   e : Group-of-Order l n ≃
@@ -1019,7 +1019,7 @@ is-homotopy-finite-Group-of-Order {l} k n =
 number-of-groups-of-order : ℕ → ℕ
 number-of-groups-of-order n =
   number-of-connected-components
-    ( is-homotopy-finite-Group-of-Order {lzero} zero-ℕ n)
+    ( is-π-finite-Group-of-Order {lzero} zero-ℕ n)
 
 mere-equiv-number-of-groups-of-order :
   (n : ℕ) →
@@ -1028,4 +1028,4 @@ mere-equiv-number-of-groups-of-order :
     ( type-trunc-Set (Group-of-Order lzero n))
 mere-equiv-number-of-groups-of-order n =
   mere-equiv-number-of-connected-components
-    ( is-homotopy-finite-Group-of-Order {lzero} zero-ℕ n)
+    ( is-π-finite-Group-of-Order {lzero} zero-ℕ n)
